@@ -16,13 +16,14 @@ archive.org uploads. Nothing is hosted by the app; it reads archive.org directly
 
 1. Top of the Pops (`tot-p-1985-big-hits` plus a search for more)
 2. Classic BBC (search, **unverified**)
-3. ITV Morning (search for TV-am / GMTV / Good Morning Britain / This Morning, **unverified**)
+3. ITV Morning (GMTV, This Morning and SMTV from the `Itvcitv` item)
 4. Classic Sitcoms (`classic-british-tv-pack`)
 5. Game Shows (The Crystal Maze, `the-crystal-maze-complete_202401`)
 6. The Bill (`the-bill-complete-series-1-to-26`)
 7. Christmas TV (`uk-tv-show-christmas-specials` and `uk-tv-shows-christmas-specials`)
 8. 70s TV (search of the `classic_tv_1970s` collection)
 9. Adverts & Continuity (search, **unverified**)
+10. ITV & CITV (the rest of the `Itvcitv` item: ITV evenings, CITV, CD:UK)
 
 Items that only contain `.avi`/`.mkv` originals will not play unless archive.org has made an
 `.mp4` copy next to them.

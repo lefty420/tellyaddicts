@@ -35,8 +35,7 @@ window.CHANNELS = [
     id: 'itvam',
     name: 'ITV Morning',
     sources: [
-      { search: '(title:("TV-am") OR title:("Good Morning Britain") OR title:(GMTV) OR title:("This Morning") OR title:(Daybreak) OR title:("Lorraine")) AND mediatype:movies', rows: 40,
-        exclude: 'subs|anime|SoShi' }
+      { item: 'Itvcitv', include: 'GMTV|This Morning|SMTV|Daybreak|Lorraine' }
     ]
   },
   {
@@ -86,6 +85,14 @@ window.CHANNELS = [
     name: 'Adverts & Continuity',
     sources: [
       { search: '(ITV OR BBC1 OR "Channel 4") AND (adverts OR commercials OR continuity OR idents) AND mediatype:movies', rows: 40 }
+    ]
+  },
+  {
+    n: 10,
+    id: 'itv',
+    name: 'ITV & CITV',
+    sources: [
+      { item: 'Itvcitv', exclude: 'GMTV|This Morning|SMTV|Daybreak|Lorraine' }
     ]
   }
 ];

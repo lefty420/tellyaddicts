@@ -68,6 +68,10 @@
     } else if ((m = base.match(/\((\d{4})\)/))) {
       sub = m[1];
       title = base.replace(m[0], ' - ');
+    } else if ((m = base.match(/(?:^|[^\d])(\d{1,2})-(\d{1,2})-(\d{4})(?!\d)/)) && validMonth(+m[2]) && +m[1] >= 1 && +m[1] <= 31) {
+      // UK style day-month-year, e.g. "ITV - 03-11-2001"
+      sub = (+m[1]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[3];
+      title = base.replace(m[0].replace(/^[^\d]/, ''), ' ');
     }
     title = title.replace(/\s+/g, ' ').replace(/^[\s\-–:]+|[\s\-–:]+$/g, '').replace(/\s-\s-\s/g, ' - ');
     return { title: title || fallback || base, sub: sub };

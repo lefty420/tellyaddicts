@@ -133,6 +133,89 @@
     for (var i = 0; i < bars.length; i++) bars[i].className = i < on ? 'on' : '';
   }
 
+  // ------------------------------------------------------------------ tuning static
+
+  var staticEl = $('static');
+  var sctx = staticEl.getContext('2d');
+  var SW = 256, SH = 144;
+  var sImage = sctx.createImageData(SW, SH);
+  var sTimer = null, sToken = 0, sSince = 0, sOn = false;
+  var audioCtx = null, noiseNode = null, noiseGain = null;
+  var MIN_STATIC_MS = 700;
+
+  function drawStatic() {
+    var d = sImage.data;
+    for (var i = 0; i < d.length; i += 4) {
+      var v = (Math.random() * 255) | 0;
+      d[i] = v; d[i + 1] = v; d[i + 2] = v; d[i + 3] = 255;
+    }
+    // a few horizontal tear bands, like a badly tuned set
+    for (var b = 0; b < 3; b++) {
+      var y = (Math.random() * SH) | 0, h = 1 + ((Math.random() * 3) | 0), shift = (Math.random() * 40) | 0;
+      for (var yy = y; yy < Math.min(SH, y + h); yy++) {
+        for (var x = 0; x < SW; x++) {
+          var p = (yy * SW + x) * 4, q = (yy * SW + ((x + shift) % SW)) * 4;
+          var vv = d[q] > 128 ? 255 : 30;
+          d[p] = vv; d[p + 1] = vv; d[p + 2] = vv;
+        }
+      }
+    }
+    sctx.putImageData(sImage, 0, 0);
+  }
+
+  function startHiss() {
+    try {
+      if (!audioCtx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        audioCtx = new AC();
+        var len = audioCtx.sampleRate * 2;
+        var buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+        var ch = buf.getChannelData(0);
+        for (var i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+        noiseNode = audioCtx.createBufferSource();
+        noiseNode.buffer = buf;
+        noiseNode.loop = true;
+        noiseGain = audioCtx.createGain();
+        noiseGain.gain.value = 0;
+        noiseNode.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        noiseNode.start();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      noiseGain.gain.value = 0.08;
+    } catch (e) { /* audio is optional */ }
+  }
+
+  function stopHiss() {
+    try { if (noiseGain) noiseGain.gain.value = 0; } catch (e) { /* ignore */ }
+  }
+
+  function showStatic() {
+    sToken++;
+    startHiss();
+    if (sOn) return;
+    sOn = true;
+    sSince = Date.now();
+    staticEl.className = '';
+    drawStatic();
+    clearInterval(sTimer);
+    sTimer = setInterval(drawStatic, 60);
+  }
+
+  function hideStatic() {
+    stopHiss();
+    if (!sOn) return;
+    var token = sToken;
+    var wait = Math.max(0, MIN_STATIC_MS - (Date.now() - sSince));
+    setTimeout(function () {
+      if (token !== sToken) return; // another tune started meanwhile
+      sOn = false;
+      staticEl.className = 'hidden';
+      clearInterval(sTimer);
+    }, wait);
+  }
+
   // ------------------------------------------------------------------ playback
 
   var cur = null; // { ch, index, prog, errors }
@@ -182,7 +265,7 @@
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
     store.set('last', ch.id);
-    $('spinner').className = '';
+    showStatic();
     if (announce) showBanner();
   }
 
@@ -214,11 +297,10 @@
     }
   });
   v.addEventListener('playing', function () {
-    $('spinner').className = 'hidden';
+    hideStatic();
     if (cur) cur.errors = 0;
   });
-  v.addEventListener('waiting', function () { $('spinner').className = ''; });
-  v.addEventListener('canplay', function () { $('spinner').className = 'hidden'; });
+  v.addEventListener('waiting', function () { if (!v.paused) showStatic(); });
   v.addEventListener('ended', nextInChannel);
   v.addEventListener('error', function () {
     if (!cur) return;
@@ -247,11 +329,17 @@
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   var guideOpen = false;
-  var gRow = 0;      // selected channel row
+  var gChan = null;  // selected channel
+  var gRow = 0;      // its row (derived)
   var gTop = 0;      // first visible row
   var gWin = 0;      // time at the left edge of the grid
   var gFocus = 0;    // time the cursor is on
   var guideTimer = null;
+
+  function guideList() {
+    return channels.filter(function (c) { return c.status !== 'empty'; })
+      .sort(function (a, b) { return a.n - b.n; });
+  }
 
   function floorHalf(ms) { return Math.floor(ms / HALF) * HALF; }
   function dayLabel(ms) { var d = new Date(ms); return DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()]; }
@@ -263,10 +351,11 @@
   }
 
   function renderGuide() {
-    var list = ready();
+    var list = guideList();
     if (!list.length) return;
     var now = Date.now();
-    if (gRow >= list.length) gRow = list.length - 1;
+    gRow = list.indexOf(gChan);
+    if (gRow < 0) { gRow = 0; gChan = list[0]; }
     if (gRow < gTop) gTop = gRow;
     if (gRow >= gTop + VISIBLE_ROWS) gTop = gRow - VISIBLE_ROWS + 1;
 
@@ -294,6 +383,16 @@
       cell.appendChild(div('name', ch.name));
       row.appendChild(cell);
       var line = div('tline');
+      if (ch.status !== 'ready') {
+        var ld = div('blk ld' + (ch === gChan ? ' foc' : ''));
+        ld.style.left = '0';
+        ld.style.width = 'calc(100% - .4vw)';
+        ld.appendChild(div('t', 'Loading programmes\u2026'));
+        line.appendChild(ld);
+        row.appendChild(line);
+        grid.appendChild(row);
+        continue;
+      }
       E.blocks(ch.sched, gWin, gWin + SPAN).forEach(function (b) {
         var s = Math.max(b.startMs, gWin);
         var e = Math.min(b.endMs, gWin + SPAN);
@@ -318,8 +417,13 @@
 
     // programme details for the highlighted block
     var sel = list[gRow];
-    var fb = E.blockAt(sel.sched, gFocus);
-    if (fb) {
+    var fb = sel.status === 'ready' ? E.blockAt(sel.sched, gFocus) : null;
+    if (!fb) {
+      $('gtitle').textContent = sel.name;
+      $('gchan').textContent = sel.n + '  ' + sel.name;
+      $('gtime').textContent = 'Loading programmes\u2026';
+      $('gsub').textContent = '';
+    } else {
       $('gtitle').textContent = fb.prog.title;
       $('gchan').textContent = sel.n + '  ' + sel.name;
       var when;
@@ -336,11 +440,12 @@
   }
 
   function openGuide() {
-    var list = ready();
+    var list = guideList();
     if (!list.length) return;
     guideOpen = true;
     var now = Date.now();
-    gRow = Math.max(0, cur ? list.indexOf(cur.ch) : 0);
+    gChan = cur && list.indexOf(cur.ch) >= 0 ? cur.ch : list[0];
+    gRow = Math.max(0, list.indexOf(gChan));
     gTop = Math.max(0, gRow - VISIBLE_ROWS + 1);
     gWin = floorHalf(now);
     gFocus = now;
@@ -364,13 +469,17 @@
   }
 
   function gMove(delta, wrap) {
-    var n = ready().length;
-    gRow = wrap ? (gRow + delta + n) % n : Math.max(0, Math.min(n - 1, gRow + delta));
+    var list = guideList();
+    var n = list.length;
+    var i = Math.max(0, list.indexOf(gChan));
+    i = wrap ? (i + delta + n) % n : Math.max(0, Math.min(n - 1, i + delta));
+    gChan = list[i];
     renderGuide();
   }
 
   function gHoriz(dir) {
-    var sched = ready()[gRow].sched;
+    if (!gChan || gChan.status !== 'ready') return;
+    var sched = gChan.sched;
     var fb = E.blockAt(sched, gFocus);
     var now = Date.now();
     var nb;
@@ -397,9 +506,10 @@
   }
 
   function watchFromGuide() {
-    var c = ready()[gRow];
-    closeGuide();
+    var c = gChan;
     if (!c) return;
+    if (c.status !== 'ready') { toast(c.name + ' is still loading', 2000); return; }
+    closeGuide();
     if (cur && cur.ch === c) showBanner(); else tune(c, true);
   }
 
@@ -508,6 +618,7 @@
         finished++;
         renderStatus();
         begin();
+        if (guideOpen) renderGuide();
         if (finished === channels.length && !started) {
           $('splash').className = 'hidden';
           showNoSignal('Could not find any programmes. Check the connection.');

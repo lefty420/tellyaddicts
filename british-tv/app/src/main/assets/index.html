@@ -36,6 +36,11 @@
     border: .5vh solid #d7e6ff; box-shadow: 0 .8vh 3vh rgba(0,0,0,.6);
   }
   body.guide-open #spinner, body.guide-open #banner { display: none; }
+  #static { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 12; image-rendering: pixelated; background: #000; }
+  body.guide-open #static {
+    inset: auto; left: 4vw; top: 4vh; width: 34vw; height: auto; aspect-ratio: 16 / 9; z-index: 46;
+    border: .5vh solid #d7e6ff;
+  }
 
   #splash, #nosignal {
     position: fixed; inset: 0; background: var(--navy); display: flex; flex-direction: column;
@@ -113,6 +118,9 @@
   .blk .s { font-size: 2vh; color: #c7dbff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: .2vh; }
   .blk.foc { background: linear-gradient(180deg, var(--hi1) 0%, var(--hi2) 100%); color: var(--ink); border-color: #fff; }
   .blk.foc .s { color: #2b3f7a; }
+  .blk.ld { background: rgba(255,255,255,.1); border-top-color: rgba(255,255,255,.2); }
+  .blk.ld .t { font-weight: 500; color: #c7dbff; }
+  .blk.ld.foc .t { color: var(--ink); }
   .blk.cl { padding-left: 2.6vw; } .blk.cr { padding-right: 2.6vw; }
   .blk .arr { position: absolute; top: 50%; margin-top: -1.4vh; font-size: 2.2vh; line-height: 1; opacity: .85; }
   .blk .arr.l { left: .6vw; } .blk .arr.r { right: .6vw; }
@@ -126,6 +134,7 @@
 </head>
 <body>
 <video id="v" autoplay playsinline></video>
+<canvas id="static" class="hidden" width="256" height="144"></canvas>
 <div id="spinner" class="hidden"></div>
 
 <div id="banner" class="off">

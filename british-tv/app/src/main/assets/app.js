@@ -49,7 +49,7 @@
 
   function searchUrl(q, rows) {
     return 'https://archive.org/advancedsearch.php?q=' + encodeURIComponent(q) +
-      '&fl%5B%5D=identifier&rows=' + rows + '&sort%5B%5D=downloads+desc&output=json';
+      '&fl%5B%5D=identifier&fl%5B%5D=title&rows=' + rows + '&sort%5B%5D=downloads+desc&output=json';
   }
 
   function pool(items, n, fn) {
@@ -68,22 +68,27 @@
   }
 
   function loadPrograms(ch) {
-    var key = 'lib1:' + ch.id;
+    var key = 'lib2:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources));
     var cached = store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < DAY) {
       return Promise.resolve(cached.p);
     }
     var ids = [];
-    var includeFor = {};
+    var optsFor = {};
     var chain = Promise.resolve();
     ch.sources.forEach(function (s) {
+      var skip = s.exclude ? new RegExp(s.exclude, 'i') : null;
       if (s.item) {
         ids.push(s.item);
-        if (s.include) includeFor[s.item] = s.include;
+        optsFor[s.item] = { include: s.include, exclude: s.exclude };
       } else if (s.search) {
         chain = chain.then(function () {
           return getJSON(searchUrl(s.search, s.rows || 25)).then(function (j) {
-            ((j.response && j.response.docs) || []).forEach(function (d) { ids.push(d.identifier); });
+            ((j.response && j.response.docs) || []).forEach(function (d) {
+              if (skip && skip.test((d.title || '') + ' ' + d.identifier)) return; // unwanted result
+              ids.push(d.identifier);
+              optsFor[d.identifier] = { exclude: s.exclude };
+            });
           }, function () { /* a failed search just contributes nothing */ });
         });
       }
@@ -97,7 +102,7 @@
       }).then(function (metas) {
         var progs = [];
         metas.forEach(function (m, i) {
-          if (m) Array.prototype.push.apply(progs, E.pickPrograms(uniq[i], m, { include: includeFor[uniq[i]] }));
+          if (m) Array.prototype.push.apply(progs, E.pickPrograms(uniq[i], m, optsFor[uniq[i]]));
         });
         progs = E.sample(progs, MAX_STORED);
         if (progs.length) store.set(key, { t: Date.now(), p: progs });

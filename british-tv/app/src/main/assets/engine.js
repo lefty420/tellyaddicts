@@ -85,6 +85,13 @@
     return s.replace(/\s+/g, ' ').trim() || String(folder);
   }
 
+  function md0(meta) { return (meta && meta.metadata) || {}; }
+
+  /** File names like "Series 7" or "Disc 14" say nothing about the show. */
+  function isGenericTitle(t) {
+    return /^(series|season|disc|dvd|vol(ume)?|part|episode|ep|e\d+|s\d+|\d+)\b/i.test(String(t).trim());
+  }
+
   /**
    * Picks the playable mp4 files out of an archive.org /metadata/<id> response.
    * opts.include: optional regex source; only file paths matching it are used.
@@ -92,6 +99,8 @@
   function pickPrograms(id, meta, opts) {
     if (!meta || meta.is_dark) return [];
     var include = opts && opts.include ? new RegExp(opts.include, 'i') : null;
+    var exclude = opts && opts.exclude ? new RegExp(opts.exclude, 'i') : null;
+    if (exclude && exclude.test(String(md0(meta).title || ''))) return [];
     var md = meta.metadata || {};
     if (String(md['access-restricted-item']).toLowerCase() === 'true') return [];
     var files = meta.files || [];
@@ -103,6 +112,7 @@
       if (!/\.mp4$/i.test(name)) continue;
       if (/sample|trailer/i.test(name)) continue;
       if (include && !include.test(name)) continue;
+      if (exclude && exclude.test(name)) continue;
       if (f.format && /thumbnail/i.test(f.format)) continue;
       var size = +f.size || 0;
       if (size && size < 200000) continue;
@@ -119,6 +129,10 @@
         if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0) {
           d.title = show + ' - ' + d.title;
         }
+      }
+      if (md.title && isGenericTitle(d.title) && d.title.toLowerCase().indexOf(String(md.title).toLowerCase()) < 0) {
+        // "Series 7" -> "<item title> - Series 7"
+        d.title = String(md.title).replace(/\s+/g, ' ').trim() + ' - ' + d.title;
       }
       out.push({
         id: id + '/' + name,

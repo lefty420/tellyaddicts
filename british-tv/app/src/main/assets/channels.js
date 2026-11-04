@@ -4,6 +4,7 @@
  * Each channel is filled from archive.org. A source is either:
  *   { item: "identifier" }                 one specific archive.org item
  *   { item: "identifier", include: "regex" }  only files whose path matches (e.g. "Fawlty|Blackadder")
+ *   exclude: "regex"                       on any source: skip items/files whose name matches
  *   { search: "query", rows: 25 }          an archive.org advanced search (Lucene syntax)
  *
  * Channels that find no playable video are hidden automatically.
@@ -25,7 +26,8 @@ window.CHANNELS = [
     id: 'bbc',
     name: 'Classic BBC',
     sources: [
-      { search: '(BBC1 OR BBC2 OR "BBC Television" OR "BBC One") AND mediatype:movies AND year:[1960 TO 1999]', rows: 40 }
+      { search: '(BBC1 OR BBC2 OR "BBC Television" OR "BBC One") AND mediatype:movies AND year:[1960 TO 1999]', rows: 40,
+        exclude: 'subs|anime|SoShi' }
     ]
   },
   {
@@ -33,7 +35,8 @@ window.CHANNELS = [
     id: 'itvam',
     name: 'ITV Morning',
     sources: [
-      { search: '("TV-am" OR "Good Morning Britain" OR GMTV OR "This Morning") AND mediatype:movies', rows: 40 }
+      { search: '(title:("TV-am") OR title:("Good Morning Britain") OR title:(GMTV) OR title:("This Morning") OR title:(Daybreak) OR title:("Lorraine")) AND mediatype:movies', rows: 40,
+        exclude: 'subs|anime|SoShi' }
     ]
   },
   {

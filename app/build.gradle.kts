@@ -8,10 +8,11 @@ android {
 
     defaultConfig {
         applicationId = "tv.spelunkr.app"
-        minSdk = 21
+        minSdk = 22
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        // The site reads this through the SpelunkrApp bridge and the user-agent suffix.
+        versionCode = 4
+        versionName = "1.3"
     }
 
     buildTypes {

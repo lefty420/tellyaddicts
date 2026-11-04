@@ -1,8 +1,16 @@
 # Spelunkr TV (Android TV / Google TV / NVIDIA Shield)
 
-A full-screen wrapper app for https://spelunkr.tv. Shows up in the TV launcher with a banner,
-keeps the screen awake, supports remote D-pad, Back, and play/pause keys, and shows a retry
-page if the network is down.
+A full-screen wrapper app for https://spelunkr.tv. Shows up in the TV launcher with a banner
+and keeps the screen awake.
+
+The site has its own TV layout (programme guide, full-screen playback, remote navigation).
+The app turns it on the same way the official release does:
+
+- opens `https://spelunkr.tv/?tv` on TV devices
+- adds `SpelunkrApp/<versionCode>` to the WebView user agent
+- exposes a `SpelunkrApp` JavaScript bridge (`version()`, `leave()`)
+- passes channel up/down, play/pause/rewind/fast-forward and Back to the page as key events
+- shows a "NO SIGNAL" screen and retries every 15 seconds if the network is down
 
 ## Get the APK (no Android Studio needed)
 

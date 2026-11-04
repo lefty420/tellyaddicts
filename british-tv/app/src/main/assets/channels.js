@@ -94,5 +94,13 @@ window.CHANNELS = [
     sources: [
       { item: 'Itvcitv', exclude: 'GMTV|This Morning|SMTV|Daybreak|Lorraine' }
     ]
+  },
+  {
+    n: 11,
+    id: 'noel',
+    name: "Noel's House Party",
+    sources: [
+      { item: 'noel-s-house-party' }
+    ]
   }
 ];

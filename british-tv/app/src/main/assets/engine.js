@@ -58,6 +58,20 @@
     var base = String(name).replace(/^.*\//, '').replace(/\.(ia\.)?(mp4|m4v)$/i, '');
     var sub = '';
     var title = base;
+    // "NOEL'S HOUSE PARTY (BBC ONE - Season 3: Episode 2 / 12.09.92)" -> episode title + air date
+    var ep = base.match(/^(.*?)\s*\((?:[^()]*?-\s*)?Season\s+(\d+)[:,\s]+Episode\s+(\d+\w*)\s*(?:[\u29F8\/]\s*(\d{1,2})\.(\d{1,2})\.(\d{2,4}))?[^()]*\)?/i);
+    if (ep && ep[1]) {
+      var show = ep[1].trim();
+      if (show === show.toUpperCase()) {
+        show = show.toLowerCase().replace(/(^|\s)([a-z])/g, function (_, a, b) { return a + b.toUpperCase(); });
+      }
+      var year = ep[6] ? (ep[6].length === 2 ? (+ep[6] >= 50 ? 1900 : 2000) + (+ep[6]) : +ep[6]) : 0;
+      var dated = ep[4] && validMonth(+ep[5]) && +ep[4] >= 1 && +ep[4] <= 31;
+      return {
+        title: show + ' - Season ' + ep[2] + ' Episode ' + ep[3],
+        sub: dated ? (+ep[4]) + ' ' + MONTHS[+ep[5] - 1] + ' ' + year : ''
+      };
+    }
     var m = base.match(/\((\d{4})[ .\-_](\d{1,2})[ .\-_](\d{1,2})\)/);
     if (m && validMonth(+m[2])) {
       sub = (+m[3]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[1];

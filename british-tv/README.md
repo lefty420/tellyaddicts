@@ -24,6 +24,7 @@ archive.org uploads. Nothing is hosted by the app; it reads archive.org directly
 8. 70s TV (search of the `classic_tv_1970s` collection)
 9. Adverts & Continuity (search, **unverified**)
 10. ITV & CITV (the rest of the `Itvcitv` item: ITV evenings, CITV, CD:UK)
+11. Noel's House Party (`noel-s-house-party`)
 
 Items that only contain `.avi`/`.mkv` originals will not play unless archive.org has made an
 `.mp4` copy next to them.

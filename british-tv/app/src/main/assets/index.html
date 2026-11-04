@@ -7,18 +7,35 @@
 <style>
   :root {
     --navy: #0a1128;
-    --navy2: #141d3d;
     --cream: #f5efe3;
     --red: #e4202c;
     --dim: rgba(245, 239, 227, .62);
+    /* guide palette */
+    --g1: #0c2f9a;
+    --g2: #071d66;
+    --g3: #030d36;
+    --cell: #1f55c4;
+    --cell2: #123a98;
+    --cellnow: #2a67dd;
+    --chan: #0a1f6b;
+    --hi1: #fff1a8;
+    --hi2: #ffc61a;
+    --ink: #07164a;
   }
   * { box-sizing: border-box; }
   html, body {
-    margin: 0; height: 100%; background: #000; color: var(--cream);
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden;
+    margin: 0; height: 100%; background: #000; color: #fff;
+    font-family: Frutiger, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden;
   }
   video { position: fixed; inset: 0; width: 100%; height: 100%; background: #000; object-fit: contain; }
   .hidden { display: none !important; }
+
+  /* mini TV window while the guide is open */
+  body.guide-open #v {
+    inset: auto; left: 4vw; top: 4vh; width: 34vw; height: auto; aspect-ratio: 16 / 9; z-index: 45;
+    border: .5vh solid #d7e6ff; box-shadow: 0 .8vh 3vh rgba(0,0,0,.6);
+  }
+  body.guide-open #spinner, body.guide-open #banner { display: none; }
 
   #splash, #nosignal {
     position: fixed; inset: 0; background: var(--navy); display: flex; flex-direction: column;
@@ -34,21 +51,21 @@
 
   #banner {
     position: fixed; left: 4vw; right: 4vw; bottom: 5vh; z-index: 20; display: flex; align-items: stretch;
-    background: linear-gradient(90deg, rgba(10,17,40,.96), rgba(20,29,61,.92)); border-left: 1vh solid var(--red);
+    background: linear-gradient(90deg, rgba(7,29,102,.97), rgba(12,47,154,.93)); border-left: 1vh solid var(--hi2);
     border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); transition: opacity .3s;
   }
   #banner.off { opacity: 0; pointer-events: none; }
-  #bnum { padding: 2.2vh 2.4vw; font-size: 6vh; font-weight: 700; color: var(--red); min-width: 8vw; text-align: center; }
+  #bnum { padding: 2.2vh 2.4vw; font-size: 6vh; font-weight: 700; color: var(--hi2); min-width: 8vw; text-align: center; }
   #binfo { padding: 2vh 1vw 2vh 0; flex: 1; min-width: 0; }
-  #bchan { font-size: 2.4vh; text-transform: uppercase; letter-spacing: .12em; color: var(--dim); }
+  #bchan { font-size: 2.4vh; text-transform: uppercase; letter-spacing: .12em; color: rgba(255,255,255,.7); }
   #btitle { font-size: 4vh; font-weight: 600; margin: .4vh 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #bsub { font-size: 2.4vh; color: var(--dim); }
-  #bnext { padding: 2vh 2vw; font-size: 2.3vh; color: var(--dim); max-width: 30vw; align-self: center; }
-  #bnext b { display: block; color: var(--cream); font-weight: 600; margin-top: .4vh; }
+  #bsub { font-size: 2.4vh; color: rgba(255,255,255,.7); }
+  #bnext { padding: 2vh 2vw; font-size: 2.3vh; color: rgba(255,255,255,.7); max-width: 30vw; align-self: center; }
+  #bnext b { display: block; color: #fff; font-weight: 600; margin-top: .4vh; }
 
   #toast {
-    position: fixed; top: 4vh; right: 4vw; z-index: 30; background: rgba(10,17,40,.92); padding: 1.4vh 2vw;
-    border-radius: 1vh; font-size: 3vh; transition: opacity .3s;
+    position: fixed; top: 4vh; right: 4vw; z-index: 60; background: rgba(7,29,102,.95); padding: 1.4vh 2vw;
+    border-radius: 1vh; font-size: 3vh; transition: opacity .3s; border: .3vh solid #d7e6ff;
   }
   #toast.off { opacity: 0; }
 
@@ -59,27 +76,52 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  #guide { position: fixed; inset: 0; z-index: 40; background: var(--navy); display: flex; flex-direction: column; }
-  #ghead { display: flex; align-items: center; justify-content: space-between; padding: 3vh 4vw 2vh; border-bottom: .4vh solid var(--red); }
-  #ghead h2 { margin: 0; font-size: 4.4vh; letter-spacing: .1em; text-transform: uppercase; }
-  #gclock { font-size: 4vh; color: var(--dim); }
-  #gbody { flex: 1; display: flex; min-height: 0; }
-  #chlist { width: 38vw; padding: 2vh 0 2vh 4vw; overflow: hidden; }
-  .ch { display: flex; align-items: center; padding: 1.6vh 1.4vw; margin: .6vh 1vw .6vh 0; border-radius: 1vh; background: var(--navy2); border: .4vh solid transparent; }
-  .ch .n { font-size: 3.6vh; font-weight: 700; color: var(--red); width: 6vh; }
-  .ch .t { min-width: 0; }
-  .ch .name { font-size: 3vh; font-weight: 600; }
-  .ch .now { font-size: 2.1vh; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ch.sel { border-color: var(--cream); background: #25316b; }
-  #sched { flex: 1; padding: 2vh 4vw 2vh 1vw; overflow: hidden; }
-  #sched h3 { margin: 1vh 0 1.4vh; font-size: 3vh; color: var(--dim); font-weight: 500; }
-  .row { display: flex; padding: 1.1vh 0; border-bottom: .2vh solid rgba(245,239,227,.12); font-size: 2.7vh; }
-  .row .tm { width: 9vw; color: var(--red); font-weight: 700; flex: none; }
-  .row .tt { min-width: 0; flex: 1; }
-  .row .tt div:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row .tt .s { font-size: 2.1vh; color: var(--dim); }
-  .row.now .tm::after { content: " NOW"; color: var(--cream); font-size: 1.9vh; }
-  #ghelp { padding: 1.6vh 4vw 2.4vh; color: var(--dim); font-size: 2.2vh; }
+  /* ---------------------------------------------------------------- guide */
+  #guide {
+    position: fixed; inset: 0; z-index: 40; color: #fff;
+    background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%);
+  }
+  #ginfo { position: absolute; left: 42vw; right: 4vw; top: 4vh; height: 34vh; display: flex; flex-direction: column; }
+  #gtop { display: flex; justify-content: space-between; align-items: baseline; font-size: 3vh; color: #b9d1ff; letter-spacing: .08em; text-transform: uppercase; }
+  #gclock { font-size: 4.4vh; color: #fff; font-weight: 700; letter-spacing: .04em; }
+  #gtitle { font-size: 5.4vh; font-weight: 700; margin: 2.6vh 0 .8vh; line-height: 1.12; max-height: 12.5vh; overflow: hidden; }
+  #gchan { font-size: 3vh; color: var(--hi2); font-weight: 600; }
+  #gtime { font-size: 3vh; margin-top: 1vh; color: #dbe7ff; }
+  #gsub { font-size: 2.6vh; margin-top: .8vh; color: #b9d1ff; }
+
+  #ggrid { position: absolute; left: 4vw; right: 4vw; top: 41vh; }
+  .trow, .grow { display: flex; height: 6.8vh; margin-bottom: .5vh; }
+  .trow { height: 5.4vh; }
+  .gch, .tday { width: 17vw; flex: none; margin-right: .5vw; }
+  .tday { display: flex; align-items: center; padding: 0 1.2vw; font-size: 2.7vh; font-weight: 700; color: #cfe0ff;
+    background: rgba(255,255,255,.08); }
+  .tline { position: relative; flex: 1; }
+  .tick { position: absolute; top: 0; bottom: 0; padding: 0 1vw; display: flex; align-items: center;
+    font-size: 2.9vh; font-weight: 700; color: #fff; border-left: .3vh solid rgba(255,255,255,.45); }
+  .gch { display: flex; align-items: center; padding: 0 1vw; background: var(--chan); border-left: .8vh solid #3a6fe0; }
+  .gch .n { font-size: 3.4vh; font-weight: 700; color: var(--hi2); width: 5.4vh; flex: none; }
+  .gch .name { font-size: 2.7vh; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gch.sel { background: #2a4fc0; border-left-color: var(--hi2); }
+
+  .blk {
+    position: absolute; top: 0; bottom: 0; padding: .8vh 1vw; overflow: hidden;
+    background: linear-gradient(180deg, var(--cell) 0%, var(--cell2) 100%);
+    border-top: .3vh solid rgba(255,255,255,.32); border-left: .3vh solid rgba(255,255,255,.18);
+  }
+  .blk.now { background: linear-gradient(180deg, var(--cellnow) 0%, #1a4cb5 100%); }
+  .blk .t { font-size: 2.6vh; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .blk .s { font-size: 2vh; color: #c7dbff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: .2vh; }
+  .blk.foc { background: linear-gradient(180deg, var(--hi1) 0%, var(--hi2) 100%); color: var(--ink); border-color: #fff; }
+  .blk.foc .s { color: #2b3f7a; }
+  .blk.cl { padding-left: 2.6vw; } .blk.cr { padding-right: 2.6vw; }
+  .blk .arr { position: absolute; top: 50%; margin-top: -1.4vh; font-size: 2.2vh; line-height: 1; opacity: .85; }
+  .blk .arr.l { left: .6vw; } .blk .arr.r { right: .6vw; }
+
+  #glegend { position: absolute; left: 4vw; right: 4vw; bottom: 2.6vh; display: flex; gap: 1vw; }
+  #glegend div { flex: 1; display: flex; align-items: center; gap: .9vw; font-size: 2.5vh; font-weight: 600;
+    background: rgba(0,0,0,.35); padding: .8vh 1vw; border-radius: .6vh; }
+  #glegend i { width: 3.2vh; height: 3.2vh; border-radius: .5vh; flex: none; border: .25vh solid rgba(255,255,255,.7); }
+  .kr { background: #e02b2b; } .kg { background: #2bb24c; } .ky { background: #f2c200; } .kb { background: #2f7bff; }
 </style>
 </head>
 <body>
@@ -94,9 +136,20 @@
 <div id="toast" class="off"></div>
 
 <div id="guide" class="hidden">
-  <div id="ghead"><h2>British TV Guide</h2><div id="gclock"></div></div>
-  <div id="gbody"><div id="chlist"></div><div id="sched"></div></div>
-  <div id="ghelp">Up / Down: choose channel &nbsp;&middot;&nbsp; OK: watch &nbsp;&middot;&nbsp; Back: close guide</div>
+  <div id="ginfo">
+    <div id="gtop"><span>TV Guide</span><span id="gclock"></span></div>
+    <div id="gtitle"></div>
+    <div id="gchan"></div>
+    <div id="gtime"></div>
+    <div id="gsub"></div>
+  </div>
+  <div id="ggrid"></div>
+  <div id="glegend">
+    <div><i class="kr"></i>Now</div>
+    <div><i class="kg"></i>Later</div>
+    <div><i class="ky"></i>Earlier</div>
+    <div><i class="kb"></i>Watch</div>
+  </div>
 </div>
 
 <div id="splash">

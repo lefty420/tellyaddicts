@@ -158,7 +158,70 @@
       starts.push(total);
       total += order[i].dur;
     }
-    return { order: order, starts: starts, total: total };
+    var g = buildGroups(order, starts);
+    return { order: order, starts: starts, total: total, groups: g.groups, gstarts: g.gstarts };
+  }
+
+  /**
+   * Guide blocks. A run of short programmes (music clips) is merged into one block of roughly
+   * half an hour so the grid stays readable; long programmes stand alone. The partition is fixed
+   * per schedule, so blocks do not change depending on where you look.
+   */
+  var SHORT = 1200;   // programmes under 20 min are "short"
+  var TARGET = 1500;  // merge short ones until a block is about 25 min
+
+  function buildGroups(order, starts) {
+    var groups = [];
+    var gstarts = [];
+    var n = order.length;
+    var i = 0;
+    while (i < n) {
+      var g = { first: i, count: 1, start: starts[i], dur: order[i].dur };
+      if (order[i].dur < SHORT) {
+        while (i + g.count < n && g.dur < TARGET && order[i + g.count].dur < SHORT) {
+          g.dur += order[i + g.count].dur;
+          g.count++;
+        }
+      }
+      groups.push(g);
+      gstarts.push(g.start);
+      i += g.count;
+    }
+    return { groups: groups, gstarts: gstarts };
+  }
+
+  function mkBlock(s, gi, startMs) {
+    var g = s.groups[gi];
+    return { gi: gi, prog: s.order[g.first], count: g.count, startMs: startMs, endMs: startMs + g.dur * 1000 };
+  }
+
+  /** The guide block on at time tMs. */
+  function blockAt(s, tMs) {
+    var G = s.groups;
+    if (!G.length || !s.total) return null;
+    var pos = (tMs / 1000) % s.total;
+    var lo = 0, hi = G.length - 1;
+    while (lo < hi) {
+      var mid = (lo + hi + 1) >> 1;
+      if (s.gstarts[mid] <= pos) lo = mid; else hi = mid - 1;
+    }
+    return mkBlock(s, lo, tMs - (pos - G[lo].start) * 1000);
+  }
+
+  /** All guide blocks overlapping [fromMs, toMs). */
+  function blocks(s, fromMs, toMs) {
+    var b = blockAt(s, fromMs);
+    if (!b) return [];
+    var out = [b];
+    var gi = b.gi;
+    var start = b.endMs;
+    while (start < toMs && out.length < 500) {
+      gi = (gi + 1) % s.groups.length;
+      var nb = mkBlock(s, gi, start);
+      out.push(nb);
+      start = nb.endMs;
+    }
+    return out;
   }
 
   /** What is on at time tMs (milliseconds since epoch). */
@@ -202,7 +265,7 @@
   var Engine = {
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
     pickPrograms: pickPrograms, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
-    cleanShow: cleanShow, sample: sample,
+    cleanShow: cleanShow, sample: sample, blockAt: blockAt, blocks: blocks,
     DEFAULT_DURATION: DEFAULT_DURATION
   };
 

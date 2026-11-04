@@ -238,71 +238,169 @@
   }
   function hideNoSignal() { $('nosignal').className = 'hidden'; }
 
-  // ------------------------------------------------------------------ guide
+  // ------------------------------------------------------------------ guide (grid, Sky-style)
+
+  var HALF = 30 * 60 * 1000;
+  var SPAN = 4 * HALF;          // two hours visible
+  var VISIBLE_ROWS = 6;
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   var guideOpen = false;
-  var guideSel = 0;
+  var gRow = 0;      // selected channel row
+  var gTop = 0;      // first visible row
+  var gWin = 0;      // time at the left edge of the grid
+  var gFocus = 0;    // time the cursor is on
   var guideTimer = null;
+
+  function floorHalf(ms) { return Math.floor(ms / HALF) * HALF; }
+  function dayLabel(ms) { var d = new Date(ms); return DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+  function div(cls, text) {
+    var d = document.createElement('div');
+    if (cls) d.className = cls;
+    if (text !== undefined) d.textContent = text;
+    return d;
+  }
 
   function renderGuide() {
     var list = ready();
-    if (guideSel >= list.length) guideSel = list.length - 1;
-    if (guideSel < 0) guideSel = 0;
+    if (!list.length) return;
     var now = Date.now();
+    if (gRow >= list.length) gRow = list.length - 1;
+    if (gRow < gTop) gTop = gRow;
+    if (gRow >= gTop + VISIBLE_ROWS) gTop = gRow - VISIBLE_ROWS + 1;
+
     $('gclock').textContent = fmtTime(now);
 
-    var box = $('chlist');
-    box.textContent = '';
-    list.forEach(function (c, i) {
-      var slot = E.at(c.sched, now);
-      var row = document.createElement('div');
-      row.className = 'ch' + (i === guideSel ? ' sel' : '');
-      var n = document.createElement('div'); n.className = 'n'; n.textContent = c.n;
-      var t = document.createElement('div'); t.className = 't';
-      var nm = document.createElement('div'); nm.className = 'name'; nm.textContent = c.name;
-      var nw = document.createElement('div'); nw.className = 'now'; nw.textContent = slot ? slot.prog.title : '';
-      t.appendChild(nm); t.appendChild(nw);
-      row.appendChild(n); row.appendChild(t);
-      box.appendChild(row);
-    });
+    var grid = $('ggrid');
+    grid.textContent = '';
 
-    var sel = list[guideSel];
-    var sc = $('sched');
-    sc.textContent = '';
-    if (!sel) return;
-    var h = document.createElement('h3');
-    h.textContent = sel.n + '  ' + sel.name + ' – coming up';
-    sc.appendChild(h);
-    E.upcoming(sel.sched, now, 9).forEach(function (s, i) {
-      var row = document.createElement('div');
-      row.className = 'row' + (i === 0 ? ' now' : '');
-      var tm = document.createElement('div'); tm.className = 'tm';
-      tm.textContent = i === 0 ? fmtTime(now) : fmtTime(s.startMs);
-      var tt = document.createElement('div'); tt.className = 'tt';
-      var a = document.createElement('div'); a.textContent = s.prog.title;
-      var b = document.createElement('div'); b.className = 's'; b.textContent = s.prog.sub || '';
-      tt.appendChild(a); if (s.prog.sub) tt.appendChild(b);
-      row.appendChild(tm); row.appendChild(tt);
-      sc.appendChild(row);
-    });
+    var th = div('trow');
+    th.appendChild(div('tday', dayLabel(gWin)));
+    var ticks = div('tline');
+    for (var i = 0; i < 4; i++) {
+      var tick = div('tick', fmtTime(gWin + i * HALF));
+      tick.style.left = (i * 25) + '%';
+      ticks.appendChild(tick);
+    }
+    th.appendChild(ticks);
+    grid.appendChild(th);
+
+    for (var r = gTop; r < Math.min(list.length, gTop + VISIBLE_ROWS); r++) {
+      var ch = list[r];
+      var row = div('grow');
+      var cell = div('gch' + (r === gRow ? ' sel' : ''));
+      cell.appendChild(div('n', ch.n));
+      cell.appendChild(div('name', ch.name));
+      row.appendChild(cell);
+      var line = div('tline');
+      E.blocks(ch.sched, gWin, gWin + SPAN).forEach(function (b) {
+        var s = Math.max(b.startMs, gWin);
+        var e = Math.min(b.endMs, gWin + SPAN);
+        if (e <= s) return;
+        var focused = (ch === list[gRow]) && b.startMs <= gFocus && gFocus < b.endMs;
+        var frac = (e - s) / SPAN;
+        var clipL = b.startMs < gWin, clipR = b.endMs > gWin + SPAN;
+        var el = div('blk' + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : '') +
+          (clipL ? ' cl' : '') + (clipR ? ' cr' : ''));
+        el.style.left = ((s - gWin) / SPAN * 100) + '%';
+        el.style.width = 'calc(' + (frac * 100) + '% - .4vw)';
+        if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text
+        if (clipL) el.appendChild(div('arr l', '◄'));
+        if (clipR) el.appendChild(div('arr r', '►'));
+        el.appendChild(div('t', b.prog.title));
+        el.appendChild(div('s', b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '')));
+        line.appendChild(el);
+      });
+      row.appendChild(line);
+      grid.appendChild(row);
+    }
+
+    // programme details for the highlighted block
+    var sel = list[gRow];
+    var fb = E.blockAt(sel.sched, gFocus);
+    if (fb) {
+      $('gtitle').textContent = fb.prog.title;
+      $('gchan').textContent = sel.n + '  ' + sel.name;
+      var when;
+      if (fb.startMs <= now && now < fb.endMs) when = 'Showing now';
+      else if (fb.startMs > now) {
+        var mins = Math.round((fb.startMs - now) / 60000);
+        when = mins < 60 ? 'Starts in ' + mins + ' min' : 'Starts at ' + fmtTime(fb.startMs);
+      } else when = 'Earlier';
+      $('gtime').textContent = fmtTime(fb.startMs) + ' – ' + fmtTime(fb.endMs) + '   ' + when;
+      $('gsub').textContent = fb.count > 1
+        ? 'Plus ' + (fb.count - 1) + ' more programme' + (fb.count > 2 ? 's' : '')
+        : (fb.prog.sub || '');
+    }
   }
 
   function openGuide() {
     var list = ready();
     if (!list.length) return;
     guideOpen = true;
-    guideSel = Math.max(0, cur ? list.indexOf(cur.ch) : 0);
+    var now = Date.now();
+    gRow = Math.max(0, cur ? list.indexOf(cur.ch) : 0);
+    gTop = Math.max(0, gRow - VISIBLE_ROWS + 1);
+    gWin = floorHalf(now);
+    gFocus = now;
+    document.body.classList.add('guide-open');
     $('guide').className = '';
     $('banner').className = 'off';
     renderGuide();
     clearInterval(guideTimer);
-    guideTimer = setInterval(renderGuide, 20000);
+    guideTimer = setInterval(function () {
+      var t = Date.now();
+      if (gWin < floorHalf(t)) { gWin = floorHalf(t); if (gFocus < t) gFocus = t; }
+      renderGuide();
+    }, 20000);
   }
 
   function closeGuide() {
     guideOpen = false;
+    document.body.classList.remove('guide-open');
     $('guide').className = 'hidden';
     clearInterval(guideTimer);
+  }
+
+  function gMove(delta, wrap) {
+    var n = ready().length;
+    gRow = wrap ? (gRow + delta + n) % n : Math.max(0, Math.min(n - 1, gRow + delta));
+    renderGuide();
+  }
+
+  function gHoriz(dir) {
+    var sched = ready()[gRow].sched;
+    var fb = E.blockAt(sched, gFocus);
+    var now = Date.now();
+    var nb;
+    if (dir < 0) {
+      if (fb.startMs <= now) return;            // cannot go back before what is on now
+      nb = E.blockAt(sched, fb.startMs - 1);
+      gFocus = Math.max(nb.startMs, now);
+      if (nb.startMs < gWin) gWin = Math.max(floorHalf(now), floorHalf(nb.startMs));
+    } else {
+      nb = E.blockAt(sched, fb.endMs);
+      gFocus = nb.startMs;
+      if (nb.startMs >= gWin + SPAN) gWin = floorHalf(nb.startMs);
+    }
+    renderGuide();
+  }
+
+  function gJump(kind) {
+    var now = Date.now();
+    var base = floorHalf(now);
+    if (kind === 'now') { gWin = base; gFocus = now; }
+    else if (kind === 'later') { gWin += SPAN; gFocus = gWin; }
+    else { gWin = Math.max(base, gWin - SPAN); gFocus = gWin === base ? now : gWin; }
+    renderGuide();
+  }
+
+  function watchFromGuide() {
+    var c = ready()[gRow];
+    closeGuide();
+    if (!c) return;
+    if (cur && cur.ch === c) showBanner(); else tune(c, true);
   }
 
   // ------------------------------------------------------------------ keys
@@ -343,17 +441,24 @@
     var handled = true;
 
     if (guideOpen) {
-      var n = ready().length;
-      if (k === 'ArrowUp' || k === 'ChannelUp') { guideSel = (guideSel - 1 + n) % n; renderGuide(); }
-      else if (k === 'ArrowDown' || k === 'ChannelDown') { guideSel = (guideSel + 1) % n; renderGuide(); }
-      else if (k === 'Enter' || k === ' ') { var c = ready()[guideSel]; closeGuide(); if (c) tune(c, true); }
-      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'ArrowLeft') { closeGuide(); }
+      if (k === 'ArrowUp') gMove(-1, true);
+      else if (k === 'ArrowDown') gMove(1, true);
+      else if (k === 'ChannelUp') gMove(-(VISIBLE_ROWS - 1), false);
+      else if (k === 'ChannelDown') gMove(VISIBLE_ROWS - 1, false);
+      else if (k === 'ArrowLeft') gHoriz(-1);
+      else if (k === 'ArrowRight') gHoriz(1);
+      else if (k === 'Red') gJump('now');
+      else if (k === 'Green' || k === 'MediaFastForward') gJump('later');
+      else if (k === 'Yellow' || k === 'MediaRewind') gJump('earlier');
+      else if (k === 'Enter' || k === ' ' || k === 'Blue') watchFromGuide();
+      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide') closeGuide();
       else handled = false;
     } else if (k >= '0' && k <= '9' && k.length === 1) {
       onDigit(k);
     } else if (k === 'ArrowUp' || k === 'ChannelUp') { surf(1); }
     else if (k === 'ArrowDown' || k === 'ChannelDown') { surf(-1); }
-    else if (k === 'Enter') { openGuide(); }
+    else if (k === 'Enter' || k === 'Guide' || k === 'Red') { openGuide(); }
+    else if (k === 'Info') { showBanner(); }
     else if (k === 'ArrowRight' || k === 'MediaFastForward') { seek(30); }
     else if (k === 'ArrowLeft' || k === 'MediaRewind') { seek(-30); }
     else if (k === 'MediaPlayPause' || k === ' ') {

@@ -115,6 +115,12 @@ public class MainActivity extends Activity {
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_NUMPAD_ENTER: return "Enter";
             case KeyEvent.KEYCODE_BACK: return "GoBack";
+            case KeyEvent.KEYCODE_GUIDE: return "Guide";
+            case KeyEvent.KEYCODE_INFO: return "Info";
+            case KeyEvent.KEYCODE_PROG_RED: return "Red";
+            case KeyEvent.KEYCODE_PROG_GREEN: return "Green";
+            case KeyEvent.KEYCODE_PROG_YELLOW: return "Yellow";
+            case KeyEvent.KEYCODE_PROG_BLUE: return "Blue";
             case KeyEvent.KEYCODE_CHANNEL_UP:
             case KeyEvent.KEYCODE_PAGE_UP: return "ChannelUp";
             case KeyEvent.KEYCODE_CHANNEL_DOWN:

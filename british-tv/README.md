@@ -31,12 +31,23 @@ Items that only contain `.avi`/`.mkv` originals will not play unless archive.org
 
 | Key | Watching | In the guide |
 | --- | --- | --- |
-| Up / Down or Channel +/- | Change channel | Move through channels |
-| OK | Open guide | Watch selected channel |
-| Left / Right (or rewind / fast-forward) | Seek 30 s | Left closes guide |
+| Up / Down | Change channel | Move between channels |
+| Left / Right | Seek 30 s | Move between programmes (Left stops at what is on now) |
+| Channel +/- | Change channel | Page up / down through channels |
+| OK | Open guide | Watch the selected channel |
+| Guide / Red | Open guide | Red jumps back to Now |
+| Rewind / Fast-forward | Seek 30 s | Earlier / Later (2 hours) |
+| Green / Yellow / Blue | | Later / Earlier / Watch |
+| Info | Show what is on | |
 | Play/Pause | Pause or resume | |
 | Number keys | Jump to a channel number | |
 | Back | Press twice to exit | Close guide |
+
+The guide is styled after the classic UK satellite-TV programme guides: blue background, a mini
+TV window top-left, a half-hour time grid with the selected programme highlighted, and a
+red/green/yellow/blue button bar. Remotes without colour buttons (such as the Shield remote) can
+use Rewind/Fast-forward and OK instead. Runs of short clips (such as Top of the Pops songs) are
+shown as one block of about half an hour.
 
 ## Get the APK
 

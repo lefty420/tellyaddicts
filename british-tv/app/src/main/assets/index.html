@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>British TV</title>
+<style>
+  :root {
+    --navy: #0a1128;
+    --navy2: #141d3d;
+    --cream: #f5efe3;
+    --red: #e4202c;
+    --dim: rgba(245, 239, 227, .62);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; background: #000; color: var(--cream);
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow: hidden;
+  }
+  video { position: fixed; inset: 0; width: 100%; height: 100%; background: #000; object-fit: contain; }
+  .hidden { display: none !important; }
+
+  #splash, #nosignal {
+    position: fixed; inset: 0; background: var(--navy); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; z-index: 50;
+  }
+  #splash h1, #nosignal h1 { font-size: 7vh; letter-spacing: .12em; margin: 0 0 2vh; }
+  #splash h1 span { color: var(--red); }
+  #splash p, #nosignal p { font-size: 3vh; margin: .6vh 0; color: var(--dim); }
+  #bars { display: flex; gap: .6vh; margin: 3vh 0; }
+  #bars i { width: 4vh; height: 1vh; background: var(--cream); opacity: .25; }
+  #bars i.on { background: var(--red); opacity: 1; }
+  #chstatus { font-size: 2.6vh; line-height: 1.6; }
+
+  #banner {
+    position: fixed; left: 4vw; right: 4vw; bottom: 5vh; z-index: 20; display: flex; align-items: stretch;
+    background: linear-gradient(90deg, rgba(10,17,40,.96), rgba(20,29,61,.92)); border-left: 1vh solid var(--red);
+    border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); transition: opacity .3s;
+  }
+  #banner.off { opacity: 0; pointer-events: none; }
+  #bnum { padding: 2.2vh 2.4vw; font-size: 6vh; font-weight: 700; color: var(--red); min-width: 8vw; text-align: center; }
+  #binfo { padding: 2vh 1vw 2vh 0; flex: 1; min-width: 0; }
+  #bchan { font-size: 2.4vh; text-transform: uppercase; letter-spacing: .12em; color: var(--dim); }
+  #btitle { font-size: 4vh; font-weight: 600; margin: .4vh 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #bsub { font-size: 2.4vh; color: var(--dim); }
+  #bnext { padding: 2vh 2vw; font-size: 2.3vh; color: var(--dim); max-width: 30vw; align-self: center; }
+  #bnext b { display: block; color: var(--cream); font-weight: 600; margin-top: .4vh; }
+
+  #toast {
+    position: fixed; top: 4vh; right: 4vw; z-index: 30; background: rgba(10,17,40,.92); padding: 1.4vh 2vw;
+    border-radius: 1vh; font-size: 3vh; transition: opacity .3s;
+  }
+  #toast.off { opacity: 0; }
+
+  #spinner {
+    position: fixed; left: 50%; top: 50%; width: 7vh; height: 7vh; margin: -3.5vh 0 0 -3.5vh; z-index: 15;
+    border: .9vh solid rgba(245,239,227,.25); border-top-color: var(--red); border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #guide { position: fixed; inset: 0; z-index: 40; background: var(--navy); display: flex; flex-direction: column; }
+  #ghead { display: flex; align-items: center; justify-content: space-between; padding: 3vh 4vw 2vh; border-bottom: .4vh solid var(--red); }
+  #ghead h2 { margin: 0; font-size: 4.4vh; letter-spacing: .1em; text-transform: uppercase; }
+  #gclock { font-size: 4vh; color: var(--dim); }
+  #gbody { flex: 1; display: flex; min-height: 0; }
+  #chlist { width: 38vw; padding: 2vh 0 2vh 4vw; overflow: hidden; }
+  .ch { display: flex; align-items: center; padding: 1.6vh 1.4vw; margin: .6vh 1vw .6vh 0; border-radius: 1vh; background: var(--navy2); border: .4vh solid transparent; }
+  .ch .n { font-size: 3.6vh; font-weight: 700; color: var(--red); width: 6vh; }
+  .ch .t { min-width: 0; }
+  .ch .name { font-size: 3vh; font-weight: 600; }
+  .ch .now { font-size: 2.1vh; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ch.sel { border-color: var(--cream); background: #25316b; }
+  #sched { flex: 1; padding: 2vh 4vw 2vh 1vw; overflow: hidden; }
+  #sched h3 { margin: 1vh 0 1.4vh; font-size: 3vh; color: var(--dim); font-weight: 500; }
+  .row { display: flex; padding: 1.1vh 0; border-bottom: .2vh solid rgba(245,239,227,.12); font-size: 2.7vh; }
+  .row .tm { width: 9vw; color: var(--red); font-weight: 700; flex: none; }
+  .row .tt { min-width: 0; flex: 1; }
+  .row .tt div:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .tt .s { font-size: 2.1vh; color: var(--dim); }
+  .row.now .tm::after { content: " NOW"; color: var(--cream); font-size: 1.9vh; }
+  #ghelp { padding: 1.6vh 4vw 2.4vh; color: var(--dim); font-size: 2.2vh; }
+</style>
+</head>
+<body>
+<video id="v" autoplay playsinline></video>
+<div id="spinner" class="hidden"></div>
+
+<div id="banner" class="off">
+  <div id="bnum"></div>
+  <div id="binfo"><div id="bchan"></div><div id="btitle"></div><div id="bsub"></div></div>
+  <div id="bnext"></div>
+</div>
+<div id="toast" class="off"></div>
+
+<div id="guide" class="hidden">
+  <div id="ghead"><h2>British TV Guide</h2><div id="gclock"></div></div>
+  <div id="gbody"><div id="chlist"></div><div id="sched"></div></div>
+  <div id="ghelp">Up / Down: choose channel &nbsp;&middot;&nbsp; OK: watch &nbsp;&middot;&nbsp; Back: close guide</div>
+</div>
+
+<div id="splash">
+  <h1>BRITISH <span>TV</span></h1>
+  <div id="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <p>Tuning in to the archives&hellip;</p>
+  <div id="chstatus"></div>
+</div>
+<div id="nosignal" class="hidden">
+  <h1>NO SIGNAL</h1>
+  <p id="nsmsg"></p>
+  <p>Trying again shortly&hellip;</p>
+</div>
+
+<script src="engine.js"></script>
+<script src="channels.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

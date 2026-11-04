@@ -1,0 +1,262 @@
+package app.britishtv;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.UiModeManager;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
+import android.webkit.RenderProcessGoneDetail;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+/**
+ * Hosts the bundled British TV guide/player (assets/index.html) full screen.
+ * Remote keys are forwarded to the page as KeyboardEvents; archive.org requests
+ * are made natively (the page cannot fetch cross-origin from a local file).
+ */
+public class MainActivity extends Activity {
+
+    private static final String PAGE = "file:///android_asset/index.html";
+    private static final String ALLOWED_PREFIX = "https://archive.org/";
+    private static final int MAX_BODY_BYTES = 24 * 1024 * 1024; // big box sets list thousands of files
+
+    private final Handler main = new Handler(Looper.getMainLooper());
+    private FrameLayout root;
+    private WebView web;
+    private boolean onTv;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        onTv = isTv();
+
+        root = new FrameLayout(this);
+        root.setBackgroundColor(Color.BLACK);
+        setContentView(root);
+        immersive();
+        buildWeb();
+        web.loadUrl(PAGE);
+    }
+
+    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
+    private void buildWeb() {
+        web = new WebView(this);
+        web.setBackgroundColor(Color.BLACK);
+        WebSettings s = web.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setMediaPlaybackRequiresUserGesture(false);
+        s.setAllowFileAccess(true);
+        web.addJavascriptInterface(new Bridge(), "NativeHttp");
+        web.setWebChromeClient(new WebChromeClient());
+        web.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                root.removeView(web);
+                web.destroy();
+                buildWeb();
+                web.loadUrl(PAGE);
+                return true;
+            }
+        });
+        web.setFocusable(true);
+        web.setFocusableInTouchMode(true);
+        root.addView(web, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        web.requestFocus();
+    }
+
+    private boolean isTv() {
+        UiModeManager ui = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+        if (ui != null && ui.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION) {
+            return true;
+        }
+        return getPackageManager().hasSystemFeature("android.software.leanback")
+                || getPackageManager().hasSystemFeature("amazon.hardware.fire_tv");
+    }
+
+    @SuppressWarnings("deprecation")
+    private void immersive() {
+        root.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+    }
+
+    // ---------------------------------------------------------------- keys
+
+    private static String pageKey(int code) {
+        switch (code) {
+            case KeyEvent.KEYCODE_DPAD_UP: return "ArrowUp";
+            case KeyEvent.KEYCODE_DPAD_DOWN: return "ArrowDown";
+            case KeyEvent.KEYCODE_DPAD_LEFT: return "ArrowLeft";
+            case KeyEvent.KEYCODE_DPAD_RIGHT: return "ArrowRight";
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_ENTER:
+            case KeyEvent.KEYCODE_NUMPAD_ENTER: return "Enter";
+            case KeyEvent.KEYCODE_BACK: return "GoBack";
+            case KeyEvent.KEYCODE_CHANNEL_UP:
+            case KeyEvent.KEYCODE_PAGE_UP: return "ChannelUp";
+            case KeyEvent.KEYCODE_CHANNEL_DOWN:
+            case KeyEvent.KEYCODE_PAGE_DOWN: return "ChannelDown";
+            case KeyEvent.KEYCODE_HEADSETHOOK:
+            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE: return "MediaPlayPause";
+            case KeyEvent.KEYCODE_MEDIA_PLAY: return "MediaPlay";
+            case KeyEvent.KEYCODE_MEDIA_PAUSE: return "MediaPause";
+            case KeyEvent.KEYCODE_MEDIA_REWIND: return "MediaRewind";
+            case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD: return "MediaFastForward";
+            default:
+                if (code >= KeyEvent.KEYCODE_0 && code <= KeyEvent.KEYCODE_9) {
+                    return String.valueOf(code - KeyEvent.KEYCODE_0);
+                }
+                if (code >= KeyEvent.KEYCODE_NUMPAD_0 && code <= KeyEvent.KEYCODE_NUMPAD_9) {
+                    return String.valueOf(code - KeyEvent.KEYCODE_NUMPAD_0);
+                }
+                return null;
+        }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        String key = pageKey(event.getKeyCode());
+        if (key == null || web == null) {
+            return super.dispatchKeyEvent(event);
+        }
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            web.evaluateJavascript("window.dispatchEvent(new KeyboardEvent('keydown',{key:'" + key
+                    + "',repeat:" + (event.getRepeatCount() > 0) + ",bubbles:true,cancelable:true}));", null);
+        }
+        return true;
+    }
+
+    // ---------------------------------------------------------------- lifecycle
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            immersive();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (web != null) {
+            web.onResume();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (web == null) {
+            return;
+        }
+        if (onTv && !isChangingConfigurations()) {
+            // Home pressed on a TV: stop playback and close so audio never plays from a hidden screen.
+            web.evaluateJavascript(
+                    "document.querySelectorAll('video').forEach(function(m){try{m.pause();}catch(e){}})", null);
+            finish();
+        } else {
+            web.onPause();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (web != null) {
+            root.removeView(web);
+            web.destroy();
+            web = null;
+        }
+        super.onDestroy();
+    }
+
+    // ---------------------------------------------------------------- bridge
+
+    /** window.NativeHttp, used by the page. */
+    private class Bridge {
+        @JavascriptInterface
+        public void get(final int id, final String url) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int status = 0;
+                    String body = "";
+                    HttpURLConnection c = null;
+                    try {
+                        if (url == null || !url.startsWith(ALLOWED_PREFIX)) {
+                            throw new SecurityException("blocked url");
+                        }
+                        c = (HttpURLConnection) new URL(url).openConnection();
+                        c.setConnectTimeout(15000);
+                        c.setReadTimeout(30000);
+                        c.setRequestProperty("User-Agent", "BritishTV/1.0 (Android TV)");
+                        status = c.getResponseCode();
+                        InputStream in = status >= 200 && status < 300 ? c.getInputStream() : c.getErrorStream();
+                        if (in != null) {
+                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            byte[] buf = new byte[16384];
+                            int n;
+                            while ((n = in.read(buf)) > 0) {
+                                out.write(buf, 0, n);
+                                if (out.size() > MAX_BODY_BYTES) {
+                                    throw new java.io.IOException("response too large");
+                                }
+                            }
+                            in.close();
+                            body = out.toString("UTF-8");
+                        }
+                    } catch (Exception e) {
+                        status = 0;
+                        body = "";
+                    } finally {
+                        if (c != null) {
+                            c.disconnect();
+                        }
+                    }
+                    final String js = "window.__http(" + id + "," + status + "," + JSONObject.quote(body) + ")";
+                    main.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (web != null) {
+                                web.evaluateJavascript(js, null);
+                            }
+                        }
+                    });
+                }
+            }).start();
+        }
+
+        @JavascriptInterface
+        public void exit() {
+            main.post(new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            });
+        }
+    }
+}

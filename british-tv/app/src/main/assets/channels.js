@@ -14,11 +14,14 @@
 window.CHANNELS = [
   {
     n: 1,
-    id: 'totp',
-    name: 'Top of the Pops',
+    id: 'music',
+    name: 'Music',
     sources: [
       { item: 'tot-p-1985-big-hits' },
-      { search: 'title:("top of the pops") AND mediatype:movies', rows: 30 }
+      { search: 'title:("top of the pops") AND mediatype:movies', rows: 30 },
+      // The Chart Show and other uploads (musicmad247 on archive.org)
+      { search: 'title:("the chart show" OR "chart show") AND mediatype:movies', rows: 40 },
+      { search: 'musicmad247 AND mediatype:movies', rows: 60 }
     ]
   },
   {

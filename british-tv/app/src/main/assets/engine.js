@@ -53,11 +53,35 @@
 
   function validMonth(m) { return m >= 1 && m <= 12; }
 
+  /** Release-group noise in file names: "minder s04e04 tvrip divx" -> "minder s04e04". */
+  var SURE_TAGS = 'tvrip|dvdrip|divx|xvid|hdtv|pdtv|webrip|web-?dl|bdrip|brrip|x26[45]|h\\.?26[45]|hevc|ac3|480p|576p|720p|1080p|2160p';
+  var SLUG_TAGS = 'dvd|web|aac|mp3|dd\\d?|proper|repack|retail|vhsrip|vhs|pal|ntsc|stereo|mono|rip';
+  function stripRelease(t, slug) {
+    var re = new RegExp('(?:^|[\\s\\[(])(?:' + SURE_TAGS + (slug ? '|' + SLUG_TAGS : '') + ')(?:-\\w+)?(?=$|[\\s\\])])', 'ig');
+    return t.replace(re, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  /** "s04e04" / "S4 E4" -> "S04E04" */
+  function tidyCodes(t) {
+    return t.replace(/\bs(\d{1,2})\s?e(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
+      .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ');
+  }
+
+  function titleCase(t) {
+    return t.replace(/(^|[\s\-(])([a-z])/g, function (_, a, b) { return a + b.toUpperCase(); })
+      ;
+  }
+
   /** Turns "Top of the Pops (1976 08 26) Song.mp4" into {title, sub:'26 Aug 1976'}. */
   function describe(name, fallback) {
     var base = String(name).replace(/^.*\//, '').replace(/\.(ia\.)?(mp4|m4v)$/i, '');
     base = base.replace(/[.\s_]*(\[[^\]\s]+\])+$/, '');       // trailing encoder tags: ".[SR-Enc][bombus]"
-    if (base.indexOf(' ') < 0) base = base.replace(/_+/g, ' ');  // "Knightmare_-_1x01" -> words
+    var slug = base.indexOf(' ') < 0;                            // "minder.s04e04.tvrip.divx", "the-bill-s11e71"
+    if (slug) {
+      base = base.replace(/[._]+/g, ' ');                        // "Knightmare_-_1x01" -> words
+      if (base.indexOf(' ') < 0 && (base.match(/-/g) || []).length >= 2) base = base.replace(/-+/g, ' ');
+    }
+    base = stripRelease(base, slug);
     base = base.replace(/\((S\d+)\s*[-\u2013]\s*(E\d+)\)/i, '$1$2'); // "(S4 - E18)" -> "S4E18"
     var sub = '';
     var title = base;
@@ -91,6 +115,8 @@
       title = base.replace(m[0].replace(/^[^\d]/, ''), ' ');
     }
     title = title.replace(/\s+/g, ' ').replace(/^[\s\-–:]+|[\s\-–:]+$/g, '').replace(/\s-\s-\s/g, ' - ');
+    title = tidyCodes(title);
+    if (slug && title.replace(/\bS\d+E\d+\b/g, '') === title.replace(/\bS\d+E\d+\b/g, '').toLowerCase()) title = titleCase(title);
     return { title: title || fallback || base, sub: sub };
   }
 
@@ -102,8 +128,9 @@
   function cleanShow(folder) {
     var s = String(folder);
     if (s.indexOf(' ') < 0) s = s.replace(/[._-]+/g, ' '); // slug-style names: "the-bill_s01" -> words
-    s = s.replace(/\b(S\d+(-S?\d+)?|webdl|web-dl|xvid|x264|h\.?264|ac3|dd|aac|dvdrip|complete|collection|will1869)\b/ig, ' ');
-    return s.replace(/\s+/g, ' ').trim() || String(folder);
+    s = s.replace(/\b(complete\s+)?(series|seasons?)\s*\d+(\s*(to|-|&|and)\s*\d+)?\b/ig, ' ');   // "Series 1 to 26"
+    s = s.replace(/\b(S\d+(-S?\d+)?|webdl|web-dl|xvid|x264|h\.?264|ac3|dd|aac|dvdrip|tvrip|divx|hdtv|complete|collection|will1869)\b/ig, ' ');
+    return s.replace(/\s+/g, ' ').replace(/^[\s\-–:]+|[\s\-–:]+$/g, '').trim() || String(folder);
   }
 
   /** "Inspector Gadget: The Complete Seasons 1 & 2 (1983-86)" -> "Inspector Gadget". */
@@ -145,9 +172,10 @@
         var show = /^(series|season|s)\s*\d+/i.test(parts[0]) && md.title
           ? cleanShow(cleanItemTitle(md.title)) : cleanShow(parts[0]);
         if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0) {
-          d.title = show + ' - ' + d.title;
+          d.title = show + (/^s\d+e\d+/i.test(d.title) ? ' ' : ' - ') + d.title;
         }
       }
+      d.title = d.title.replace(/^(.+?)\s-\s(S\d+E\d+)/, '$1 $2');
       if (md.title && isGenericTitle(d.title)) {
         // "Series 7" -> "<item title> - Series 7"
         var itemName = cleanItemTitle(md.title);

@@ -16,7 +16,7 @@ archive.org uploads. Nothing is hosted by the app; it reads archive.org directly
 
 ## Current channels
 
-1. Top of the Pops (`tot-p-1985-big-hits` plus a search for more)
+1. Music (Top of the Pops via `tot-p-1985-big-hits` plus searches, The Chart Show and musicmad247 uploads, **unverified**)
 2. Classic BBC (search, **unverified**)
 3. ITV Morning (GMTV, This Morning and SMTV from the `Itvcitv` item)
 4. Classic Sitcoms (`classic-british-tv-pack`)

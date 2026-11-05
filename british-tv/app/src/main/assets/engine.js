@@ -76,6 +76,7 @@
   function describe(name, fallback) {
     var base = String(name).replace(/^.*\//, '').replace(/\.(ia\.)?(mp4|m4v)$/i, '');
     base = base.replace(/[.\s_]*(\[[^\]\s]+\])+$/, '');       // trailing encoder tags: ".[SR-Enc][bombus]"
+    base = base.replace(/^\d{1,3}(?:[.)]\s*|\s+-\s+)(?=[A-Za-z])/, '');   // "01.Are You Being Served" -> words
     var slug = base.indexOf(' ') < 0;                            // "minder.s04e04.tvrip.divx", "the-bill-s11e71"
     if (slug) {
       base = base.replace(/[._]+/g, ' ');                        // "Knightmare_-_1x01" -> words
@@ -169,9 +170,12 @@
       if (parts.length > 1) {
         // Files inside show folders: put the show name in front of the episode name.
         // A folder called "Series 3" says nothing about the show, so use the item's own title then.
-        var show = /^(series|season|s)\s*\d+/i.test(parts[0]) && md.title
-          ? cleanShow(cleanItemTitle(md.title)) : cleanShow(parts[0]);
-        if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0) {
+        // Folders like "24", "Series 3" or "TV SHOW'S XMAS (A-J)" are just shelves, not the show.
+        var shelf = /^(series|season|s)\s*\d+/i.test(parts[0]) || /^\d+$/.test(parts[0]);
+        var bucket = /\(\s*[a-z0-9]\s*[-\u2013]\s*[a-z0-9]\s*\)/i.test(parts[0]);
+        var show = shelf && md.title ? cleanShow(cleanItemTitle(md.title)) : cleanShow(parts[0]);
+        if (bucket) { /* no prefix: the file name carries the show */ }
+        else if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0) {
           d.title = show + (/^s\d+e\d+/i.test(d.title) ? ' ' : ' - ') + d.title;
         }
       }

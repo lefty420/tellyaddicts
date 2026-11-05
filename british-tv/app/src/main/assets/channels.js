@@ -110,6 +110,7 @@ window.CHANNELS = [
     n: 12,
     id: 'citv',
     name: 'CITV',
+    perItem: 30,   // cap per item so Art Attack / Ghostbusters can't crowd out the rest
     sources: [
       { item: 'Itvcitv', include: 'CITV' },
       { item: 'KnightmareSeries1' }, { item: 'KnightmareSeries2' }, { item: 'KnightmareSeries3' },

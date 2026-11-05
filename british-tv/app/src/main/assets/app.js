@@ -68,9 +68,10 @@
   }
 
   function loadPrograms(ch) {
-    var key = 'lib2:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources));
+    var key = 'lib2:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || ''));
     var cached = store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < DAY) {
+      ch.report = cached.r || [];
       return Promise.resolve(cached.p);
     }
     var ids = [];
@@ -97,15 +98,24 @@
       var seen = {};
       var uniq = ids.filter(function (id) { return id && !seen[id] && (seen[id] = true); })
         .slice(0, ch.maxItems || 40);
-      return pool(uniq, 5, function (id) {
-        return getJSON('https://archive.org/metadata/' + encodeURIComponent(id));
+      return pool(uniq, 4, function (id) {
+        var url = 'https://archive.org/metadata/' + encodeURIComponent(id);
+        // one retry: a busy archive.org sometimes drops a request
+        return getJSON(url).then(null, function () { return getJSON(url); });
       }).then(function (metas) {
         var progs = [];
+        var report = [];
         metas.forEach(function (m, i) {
-          if (m) Array.prototype.push.apply(progs, E.pickPrograms(uniq[i], m, optsFor[uniq[i]]));
+          if (!m) { report.push(uniq[i] + ': could not be loaded'); return; }
+          var got = E.pickPrograms(uniq[i], m, optsFor[uniq[i]]);
+          if (!got.length) report.push(uniq[i] + ': ' + E.whyEmpty(m, optsFor[uniq[i]]));
+          // keep one busy item (hundreds of episodes) from drowning out the others
+          if (ch.perItem) got = E.sample(got, ch.perItem);
+          Array.prototype.push.apply(progs, got);
         });
+        ch.report = report;
         progs = E.sample(progs, MAX_STORED);
-        if (progs.length) store.set(key, { t: Date.now(), p: progs });
+        if (progs.length) store.set(key, { t: Date.now(), p: progs, r: report });
         return progs;
       });
     });
@@ -114,7 +124,7 @@
   // ------------------------------------------------------------------ channels
 
   var channels = window.CHANNELS.map(function (c) {
-    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, status: 'loading', sched: null };
+    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, report: [], status: 'loading', sched: null };
   });
 
   function ready() {
@@ -547,6 +557,13 @@
     toast((delta > 0 ? '+' : '−') + Math.abs(delta) + 's', 1000);
   }
 
+  function showReport() {
+    var c = gChan;
+    if (!c) return;
+    var r = c.report || [];
+    toast(c.name + ': ' + (r.length ? 'not playing - ' + r.join('; ') : 'all sources loaded'), 9000);
+  }
+
   window.addEventListener('keydown', function (e) {
     if (!started) {
       if (e.key === 'GoBack' || e.key === 'Escape' || e.key === 'Backspace') { exitApp(); e.preventDefault(); }
@@ -567,6 +584,7 @@
       else if (k === 'Yellow' || k === 'MediaRewind') gJump('earlier');
       else if (k === 'Enter' || k === ' ' || k === 'Blue') watchFromGuide();
       else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide') closeGuide();
+      else if (k === 'Info') showReport();
       else handled = false;
     } else if (k >= '0' && k <= '9' && k.length === 1) {
       onDigit(k);

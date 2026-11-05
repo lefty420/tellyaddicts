@@ -230,6 +230,20 @@
     return out;
   }
 
+  /** Why an item gave nothing: lists the file types it does have, e.g. "no mp4 (mkv, avi)". */
+  function whyEmpty(meta, opts) {
+    if (!meta || meta.is_dark) return 'unavailable';
+    if (String((meta.metadata || {})['access-restricted-item']).toLowerCase() === 'true') return 'restricted';
+    var ext = {};
+    (meta.files || []).forEach(function (f) {
+      var m = /\.([a-z0-9]{2,4})$/i.exec(f.name || '');
+      if (m && /^(mp4|m4v|mkv|avi|ogv|mpg|mpeg|webm|mov|divx|wmv|flv)$/i.test(m[1])) ext[m[1].toLowerCase()] = 1;
+    });
+    var k = Object.keys(ext);
+    if (k.indexOf('mp4') >= 0) return 'mp4 files filtered out';
+    return k.length ? 'no mp4 (' + k.join(', ') + ')' : 'no video files';
+  }
+
   function name_isRoot(prog) {
     return prog.id.split('/').length === 2; // "<item>/<file>" with no folders
   }
@@ -357,7 +371,7 @@
 
   var Engine = {
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
-    pickPrograms: pickPrograms, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
+    pickPrograms: pickPrograms, whyEmpty: whyEmpty, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
     cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, blocks: blocks,
     DEFAULT_DURATION: DEFAULT_DURATION
   };

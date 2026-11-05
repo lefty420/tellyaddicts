@@ -64,7 +64,8 @@
   /** "s04e04" / "S4 E4" -> "S04E04" */
   function tidyCodes(t) {
     return t.replace(/\bs\s?(\d{1,2})\s?e\s?(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
-      .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ');
+      .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ')
+      .replace(/\s[-\u2013]\s(?=S\d+E\d+\b)/g, ' ');
   }
 
   function titleCase(t) {
@@ -83,6 +84,7 @@
       if (base.indexOf(' ') < 0 && (base.match(/-/g) || []).length >= 2) base = base.replace(/-+/g, ' ');
     }
     base = stripRelease(base, slug);
+    base = base.replace(/\s*\(\s*\d{4}\s*[-\u2013]\s*\d{2,4}\s*\)/g, '');   // series year range "(1976 - 84)"
     base = base.replace(/\((S\d+)\s*[-\u2013]\s*(E\d+)\)/i, '$1$2'); // "(S4 - E18)" -> "S4E18"
     var sub = '';
     var title = base;
@@ -114,6 +116,19 @@
       // UK style day-month-year, e.g. "ITV - 03-11-2001"
       sub = (+m[1]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[3];
       title = base.replace(m[0].replace(/^[^\d]/, ''), ' ');
+    }
+    if (!sub) {                                                  // "May 29, 1981" / "26th February 1976"
+      var mon = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
+      var d1 = title.match(new RegExp('[\\s,\\-]*\\b' + mon + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4})\\b', 'i'));
+      var d2 = title.match(new RegExp('[\\s,\\-]*\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+' + mon + '\\.?,?\\s+(\\d{4})\\b', 'i'));
+      var mi = function (w) { return MONTHS.map(function (x) { return x.toLowerCase(); }).indexOf(w.slice(0, 3).toLowerCase()); };
+      if (d1 && +d1[2] >= 1 && +d1[2] <= 31) {
+        sub = (+d1[2]) + ' ' + MONTHS[mi(d1[1])] + ' ' + d1[3];
+        title = title.replace(d1[0], ' ');
+      } else if (d2 && +d2[1] >= 1 && +d2[1] <= 31) {
+        sub = (+d2[1]) + ' ' + MONTHS[mi(d2[2])] + ' ' + d2[3];
+        title = title.replace(d2[0], ' ');
+      }
     }
     if (!sub && (m = title.match(/\s(\d{4})[ .\-_](\d{1,2})[ .\-_](\d{1,2})\s*$/)) && validMonth(+m[2]) && +m[3] >= 1 && +m[3] <= 31) {
       sub = (+m[3]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[1];   // "The Chart Show S 03e 34 1988 08 26"

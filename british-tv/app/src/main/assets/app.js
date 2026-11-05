@@ -466,6 +466,7 @@
   }
 
   function openGuide() {
+    closeOsd();
     var list = guideList();
     if (!list.length) return;
     guideOpen = true;
@@ -576,6 +577,75 @@
     toast(c.name + ': ' + (r.length ? 'not playing - ' + r.join('; ') : 'all sources loaded'), 9000);
   }
 
+  // ------------------------------------------------------------------ options panel (OK while watching)
+
+  var AR = [
+    { id: 'auto', label: 'Auto' }, { id: '43', label: '4:3' }, { id: '169', label: '16:9' },
+    { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
+  ];
+  var arIdx = 0;
+  var osdOpen = false, osdRow = 0, osdTimer = null;
+  (function () {
+    var saved = store.get('ar');
+    for (var i = 0; i < AR.length; i++) if (AR[i].id === saved) arIdx = i;
+  })();
+
+  function applyAr() {
+    AR.forEach(function (a) { document.body.classList.remove('ar-' + a.id); });
+    document.body.classList.add('ar-' + AR[arIdx].id);
+    store.set('ar', AR[arIdx].id);
+  }
+
+  function renderOsd() {
+    $('oval0').textContent = '\u25C4  ' + AR[arIdx].label + '  \u25BA';
+    $('orow0').className = 'orow' + (osdRow === 0 ? ' sel' : '');
+    $('orow1').className = 'orow' + (osdRow === 1 ? ' sel' : '');
+  }
+
+  function osdTouch() {
+    clearTimeout(osdTimer);
+    osdTimer = setTimeout(closeOsd, 8000);
+  }
+
+  function openOsd() {
+    if (!cur) { openGuide(); return; }
+    osdOpen = true;
+    osdRow = 0;
+    renderOsd();
+    $('osd').className = '';
+    showBanner();
+    osdTouch();
+  }
+
+  function closeOsd() {
+    osdOpen = false;
+    clearTimeout(osdTimer);
+    $('osd').className = 'off';
+  }
+
+  function changeAr(d) {
+    arIdx = (arIdx + d + AR.length) % AR.length;
+    applyAr();
+    renderOsd();
+  }
+
+  applyAr();
+
+  function osdKey(k) {
+    osdTouch();
+    if (k === 'ArrowUp' || k === 'ArrowDown') { osdRow = 1 - osdRow; renderOsd(); }
+    else if (k === 'ArrowLeft' || k === 'MediaRewind') { if (osdRow === 0) changeAr(-1); }
+    else if (k === 'ArrowRight' || k === 'MediaFastForward') { if (osdRow === 0) changeAr(1); }
+    else if (k === 'Enter') { if (osdRow === 0) changeAr(1); else { closeOsd(); openGuide(); } }
+    else if (k === 'Guide' || k === 'Red') { closeOsd(); openGuide(); }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') closeOsd();
+    else if (k === 'ChannelUp') { closeOsd(); surf(1); }
+    else if (k === 'ChannelDown') { closeOsd(); surf(-1); }
+    else if (k >= '0' && k <= '9' && k.length === 1) { closeOsd(); onDigit(k); }
+    else return false;
+    return true;
+  }
+
   window.addEventListener('keydown', function (e) {
     if (!started) {
       if (e.key === 'GoBack' || e.key === 'Escape' || e.key === 'Backspace') { exitApp(); e.preventDefault(); }
@@ -598,11 +668,14 @@
       else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide') closeGuide();
       else if (k === 'Info') showReport();
       else handled = false;
+    } else if (osdOpen) {
+      handled = osdKey(k);
     } else if (k >= '0' && k <= '9' && k.length === 1) {
       onDigit(k);
     } else if (k === 'ArrowUp' || k === 'ChannelUp') { surf(1); }
     else if (k === 'ArrowDown' || k === 'ChannelDown') { surf(-1); }
-    else if (k === 'Enter' || k === 'Guide' || k === 'Red') { openGuide(); }
+    else if (k === 'Guide' || k === 'Red') { openGuide(); }
+    else if (k === 'Enter') { openOsd(); }
     else if (k === 'Info') { showBanner(); }
     else if (k === 'ArrowRight' || k === 'MediaFastForward') { seek(30); }
     else if (k === 'ArrowLeft' || k === 'MediaRewind') { seek(-30); }

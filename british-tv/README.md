@@ -25,9 +25,9 @@ archive.org uploads. Nothing is hosted by the app; it reads archive.org directly
 7. Christmas TV (`uk-tv-show-christmas-specials` and `uk-tv-shows-christmas-specials`)
 8. 70s TV (search of the `classic_tv_1970s` collection)
 9. Adverts & Continuity (search, **unverified**)
-10. ITV & CITV (the rest of the `Itvcitv` item: ITV evenings, CITV, CD:UK)
+10. ITV (the rest of the `Itvcitv` item: ITV evenings, CD:UK, everything except CITV and the morning shows)
 11. Noel's House Party (`noel-s-house-party`)
-12. CITV Classics (Knightmare series 1-8, The Trap Door, Art Attack, Dogtanian, Dungeons & Dragons, The Real Ghostbusters, Inspector Gadget)
+12. CITV (CITV shows from `Itvcitv`, plus Knightmare series 1-8, The Trap Door, Art Attack, Dogtanian, Dungeons & Dragons, The Real Ghostbusters, Inspector Gadget)
 13. Video Games (Gamesmaster episodes plus a search for Bad Influence, **unverified**)
 
 When an item lists the same programme twice, the small `.ia.mp4` copy is used in preference to a larger plain `.mp4`.

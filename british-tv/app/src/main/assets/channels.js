@@ -90,9 +90,9 @@ window.CHANNELS = [
   {
     n: 10,
     id: 'itv',
-    name: 'ITV & CITV',
+    name: 'ITV',
     sources: [
-      { item: 'Itvcitv', exclude: 'GMTV|This Morning|SMTV|Daybreak|Lorraine' }
+      { item: 'Itvcitv', exclude: 'GMTV|This Morning|SMTV|Daybreak|Lorraine|CITV' }
     ]
   },
   {
@@ -106,8 +106,9 @@ window.CHANNELS = [
   {
     n: 12,
     id: 'citv',
-    name: 'CITV Classics',
+    name: 'CITV',
     sources: [
+      { item: 'Itvcitv', include: 'CITV' },
       { item: 'KnightmareSeries1' }, { item: 'KnightmareSeries2' }, { item: 'KnightmareSeries3' },
       { item: 'KnightmareSeries4' }, { item: 'KnightmareSeries5' }, { item: 'KnightmareSeries6' },
       { item: 'KnightmareSeries7' }, { item: 'KnightmareSeries8' },

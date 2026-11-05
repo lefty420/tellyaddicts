@@ -17,8 +17,8 @@ Nothing is hosted by the app. It reads archive.org directly on the TV and plays 
 
 ## Channels
 
-Music (Top of the Pops, The Chart Show), Classic BBC, Morning TV, Classic Sitcoms, Game Shows,
-The Bill, Christmas TV, 70s TV, Adverts & Continuity, Noel's House Party, CITV and Video Games.
+Music (Top of the Pops, The Chart Show), Classic BBC, ITV Morning, Classic Sitcoms, Game Shows,
+The Bill, Christmas TV, 70s TV, Adverts & Continuity, ITV, Noel's House Party, CITV and Video Games.
 The full list and the archive.org sources behind each one are in
 `british-tv/app/src/main/assets/channels.js`. Channels that find nothing playable hide themselves.
 

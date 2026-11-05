@@ -500,12 +500,13 @@
     var nb;
     if (dir < 0) {
       if (fb.startMs <= now) return;            // cannot go back before what is on now
-      nb = E.blockAt(sched, fb.startMs - 1);
-      gFocus = Math.max(nb.startMs, now);
+      nb = E.stepBlock(sched, fb, -1);
+      // land a second inside the block: sitting exactly on the boundary can round into the neighbour
+      gFocus = Math.max(nb.startMs + 1000, now);
       if (nb.startMs < gWin) gWin = Math.max(floorHalf(now), floorHalf(nb.startMs));
     } else {
-      nb = E.blockAt(sched, fb.endMs);
-      gFocus = nb.startMs;
+      nb = E.stepBlock(sched, fb, 1);
+      gFocus = Math.min(nb.startMs + 1000, nb.endMs - 1);
       if (nb.startMs >= gWin + SPAN) gWin = floorHalf(nb.startMs);
     }
     renderGuide();

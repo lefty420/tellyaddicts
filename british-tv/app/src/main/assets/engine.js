@@ -321,6 +321,14 @@
     return mkBlock(s, lo, tMs - (pos - G[lo].start) * 1000);
   }
 
+  /** The block after (dir > 0) or before (dir < 0) block b, found by position in the list, not by time. */
+  function stepBlock(s, b, dir) {
+    var n = s.groups.length;
+    if (dir > 0) return mkBlock(s, (b.gi + 1) % n, b.endMs);
+    var gi = (b.gi - 1 + n) % n;
+    return mkBlock(s, gi, b.startMs - s.groups[gi].dur * 1000);
+  }
+
   /** All guide blocks overlapping [fromMs, toMs). */
   function blocks(s, fromMs, toMs) {
     var b = blockAt(s, fromMs);
@@ -378,7 +386,7 @@
   var Engine = {
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
     pickPrograms: pickPrograms, whyEmpty: whyEmpty, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
-    cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, blocks: blocks,
+    cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, stepBlock: stepBlock, blocks: blocks,
     DEFAULT_DURATION: DEFAULT_DURATION
   };
 

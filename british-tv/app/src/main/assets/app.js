@@ -68,7 +68,7 @@
   }
 
   function loadPrograms(ch) {
-    var key = 'lib2:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || ''));
+    var key = 'lib2:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v3');
     var cached = store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < DAY) {
       ch.report = cached.r || [];
@@ -81,14 +81,14 @@
       var skip = s.exclude ? new RegExp(s.exclude, 'i') : null;
       if (s.item) {
         ids.push(s.item);
-        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur };
+        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur, perItem: s.perItem };
       } else if (s.search) {
         chain = chain.then(function () {
           return getJSON(searchUrl(s.search, s.rows || 25)).then(function (j) {
             ((j.response && j.response.docs) || []).forEach(function (d) {
               if (skip && skip.test((d.title || '') + ' ' + d.identifier)) return; // unwanted result
               ids.push(d.identifier);
-              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur };
+              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur, perItem: s.perItem };
             });
           }, function () { /* a failed search just contributes nothing */ });
         });
@@ -110,7 +110,8 @@
           var got = E.pickPrograms(uniq[i], m, optsFor[uniq[i]]);
           if (!got.length) report.push(uniq[i] + ': ' + E.whyEmpty(m, optsFor[uniq[i]]));
           // keep one busy item (hundreds of episodes) from drowning out the others
-          if (ch.perItem) {
+          var cap = (optsFor[uniq[i]] && optsFor[uniq[i]].perItem) || ch.perItem;
+          if (cap) {
             // cap each show folder separately, so one busy show can't crowd out the rest of an item
             var byDir = {}, order = [];
             got.forEach(function (g) {
@@ -120,7 +121,7 @@
               byDir[dir].push(g);
             });
             got = [];
-            order.forEach(function (d) { Array.prototype.push.apply(got, E.sample(byDir[d], ch.perItem)); });
+            order.forEach(function (d) { Array.prototype.push.apply(got, E.sample(byDir[d], cap)); });
           }
           Array.prototype.push.apply(progs, got);
         });
@@ -577,14 +578,15 @@
     toast(c.name + ': ' + (r.length ? 'not playing - ' + r.join('; ') : 'all sources loaded'), 9000);
   }
 
-  // ------------------------------------------------------------------ options panel (OK while watching)
+  // ------------------------------------------------------------------ OSD bar (OK while watching)
 
   var AR = [
     { id: 'auto', label: 'Auto' }, { id: '43', label: '4:3' }, { id: '169', label: '16:9' },
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var osdOpen = false, osdRow = 0, osdTimer = null;
+  var OB = ['rew', 'pp', 'ff', 'ar', 'guide'];   // buttons on the bar, left to right
+  var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
     for (var i = 0; i < AR.length; i++) if (AR[i].id === saved) arIdx = i;
@@ -596,30 +598,58 @@
     store.set('ar', AR[arIdx].id);
   }
 
+  function fmtTime(t) {
+    if (!isFinite(t) || t < 0) t = 0;
+    var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.floor(t % 60);
+    return (h ? h + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
   function renderOsd() {
-    $('oval0').textContent = '\u25C4  ' + AR[arIdx].label + '  \u25BA';
-    $('orow0').className = 'orow' + (osdRow === 0 ? ' sel' : '');
-    $('orow1').className = 'orow' + (osdRow === 1 ? ' sel' : '');
+    if (!cur) return;
+    var sched = cur.ch.sched;
+    var next = sched.order[(cur.index + 1) % sched.order.length];
+    $('onum').textContent = cur.ch.n;
+    $('ochan').textContent = cur.ch.name;
+    $('otitle').textContent = cur.prog.title;
+    $('osub').textContent = cur.prog.sub || '';
+    $('onext').textContent = '';
+    if (next) {
+      $('onext').appendChild(document.createTextNode('Next'));
+      var nb = document.createElement('b');
+      nb.textContent = next.title;
+      $('onext').appendChild(nb);
+    }
+    var dur = v.duration, pos = v.currentTime;
+    $('obar').style.width = (isFinite(dur) && dur > 0 ? Math.min(100, pos / dur * 100) : 0) + '%';
+    $('otime').textContent = fmtTime(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtTime(dur) : '');
+    $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
+    $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
+    $('olbl-ar').textContent = 'Picture: ' + AR[arIdx].label;
+    OB.forEach(function (id, i) { $('ob-' + id).className = 'ob' + (i === osdSel ? ' sel' : ''); });
   }
 
   function osdTouch() {
     clearTimeout(osdTimer);
-    osdTimer = setTimeout(closeOsd, 8000);
+    osdTimer = setTimeout(function () { if (v.paused) osdTouch(); else closeOsd(); }, 8000);
   }
 
   function openOsd() {
     if (!cur) { openGuide(); return; }
     osdOpen = true;
-    osdRow = 0;
+    osdSel = 1;
+    clearTimeout(bannerTimer);
+    $('banner').className = 'off';
     renderOsd();
     $('osd').className = '';
-    showBanner();
+    clearInterval(osdTick);
+    osdTick = setInterval(renderOsd, 500);
     osdTouch();
   }
 
   function closeOsd() {
     osdOpen = false;
     clearTimeout(osdTimer);
+    clearInterval(osdTick);
     $('osd').className = 'off';
   }
 
@@ -629,18 +659,36 @@
     renderOsd();
   }
 
+  function togglePlay() {
+    if (v.paused) { v.play(); toast('Play', 1000); } else { v.pause(); toast('Paused', 1500); }
+    setTimeout(renderOsd, 60);
+  }
+
   applyAr();
+
+  function osdAct(id) {
+    if (id === 'rew') seek(-30);
+    else if (id === 'ff') seek(30);
+    else if (id === 'pp') togglePlay();
+    else if (id === 'ar') changeAr(1);
+    else if (id === 'guide') { closeOsd(); openGuide(); }
+    renderOsd();
+  }
 
   function osdKey(k) {
     osdTouch();
-    if (k === 'ArrowUp' || k === 'ArrowDown') { osdRow = 1 - osdRow; renderOsd(); }
-    else if (k === 'ArrowLeft' || k === 'MediaRewind') { if (osdRow === 0) changeAr(-1); }
-    else if (k === 'ArrowRight' || k === 'MediaFastForward') { if (osdRow === 0) changeAr(1); }
-    else if (k === 'Enter') { if (osdRow === 0) changeAr(1); else { closeOsd(); openGuide(); } }
+    if (k === 'ArrowLeft') { osdSel = Math.max(0, osdSel - 1); renderOsd(); }
+    else if (k === 'ArrowRight') { osdSel = Math.min(OB.length - 1, osdSel + 1); renderOsd(); }
+    else if (k === 'Enter') osdAct(OB[osdSel]);
+    else if (k === 'MediaRewind') osdAct('rew');
+    else if (k === 'MediaFastForward') osdAct('ff');
+    else if (k === 'MediaPlayPause' || k === ' ') osdAct('pp');
+    else if (k === 'MediaPlay') { v.play(); setTimeout(renderOsd, 60); }
+    else if (k === 'MediaPause') { v.pause(); setTimeout(renderOsd, 60); }
     else if (k === 'Guide' || k === 'Red') { closeOsd(); openGuide(); }
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') closeOsd();
-    else if (k === 'ChannelUp') { closeOsd(); surf(1); }
-    else if (k === 'ChannelDown') { closeOsd(); surf(-1); }
+    else if (k === 'ArrowUp' || k === 'ChannelUp') { closeOsd(); surf(1); }
+    else if (k === 'ArrowDown' || k === 'ChannelDown') { closeOsd(); surf(-1); }
     else if (k >= '0' && k <= '9' && k.length === 1) { closeOsd(); onDigit(k); }
     else return false;
     return true;

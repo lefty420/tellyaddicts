@@ -43,7 +43,7 @@ Items that only contain `.avi`/`.mkv` originals will not play unless archive.org
 | Up / Down | Change channel | Move between channels |
 | Left / Right | Seek 30 s | Move between programmes (Left stops at what is on now) |
 | Channel +/- | Change channel | Page up / down through channels |
-| OK | Options panel (picture size: Auto, 4:3, 16:9, Zoom, Stretch; TV Guide) | Watch the selected channel |
+| OK | OSD bar at the bottom: programme info, progress, rewind 30s, play/pause, forward 30s, picture size (Auto, 4:3, 16:9, Zoom, Stretch) and TV Guide (Left/Right to choose, OK to use) | Watch the selected channel |
 | Guide / Red | Open guide | Red jumps back to Now |
 | Rewind / Fast-forward | Seek 30 s | Earlier / Later (2 hours) |
 | Green / Yellow / Blue | | Later / Earlier / Watch |

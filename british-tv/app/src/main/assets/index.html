@@ -48,7 +48,7 @@
   }
   #splash h1, #nosignal h1 { font-size: 7vh; letter-spacing: .12em; margin: 0 0 2vh; }
   #splash h1 span { color: var(--red); }
-  #logo { height: 30vh; width: 30vh; margin-bottom: 0; }
+  #logo { height: 26vh; width: auto; margin-bottom: 1vh; }
   #splash p, #nosignal p { font-size: 3vh; margin: .6vh 0; color: var(--dim); }
   #bars { display: flex; gap: .6vh; margin: 2vh 0; }
   #bars i { width: 4vh; height: 1vh; background: var(--cream); opacity: .25; }
@@ -137,19 +137,29 @@
   body:not(.guide-open).ar-43 #v { object-fit: fill; inset: 0; margin: auto; height: 100vh; width: 133.333vh; max-width: 100vw; }
   body:not(.guide-open).ar-169 #v { object-fit: fill; inset: 0; margin: auto; width: min(100vw, 177.778vh); height: min(100vh, 56.25vw); }
 
-  /* options panel (OK while watching) */
+  /* OSD bar (OK while watching): programme info, transport buttons and picture size */
   #osd {
-    position: fixed; right: 4vw; top: 5vh; width: 34vw; z-index: 30; padding: 1.6vh 1.4vw 1.4vh;
-    background: linear-gradient(180deg, rgba(7,29,102,.97), rgba(3,13,54,.97)); border-top: .8vh solid var(--hi2);
+    position: fixed; left: 4vw; right: 4vw; bottom: 5vh; z-index: 30; display: flex; flex-direction: column;
+    background: linear-gradient(90deg, rgba(7,29,102,.97), rgba(12,47,154,.93)); border-left: 1vh solid var(--hi2);
     border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); transition: opacity .2s;
   }
   #osd.off { opacity: 0; pointer-events: none; }
-  #osd .otitle { font-size: 2.4vh; letter-spacing: .12em; text-transform: uppercase; color: #b9d1ff; margin-bottom: 1.2vh; }
-  #osd .orow { display: flex; justify-content: space-between; align-items: center; padding: 1.3vh 1vw; margin-bottom: .6vh;
-    font-size: 3vh; font-weight: 600; background: rgba(255,255,255,.08); border-radius: .6vh; }
-  #osd .orow.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
-  #osd .ov { font-weight: 700; }
-  #osd .ohint { font-size: 2vh; color: rgba(255,255,255,.6); margin-top: .8vh; }
+  #onow { display: flex; align-items: stretch; }
+  #onum { padding: 1.6vh 2.2vw; font-size: 6vh; font-weight: 700; color: var(--hi2); min-width: 8vw; text-align: center; }
+  #oinfo { padding: 1.6vh 1vw 1vh 0; flex: 1; min-width: 0; }
+  #ochan { font-size: 2.2vh; text-transform: uppercase; letter-spacing: .12em; color: rgba(255,255,255,.7); }
+  #otitle { font-size: 3.8vh; font-weight: 600; margin: .3vh 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #osub { font-size: 2.3vh; color: rgba(255,255,255,.7); }
+  #onext { padding: 1.6vh 2vw; font-size: 2.2vh; color: rgba(255,255,255,.7); max-width: 28vw; align-self: center; }
+  #onext b { display: block; color: #fff; font-weight: 600; margin-top: .3vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #oprog { position: relative; margin: .4vh 2vw .8vh 9.2vw; height: 1.2vh; background: rgba(255,255,255,.2); border-radius: .6vh; }
+  #obar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--hi2); border-radius: .6vh; width: 0; }
+  #otime { position: absolute; right: 0; top: 1.8vh; font-size: 2vh; color: rgba(255,255,255,.75); }
+  #obtns { display: flex; gap: 1vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
+  .ob { flex: 1; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .6vw;
+    font-size: 2.8vh; font-weight: 600; background: rgba(255,255,255,.1); border-radius: .7vh; white-space: nowrap; }
+  .ob .ic { font-size: 2.6vh; }
+  .ob.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
 </style>
 </head>
 <body>
@@ -163,10 +173,19 @@
   <div id="bnext"></div>
 </div>
 <div id="osd" class="off">
-  <div class="otitle">Options</div>
-  <div class="orow sel" id="orow0"><span>Picture size</span><span class="ov" id="oval0"></span></div>
-  <div class="orow" id="orow1"><span>TV Guide</span><span class="ov">OK</span></div>
-  <div class="ohint">&#9668; &#9658; change &nbsp;&#9650; &#9660; select &nbsp;Back close</div>
+  <div id="onow">
+    <div id="onum"></div>
+    <div id="oinfo"><div id="ochan"></div><div id="otitle"></div><div id="osub"></div></div>
+    <div id="onext"></div>
+  </div>
+  <div id="oprog"><i id="obar"></i><span id="otime"></span></div>
+  <div id="obtns">
+    <div class="ob" id="ob-rew"><span class="ic">&#9664;&#9664;</span><span>30s</span></div>
+    <div class="ob" id="ob-pp"><span class="ic" id="oic-pp"></span><span id="olbl-pp"></span></div>
+    <div class="ob" id="ob-ff"><span>30s</span><span class="ic">&#9654;&#9654;</span></div>
+    <div class="ob" id="ob-ar"><span id="olbl-ar"></span></div>
+    <div class="ob" id="ob-guide"><span>TV Guide</span></div>
+  </div>
 </div>
 <div id="toast" class="off"></div>
 

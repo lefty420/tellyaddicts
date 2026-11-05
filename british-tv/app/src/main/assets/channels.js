@@ -16,12 +16,12 @@ window.CHANNELS = [
     n: 1,
     id: 'music',
     name: 'Music',
+    maxItems: 220,   // many separate episode items: let them all through
     sources: [
       { item: 'tot-p-1985-big-hits' },
       { search: 'title:("top of the pops") AND mediatype:movies', rows: 30 },
-      // The Chart Show and other uploads (musicmad247 on archive.org)
-      { search: 'title:("the chart show" OR "chart show") AND mediatype:movies', rows: 40 },
-      { search: 'musicmad247 AND mediatype:movies', rows: 60 }
+      // The Chart Show episodes (one archive.org item each, e.g. "The Chart Show S 03e 34 1988 08 26")
+      { search: 'title:("the chart show") AND mediatype:movies', rows: 150 }
     ]
   },
   {

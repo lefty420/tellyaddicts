@@ -63,7 +63,7 @@
 
   /** "s04e04" / "S4 E4" -> "S04E04" */
   function tidyCodes(t) {
-    return t.replace(/\bs(\d{1,2})\s?e(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
+    return t.replace(/\bs\s?(\d{1,2})\s?e\s?(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
       .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ');
   }
 
@@ -114,6 +114,10 @@
       // UK style day-month-year, e.g. "ITV - 03-11-2001"
       sub = (+m[1]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[3];
       title = base.replace(m[0].replace(/^[^\d]/, ''), ' ');
+    }
+    if (!sub && (m = title.match(/\s(\d{4})[ .\-_](\d{1,2})[ .\-_](\d{1,2})\s*$/)) && validMonth(+m[2]) && +m[3] >= 1 && +m[3] <= 31) {
+      sub = (+m[3]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[1];   // "The Chart Show S 03e 34 1988 08 26"
+      title = title.slice(0, m.index);
     }
     title = title.replace(/\s+/g, ' ').replace(/^[\s\-–:]+|[\s\-–:]+$/g, '').replace(/\s-\s-\s/g, ' - ');
     title = tidyCodes(title);
@@ -230,8 +234,9 @@
     if (out.length === 1 && md.title && !include && !exclude && name_isRoot(out[0])) {
       // an item that is a single programme: use the item's own title
       var only = describe(out[0].id.split('/').slice(1).join('/'));
-      out[0].title = cleanItemTitle(md.title);
-      if (!out[0].sub) out[0].sub = only.sub;
+      var named = describe(cleanItemTitle(md.title));
+      out[0].title = named.title;
+      if (!out[0].sub) out[0].sub = named.sub || only.sub;
     }
     return out;
   }

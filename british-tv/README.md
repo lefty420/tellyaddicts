@@ -1,7 +1,6 @@
 # Telly Addicts (Android TV / Google TV / NVIDIA Shield)
 
-The app is called Telly Addicts on the TV. The folder, package name (`app.britishtv`) and the workflow
-name (Build British TV APK) keep the old name so updates install over the previous version.
+The app is called Telly Addicts on the TV. The folder, package name (`app.britishtv`) and the folder keep the old name so updates install over the previous version.
 
 A separate app: classic British telly as channels with a TV guide, built from public
 archive.org uploads. Nothing is hosted by the app; it reads archive.org directly on the TV.
@@ -61,10 +60,10 @@ shown as one block of about half an hour.
 ## Get the APK
 
 1. Push this repo to GitHub (the `.github/workflows/build-british-tv.yml` workflow is included).
-2. Open the **Actions** tab, choose **Build British TV APK**, press **Run workflow**.
-3. Download the **british-tv-apk** artifact and unzip it to get `app-debug.apk`.
+2. Open the **Actions** tab, choose **Build Telly Addicts APK**, press **Run workflow**.
+3. Download the **tellyaddicts-apk** artifact and unzip it to get `tellyaddicts.apk`.
 
-Install on the TV with the Downloader app or `adb install app-debug.apk`.
+Install on the TV with the Downloader app or `adb install tellyaddicts.apk`.
 
 ## Editing channels
 

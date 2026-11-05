@@ -1,4 +1,4 @@
-name: Build British TV APK
+name: Build Telly Addicts APK
 
 on:
   push:
@@ -29,7 +29,10 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Name the APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk tellyaddicts.apk
+
       - uses: actions/upload-artifact@v4
         with:
-          name: british-tv-apk
-          path: british-tv/app/build/outputs/apk/debug/app-debug.apk
+          name: tellyaddicts-apk
+          path: british-tv/tellyaddicts.apk

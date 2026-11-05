@@ -220,6 +220,8 @@
       seen[key] = out.length;
       out.push(make(name, f));
     }
+    var minDur = opts && opts.minDur ? +opts.minDur : 0;
+    if (minDur) out = out.filter(function (o) { return !o._len || o._len >= minDur; }); // unknown length: keep
     out.forEach(function (o) { delete o._ia; delete o._len; });
     if (out.length === 1 && md.title && !include && !exclude && name_isRoot(out[0])) {
       // an item that is a single programme: use the item's own title

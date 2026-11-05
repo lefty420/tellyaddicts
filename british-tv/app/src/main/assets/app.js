@@ -81,14 +81,14 @@
       var skip = s.exclude ? new RegExp(s.exclude, 'i') : null;
       if (s.item) {
         ids.push(s.item);
-        optsFor[s.item] = { include: s.include, exclude: s.exclude };
+        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur };
       } else if (s.search) {
         chain = chain.then(function () {
           return getJSON(searchUrl(s.search, s.rows || 25)).then(function (j) {
             ((j.response && j.response.docs) || []).forEach(function (d) {
               if (skip && skip.test((d.title || '') + ' ' + d.identifier)) return; // unwanted result
               ids.push(d.identifier);
-              optsFor[d.identifier] = { exclude: s.exclude };
+              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur };
             });
           }, function () { /* a failed search just contributes nothing */ });
         });

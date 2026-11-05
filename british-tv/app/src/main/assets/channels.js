@@ -56,8 +56,13 @@ window.CHANNELS = [
     n: 5,
     id: 'gameshows',
     name: 'Game Shows',
+    perItem: 40,   // keep one show from crowding out the others
     sources: [
-      { item: 'the-crystal-maze-complete_202401', include: '^The Crystal Maze/' }
+      { item: 'the-crystal-maze-complete_202401', include: '^The Crystal Maze/' },
+      { item: 'bruce-forsyths-generation-game-s-1-ep-01-sept-7th-1990' },
+      { item: 'view-record-catchphrase-roywalker5' },
+      { item: 'supermarket-sweep-dalewinton' },
+      { item: 'wheeloffortuneuk' }
     ]
   },
   {
@@ -114,23 +119,44 @@ window.CHANNELS = [
     id: 'citv',
     name: 'CITV',
     perItem: 30,   // cap per item so Art Attack / Ghostbusters can't crowd out the rest
+    maxItems: 80,  // lots of items on this channel
     sources: [
       { item: 'Itvcitv', include: 'CITV' },
       { item: 'KnightmareSeries1' }, { item: 'KnightmareSeries2' }, { item: 'KnightmareSeries3' },
       { item: 'KnightmareSeries4' }, { item: 'KnightmareSeries5' }, { item: 'KnightmareSeries6' },
       { item: 'KnightmareSeries7' }, { item: 'KnightmareSeries8' },
-      { item: 'the-trap-door-1986', exclude: 'Intro' },
+      { item: 'the-trap-door-the-complete-collection-1984-86-seasons-1-2' },
       { item: 'art-attack-uk-vhs-and-dvd-collection' },
       { item: 'dogtanian-and-the-three-muskehounds' },
       { item: 'dungeons-dragons-1983-s-02-e-01-the-girl-who-dreamed-tomorrow-1080p-hd-upscale', exclude: 'Requiem' },
-      { item: 'the-real-ghostbusters' },
+      { item: 'real-ghostbusters-1' }, { item: 'real-ghostbusters-2-1' }, { item: 'real-ghostbusters-3' },
+      { item: 'real-ghostbusters-4' }, { item: 'real-ghostbusters-5' },
       { item: 'inspector-gadget-go-go-gadget-series' },
       { item: '60s70s80skidstv',
         include: '^(Fireman Sam|Jimbo and the Jet Set|Postman Pat 1981-1996|Roobarb and Custard|The Family-Ness)/' },
       { item: 'garfield-and-friends-complete-series' },
       { item: 'mask-01-the-deathstone-sg-1' },
       { item: 'spider-man-and-his-amazing-friends_202403' },
-      { item: '20240727_20240727_0523' }
+      { item: '20240727_20240727_0523' },
+      { item: 'maid-marian-and-her-merry-men-1989-94' },
+      { item: 'simon-and-the-witch-1987-88' },
+      { item: 'bananaman-the-complete-collection-1983-86-series-1-3' },
+      { item: 'bucky-ohare-and-the-toad-wars-the-complete-series-1991' },
+      { item: 'the_adventures_of_pete_and_pete' },
+      { item: 'rainbow-1972-92-childrens-itv-series' },
+      { item: 'Ducktales-Complete-Series' },
+      { item: 'transformers-season-1' },
+      { item: 'gummi-bears-s-01-e-09-a-gummi-by-any-other-name' },
+      { item: 'super-mario-world-the-complete-tv-series-collection' },
+      { item: 'Sonic-the-Hedgehog-SatAM-The-Complete-Series-Restored' },
+      { item: 'sonic-the-hedgehog-sat-am-complete-series-UK-DVD-rip' },
+      { item: 's-01-e-06-the-works...-in-wax' },
+      { item: 'hanna-barbera-gravdale-high-animated-1990-series' },
+      { item: 'gummi-bears-s-06-e-19-wings-over-dunwyn' },
+      { item: 'captain-n-the-game-master-s-02-e-14-when-mother-brain-rules-version-2' },
+      { item: 'gummi-bears-s-04-e-15-top-gum' },
+      { item: 'visionaries-knights-of-the-magical-light-s-01-e-13-dawn-of-the-sun-imps' },
+      { item: 'denver-the-last-dinosaur' }
     ]
   },
   {
@@ -141,6 +167,22 @@ window.CHANNELS = [
       // episodes only: file names like "Gamesmaster (S1 - E01) John Fashanu.mp4" (skips the promos and adverts)
       { item: 'GamesmasterS4E18GamesmasterGoreSpecialRetailVersion', include: '\\(S\\d+\\s*-\\s*E\\d+\\)' },
       { search: 'subject:"bad influence" AND mediatype:movies', rows: 40 }
+    ]
+  },
+  {
+    n: 14,
+    id: 'comedy',
+    name: 'Comedy',
+    perItem: 40,
+    sources: [
+      { item: 'bottom-the-complete-series' },
+      { item: 'one-foot-in-the-grave-complete' },
+      { item: 'keeping-up-appearances_202402' },
+      { item: 'red-dwarf-s-13-e-01-the-promised-land-pt-1' },
+      { item: 'vicar-of-dibley-s-01-e-01-arrival.avi' },
+      { item: 'hey-ho-its-sooty-and-co-everybody-say-hello' },
+      { item: 'bread-series-uncut' },
+      { item: 'allo-allo-complete-series' }
     ]
   }
 ];

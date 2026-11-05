@@ -20,15 +20,16 @@ archive.org uploads. Nothing is hosted by the app; it reads archive.org directly
 2. Classic BBC (search, **unverified**)
 3. ITV Morning (This Morning, GMTV, Daybreak, Lorraine and TV-am from the `Itvcitv` item, programmes of 10 minutes or more only)
 4. Classic Sitcoms (`classic-british-tv-pack`)
-5. Game Shows (The Crystal Maze, `the-crystal-maze-complete_202401`)
+5. Game Shows (The Crystal Maze, The Generation Game, Catchphrase, Supermarket Sweep, Wheel of Fortune UK)
 6. The Bill (`the-bill-complete-series-1-to-26`)
 7. Christmas TV (`uk-tv-show-christmas-specials` and `uk-tv-shows-christmas-specials`)
 8. 70s TV (search of the `classic_tv_1970s` collection)
 9. Adverts & Continuity (search, **unverified**)
 10. ITV (the rest of the `Itvcitv` item: evenings, SMTV, CD:UK; no CITV or morning shows)
 11. Noel's House Party (`noel-s-house-party`)
-12. CITV (CITV shows from `Itvcitv`, plus Fireman Sam, Postman Pat, Roobarb and Custard, Jimbo and the Jet Set, The Family-Ness, Garfield and Friends, M.A.S.K., Spider-Man and His Amazing Friends, Knightmare series 1-8, The Trap Door, Art Attack, Dogtanian, Dungeons & Dragons, The Real Ghostbusters, Inspector Gadget)
+12. CITV (CITV shows from `Itvcitv`, Knightmare, The Trap Door, Art Attack, Dogtanian, The Real Ghostbusters, Maid Marian, Bananaman, Rainbow, DuckTales, Transformers, Gummi Bears, Sonic, Super Mario and many more; see `channels.js`)
 13. Video Games (Gamesmaster episodes plus a search for Bad Influence, **unverified**)
+14. Comedy (Bottom, One Foot in the Grave, Keeping Up Appearances, Red Dwarf, The Vicar of Dibley, Sooty, Bread, 'Allo 'Allo!)
 
 When an item lists the same programme twice, the small `.ia.mp4` copy is used in preference to a larger plain `.mp4`.
 

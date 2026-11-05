@@ -10,8 +10,19 @@ android {
         applicationId = "app.britishtv"
         minSdk = 22
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
+    }
+
+    // A fixed key, so every build is signed the same and installs over the last one
+    // (GitHub makes a brand-new debug key each run, which blocks updates).
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("telly-debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {

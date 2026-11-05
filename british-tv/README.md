@@ -1,6 +1,6 @@
 # Telly Addicts (Android TV / Google TV / NVIDIA Shield)
 
-The app is called Telly Addicts on the TV. The folder, package name (`app.britishtv`) and the folder keep the old name so updates install over the previous version.
+The app is called Telly Addicts on the TV. Its package name is still `app.britishtv`, so updates install over the previous version.
 
 A separate app: classic British telly as channels with a TV guide, built from public
 archive.org uploads. Nothing is hosted by the app; it reads archive.org directly on the TV.

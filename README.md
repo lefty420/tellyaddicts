@@ -1,44 +1,47 @@
-# Spelunkr TV (Android TV / Google TV / NVIDIA Shield)
+# Telly Addicts
 
-A full-screen wrapper app for https://spelunkr.tv. Shows up in the TV launcher with a banner
-and keeps the screen awake.
+Classic British telly on your Android TV, Google TV or NVIDIA Shield. Telly Addicts turns public
+archive.org uploads into live-style channels with a classic satellite-style TV guide: flip through
+Top of the Pops and music, old BBC and ITV, sitcoms, game shows, CITV, The Bill and more, and
+whatever you tune to is "on" at the same point for everyone, like real TV.
 
-The site has its own TV layout (programme guide, full-screen playback, remote navigation).
-The app turns it on the same way the official release does:
+Nothing is hosted by the app. It reads archive.org directly on the TV and plays only mp4 files.
 
-- opens `https://spelunkr.tv/?tv` on TV devices
-- adds `SpelunkrApp/<versionCode>` to the WebView user agent
-- exposes a `SpelunkrApp` JavaScript bridge (`version()`, `leave()`)
-- passes channel up/down, play/pause/rewind/fast-forward and Back to the page as key events
-- shows a "NO SIGNAL" screen and retries every 15 seconds if the network is down
+## Features
+
+- Channels built from archive.org items and searches, set up in one file (`channels.js`)
+- Blue-grid TV guide with a mini TV window, half-hour time grid and red/green/yellow/blue buttons
+- TV static between channel changes, and guide entries that fill in as channels load
+- Tidy programme names, for example "The Bill S11E71 Kicking" or "Minder S04E04"
+- Remote-friendly: channel up/down, number keys, Guide and Info buttons
+
+## Channels
+
+Music (Top of the Pops, The Chart Show), Classic BBC, ITV Morning, Classic Sitcoms, Game Shows,
+The Bill, Christmas TV, 70s TV, Adverts & Continuity, ITV, Noel's House Party, CITV and Video Games.
+The full list and the archive.org sources behind each one are in
+`british-tv/app/src/main/assets/channels.js`. Channels that find nothing playable hide themselves.
 
 ## Get the APK (no Android Studio needed)
 
-1. Create a new GitHub repository and upload everything in this folder (keep the
-   `.github` folder).
-2. Open the repo's **Actions** tab, pick **Build APK**, and press **Run workflow**
-   (it also runs on every push to `main`).
-3. When it finishes, open the run and download the **spelunkr-tv-apk** artifact.
-   Unzip it to get `app-debug.apk`.
+1. Open the repo's **Actions** tab and pick **Build Telly Addicts APK** (it runs on every push to
+   `main`, or press **Run workflow**).
+2. Open the finished run and download the **tellyaddicts-apk** artifact.
+3. Unzip it to get `tellyaddicts.apk`.
 
-## Or build locally
-
-Open this folder in Android Studio and choose **Build > Build APK(s)**, or run
-`./gradlew assembleDebug`. The APK ends up in `app/build/outputs/apk/debug/`.
+Every build is signed with the same key, so a new APK installs over the previous one. If an install
+fails, uninstall the old app first (needed once for builds made before the fixed key).
 
 ## Install on the TV
 
-- **Downloader app:** install "Downloader" from the TV's app store, host the APK somewhere
-  (Dropbox, Google Drive direct link, etc.), and open the link. Allow "Install unknown apps"
-  for Downloader when asked.
-- **adb:** enable Developer options and Network debugging on the TV, then
-  `adb connect <tv-ip>` and `adb install app-debug.apk`.
+- **Downloader app:** host `tellyaddicts.apk` somewhere with a direct link and open it in
+  Downloader, allowing "Install unknown apps" when asked.
+- **adb:** enable Developer options and network debugging, then `adb connect <tv-ip>` and
+  `adb install tellyaddicts.apk`.
 
-On Google TV the app may appear at the end of the app row; use "Apps > Manage" or the
-"Spelunkr" entry to move it. On Shield it appears in the Apps list.
+## Project layout
 
-## Customising
-
-- URL: `HOME_URL` in `app/src/main/java/tv/spelunkr/app/MainActivity.java`
-- Banner / icon: `app/src/main/res/drawable-xhdpi/banner.png` (320x180) and
-  `app/src/main/res/mipmap-xxxhdpi/ic_launcher.png`
+- `british-tv/` is the Telly Addicts app (package `app.britishtv`). See `british-tv/README.md` for
+  the remote controls and how to edit channels.
+- The `app/` folder at the top level and its workflow (`Build APK`) are an older, unrelated
+  WebView wrapper for spelunkr.tv. Telly Addicts does not use any of it.

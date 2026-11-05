@@ -43,5 +43,4 @@ fails, uninstall the old app first (needed once for builds made before the fixed
 
 - `british-tv/` is the Telly Addicts app (package `app.britishtv`). See `british-tv/README.md` for
   the remote controls and how to edit channels.
-- The `app/` folder at the top level and its workflow (`Build APK`) are an older, unrelated
-  WebView wrapper for spelunkr.tv. Telly Addicts does not use any of it.
+- `.github/workflows/build-british-tv.yml` builds `tellyaddicts.apk`.

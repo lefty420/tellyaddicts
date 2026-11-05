@@ -110,7 +110,18 @@
           var got = E.pickPrograms(uniq[i], m, optsFor[uniq[i]]);
           if (!got.length) report.push(uniq[i] + ': ' + E.whyEmpty(m, optsFor[uniq[i]]));
           // keep one busy item (hundreds of episodes) from drowning out the others
-          if (ch.perItem) got = E.sample(got, ch.perItem);
+          if (ch.perItem) {
+            // cap each show folder separately, so one busy show can't crowd out the rest of an item
+            var byDir = {}, order = [];
+            got.forEach(function (g) {
+              var parts = g.id.split('/');
+              var dir = parts.length > 2 ? parts[1] : '';
+              if (!byDir[dir]) { byDir[dir] = []; order.push(dir); }
+              byDir[dir].push(g);
+            });
+            got = [];
+            order.forEach(function (d) { Array.prototype.push.apply(got, E.sample(byDir[d], ch.perItem)); });
+          }
           Array.prototype.push.apply(progs, got);
         });
         ch.report = report;

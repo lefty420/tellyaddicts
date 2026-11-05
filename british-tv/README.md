@@ -27,7 +27,7 @@ archive.org uploads. Nothing is hosted by the app; it reads archive.org directly
 9. Adverts & Continuity (search, **unverified**)
 10. ITV (the rest of the `Itvcitv` item: evenings, SMTV, CD:UK; no CITV or morning shows)
 11. Noel's House Party (`noel-s-house-party`)
-12. CITV (CITV shows from `Itvcitv`, plus Knightmare series 1-8, The Trap Door, Art Attack, Dogtanian, Dungeons & Dragons, The Real Ghostbusters, Inspector Gadget)
+12. CITV (CITV shows from `Itvcitv`, plus Fireman Sam, Postman Pat, Roobarb and Custard, Jimbo and the Jet Set, The Family-Ness, Garfield and Friends, M.A.S.K., Spider-Man and His Amazing Friends, Knightmare series 1-8, The Trap Door, Art Attack, Dogtanian, Dungeons & Dragons, The Real Ghostbusters, Inspector Gadget)
 13. Video Games (Gamesmaster episodes plus a search for Bad Influence, **unverified**)
 
 When an item lists the same programme twice, the small `.ia.mp4` copy is used in preference to a larger plain `.mp4`.

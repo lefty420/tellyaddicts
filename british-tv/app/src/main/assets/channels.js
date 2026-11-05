@@ -124,7 +124,13 @@ window.CHANNELS = [
       { item: 'dogtanian-and-the-three-muskehounds' },
       { item: 'dungeons-dragons-1983-s-02-e-01-the-girl-who-dreamed-tomorrow-1080p-hd-upscale', exclude: 'Requiem' },
       { item: 'the-real-ghostbusters' },
-      { item: 'inspector-gadget-go-go-gadget-series' }
+      { item: 'inspector-gadget-go-go-gadget-series' },
+      { item: '60s70s80skidstv',
+        include: '^(Fireman Sam|Jimbo and the Jet Set|Postman Pat 1981-1996|Roobarb and Custard|The Family-Ness)/' },
+      { item: 'garfield-and-friends-complete-series' },
+      { item: 'mask-01-the-deathstone-sg-1' },
+      { item: 'spider-man-and-his-amazing-friends_202403' },
+      { item: '20240727_20240727_0523' }
     ]
   },
   {

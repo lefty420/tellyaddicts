@@ -148,6 +148,7 @@
   function cleanShow(folder) {
     var s = String(folder);
     if (s.indexOf(' ') < 0) s = s.replace(/[._-]+/g, ' '); // slug-style names: "the-bill_s01" -> words
+    s = s.replace(/\(?\b\d{4}\s*[-\u2013]\s*\d{2,4}\b\)?/g, ' ');                              // "1981-1996"
     s = s.replace(/\b(complete\s+)?(series|seasons?)\s*\d+(\s*(to|-|&|and)\s*\d+)?\b/ig, ' ');   // "Series 1 to 26"
     s = s.replace(/\b(S\d+(-S?\d+)?|webdl|web-dl|xvid|x264|h\.?264|ac3|dd|aac|dvdrip|tvrip|divx|hdtv|complete|collection|will1869)\b/ig, ' ');
     return s.replace(/\s+/g, ' ').replace(/^[\s\-–:]+|[\s\-–:]+$/g, '').trim() || String(folder);

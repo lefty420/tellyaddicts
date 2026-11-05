@@ -36,7 +36,7 @@ window.CHANNELS = [
   {
     n: 3,
     id: 'itvam',
-    name: 'Morning TV',
+    name: 'ITV Morning',
     sources: [
       // morning shows only, and nothing shorter than 10 minutes (minDur is in seconds)
       { item: 'Itvcitv', include: 'This Morning|GMTV|Daybreak|Lorraine|TV-?am', minDur: 600 }
@@ -89,6 +89,14 @@ window.CHANNELS = [
     name: 'Adverts & Continuity',
     sources: [
       { search: '(ITV OR BBC1 OR "Channel 4") AND (adverts OR commercials OR continuity OR idents) AND mediatype:movies', rows: 40 }
+    ]
+  },
+  {
+    n: 10,
+    id: 'itv',
+    name: 'ITV',
+    sources: [
+      { item: 'Itvcitv', exclude: 'This Morning|GMTV|Daybreak|Lorraine|TV-?am|CITV' }
     ]
   },
   {

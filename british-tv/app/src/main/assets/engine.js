@@ -63,6 +63,9 @@
 
   /** "s04e04" / "S4 E4" -> "S04E04" */
   function tidyCodes(t) {
+    t = t.replace(/\bS(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')        // "S1, Ep 09"
+         .replace(/\bSeason\s*(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')   // "Season 1 Episode 9"
+         .replace(/(^|\s)(\d{1,2})x(\d{2,3})\b/g, '$1S$2E$3');                               // "1x01"
     return t.replace(/\bs\s?(\d{1,2})\s?e\s?(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
       .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ')
       .replace(/\s[-\u2013]\s(?=S\d+E\d+\b)/g, ' ');
@@ -204,6 +207,7 @@
         // "Series 7" -> "<item title> - Series 7"
         var itemName = cleanItemTitle(md.title);
         if (d.title.toLowerCase().indexOf(itemName.toLowerCase()) < 0) d.title = itemName + ' - ' + d.title;
+        d.title = d.title.replace(/^(.+?)\s-\s(S\d+E\d+)/, '$1 $2');
       }
       var len = parseLength(f.length);
       return {

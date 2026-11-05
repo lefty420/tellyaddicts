@@ -58,6 +58,13 @@ red/green/yellow/blue button bar. Remotes without colour buttons (such as the Sh
 use Rewind/Fast-forward and OK instead. Runs of short clips (such as Top of the Pops songs) are
 shown as one block of about half an hour.
 
+## Episode names
+
+File names on archive.org are often messy, so once a channel has loaded the app looks up real episode names on
+TVmaze (free, no key) for anything shown as `Show S04E12`. It only swaps the name when the show matches and that
+season/episode number exists (and, if the file has an air date, when the years agree). Results are cached for 30 days.
+In the guide, Info shows the exact archive.org file behind the highlighted programme.
+
 ## Picture quality
 
 The programmes are old and low resolution, so the picture is helped in two ways:

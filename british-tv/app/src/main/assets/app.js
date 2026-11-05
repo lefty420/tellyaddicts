@@ -166,6 +166,83 @@
     for (var i = 0; i < bars.length; i++) bars[i].className = i < on ? 'on' : '';
   }
 
+  // ------------------------------------------------------------------ real episode names (TVmaze, free, no key)
+
+  var TVM_DAY = 30 * 24 * 3600 * 1000;
+  var tvmChain = Promise.resolve();
+  var GENERIC_EP = /^(episode|ep|series|season|part|chapter)?\s*#?\d+(\s*[-:,]\s*\d+)?$|^episode\b|^series\b|^season\b/i;
+
+  function normShow(s) {
+    return String(s).toLowerCase().replace(/&/g, 'and').replace(/^the\s+/, '').replace(/[^a-z0-9]+/g, '');
+  }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  /** {"4:12": ["Dainty Dish", 1992], ...} for a show, or null if TVmaze has no match. One request at a time (rate limit). */
+  function tvmEpisodes(name) {
+    var key = 'tvm2:' + normShow(name);
+    var c = store.get(key);
+    if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.eps);
+    var job = tvmChain.then(function () {
+      return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(name)).then(function (list) {
+        var want = normShow(name), best = null;
+        (list || []).forEach(function (r) {
+          var sh = r.show || {};
+          var n = normShow(sh.name || '');
+          if (!n || !(n === want || n.indexOf(want) === 0 || want.indexOf(n) === 0)) return;
+          var gb = (sh.network && sh.network.country && sh.network.country.code === 'GB') ||
+                   (sh.webChannel && sh.webChannel.country && sh.webChannel.country.code === 'GB');
+          if (!best || (gb && !best.gb)) best = { id: sh.id, gb: gb };
+        });
+        if (!best) return null;
+        return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + best.id + '/episodes'); }).then(function (eps) {
+          var map = {};
+          (eps || []).forEach(function (e) {
+            if (e.season && e.number && e.name) map[e.season + ':' + e.number] = [e.name, e.airdate ? +String(e.airdate).slice(0, 4) : 0];
+          });
+          return map;
+        });
+      }).then(function (map) { store.set(key, { t: Date.now(), eps: map }); return map; },
+              function () { return undefined; });   // network trouble: try again next time, cache nothing
+    });
+    tvmChain = job.then(function () { return wait(500); }, function () { return wait(500); });
+    return job;
+  }
+
+  /** Swap file-name episode titles for the real ones: "Lovejoy S04E12 Dainty Dish". Only when show and number match. */
+  function enrichNames(ch, progs) {
+    var byShow = {};
+    progs.forEach(function (p) {
+      var m = /^(.*?)\s+S(\d{1,2})E(\d{1,3})(?:\s+(.*))?$/.exec(p.title || '');
+      if (!m || p.tvDone) return;
+      var show = m[1].replace(/[\s\-–:]+$/, '').trim();
+      if (!show) return;
+      var k = normShow(show);
+      (byShow[k] = byShow[k] || { show: show, items: [] }).items.push({ p: p, s: +m[2], e: +m[3], rest: m[4] || '' });
+    });
+    var keys = Object.keys(byShow);
+    var changed = false;
+    return keys.reduce(function (chain, k) {
+      return chain.then(function () {
+        return tvmEpisodes(byShow[k].show).then(function (map) {
+          if (!map) return;
+          byShow[k].items.forEach(function (it) {
+            var hit = map[it.s + ':' + it.e];
+            if (!hit || GENERIC_EP.test(hit[0].trim())) return;
+            var y = /(\d{4})$/.exec(it.p.sub || '');
+            if (y && hit[1] && Math.abs(+y[1] - hit[1]) > 3) return;      // dates disagree: numbering does not line up
+            var code = 'S' + (it.s < 10 ? '0' : '') + it.s + 'E' + (it.e < 10 ? '0' : '') + it.e;
+            var t = byShow[k].show + ' ' + code + ' ' + hit[0];
+            if (t !== it.p.title) { it.p.title = t; changed = true; }
+            it.p.tvDone = true;
+          });
+        });
+      });
+    }, Promise.resolve()).then(function () {
+      if (changed && guideOpen) renderGuide();
+      return changed;
+    });
+  }
+
   // ------------------------------------------------------------------ tuning static
 
   var staticEl = $('static');
@@ -584,7 +661,9 @@
     var c = gChan;
     if (!c) return;
     var r = c.report || [];
-    toast(c.name + ': ' + (r.length ? 'not playing - ' + r.join('; ') : 'all sources loaded'), 9000);
+    var fb = c.status === 'ready' ? E.blockAt(c.sched, gFocus) : null;
+    var file = fb && fb.prog && fb.prog.url ? ' | File: ' + decodeURIComponent(fb.prog.url.replace('https://archive.org/download/', '')) : '';
+    toast(c.name + ': ' + (r.length ? 'not playing - ' + r.join('; ') : 'all sources loaded') + file, 12000);
   }
 
   // ------------------------------------------------------------------ OSD bar (OK while watching)
@@ -666,7 +745,7 @@
     if (fxReady) OB.push('fx'); else $('ob-fx').className = 'ob hidden';
   })();
 
-  function fmtTime(t) {
+  function fmtPos(t) {
     if (!isFinite(t) || t < 0) t = 0;
     var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.floor(t % 60);
     return (h ? h + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (s < 10 ? '0' : '') + s;
@@ -689,7 +768,7 @@
     }
     var dur = v.duration, pos = v.currentTime;
     $('obar').style.width = (isFinite(dur) && dur > 0 ? Math.min(100, pos / dur * 100) : 0) + '%';
-    $('otime').textContent = fmtTime(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtTime(dur) : '');
+    $('otime').textContent = fmtPos(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtPos(dur) : '');
     $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
     $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
     $('olbl-ar').textContent = 'Picture: ' + AR[arIdx].label;
@@ -838,6 +917,7 @@
         if (progs && progs.length) {
           c.sched = E.buildSchedule(progs, c.id);
           c.status = 'ready';
+          enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
         } else {
           c.status = 'empty';
         }

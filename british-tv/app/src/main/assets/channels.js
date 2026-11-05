@@ -21,7 +21,9 @@ window.CHANNELS = [
       { item: 'tot-p-1985-big-hits' },
       { search: 'title:("top of the pops") AND mediatype:movies', rows: 30 },
       // The Chart Show episodes (one archive.org item each, e.g. "The Chart Show S 03e 34 1988 08 26")
-      { search: 'title:("the chart show") AND mediatype:movies', rows: 150 }
+      { search: 'title:("the chart show") AND mediatype:movies', rows: 150 },
+      // items whose title is just a year or similar but that mention the show elsewhere
+      { search: '("the chart show") AND NOT title:("the chart show") AND mediatype:movies', rows: 60 }
     ]
   },
   {

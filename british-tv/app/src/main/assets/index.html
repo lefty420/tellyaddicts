@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>British TV</title>
+<title>Telly Addicts</title>
 <style>
   :root {
     --navy: #0a1128;
@@ -43,16 +43,17 @@
   }
 
   #splash, #nosignal {
-    position: fixed; inset: 0; background: var(--navy); display: flex; flex-direction: column;
+    position: fixed; inset: 0; background: #151b3d; display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center; z-index: 50;
   }
   #splash h1, #nosignal h1 { font-size: 7vh; letter-spacing: .12em; margin: 0 0 2vh; }
   #splash h1 span { color: var(--red); }
+  #logo { height: 30vh; width: 30vh; margin-bottom: 0; }
   #splash p, #nosignal p { font-size: 3vh; margin: .6vh 0; color: var(--dim); }
-  #bars { display: flex; gap: .6vh; margin: 3vh 0; }
+  #bars { display: flex; gap: .6vh; margin: 2vh 0; }
   #bars i { width: 4vh; height: 1vh; background: var(--cream); opacity: .25; }
   #bars i.on { background: var(--red); opacity: 1; }
-  #chstatus { font-size: 2.6vh; line-height: 1.6; }
+  #chstatus { font-size: 2.3vh; line-height: 1.45; display: grid; grid-template-columns: repeat(2, auto); column-gap: 5vw; text-align: left; margin-top: 1vh; }
 
   #banner {
     position: fixed; left: 4vw; right: 4vw; bottom: 5vh; z-index: 20; display: flex; align-items: stretch;
@@ -162,7 +163,7 @@
 </div>
 
 <div id="splash">
-  <h1>BRITISH <span>TV</span></h1>
+  <img id="logo" src="logo.png" alt="Telly Addicts">
   <div id="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <p>Tuning in to the archives&hellip;</p>
   <div id="chstatus"></div>

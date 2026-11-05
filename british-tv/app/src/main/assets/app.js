@@ -585,8 +585,8 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['rew', 'pp', 'ff', 'ar', 'guide'];   // buttons on the bar, left to right
-  var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
+  var OB = ['guide', 'rew', 'pp', 'ff', 'ar'];   // buttons on the bar, left to right
+  var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
     for (var i = 0; i < AR.length; i++) if (AR[i].id === saved) arIdx = i;
@@ -636,7 +636,7 @@
   function openOsd() {
     if (!cur) { openGuide(); return; }
     osdOpen = true;
-    osdSel = 1;
+    osdSel = OB.indexOf('pp');      // start on play/pause
     clearTimeout(bannerTimer);
     $('banner').className = 'off';
     renderOsd();

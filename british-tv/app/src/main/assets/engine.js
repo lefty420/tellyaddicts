@@ -56,6 +56,9 @@
   /** Turns "Top of the Pops (1976 08 26) Song.mp4" into {title, sub:'26 Aug 1976'}. */
   function describe(name, fallback) {
     var base = String(name).replace(/^.*\//, '').replace(/\.(ia\.)?(mp4|m4v)$/i, '');
+    base = base.replace(/[.\s_]*(\[[^\]\s]+\])+$/, '');       // trailing encoder tags: ".[SR-Enc][bombus]"
+    if (base.indexOf(' ') < 0) base = base.replace(/_+/g, ' ');  // "Knightmare_-_1x01" -> words
+    base = base.replace(/\((S\d+)\s*[-\u2013]\s*(E\d+)\)/i, '$1$2'); // "(S4 - E18)" -> "S4E18"
     var sub = '';
     var title = base;
     // "NOEL'S HOUSE PARTY (BBC ONE - Season 3: Episode 2 / 12.09.92)" -> episode title + air date
@@ -103,11 +106,19 @@
     return s.replace(/\s+/g, ' ').trim() || String(folder);
   }
 
+  /** "Inspector Gadget: The Complete Seasons 1 & 2 (1983-86)" -> "Inspector Gadget". */
+  function cleanItemTitle(t) {
+    var s = String(t).replace(/\s+/g, ' ').trim();
+    var c = s.replace(/\s*[-:\u2013]?\s*(the\s+)?complete\b.*$/i, '').replace(/\s*\(\d{4}\s*[-\u2013]\s*\d{2,4}\)\s*$/, '').trim();
+    return c || s;
+  }
+
   function md0(meta) { return (meta && meta.metadata) || {}; }
 
   /** File names like "Series 7" or "Disc 14" say nothing about the show. */
   function isGenericTitle(t) {
-    return /^(series|season|disc|dvd|vol(ume)?|part|episode|ep|e\d+|s\d+|\d+)\b/i.test(String(t).trim());
+    return /^(series|season|disc|dvd|vol(ume)?|part|episode|ep|e\d+|s\d+|\d+)\b/i.test(String(t).trim()) ||
+      /^(\d+x\d+|s\d+\s*e\d+|e\d+)/i.test(String(t).trim());
   }
 
   /**
@@ -122,8 +133,39 @@
     var md = meta.metadata || {};
     if (String(md['access-restricted-item']).toLowerCase() === 'true') return [];
     var files = meta.files || [];
-    var seen = {};
+    var seen = {};   // dedupe key -> index in out
     var out = [];
+
+    function make(name, f) {
+      var d = describe(name, md.title);
+      var parts = name.split('/');
+      if (parts.length > 1) {
+        // Files inside show folders: put the show name in front of the episode name.
+        // A folder called "Series 3" says nothing about the show, so use the item's own title then.
+        var show = /^(series|season|s)\s*\d+/i.test(parts[0]) && md.title
+          ? cleanShow(cleanItemTitle(md.title)) : cleanShow(parts[0]);
+        if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0) {
+          d.title = show + ' - ' + d.title;
+        }
+      }
+      if (md.title && isGenericTitle(d.title)) {
+        // "Series 7" -> "<item title> - Series 7"
+        var itemName = cleanItemTitle(md.title);
+        if (d.title.toLowerCase().indexOf(itemName.toLowerCase()) < 0) d.title = itemName + ' - ' + d.title;
+      }
+      var len = parseLength(f.length);
+      return {
+        id: id + '/' + name,
+        item: id,
+        url: 'https://archive.org/download/' + encodeURIComponent(id) + '/' + encodePath(name),
+        title: d.title,
+        sub: d.sub,
+        dur: len || DEFAULT_DURATION,
+        _ia: /\.ia\.mp4$/i.test(name),
+        _len: len
+      };
+    }
+
     for (var i = 0; i < files.length; i++) {
       var f = files[i];
       var name = f.name || '';
@@ -135,35 +177,26 @@
       var size = +f.size || 0;
       if (size && size < 200000) continue;
       var key = name.toLowerCase().replace(/\.ia\.mp4$|\.mp4$/, '');
-      if (seen[key]) continue;
-      seen[key] = true;
-      var d = describe(name, md.title);
-      var parts = name.split('/');
-      if (parts.length > 1) {
-        // Files inside show folders: put the show name in front of the episode name.
-        // A folder called "Series 3" says nothing about the show, so use the item's own title then.
-        var show = /^(series|season|s)\s*\d+/i.test(parts[0]) && md.title
-          ? cleanShow(md.title) : cleanShow(parts[0]);
-        if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0) {
-          d.title = show + ' - ' + d.title;
+      if (seen[key] !== undefined) {
+        // Same programme listed twice. archive.org's ".ia.mp4" is the small, TV-friendly H.264 copy.
+        var prev = out[seen[key]];
+        var cand = make(name, f);
+        if (cand._ia && !prev._ia) {
+          if (!cand._len && prev._len) { cand._len = prev._len; cand.dur = prev._len; }
+          out[seen[key]] = cand;
+        } else if (!prev._len && cand._len) {
+          prev._len = cand._len; prev.dur = cand._len;
         }
+        continue;
       }
-      if (md.title && isGenericTitle(d.title) && d.title.toLowerCase().indexOf(String(md.title).toLowerCase()) < 0) {
-        // "Series 7" -> "<item title> - Series 7"
-        d.title = String(md.title).replace(/\s+/g, ' ').trim() + ' - ' + d.title;
-      }
-      out.push({
-        id: id + '/' + name,
-        item: id,
-        url: 'https://archive.org/download/' + encodeURIComponent(id) + '/' + encodePath(name),
-        title: d.title,
-        sub: d.sub,
-        dur: parseLength(f.length) || DEFAULT_DURATION
-      });
+      seen[key] = out.length;
+      out.push(make(name, f));
     }
-    if (out.length === 1 && md.title && name_isRoot(out[0])) {
+    out.forEach(function (o) { delete o._ia; delete o._len; });
+    if (out.length === 1 && md.title && !include && !exclude && name_isRoot(out[0])) {
+      // an item that is a single programme: use the item's own title
       var only = describe(out[0].id.split('/').slice(1).join('/'));
-      out[0].title = String(md.title);
+      out[0].title = cleanItemTitle(md.title);
       if (!out[0].sub) out[0].sub = only.sub;
     }
     return out;
@@ -297,7 +330,7 @@
   var Engine = {
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
     pickPrograms: pickPrograms, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
-    cleanShow: cleanShow, sample: sample, blockAt: blockAt, blocks: blocks,
+    cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, blocks: blocks,
     DEFAULT_DURATION: DEFAULT_DURATION
   };
 

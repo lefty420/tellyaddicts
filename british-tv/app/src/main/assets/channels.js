@@ -102,5 +102,31 @@ window.CHANNELS = [
     sources: [
       { item: 'noel-s-house-party' }
     ]
+  },
+  {
+    n: 12,
+    id: 'citv',
+    name: 'CITV Classics',
+    sources: [
+      { item: 'KnightmareSeries1' }, { item: 'KnightmareSeries2' }, { item: 'KnightmareSeries3' },
+      { item: 'KnightmareSeries4' }, { item: 'KnightmareSeries5' }, { item: 'KnightmareSeries6' },
+      { item: 'KnightmareSeries7' }, { item: 'KnightmareSeries8' },
+      { item: 'the-trap-door-1986', exclude: 'Intro' },
+      { item: 'art-attack-uk-vhs-and-dvd-collection' },
+      { item: 'dogtanian-and-the-three-muskehounds' },
+      { item: 'dungeons-dragons-1983-s-02-e-01-the-girl-who-dreamed-tomorrow-1080p-hd-upscale', exclude: 'Requiem' },
+      { item: 'the-real-ghostbusters' },
+      { item: 'inspector-gadget-go-go-gadget-series' }
+    ]
+  },
+  {
+    n: 13,
+    id: 'games',
+    name: 'Video Games',
+    sources: [
+      // episodes only: file names like "Gamesmaster (S1 - E01) John Fashanu.mp4" (skips the promos and adverts)
+      { item: 'GamesmasterS4E18GamesmasterGoreSpecialRetailVersion', include: '\\(S\\d+\\s*-\\s*E\\d+\\)' },
+      { search: 'subject:"bad influence" AND mediatype:movies', rows: 40 }
+    ]
   }
 ];

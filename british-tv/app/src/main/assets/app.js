@@ -10,6 +10,12 @@
   function $(id) { return document.getElementById(id); }
   var v = $('v');
 
+  // Picture enhancement (see fx.js). The video must be loaded with CORS for the shader to read it.
+  var fxMode = 'off';
+  var corsOn = false;          // is the current <video> source loaded in CORS mode?
+  var fxReady = false;
+  var guideOpen = false;       // (assigned again with the guide code; declared early because syncFx needs it)
+
   var store = {
     get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
     set: function (k, x) { try { localStorage.setItem(k, JSON.stringify(x)); } catch (e) { /* storage full or blocked */ } }
@@ -288,6 +294,7 @@
     var prog = ch.sched.order[index];
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
+    setCors(fxMode !== 'off' && fxReady);
     v.src = prog.url;
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
@@ -331,6 +338,7 @@
   v.addEventListener('ended', nextInChannel);
   v.addEventListener('error', function () {
     if (!cur) return;
+    if (corsOn) { fxDisable('Enhance is not available for this video'); return; }   // server refused CORS: play it plain
     cur.errors++;
     if (cur.errors >= MAX_ERRORS) {
       cur.errors = 0;
@@ -355,7 +363,6 @@
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  var guideOpen = false;
   var gChan = null;  // selected channel
   var gRow = 0;      // its row (derived)
   var gTop = 0;      // first visible row
@@ -478,6 +485,7 @@
     gWin = floorHalf(now);
     gFocus = now;
     document.body.classList.add('guide-open');
+    syncFx();
     $('guide').className = '';
     $('banner').className = 'off';
     renderGuide();
@@ -492,6 +500,7 @@
   function closeGuide() {
     guideOpen = false;
     document.body.classList.remove('guide-open');
+    syncFx();
     $('guide').className = 'hidden';
     clearInterval(guideTimer);
   }
@@ -585,7 +594,8 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'ar'];   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'ar'];   // 'fx' is added below when WebGL works
+  //   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -596,7 +606,65 @@
     AR.forEach(function (a) { document.body.classList.remove('ar-' + a.id); });
     document.body.classList.add('ar-' + AR[arIdx].id);
     store.set('ar', AR[arIdx].id);
+    if (window.FX) FX.setAspect(AR[arIdx].id);
   }
+
+  // ---- picture enhancement
+  var FXLABEL = { off: 'Off', sharp: 'Sharp', clean: 'Clean', crt: 'CRT' };
+
+  function setCors(on) {
+    corsOn = on;
+    if (on) v.crossOrigin = 'anonymous'; else v.removeAttribute('crossorigin');
+  }
+
+  function syncFx() {
+    var on = fxReady && fxMode !== 'off' && !guideOpen && !FX.failed;
+    document.body.classList.toggle('fx-on', on);
+    $('fx').classList.toggle('hidden', !on);
+    FX.setMode(fxMode);
+    FX.setAspect(AR[arIdx].id);
+    if (on) FX.start(); else FX.stop();
+  }
+
+  /** Reload the current programme at the same spot (needed when CORS mode has to change). */
+  function reloadHere() {
+    if (!cur) return;
+    v.dataset.offset = String(v.currentTime || 0);
+    setCors(fxMode !== 'off' && fxReady);
+    v.src = cur.prog.url;
+    var p = v.play();
+    if (p && p.catch) p.catch(function () { /* ignore */ });
+  }
+
+  function fxDisable(msg) {
+    fxMode = 'off';
+    store.set('fx', 'off');
+    FX.reset();
+    toast(msg, 3500);
+    syncFx();
+    if (corsOn) reloadHere();
+    if (osdOpen) renderOsd();
+  }
+
+  function changeFx(d) {
+    if (!fxReady) return;
+    var i = FX.MODES.indexOf(fxMode);
+    var was = fxMode !== 'off';
+    fxMode = FX.MODES[(i + d + FX.MODES.length) % FX.MODES.length];
+    store.set('fx', fxMode);
+    FX.reset();
+    var needCors = fxMode !== 'off';
+    if (needCors !== was || needCors !== corsOn) reloadHere();   // CORS mode only changes with a new load
+    syncFx();
+    renderOsd();
+  }
+
+  fxReady = !!(window.FX && FX.init($('fx'), v, function () { fxDisable('Enhance is not available for this video'); }));
+  (function () {
+    var saved = store.get('fx');
+    if (fxReady && FX.MODES.indexOf(saved) >= 0) fxMode = saved;
+    if (fxReady) OB.push('fx'); else $('ob-fx').className = 'ob hidden';
+  })();
 
   function fmtTime(t) {
     if (!isFinite(t) || t < 0) t = 0;
@@ -625,6 +693,7 @@
     $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
     $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
     $('olbl-ar').textContent = 'Picture: ' + AR[arIdx].label;
+    $('olbl-fx').textContent = 'Enhance: ' + FXLABEL[fxMode];
     OB.forEach(function (id, i) { $('ob-' + id).className = 'ob' + (i === osdSel ? ' sel' : ''); });
   }
 
@@ -665,12 +734,14 @@
   }
 
   applyAr();
+  syncFx();
 
   function osdAct(id) {
     if (id === 'rew') seek(-30);
     else if (id === 'ff') seek(30);
     else if (id === 'pp') togglePlay();
     else if (id === 'ar') changeAr(1);
+    else if (id === 'fx') changeFx(1);
     else if (id === 'guide') { closeOsd(); openGuide(); }
     renderOsd();
   }

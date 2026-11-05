@@ -43,7 +43,7 @@ Items that only contain `.avi`/`.mkv` originals will not play unless archive.org
 | Up / Down | Change channel | Move between channels |
 | Left / Right | Seek 30 s | Move between programmes (Left stops at what is on now) |
 | Channel +/- | Change channel | Page up / down through channels |
-| OK | OSD bar at the bottom: programme info, progress, rewind 30s, play/pause, forward 30s, picture size (Auto, 4:3, 16:9, Zoom, Stretch) and TV Guide (Left/Right to choose, OK to use) | Watch the selected channel |
+| OK | OSD bar at the bottom: programme info, progress, rewind 30s, play/pause, forward 30s, picture size (Auto, 4:3, 16:9, Zoom, Stretch) and TV Guide and Enhance (Left/Right to choose, OK to use) | Watch the selected channel |
 | Guide / Red | Open guide | Red jumps back to Now |
 | Rewind / Fast-forward | Seek 30 s | Earlier / Later (2 hours) |
 | Green / Yellow / Blue | | Later / Earlier / Watch |
@@ -57,6 +57,20 @@ TV window top-left, a half-hour time grid with the selected programme highlighte
 red/green/yellow/blue button bar. Remotes without colour buttons (such as the Shield remote) can
 use Rewind/Fast-forward and OK instead. Runs of short clips (such as Top of the Pops songs) are
 shown as one block of about half an hour.
+
+## Picture quality
+
+The programmes are old and low resolution, so the picture is helped in two ways:
+
+1. **The TV box's own upscaler.** On an NVIDIA Shield turn on *Settings > Display & Sound > Advanced > AI upscaling*
+   (set it to High) and output 4K. The Google TV Streamer also upscales to 4K.
+2. **Enhance** (OSD bar, the last button). The picture is redrawn through a shader at screen resolution:
+   - **Sharp**: removes interlace comb lines, then sharpens
+   - **Clean**: also reduces tape noise and compression blocks
+   - **CRT**: scanlines, a soft glow and a vignette, like an old tube telly
+
+   Enhance needs archive.org to allow the video to be read by the page (it normally does). If a video cannot be
+   enhanced, the app switches Enhance off and plays it normally.
 
 ## Get the APK
 

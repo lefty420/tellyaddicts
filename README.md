@@ -44,3 +44,7 @@ fails, uninstall the old app first (needed once for builds made before the fixed
 - `british-tv/` is the Telly Addicts app (package `app.britishtv`). See `british-tv/README.md` for
   the remote controls and how to edit channels.
 - `.github/workflows/build-british-tv.yml` builds `tellyaddicts.apk`.
+
+## Checking the sources
+
+`python3 tools/check_sources.py` (on a computer that can reach archive.org) tests every source in `channels.js` and writes `sources-report.txt` listing the ones that fail and why.

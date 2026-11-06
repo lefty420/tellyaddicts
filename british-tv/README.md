@@ -16,7 +16,7 @@ archive.org uploads. Nothing is hosted by the app; it reads archive.org directly
 
 ## Current channels
 
-1. Music (Top of the Pops via `tot-p-1985-big-hits` plus searches, The Chart Show and musicmad247 uploads, **unverified**)
+1. Music (Top of the Pops via `tot-p-1985-big-hits` plus a title search, and The Chart Show episodes found by title search; bare-year items are skipped)
 2. Classic BBC (search, **unverified**)
 3. ITV Morning (This Morning, GMTV, Daybreak, Lorraine and TV-am from the `Itvcitv` item, programmes of 10 minutes or more only)
 4. Classic Sitcoms (`classic-british-tv-pack`)

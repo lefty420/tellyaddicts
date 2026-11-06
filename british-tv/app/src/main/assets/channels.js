@@ -18,13 +18,13 @@ window.CHANNELS = [
     name: 'Music',
     maxItems: 220,   // many separate episode items: let them all through
     sources: [
-      // Top of the Pops is kept small so The Chart Show gets most of the screen time
+      // Top of the Pops (kept small so The Chart Show gets most of the screen time)
       { item: 'tot-p-1985-big-hits', perItem: 6 },
-      { search: 'title:("top of the pops") AND mediatype:movies', rows: 15, perItem: 3 },
-      // The Chart Show episodes (one archive.org item each, e.g. "The Chart Show S 03e 34 1988 08 26")
-      { search: 'title:("the chart show") AND mediatype:movies', rows: 200, perItem: 60 },
-      // items whose title is just a year or similar but that mention the show elsewhere
-      { search: '("the chart show") AND NOT title:("the chart show") AND mediatype:movies', rows: 80, perItem: 60 }
+      { search: 'title:("top of the pops") AND mediatype:movies', rows: 15, perItem: 3,
+        exclude: '^\\s*(19|20)\\d\\d\\s*$' },
+      // The Chart Show episodes only (items with "The Chart Show" in the title; bare year items like "1987" are skipped)
+      { search: 'title:("the chart show") AND mediatype:movies', rows: 200, perItem: 60,
+        exclude: '^\\s*(19|20)\\d\\d\\s*$' }
     ]
   },
   {

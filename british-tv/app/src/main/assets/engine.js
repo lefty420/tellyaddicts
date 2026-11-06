@@ -88,6 +88,7 @@
     base = base.replace(/^(?=[0-9A-F]*\d)[0-9A-F]{8}\s+(?=[A-Za-z])/, '');             // "0001AC85 Cannon..."
     base = base.replace(/^View\s*Record[\s_\-]+/i, '');                                // uploader tag on game show files
     base = base.replace(/[\s_\-]*cut[\s_\-]*merged[\s_\-]*\d*/ig, '').replace(/[\s_\-]\d{10,13}$/, '');   // "-cut-merged-1775992021051"
+    base = base.replace(/[\s_\-]*\bBoB\s*\(\d+\)/g, '').replace(/\s*\(\d{1,3}\)\s*$/, '');          // uploader tag "BoB(63)", trailing "(63)"
     base = base.replace(/^\d{1,3}-(?=[A-Za-z])/, '');                                    // "36-Rumpole of the Bailey"
     base = base.replace(/(\S)\s*\.{2,}\s*(?=\S)/g, '$1 - ');                              // "Dads Army...The Lovely Bunch"
     var tz = base.match(/(\d{4})[ \-_.](\d{2})[ \-_.](\d{2})T\d{4,6}Z?/);               // "2019 01 27T043000Z"

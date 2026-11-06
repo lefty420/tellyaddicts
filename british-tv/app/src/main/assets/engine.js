@@ -63,10 +63,13 @@
 
   /** "s04e04" / "S4 E4" -> "S04E04" */
   function tidyCodes(t) {
-    t = t.replace(/\bS(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')        // "S1, Ep 09"
-         .replace(/\b(?:Season|Series)\s*(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')   // "Series 3 Ep 4"
+    t = t.replace(/\b(?:Epodise|Epsiode|Episdoe|Espisode|Epidose|Epiosde)\b/ig, 'Episode')   // upload typos
+         .replace(/\s+(?=\S*\d)(?=\S*[a-f])[0-9a-f]{10,}$/i, '')                              // trailing hash "576e7ba17ef74"
+         .replace(/\bS(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')        // "S1, Ep 09"
+         .replace(/\b(?:Season|Series)\s*(\d{1,2})[,\s\-\u2013:]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')   // "Series 3 Ep 4", "Season 5 - Episode 01"
          .replace(/(^|\s)(\d{1,2})x(\d{2,3})\b/g, '$1S$2E$3');                               // "1x01"
     return t.replace(/\bs\s?(\d{1,2})\s?e\s?(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
+      .replace(/(\bS\d+E\d+)\s+Episode\s+\d+\b\s*/ig, '$1 ').replace(/\s+$/, '')                                 // "S01E05 Episode 5"
       .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ')
       .replace(/\s[-\u2013]\s(?=S\d+E\d+\b)/g, ' ');
   }
@@ -94,6 +97,7 @@
       base = base.replace(tz[0], ' ').replace(/\s+/g, ' ').trim();
     }
     var slug = base.indexOf(' ') < 0;                            // "minder.s04e04.tvrip.divx", "the-bill-s11e71"
+    if (!slug) base = base.replace(/_+/g, ' ').replace(/\s+/g, ' ').trim();     // "Bread_S01E05_Episode 5"
     if (slug) {
       base = base.replace(/[._]+/g, ' ');                        // "Knightmare_-_1x01" -> words
       if (base.indexOf(' ') < 0 && (base.match(/-/g) || []).length >= 2) base = base.replace(/-+/g, ' ');

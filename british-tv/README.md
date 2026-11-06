@@ -71,13 +71,13 @@ The programmes are old and low resolution, so the picture is helped in two ways:
 
 1. **The TV box's own upscaler.** On an NVIDIA Shield turn on *Settings > Display & Sound > Advanced > AI upscaling*
    (set it to High) and output 4K. The Google TV Streamer also upscales to 4K.
-2. **Enhance** (OSD bar, the last button). The picture is redrawn through a shader at screen resolution:
-   - **Sharp**: removes interlace comb lines, then sharpens
-   - **Clean**: also reduces tape noise and compression blocks
-   - **CRT**: scanlines, a soft glow and a vignette, like an old tube telly
+2. **Enhance** (OSD bar, the last button). These are screen effects, not a re-render of the video, so they work on any
+   video and cannot fail because of the source:
+   - **CRT**: scanlines, a faint colour grille, a soft glow and a darker screen edge, like an old tube telly
+   - **Vivid**: more contrast and colour
+   - **Sharp**: a sharpening filter on the picture
 
-   Enhance needs archive.org to allow the video to be read by the page (it normally does). If a video cannot be
-   enhanced, the app switches Enhance off and plays it normally.
+   If the TV struggles to keep up with CRT or Sharp (lots of dropped frames), the app drops back to Vivid by itself.
 
 ## Get the APK
 

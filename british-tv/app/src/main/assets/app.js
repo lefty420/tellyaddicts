@@ -10,11 +10,8 @@
   function $(id) { return document.getElementById(id); }
   var v = $('v');
 
-  // Picture enhancement (see fx.js). The video must be loaded with CORS for the shader to read it.
-  var fxMode = 'off';
-  var corsOn = false;          // is the current <video> source loaded in CORS mode?
-  var fxReady = false;
-  var guideOpen = false;       // (assigned again with the guide code; declared early because syncFx needs it)
+  // Picture looks (CRT / Vivid / Sharp) are CSS only: the browser may not read archive.org video pixels, so no shader.
+  var guideOpen = false;
 
   var store = {
     get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
@@ -371,7 +368,6 @@
     var prog = ch.sched.order[index];
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
-    setCors(fxMode !== 'off' && fxReady);
     v.src = prog.url;
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
@@ -415,7 +411,6 @@
   v.addEventListener('ended', nextInChannel);
   v.addEventListener('error', function () {
     if (!cur) return;
-    if (corsOn) { fxDisable('Enhance is not available for this video'); return; }   // server refused CORS: play it plain
     cur.errors++;
     if (cur.errors >= MAX_ERRORS) {
       cur.errors = 0;
@@ -562,7 +557,6 @@
     gWin = floorHalf(now);
     gFocus = now;
     document.body.classList.add('guide-open');
-    syncFx();
     $('guide').className = '';
     $('banner').className = 'off';
     renderGuide();
@@ -577,7 +571,6 @@
   function closeGuide() {
     guideOpen = false;
     document.body.classList.remove('guide-open');
-    syncFx();
     $('guide').className = 'hidden';
     clearInterval(guideTimer);
   }
@@ -673,8 +666,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'ar'];   // 'fx' is added below when WebGL works
-  //   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'ar', 'fx'];   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -685,65 +677,46 @@
     AR.forEach(function (a) { document.body.classList.remove('ar-' + a.id); });
     document.body.classList.add('ar-' + AR[arIdx].id);
     store.set('ar', AR[arIdx].id);
-    if (window.FX) FX.setAspect(AR[arIdx].id);
   }
 
-  // ---- picture enhancement
-  var FXLABEL = { off: 'Off', sharp: 'Sharp', clean: 'Clean', crt: 'CRT' };
+  // ---- picture looks: CSS only (filters on the video, plus an overlay for CRT)
+  var FXMODES = ['off', 'crt', 'vivid', 'sharp'];
+  var FXLABEL = { off: 'Off', crt: 'CRT', vivid: 'Vivid', sharp: 'Sharp' };
+  var fxMode = 'off';
+  var fxWatch = null;
+  (function () {
+    var saved = store.get('fx2');
+    if (FXMODES.indexOf(saved) >= 0) fxMode = saved;
+  })();
 
-  function setCors(on) {
-    corsOn = on;
-    if (on) v.crossOrigin = 'anonymous'; else v.removeAttribute('crossorigin');
-  }
-
-  function syncFx() {
-    var on = fxReady && fxMode !== 'off' && !guideOpen && !FX.failed;
-    document.body.classList.toggle('fx-on', on);
-    $('fx').classList.toggle('hidden', !on);
-    FX.setMode(fxMode);
-    FX.setAspect(AR[arIdx].id);
-    if (on) FX.start(); else FX.stop();
-  }
-
-  /** Reload the current programme at the same spot (needed when CORS mode has to change). */
-  function reloadHere() {
-    if (!cur) return;
-    v.dataset.offset = String(v.currentTime || 0);
-    setCors(fxMode !== 'off' && fxReady);
-    v.src = cur.prog.url;
-    var p = v.play();
-    if (p && p.catch) p.catch(function () { /* ignore */ });
-  }
-
-  function fxDisable(msg) {
-    fxMode = 'off';
-    store.set('fx', 'off');
-    FX.reset();
-    toast(msg, 3500);
-    syncFx();
-    if (corsOn) reloadHere();
-    if (osdOpen) renderOsd();
+  function applyFx() {
+    FXMODES.forEach(function (m) { document.body.classList.remove('fx-' + m); });
+    document.body.classList.add('fx-' + fxMode);
+    store.set('fx2', fxMode);
+    clearTimeout(fxWatch);
+    if (fxMode === 'sharp' || fxMode === 'crt') {
+      // if the TV cannot keep up (many dropped frames), back off to the cheap look
+      var q0 = v.getVideoPlaybackQuality ? v.getVideoPlaybackQuality() : null;
+      var started = fxMode;
+      fxWatch = setTimeout(function () {
+        if (fxMode !== started || !q0 || v.paused) return;
+        var q1 = v.getVideoPlaybackQuality();
+        var total = q1.totalVideoFrames - q0.totalVideoFrames, dropped = q1.droppedVideoFrames - q0.droppedVideoFrames;
+        if (total > 60 && dropped / total > 0.3) {
+          fxMode = 'vivid';
+          applyFx();
+          toast(FXLABEL[started] + ' is too heavy for this TV: switched to Vivid', 4000);
+          if (osdOpen) renderOsd();
+        }
+      }, 7000);
+    }
   }
 
   function changeFx(d) {
-    if (!fxReady) return;
-    var i = FX.MODES.indexOf(fxMode);
-    var was = fxMode !== 'off';
-    fxMode = FX.MODES[(i + d + FX.MODES.length) % FX.MODES.length];
-    store.set('fx', fxMode);
-    FX.reset();
-    var needCors = fxMode !== 'off';
-    if (needCors !== was || needCors !== corsOn) reloadHere();   // CORS mode only changes with a new load
-    syncFx();
+    fxMode = FXMODES[(FXMODES.indexOf(fxMode) + d + FXMODES.length) % FXMODES.length];
+    applyFx();
     renderOsd();
   }
-
-  fxReady = !!(window.FX && FX.init($('fx'), v, function () { fxDisable('Enhance is not available for this video'); }));
-  (function () {
-    var saved = store.get('fx');
-    if (fxReady && FX.MODES.indexOf(saved) >= 0) fxMode = saved;
-    if (fxReady) OB.push('fx'); else $('ob-fx').className = 'ob hidden';
-  })();
 
   function fmtPos(t) {
     if (!isFinite(t) || t < 0) t = 0;
@@ -813,7 +786,7 @@
   }
 
   applyAr();
-  syncFx();
+  applyFx();
 
   function osdAct(id) {
     if (id === 'rew') seek(-30);

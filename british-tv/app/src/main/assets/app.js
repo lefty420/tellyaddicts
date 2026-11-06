@@ -688,8 +688,8 @@
   }
 
   // ---- picture looks: CSS only (filters on the video, plus an overlay for CRT)
-  var FXMODES = ['off', 'crt', 'vivid', 'sharp'];
-  var FXLABEL = { off: 'Off', crt: 'CRT', vivid: 'Vivid', sharp: 'Sharp' };
+  var FXMODES = ['off', 'crt', 'vhs', 'vivid', 'sharp'];
+  var FXLABEL = { off: 'Off', crt: 'CRT', vhs: 'VHS', vivid: 'Vivid', sharp: 'Sharp' };
   var fxMode = 'off';
   var fxWatch = null;
   (function () {

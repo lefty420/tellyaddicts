@@ -17,7 +17,7 @@ var CITV_SOURCES = [
   { item: 'KnightmareSeries1' }, { item: 'KnightmareSeries2' }, { item: 'KnightmareSeries3' },
   { item: 'KnightmareSeries4' }, { item: 'KnightmareSeries5' }, { item: 'KnightmareSeries6' },
   { item: 'KnightmareSeries7' }, { item: 'KnightmareSeries8' },
-  { item: 'the-trap-door-the-complete-collection-1984-86-seasons-1-2' },
+  { item: 'the-trap-door-1x-10-the-thingy-upscaled' },
   { item: 'art-attack-uk-vhs-and-dvd-collection' },
   { item: 'dogtanian-and-the-three-muskehounds' },
   { item: 'dungeons-dragons-1983-s-02-e-01-the-girl-who-dreamed-tomorrow-1080p-hd-upscale', exclude: 'Requiem' },
@@ -49,6 +49,9 @@ var CITV_SOURCES = [
   { item: 'gummi-bears-s-04-e-15-top-gum' },
   { item: 'visionaries-knights-of-the-magical-light-s-01-e-13-dawn-of-the-sun-imps' },
   { item: 'denver-the-last-dinosaur' },
+  { item: 'count-duckula-1x-07-dr-von-goosewings-invisible-ray-upscaled_202608' },
+  { item: 'rr-the-road-runner-adventures-of-1620x-1080' },
+  { item: 'zz-daffy-duck-porky-pig-meet-the-groovie-goolies-wm' },
   { item: 'tots-tv-uk-vhs-and-dvd-collection' },
   { search: 'title:("the tick") AND "1994" AND mediatype:movies', rows: 10 }
 ];
@@ -92,6 +95,50 @@ var XMAS_VIDEOS = [
   { item: 'paul-mc-cartney-wonderful-christmastime-l-train-remix', include: '^Paul McCartney - Wonderful Christmastime \\(L-Train remix\\)\\.ia\\.mp4$', title: 'Wonderful Christmastime' },
   { item: 'turner_video_2303', include: '^2303\\.ia\\.mp4$', title: 'Only You' },
   { item: '2014-12-13-hshs-choir-in-dulci-jubilo', include: '^2014-12-13 - HSHS Choir - In Dulci Jubilo\\.ia\\.mp4$', title: 'In Dulci Jubilo' }
+];
+
+// Disney shorts: one fixed file per item
+var DISNEY = [
+  { item: "disney-goofy-victory-vehicles-1943-1354x-1080", include: "^Disney - \\(Goofy\\) Victory Vehicles \\(1943\\)_1354x1080(\\.ia)?\\.mp4$", title: "(Goofy) Victory Vehicles (1943)" },
+  { item: "disney-toot-whistle-plunk-boom-1954-ws", include: "^Disney - Toot, Whistle, Plunk \\& Boom \\(1954\\) \\(WS\\)(\\.ia)?\\.mp4$", title: "Toot, Whistle, Plunk & Boom (1954) (WS)" },
+  { item: "educational-disney-understanding-stresses-and-strains-1968", include: "^\\(Educational\\) Disney - Understanding Stresses And Strains \\(1968\\)(\\.ia)?\\.mp4$", title: "Understanding Stresses And Strains (1968)" },
+  { item: "disney-mother-goose-goes-holly-wood-1938", include: "^- Disney - Mother Goose Goes HollyWood \\(1938\\)(\\.ia)?\\.mp4$", title: "Mother Goose Goes HollyWood (1938)" },
+  { item: "disney-scrooge-mc-duck-money-wm-1080p", include: "^Disney - Scrooge McDuck \\& Money \\(WM\\) 1080p(\\.ia)?\\.mp4$", title: "Scrooge McDuck & Money (WM)" },
+  { item: "disney-donald-how-to-have-an-accident-at-work", include: "^- Disney \\(Donald\\) - How To Have An Accident At Work(\\.ia)?\\.mp4$", title: "(Donald) How To Have An Accident At Work" },
+  { item: "disney-donalds-diary-1954-1080p", include: "^Disney - Donald`s Diary \\(1954\\) 1080p(\\.ia)?\\.mp4$", title: "Donald`s Diary (1954)" },
+  { item: "disney-goofy-gymnastics-1350x-1080", include: "^Disney - Goofy Gymnastics_1350x1080(\\.ia)?\\.mp4$", title: "(Goofy) Gymnastics" },
+  { item: "disney-goofy-two-gun-goofy-1080", include: "^Disney - \\(Goofy\\) Two-Gun Goofy 1080(\\.ia)?\\.mp4$", title: "(Goofy) Two-Gun Goofy" },
+  { item: "disney-rugged-bear-1953", include: "^Disney - Rugged Bear \\(1953\\)(\\.ia)?\\.mp4$", title: "Rugged Bear (1953)" },
+  { item: "disney-free-way-phobia", include: "^Disney - FreeWayPhobia(\\.ia)?\\.mp4$", title: "(Goofy) FreeWayPhobia" },
+  { item: "educational-disney-its-tough-to-be-a-bird-1969", include: "^\\(Educational\\) Disney - It's Tough To Be A Bird! \\(1969\\)(\\.ia)?\\.mp4$", title: "It's Tough To Be A Bird! (1969)" },
+  { item: "disney-goofy-how-to-sleep-1953-1080", include: "^Disney - \\(Goofy\\) How to Sleep \\(1953\\) 1080(\\.ia)?\\.mp4$", title: "(Goofy) How To Sleep (1953)" },
+  { item: "disney-mickey-the-nifty-nineties-1080-1", include: "^Disney - \\(Mickey\\) The Nifty Nineties 1080 1(\\.ia)?\\.mp4$", title: "(Mickey) The Nifty Nineties" },
+  { item: "z-disney-animated-shorts-1953x-09-football-now-and-then-1440x-1080", include: "^z Disney Animated Shorts - 1953x09 - Football \\(Now and Then\\)_1440x1080(\\.ia)?\\.mp4$", title: "Football (Now & Then)" },
+  { item: "z-disney-the-brave-engineer-1594x-1080", include: "^z Disney - The Brave Engineer_1594x1080(\\.ia)?\\.mp4$", title: "The Brave Engineer" },
+  { item: "disney-melody-1953", include: "^\\(Disney\\) - Melody \\(1953\\)(\\.ia)?\\.mp4$", title: "Melody (1953)" },
+  { item: "disney-the-robber-kitten-1080", include: "^Disney - The Robber Kitten 1080(\\.ia)?\\.mp4$", title: "The Robber Kitten" },
+  { item: "disney-don-donald-1937-1080p", include: "^Disney - Don Donald \\(1937\\) 1080p(\\.ia)?\\.mp4$", title: "Don Donald (1937)" },
+  { item: "disney-the-saga-of-wind-wagon-smith-1080-1", include: "^Disney - The Saga Of WindWagon Smith 1080 1(\\.ia)?\\.mp4$", title: "The Saga Of Wind Wagon Smith" },
+  { item: "disney-donald-no-hunting-1955-cinema-scope", include: "^Disney - \\(Donald\\) No Hunting \\(1955\\) \\(CinemaScope\\)(\\.ia)?\\.mp4$", title: "(Donald) No Hunting (1955) (Cinema Scope)" },
+  { item: "disney-jack-old-mac-1080", include: "^Disney - Jack \\& Old Mac 1080(\\.ia)?\\.mp4$", title: "Jack & Old Mac" },
+  { item: "disney-goofy-fathers-are-people-1080", include: "^Disney - \\(Goofy\\) Fathers Are People 1080(\\.ia)?\\.mp4$", title: "(Goofy) Fathers Are People" },
+  { item: "disney-the-country-cousin-1080", include: "^Disney - The Country Cousin 1080(\\.ia)?\\.mp4$", title: "The Country Cousin" },
+  { item: "disney-elmer-elephant-1080-1", include: "^Disney - Elmer Elephant 1080 1(\\.ia)?\\.mp4$", title: "Elmer Elephant" },
+  { item: "walt-disney-ye-olden-days-colorized", include: "^Walt Disney - Ye Olden Days \\(Colorized\\)(\\.ia)?\\.mp4$", title: "Walt Disney: Ye Olden Days (Colorized)" },
+  { item: "z-disney-social-lion-1600x-1080", include: "^z Disney - Social Lion_1600x1080(\\.ia)?\\.mp4$", title: "Social Lion" },
+  { item: "z-disney-donald-the-wheel-1080p", include: "^Z Disney - Donald \\& The Wheel 1080p(\\.ia)?\\.mp4$", title: "Donald & The Wheel" },
+  { item: "disney-a-symposium-on-popular-songs-1962-1080p", include: "^Disney - A Symposium on Popular Songs \\(1962\\) 1080p(\\.ia)?\\.mp4$", title: "A Symposium On Popular Songs (1962)" },
+  { item: "disney-the-grass-hopper-the-ants-1080", include: "^Disney - The GrassHopper \\& The Ants 1080(\\.ia)?\\.mp4$", title: "The Grass Hopper & The Ants" },
+  { item: "disney-who-killed-cock-robin-1080", include: "^Disney - Who Killed Cock Robin 1080(\\.ia)?\\.mp4$", title: "Who Killed Cock Robin" },
+  { item: "disney-goofy-how-to-be-a-detective-1080", include: "^Disney - \\(Goofy\\) How To Be A Detective 1080(\\.ia)?\\.mp4$", title: "(Goofy) How To Be A Detective" },
+  { item: "disney-pigs-is-pigs-1954-1080", include: "^- Disney - Pigs Is Pigs \\(1954\\)1080(\\.ia)?\\.mp4$", title: "Pigs Is Pigs (1954)" },
+  { item: "disney-the-story-of-any-burg-u.-s.-a.-1080", include: "^Disney - The Story Of AnyBurg U\\.S\\.A\\. 1080(\\.ia)?\\.mp4$", title: "The Story Of AnyBurg U.S.A." },
+  { item: "disney-a-cowboy-needs-a-horse-1080", include: "^Disney - A Cowboy Needs A Horse 1080(\\.ia)?\\.mp4$", title: "A CowBoy Needs A Horse" },
+  { item: "disney-donald-the-litter-bug-1961-1080", include: "^Disney - \\(Donald\\) The LitterBug \\(1961\\) 1080(\\.ia)?\\.mp4$", title: "(Donald) The LitterBug (1961)" },
+  { item: "disney-broken-toys-1080p", include: "^Disney - Broken Toys 1080p(\\.ia)?\\.mp4$", title: "Broken Toys" },
+  { item: "disney-mickeys-moderrn-house-house-of-vilains", include: "^Disney - Mickey`s Moderrn House \\(House Of Vilains\\)(\\.ia)?\\.mp4$", title: "Mickey`s Modern House (House Of Vilains)" },
+  { item: "disney-goofy-for-whom-the-bulls-toil-1080", include: "^Disney - \\(Goofy\\) For Whom the Bulls Toil 1080(\\.ia)?\\.mp4$", title: "(Goofy) For Whom The Bulls Toil" },
+  { item: "disney-educational-the-mosquito-winged-scourge-1943-1080p", include: "^- Disney \\(Educational\\) The Mosquito Winged Scourge \\(1943\\) 1080p(\\.ia)?\\.mp4$", title: "(Educational) The Mosquito Winged Scourge (1943)" }
 ];
 
 window.CHANNELS = [
@@ -299,5 +346,12 @@ window.CHANNELS = [
       { item: 'neighbours-episode-27' },
       { item: 'neighbours-episode-275' }
     ]
+  },
+  {
+    n: 21,
+    id: 'disney',
+    name: 'Disney',
+    maxItems: 100,
+    sources: DISNEY
   }
 ];

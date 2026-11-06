@@ -46,12 +46,16 @@
     animation: crt-roll 7s linear infinite; will-change: transform; }
   @keyframes crt-roll { from { transform: translateY(0); } to { transform: translateY(160vh); } }
   @keyframes crt-flick { 0%, 100% { opacity: 1; } 50% { opacity: .965; } }
-  body.fx-crt:not(.guide-open) #crt { display: block; animation: crt-flick .09s steps(2) infinite; }
-  body.fx-crt:not(.guide-open) #v { filter: url(#f-crt) contrast(1.25) saturate(1.35) brightness(1.3); transform: scale(1.035); }
+  body.fx-crt:not(.guide-open) #crt { display: block; }
+  body.fx-crt:not(.guide-open) #crt i { display: none; }
+  body.fx-crt:not(.guide-open) #v { filter: contrast(1.12) saturate(1.2) brightness(1.15); }
   body.fx-vhs:not(.guide-open) #v { filter: url(#f-vhs) contrast(1.05) saturate(1.5) brightness(1.08) sepia(.12); }
   body.fx-vhs:not(.guide-open) #crt { display: block; }
   body.fx-vhs:not(.guide-open) #crt::before { background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0, rgba(0,0,0,.2) .2vh, rgba(0,0,0,0) .4vh); }
-  body.fx-vhs:not(.guide-open) #crt::after { border-radius: 0; box-shadow: none; background: linear-gradient(180deg, rgba(255,255,255,0) 90%, rgba(255,255,255,.18) 92%, rgba(0,0,0,.5) 94%, rgba(255,255,255,.1) 96%, rgba(255,255,255,0) 100%); }
+  body.fx-vhs:not(.guide-open) #crt::after { border-radius: 0; box-shadow: none; background:
+    linear-gradient(180deg, rgba(0,0,0,0) 91%, rgba(255,255,255,.22) 93%, rgba(0,0,0,.55) 95%, rgba(255,255,255,.12) 97%, rgba(0,0,0,0) 100%),
+    linear-gradient(90deg, rgba(255,0,60,.05), rgba(0,0,0,0) 8%, rgba(0,0,0,0) 92%, rgba(0,120,255,.05)); }
+  body.fx-vhs:not(.guide-open) #crt i { height: 7vh; top: -9vh; background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.14) 45%, rgba(0,0,0,.25) 55%, rgba(255,255,255,0)); animation: crt-roll 9s linear infinite; }
   body.fx-vivid:not(.guide-open) #v { filter: contrast(1.12) saturate(1.3) brightness(1.04); }
   body.fx-sharp:not(.guide-open) #v { filter: url(#f-sharp) contrast(1.06) saturate(1.1); }
   video { position: fixed; inset: 0; width: 100%; height: 100%; background: #000; object-fit: contain; }

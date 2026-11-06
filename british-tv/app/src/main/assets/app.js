@@ -84,14 +84,14 @@
       var skip = s.exclude ? new RegExp(s.exclude, 'i') : null;
       if (s.item) {
         ids.push(s.item);
-        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem };
+        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title };
       } else if (s.search) {
         chain = chain.then(function () {
           return getJSON(searchUrl(s.search, s.rows || 25)).then(function (j) {
             ((j.response && j.response.docs) || []).forEach(function (d) {
               if (skip && skip.test((d.title || '') + ' ' + d.identifier)) return; // unwanted result
               ids.push(d.identifier);
-              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem };
+              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title };
             });
           }, function () { /* a failed search just contributes nothing */ });
         });
@@ -111,6 +111,8 @@
         metas.forEach(function (m, i) {
           if (!m) { report.push(uniq[i] + ': could not be loaded'); return; }
           var got = E.pickPrograms(uniq[i], m, optsFor[uniq[i]]);
+          var fixed = optsFor[uniq[i]] && optsFor[uniq[i]].title;
+          if (fixed) got.forEach(function (g) { g.title = fixed; g.sub = ''; });   // channels listing known titles
           if (!got.length) report.push(uniq[i] + ': ' + E.whyEmpty(m, optsFor[uniq[i]]));
           // keep one busy item (hundreds of episodes) from drowning out the others
           var cap = (optsFor[uniq[i]] && optsFor[uniq[i]].perItem) || ch.perItem;
@@ -256,7 +258,7 @@
   var sImage = sctx.createImageData(SW, SH);
   var sTimer = null, sToken = 0, sSince = 0, sOn = false;
   var audioCtx = null, noiseNode = null, noiseGain = null;
-  var MIN_STATIC_MS = 700;
+  var MIN_STATIC_MS = 1500;
 
   function drawStatic() {
     var d = sImage.data;
@@ -316,6 +318,8 @@
     drawStatic();
     clearInterval(sTimer);
     sTimer = setInterval(drawStatic, 60);
+    var tok = sToken;
+    setTimeout(function () { if (tok === sToken && sOn) hideStatic(); }, 2000);   // never longer than about 2 seconds
   }
 
   function hideStatic() {
@@ -372,7 +376,7 @@
     bannerTimer = setTimeout(function () { $('banner').className = 'off'; }, 5000);
   }
 
-  function playSlot(ch, index, offset, announce) {
+  function playSlot(ch, index, offset, announce, tuning) {
     var prog = ch.sched.order[index];
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
@@ -380,7 +384,7 @@
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
     store.set('last', ch.id);
-    showStatic();
+    if (tuning) showStatic();   // static only when changing channel, not between episodes or ads
     if (announce) showBanner();
     loadAds(ch);
   }
@@ -389,7 +393,7 @@
     var slot = E.at(ch.sched, Date.now());
     if (!slot) return;
     cur = null;
-    playSlot(ch, slot.index, slot.offsetSec, announce !== false);
+    playSlot(ch, slot.index, slot.offsetSec, announce !== false, true);
   }
 
   // ---- ad breaks: after a show ends on a channel with adBreak, play a few random adverts, then carry on
@@ -444,7 +448,6 @@
     hideStatic();
     if (cur) cur.errors = 0;
   });
-  v.addEventListener('waiting', function () { if (!v.paused) showStatic(); });
   v.addEventListener('ended', onEnded);
   v.addEventListener('error', function () {
     if (!cur) return;

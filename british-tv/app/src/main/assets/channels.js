@@ -49,7 +49,8 @@ var CITV_SOURCES = [
   { item: 'gummi-bears-s-04-e-15-top-gum' },
   { item: 'visionaries-knights-of-the-magical-light-s-01-e-13-dawn-of-the-sun-imps' },
   { item: 'denver-the-last-dinosaur' },
-  { item: 'tots-tv-uk-vhs-and-dvd-collection' }
+  { item: 'tots-tv-uk-vhs-and-dvd-collection' },
+  { search: 'title:("the tick") AND "1994" AND mediatype:movies', rows: 10 }
 ];
 var XMAS_RE = 'christmas|xmas|santa|nativity';
 function xmasOnly(src) {
@@ -57,6 +58,41 @@ function xmasOnly(src) {
   o.include = src.include ? '^(?=.*?(?:' + src.include + '))(?=.*?(?:' + XMAS_RE + '))' : XMAS_RE;
   return o;
 }
+
+// Christmas Music: the MTV Christmas Top 100 item plus hand-picked videos (title shown on screen is the one given here)
+var XMAS_VIDEOS = [
+  { item: 'MTVXmas-Top100', perItem: 100 },
+  { item: 'whamlastchristmas1984', include: '^Wham! - Last Christmas \\(1984\\)\\.mp4$', title: 'Wham Last Christmas' },
+  { item: 'slade-merry-xmas-everybody-top-of-the-pops-christmas-1974', include: '^Slade - Merry Xmas Everybody \\(Top Of The Pops Christmas 1974\\)\\.mp4$', title: 'Slade Merry Xmas Everybody' },
+  { item: '9convert.com-band-aid-do-they-know-its-christmas-2024-ultimate-mix-40th-anniversary-video-v-720-p', include: '^9convert\\.com - Band Aid  Do They Know Its Christmas 2024 Ultimate Mix  40th Anniversary Video_v720P\\.ia\\.mp4$', title: 'Band Aid Do They Know Its Christmas' },
+  { item: 'MariahCareyAllIWantForChristmasIsYouespaol', include: '^Mariah Carey   All i want for christmas is you\\(espaol\\)\\.mp4$', title: 'Mariah Carey All I Want For Christmas Is You' },
+  { item: 'step-into-christmas-ep-album-by-elton-john-apple-music', include: '^Step Into Christmas - EP - Album by Elton John - Apple Music\\.ia\\.mp4$', title: 'Elton John Step Into Christmas' },
+  { item: 'chris-rea-driving-home-for-christmas_202511', include: '^Chris Rea - Driving Home For Christmas\\.mp4$', title: 'Chris Rea Driving Home For Christmas' },
+  { item: 'jona-lewie-stop-the-cavalry-intro-1980-starlight', include: '^Jona Lewie - Stop The Cavalry \\(1981\\) \\(Starlight\\)\\.ia\\.mp4$', title: 'Jona Lewie Stop The Cavalry' },
+  { item: 'youtube-M41NYcvGKf8', include: '^M41NYcvGKf8\\.mp4$', title: 'Mud Lonely This Christmas' },
+  { item: 'christmas-totp-1988-cliff-richard-mistletoe-and-wine', include: '^CHRISTMAS TOTP  - 1988  - Cliff Richard  -  Mistletoe and Wine\\.mp4$', title: 'Cliff Richard Mistletoe and Wine' },
+  { item: 'john-lennon-happy-xmas-war-is-over-karaoke-version', include: '^John Lennon - Happy Xmas \\(War Is Over\\) \\(Karaoke Version\\)\\.ia\\.mp4$', title: 'John Lennon Happy Xmas' },
+  { item: 'east17stayanotherdaytranceremix', include: '^EAST 17 - STAY ANOTHER DAY \\(TRANCE REMIX\\)\\.mp4$', title: 'East 17 Stay Another Day' },
+  { item: 'kelly-clarkson-underneath-the-tree-official-video-1080p', include: '^Kelly Clarkson  Underneath the Tree Official Video_1080p\\.ia\\.mp4$', title: 'Kelly Clarkson Underneath the Tree' },
+  { item: 'Y2mate.comVariousWaitressesChristmasWrappingWq6Wpa1qgPs360p', include: '^y2mate\\.com - various_waitresses_christmas_wrapping_Wq6Wpa1qgPs_360p\\.mp4$', title: 'Waitresses Christmas Wrapping' },
+  { item: 'DEANMARTINLETITSNOWBLACKWAXCYLINDER', include: '^DEAN MARTIN _ LET IT SNOW _ BLACK WAX CYLINDER\\.mp4$', title: 'Dean Martin Let It Snow' },
+  { item: 'THEHOUSEMARTINSCARAVANOFLOVE_201801', include: '^THE HOUSE MARTINS - CARAVAN OF LOVE\\.mp4$', title: 'Housemartins Caravan of Love' },
+  { item: 'pet-shop-boys-always-on-my-mind', include: '^Pet Shop Boys-Always On My Mind\\.mp4$', title: 'Pet Shop Boys Always on My Mind' },
+  { item: 'bing-crosby-david-bowie-peace-on-earth-little-drummer-boy-orchestra-stereo-uhd-5-k', include: '^Bing Crosby & David Bowie - Peace on EarthLittle Drummer Boy \\(Orchestra Stereo\\) UHD 5K\\.ia\\.mp4$', title: 'Bing Crosby David Bowie Peace on Earth' },
+  { item: 'justin-bieber-mistletoe-official-music-video-720-p-hd', include: '^Justin Bieber - Mistletoe \\(Official Music Video\\)_720P HD\\.mp4$', title: 'Justin Bieber Mistletoe' },
+  { item: 'jose_feliciano_feliz_navidad', include: '^MVI_6731\\.mp4$', title: 'Jose Feliciano Feliz Navidad' },
+  { item: 'youtube-gCbFpprZYKE', include: '^gCbFpprZYKE\\.mp4$', title: 'Boyz II Men Let It Snow' },
+  { item: 'youtube-b9XNyeeJZ2k', include: '^b9XNyeeJZ2k\\.ia\\.mp4$', title: 'Chris Brown This Christmas' },
+  { item: 'youtube-kZ-coIXJf4s', include: '^kZ-coIXJf4s\\.ia\\.mp4$', title: 'Whitney Houston Do You Hear What I Hear' },
+  { item: 'sarah-brightman-andrea-bocelli-time-to-say-goodbye', include: '^Sarah Brightman & Andrea Bocelli - Time To Say Goodbye\\.mp4$', title: 'Andrea Bocelli Time To Say Goodbye' },
+  { item: 'youtube-LtqU3qb_7so', include: '^LtqU3qb_7so\\.mp4$', title: 'Steeleye Span Gaudete' },
+  { item: 'YouthcommPantoMediaGroup', include: '^XmasVideoiPod\\.mp4$', title: 'Merry Christmas Everyone' },
+  { item: 'youtube-HOv9bB9j6_U', include: '^Kigurumi_Fairytale_of_New_York-HOv9bB9j6_U\\.mp4$', title: 'Fairytale of New York' },
+  { item: 'elizabeth-unarchived-karaoke-026', include: '^hjSq4OmJwpk\\.mp4$', title: 'I Wish It Could Be Christmas Everyday' },
+  { item: 'paul-mc-cartney-wonderful-christmastime-l-train-remix', include: '^Paul McCartney - Wonderful Christmastime \\(L-Train remix\\)\\.ia\\.mp4$', title: 'Wonderful Christmastime' },
+  { item: 'turner_video_2303', include: '^2303\\.ia\\.mp4$', title: 'Only You' },
+  { item: '2014-12-13-hshs-choir-in-dulci-jubilo', include: '^2014-12-13 - HSHS Choir - In Dulci Jubilo\\.ia\\.mp4$', title: 'In Dulci Jubilo' }
+];
 
 window.CHANNELS = [
   {
@@ -71,20 +107,44 @@ window.CHANNELS = [
         exclude: '^\\s*(19|20)\\d\\d\\s*$' },
       // The Chart Show episodes only (items with "The Chart Show" in the title; bare year items like "1987" are skipped)
       { search: 'title:("the chart show") AND mediatype:movies', rows: 200, perItem: 60,
-        exclude: '^\\s*(19|20)\\d\\d\\s*$' }
+        exclude: '^\\s*(19|20)\\d\\d\\s*$' },
+      // hand-picked Chart Show episodes
+      { item: 'chart-show-1-11-97', perItem: 60 },
+      { item: 'chart-show-13-12-97', perItem: 60 },
+      { item: 'chart-show-13-2-93', perItem: 60 },
+      { item: 'chart-show-17-12-94', perItem: 60 },
+      { item: 'chart-show-19-1-92', perItem: 60 },
+      { item: 'chart-show-1989-special', perItem: 60 },
+      { item: 'chart-show-1990-special', perItem: 60 },
+      { item: 'chart-show-25-12-93', perItem: 60 },
+      { item: 'chart-show-27-11-87', perItem: 60 },
+      { item: 'chart-show-30-9-88', perItem: 60 },
+      { item: 'chart-show-4-1-92', perItem: 60 },
+      { item: 'chart-show-6-12-97', perItem: 60 }
     ]
   },
   {
     n: 2,
-    id: 'bbc',
-    name: 'Classic BBC',
+    id: 'mtv',
+    name: 'MTV',
+    perItem: 40,
     sources: [
-      { search: '(BBC1 OR BBC2 OR "BBC Television" OR "BBC One") AND mediatype:movies AND year:[1960 TO 1999]', rows: 40,
-        exclude: 'subs|anime|SoShi' }
+      { item: 'mtv-12-15-83-1-hour-better-quality' },
+      { item: 'bbkingturdfixed' },
+      { search: 'creator:("MTV Music Television") AND mediatype:movies', rows: 40, perItem: 20 }
     ]
   },
   {
     n: 3,
+    id: 'bbc',
+    name: 'Classic BBC',
+    sources: [
+      { search: '(BBC1 OR BBC2 OR "BBC Television" OR "BBC One") AND mediatype:movies AND year:[1960 TO 1999]', rows: 40,
+        exclude: 'subs|anime|SoShi|The[ ._-]?Tick' }
+    ]
+  },
+  {
+    n: 4,
     id: 'itvam',
     name: 'ITV Morning',
     sources: [
@@ -93,7 +153,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 4,
+    n: 5,
     id: 'sitcoms',
     name: 'Classic Sitcoms',
     sources: [
@@ -101,7 +161,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 5,
+    n: 6,
     id: 'gameshows',
     name: 'Game Shows',
     perItem: 40,   // keep one show from crowding out the others
@@ -114,15 +174,15 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 6,
+    n: 7,
     id: 'thebill',
-    name: 'The Bill',
+    name: 'Drama',
     sources: [
       { item: 'the-bill-complete-series-1-to-26' }
     ]
   },
   {
-    n: 7,
+    n: 8,
     id: 'christmas',
     name: 'Christmas TV',
     sources: [
@@ -131,7 +191,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 8,
+    n: 9,
     id: 'tv70s',
     name: '70s TV',
     sources: [
@@ -139,7 +199,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 9,
+    n: 10,
     id: 'adverts',
     name: 'Adverts & Continuity',
     sources: [
@@ -147,7 +207,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 10,
+    n: 11,
     id: 'itv',
     name: 'ITV',
     sources: [
@@ -155,7 +215,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 11,
+    n: 12,
     id: 'noel',
     name: "Noel's House Party",
     sources: [
@@ -163,7 +223,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 12,
+    n: 13,
     id: 'citv',
     name: 'CITV',
     perItem: 30,   // cap per item so Art Attack / Ghostbusters can't crowd out the rest
@@ -172,7 +232,7 @@ window.CHANNELS = [
     sources: CITV_SOURCES
   },
   {
-    n: 13,
+    n: 14,
     id: 'games',
     name: 'Video Games',
     sources: [
@@ -182,7 +242,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 14,
+    n: 15,
     id: 'comedy',
     name: 'Comedy',
     perItem: 40,
@@ -194,11 +254,12 @@ window.CHANNELS = [
       { item: 'vicar-of-dibley-s-01-e-01-arrival.avi' },
       { item: 'hey-ho-its-sooty-and-co-everybody-say-hello' },
       { item: 'bread-series-uncut' },
-      { item: 'allo-allo-complete-series' }
+      { item: 'allo-allo-complete-series' },
+      { item: 'father-ted-2005' }
     ]
   },
   {
-    n: 15,
+    n: 16,
     id: 'childrens',
     name: "Children's World",
     sources: [
@@ -206,7 +267,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 16,
+    n: 17,
     id: 'kidsmovies',
     name: 'Kids Movies',
     sources: [
@@ -214,7 +275,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 17,
+    n: 18,
     id: 'kidsxmas',
     name: "Children's Christmas",
     perItem: 25,
@@ -222,5 +283,21 @@ window.CHANNELS = [
     sources: CITV_SOURCES.map(xmasOnly).concat([
       { item: 'bbc-childrens-uk-vhs-and-dvd-collection', include: XMAS_RE }
     ])
+  },
+  {
+    n: 19,
+    id: 'xmasmusic',
+    name: 'Christmas Music',
+    maxItems: 150,
+    sources: XMAS_VIDEOS
+  },
+  {
+    n: 20,
+    id: 'offschool',
+    name: "I'm Off School",
+    sources: [
+      { item: 'neighbours-episode-27' },
+      { item: 'neighbours-episode-275' }
+    ]
   }
 ];

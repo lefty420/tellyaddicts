@@ -389,11 +389,11 @@
     loadAds(ch);
   }
 
-  function tune(ch, announce) {
+  function tune(ch, announce, quiet) {
     var slot = E.at(ch.sched, Date.now());
     if (!slot) return;
     cur = null;
-    playSlot(ch, slot.index, slot.offsetSec, announce !== false, true);
+    playSlot(ch, slot.index, slot.offsetSec, announce !== false, !quiet);
   }
 
   // ---- ad breaks: after a show ends on a channel with adBreak, play a few random adverts, then carry on
@@ -919,7 +919,8 @@
     $('splash').className = 'hidden';
     var last = store.get('last');
     var pick = list.filter(function (c) { return c.id === last; })[0] || list[0];
-    tune(pick, true);
+    tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
+    openGuide();               // ... but land in the TV guide
   }
 
   function startLoading() {

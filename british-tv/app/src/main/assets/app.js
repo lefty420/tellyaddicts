@@ -71,7 +71,7 @@
   }
 
   function loadPrograms(ch) {
-    var key = 'lib2:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v3');
+    var key = 'lib2:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v4');
     var cached = store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < DAY) {
       ch.report = cached.r || [];
@@ -228,7 +228,10 @@
           byShow[k].items.forEach(function (it) {
             var hit = it.disc ? map['a:' + it.e] : map[it.s + ':' + it.e];
             if (hit && it.disc && hit[2] !== it.s) hit = null;                 // overall number must fall in that series
-            if (!hit || GENERIC_EP.test(hit[0].trim())) return;
+            if (!hit || GENERIC_EP.test(hit[0].trim())) {
+              if (it.disc) it.p.title = it.p.title.replace(/\bS(\d{1,2})D(\d{1,3})\b/, 'S$1E$2');   // disc number shown as episode
+              return;
+            }
             var y = /(\d{4})$/.exec(it.p.sub || '');
             if (y && hit[1] && Math.abs(+y[1] - hit[1]) > 3) return;      // dates disagree: numbering does not line up
             var sn = it.disc ? hit[2] : it.s, en = it.disc ? hit[3] : it.e;

@@ -276,6 +276,8 @@
     }
     var minDur = opts && opts.minDur ? +opts.minDur : 0;
     if (minDur) out = out.filter(function (o) { return !o._len || o._len >= minDur; }); // unknown length: keep
+    var maxDur = opts && opts.maxDur ? +opts.maxDur : 0;
+    if (maxDur) out = out.filter(function (o) { return !o._len || o._len <= maxDur; });
     out.forEach(function (o) { delete o._ia; delete o._len; });
     if (out.length === 1 && md.title && /[a-z]/i.test(md.title) && !include && !exclude && name_isRoot(out[0])) {
       // an item that is a single programme: use the item's own title

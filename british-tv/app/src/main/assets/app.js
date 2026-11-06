@@ -84,14 +84,14 @@
       var skip = s.exclude ? new RegExp(s.exclude, 'i') : null;
       if (s.item) {
         ids.push(s.item);
-        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur, perItem: s.perItem };
+        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem };
       } else if (s.search) {
         chain = chain.then(function () {
           return getJSON(searchUrl(s.search, s.rows || 25)).then(function (j) {
             ((j.response && j.response.docs) || []).forEach(function (d) {
               if (skip && skip.test((d.title || '') + ' ' + d.identifier)) return; // unwanted result
               ids.push(d.identifier);
-              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur, perItem: s.perItem };
+              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem };
             });
           }, function () { /* a failed search just contributes nothing */ });
         });
@@ -139,7 +139,7 @@
   // ------------------------------------------------------------------ channels
 
   var channels = window.CHANNELS.map(function (c) {
-    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, report: [], status: 'loading', sched: null };
+    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, adBreak: c.adBreak, report: [], status: 'loading', sched: null };
   });
 
   function ready() {
@@ -382,6 +382,7 @@
     store.set('last', ch.id);
     showStatic();
     if (announce) showBanner();
+    loadAds(ch);
   }
 
   function tune(ch, announce) {
@@ -389,6 +390,34 @@
     if (!slot) return;
     cur = null;
     playSlot(ch, slot.index, slot.offsetSec, announce !== false);
+  }
+
+  // ---- ad breaks: after a show ends on a channel with adBreak, play a few random adverts, then carry on
+  var adPools = {};
+  function loadAds(ch) {
+    var ab = ch.adBreak;
+    if (!ab || adPools[ch.id]) return;
+    adPools[ch.id] = [];
+    loadPrograms({ id: ch.id + '-ads', maxItems: ab.rows || 40, report: [],
+      sources: [{ search: ab.search, rows: ab.rows || 40, maxDur: ab.maxDur, perItem: 1 }] })
+      .then(function (p) { adPools[ch.id] = p || []; }, function () { adPools[ch.id] = []; });
+  }
+  function playAd(ch, index, left) {
+    var pool = adPools[ch.id];
+    var ad = pool[Math.floor(Math.random() * pool.length)];
+    if (pool.length > 1 && cur && cur.ad && cur.prog.url === ad.url) ad = pool[(pool.indexOf(ad) + 1) % pool.length];   // no immediate repeat
+    cur = { ch: ch, index: index, prog: { title: 'Advert', sub: ad.title, url: ad.url }, ad: true, adLeft: left - 1, errors: 0 };
+    v.dataset.offset = '0';
+    v.src = ad.url;
+    var p = v.play();
+    if (p && p.catch) p.catch(function () { /* error handler covers failures */ });
+  }
+  function onEnded() {
+    if (cur && cur.ad && cur.adLeft > 0) return playAd(cur.ch, cur.index, cur.adLeft);
+    if (cur && !cur.ad && cur.ch.adBreak && adPools[cur.ch.id] && adPools[cur.ch.id].length) {
+      return playAd(cur.ch, cur.index, cur.ch.adBreak.count || 2);
+    }
+    nextInChannel();
   }
 
   function nextInChannel() {
@@ -416,7 +445,7 @@
     if (cur) cur.errors = 0;
   });
   v.addEventListener('waiting', function () { if (!v.paused) showStatic(); });
-  v.addEventListener('ended', nextInChannel);
+  v.addEventListener('ended', onEnded);
   v.addEventListener('error', function () {
     if (!cur) return;
     cur.errors++;

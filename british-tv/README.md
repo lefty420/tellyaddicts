@@ -30,6 +30,11 @@ archive.org uploads. Nothing is hosted by the app; it reads archive.org directly
 12. CITV (CITV shows from `Itvcitv`, Knightmare, The Trap Door, Art Attack, Dogtanian, The Real Ghostbusters, Maid Marian, Bananaman, Rainbow, DuckTales, Transformers, Gummi Bears, Sonic, Super Mario and many more; see `channels.js`)
 13. Video Games (Gamesmaster episodes plus a search for Bad Influence, **unverified**)
 14. Comedy (Bottom, One Foot in the Grave, Keeping Up Appearances, Red Dwarf, The Vicar of Dibley, Sooty, Bread, 'Allo 'Allo!)
+15. Children's World (the BBC children's VHS and DVD collection)
+16. Kids Movies (children's films; starts with Beauty and the Beast: The Enchanted Christmas)
+17. Children's Christmas (only the Christmas / Xmas files from the CITV sources and the BBC children's collection)
+
+CITV is also the test channel for advert breaks: after each show finishes, two random toy adverts from the `uk-adverts` collection play before the next show (`adBreak` in `channels.js`).
 
 When an item lists the same programme twice, the small `.ia.mp4` copy is used in preference to a larger plain `.mp4`.
 

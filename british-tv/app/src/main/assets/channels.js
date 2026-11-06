@@ -11,6 +11,53 @@
  * Only "mp4" files are used (archive.org usually makes one next to each original upload).
  * Results are cached on the device for 24 hours.
  */
+// Shared by CITV and Children's Christmas (which keeps only the Christmas / Xmas files from the same sources)
+var CITV_SOURCES = [
+{ item: 'Itvcitv', include: 'CITV' },
+  { item: 'KnightmareSeries1' }, { item: 'KnightmareSeries2' }, { item: 'KnightmareSeries3' },
+  { item: 'KnightmareSeries4' }, { item: 'KnightmareSeries5' }, { item: 'KnightmareSeries6' },
+  { item: 'KnightmareSeries7' }, { item: 'KnightmareSeries8' },
+  { item: 'the-trap-door-the-complete-collection-1984-86-seasons-1-2' },
+  { item: 'art-attack-uk-vhs-and-dvd-collection' },
+  { item: 'dogtanian-and-the-three-muskehounds' },
+  { item: 'dungeons-dragons-1983-s-02-e-01-the-girl-who-dreamed-tomorrow-1080p-hd-upscale', exclude: 'Requiem' },
+  { item: 'real-ghostbusters-1' }, { item: 'real-ghostbusters-2-1' }, { item: 'real-ghostbusters-3' },
+  { item: 'real-ghostbusters-4' }, { item: 'real-ghostbusters-5' },
+  { item: 'inspector-gadget-go-go-gadget-series' },
+  { item: '60s70s80skidstv',
+    include: '^(Fireman Sam|Jimbo and the Jet Set|Postman Pat 1981-1996|Roobarb and Custard|The Family-Ness)/' },
+  { item: 'garfield-and-friends-complete-series' },
+  { item: 'mask-01-the-deathstone-sg-1' },
+  { item: 'spider-man-and-his-amazing-friends_202403' },
+  { item: '20240727_20240727_0523' },
+  { item: 'maid-marian-and-her-merry-men-1989-94' },
+  { item: 'simon-and-the-witch-1987-88' },
+  { item: 'bananaman-the-complete-collection-1983-86-series-1-3' },
+  { item: 'bucky-ohare-and-the-toad-wars-the-complete-series-1991' },
+  { item: 'the_adventures_of_pete_and_pete' },
+  { item: 'rainbow-1972-92-childrens-itv-series' },
+  { item: 'Ducktales-Complete-Series' },
+  { item: 'transformers-season-1' },
+  { item: 'gummi-bears-s-01-e-09-a-gummi-by-any-other-name' },
+  { item: 'super-mario-world-the-complete-tv-series-collection' },
+  { item: 'Sonic-the-Hedgehog-SatAM-The-Complete-Series-Restored' },
+  { item: 'sonic-the-hedgehog-sat-am-complete-series-UK-DVD-rip' },
+  { item: 's-01-e-06-the-works...-in-wax' },
+  { item: 'hanna-barbera-gravdale-high-animated-1990-series' },
+  { item: 'gummi-bears-s-06-e-19-wings-over-dunwyn' },
+  { item: 'captain-n-the-game-master-s-02-e-14-when-mother-brain-rules-version-2' },
+  { item: 'gummi-bears-s-04-e-15-top-gum' },
+  { item: 'visionaries-knights-of-the-magical-light-s-01-e-13-dawn-of-the-sun-imps' },
+  { item: 'denver-the-last-dinosaur' },
+  { item: 'tots-tv-uk-vhs-and-dvd-collection' }
+];
+var XMAS_RE = 'christmas|xmas|santa|nativity';
+function xmasOnly(src) {
+  var o = {}; for (var k in src) o[k] = src[k];
+  o.include = src.include ? '^(?=.*?(?:' + src.include + '))(?=.*?(?:' + XMAS_RE + '))' : XMAS_RE;
+  return o;
+}
+
 window.CHANNELS = [
   {
     n: 1,
@@ -121,44 +168,8 @@ window.CHANNELS = [
     name: 'CITV',
     perItem: 30,   // cap per item so Art Attack / Ghostbusters can't crowd out the rest
     maxItems: 80,  // lots of items on this channel
-    sources: [
-      { item: 'Itvcitv', include: 'CITV' },
-      { item: 'KnightmareSeries1' }, { item: 'KnightmareSeries2' }, { item: 'KnightmareSeries3' },
-      { item: 'KnightmareSeries4' }, { item: 'KnightmareSeries5' }, { item: 'KnightmareSeries6' },
-      { item: 'KnightmareSeries7' }, { item: 'KnightmareSeries8' },
-      { item: 'the-trap-door-the-complete-collection-1984-86-seasons-1-2' },
-      { item: 'art-attack-uk-vhs-and-dvd-collection' },
-      { item: 'dogtanian-and-the-three-muskehounds' },
-      { item: 'dungeons-dragons-1983-s-02-e-01-the-girl-who-dreamed-tomorrow-1080p-hd-upscale', exclude: 'Requiem' },
-      { item: 'real-ghostbusters-1' }, { item: 'real-ghostbusters-2-1' }, { item: 'real-ghostbusters-3' },
-      { item: 'real-ghostbusters-4' }, { item: 'real-ghostbusters-5' },
-      { item: 'inspector-gadget-go-go-gadget-series' },
-      { item: '60s70s80skidstv',
-        include: '^(Fireman Sam|Jimbo and the Jet Set|Postman Pat 1981-1996|Roobarb and Custard|The Family-Ness)/' },
-      { item: 'garfield-and-friends-complete-series' },
-      { item: 'mask-01-the-deathstone-sg-1' },
-      { item: 'spider-man-and-his-amazing-friends_202403' },
-      { item: '20240727_20240727_0523' },
-      { item: 'maid-marian-and-her-merry-men-1989-94' },
-      { item: 'simon-and-the-witch-1987-88' },
-      { item: 'bananaman-the-complete-collection-1983-86-series-1-3' },
-      { item: 'bucky-ohare-and-the-toad-wars-the-complete-series-1991' },
-      { item: 'the_adventures_of_pete_and_pete' },
-      { item: 'rainbow-1972-92-childrens-itv-series' },
-      { item: 'Ducktales-Complete-Series' },
-      { item: 'transformers-season-1' },
-      { item: 'gummi-bears-s-01-e-09-a-gummi-by-any-other-name' },
-      { item: 'super-mario-world-the-complete-tv-series-collection' },
-      { item: 'Sonic-the-Hedgehog-SatAM-The-Complete-Series-Restored' },
-      { item: 'sonic-the-hedgehog-sat-am-complete-series-UK-DVD-rip' },
-      { item: 's-01-e-06-the-works...-in-wax' },
-      { item: 'hanna-barbera-gravdale-high-animated-1990-series' },
-      { item: 'gummi-bears-s-06-e-19-wings-over-dunwyn' },
-      { item: 'captain-n-the-game-master-s-02-e-14-when-mother-brain-rules-version-2' },
-      { item: 'gummi-bears-s-04-e-15-top-gum' },
-      { item: 'visionaries-knights-of-the-magical-light-s-01-e-13-dawn-of-the-sun-imps' },
-      { item: 'denver-the-last-dinosaur' }
-    ]
+    adBreak: { search: 'collection:uk-adverts AND subject:"toys" AND mediatype:movies', rows: 60, count: 2, maxDur: 150 },   // test: 2 toy adverts after each show
+    sources: CITV_SOURCES
   },
   {
     n: 13,
@@ -185,5 +196,31 @@ window.CHANNELS = [
       { item: 'bread-series-uncut' },
       { item: 'allo-allo-complete-series' }
     ]
+  },
+  {
+    n: 15,
+    id: 'childrens',
+    name: "Children's World",
+    sources: [
+      { item: 'bbc-childrens-uk-vhs-and-dvd-collection' }
+    ]
+  },
+  {
+    n: 16,
+    id: 'kidsmovies',
+    name: 'Kids Movies',
+    sources: [
+      { item: 'beauty-and-the-beast-the-enchanted-christmas-1997-vhs.ia' }
+    ]
+  },
+  {
+    n: 17,
+    id: 'kidsxmas',
+    name: "Children's Christmas",
+    perItem: 25,
+    maxItems: 80,
+    sources: CITV_SOURCES.map(xmasOnly).concat([
+      { item: 'bbc-childrens-uk-vhs-and-dvd-collection', include: XMAS_RE }
+    ])
   }
 ];

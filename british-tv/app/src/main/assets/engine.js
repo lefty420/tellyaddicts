@@ -64,7 +64,7 @@
   /** "s04e04" / "S4 E4" -> "S04E04" */
   function tidyCodes(t) {
     t = t.replace(/\bS(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')        // "S1, Ep 09"
-         .replace(/\bSeason\s*(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')   // "Season 1 Episode 9"
+         .replace(/\b(?:Season|Series)\s*(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')   // "Series 3 Ep 4"
          .replace(/(^|\s)(\d{1,2})x(\d{2,3})\b/g, '$1S$2E$3');                               // "1x01"
     return t.replace(/\bs\s?(\d{1,2})\s?e\s?(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
       .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ')
@@ -83,6 +83,16 @@
     base = base.replace(/^\d{1,3}(?:[.)]\s*|\s+-\s+)(?=[A-Za-z])/, '');   // "01.Are You Being Served" -> words
     base = base.replace(/^(?:BBC\s?DVD|ITV\s?DVD|2\s?Entertain)\s?\d+\s+/i, '');       // "BBCDVD1860 One Foot..."
     base = base.replace(/^(?=[0-9A-F]*\d)[0-9A-F]{8}\s+(?=[A-Za-z])/, '');             // "0001AC85 Cannon..."
+    base = base.replace(/^View\s*Record[\s_\-]+/i, '');                                // uploader tag on game show files
+    base = base.replace(/[\s_\-]*cut[\s_\-]*merged[\s_\-]*\d*/ig, '').replace(/[\s_\-]\d{10,13}$/, '');   // "-cut-merged-1775992021051"
+    base = base.replace(/^\d{1,3}-(?=[A-Za-z])/, '');                                    // "36-Rumpole of the Bailey"
+    base = base.replace(/(\S)\s*\.{2,}\s*(?=\S)/g, '$1 - ');                              // "Dads Army...The Lovely Bunch"
+    var tz = base.match(/(\d{4})[ \-_.](\d{2})[ \-_.](\d{2})T\d{4,6}Z?/);               // "2019 01 27T043000Z"
+    var tzSub = '';
+    if (tz && validMonth(+tz[2]) && +tz[3] >= 1 && +tz[3] <= 31) {
+      tzSub = (+tz[3]) + ' ' + MONTHS[+tz[2] - 1] + ' ' + tz[1];
+      base = base.replace(tz[0], ' ').replace(/\s+/g, ' ').trim();
+    }
     var slug = base.indexOf(' ') < 0;                            // "minder.s04e04.tvrip.divx", "the-bill-s11e71"
     if (slug) {
       base = base.replace(/[._]+/g, ' ');                        // "Knightmare_-_1x01" -> words
@@ -144,6 +154,12 @@
     }
     title = title.replace(/\s+/g, ' ').replace(/^[\s\-–:]+|[\s\-–:]+$/g, '').replace(/\s-\s-\s/g, ' - ');
     title = tidyCodes(title);
+    if (!sub && tzSub) sub = tzSub;
+    var cut = title.indexOf(' - ');
+    var lead = cut > 3 ? title.slice(0, cut) : '';
+    if (lead && lead.indexOf(' ') > 0 && lead === lead.toUpperCase() && lead.split(' ').every(function (w) { return w.length >= 4; })) {   // not acronyms like BBC
+      title = titleCase(title.slice(0, cut).toLowerCase()) + title.slice(cut);   // "DADS ARMY - The Lovely Bunch"
+    }
     if (slug && title.replace(/\bS\d+E\d+\b/g, '') === title.replace(/\bS\d+E\d+\b/g, '').toLowerCase()) title = titleCase(title);
     return { title: title || fallback || base, sub: sub };
   }

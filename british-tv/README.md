@@ -47,7 +47,7 @@ Items that only contain `.avi`/`.mkv` originals will not play unless archive.org
 | Guide / Red | Open guide | Red jumps back to Now |
 | Rewind / Fast-forward | Seek 30 s | Earlier / Later (2 hours) |
 | Green / Yellow / Blue | | Later / Earlier / Watch |
-| Info | Show what is on | |
+| Info (or hold OK for half a second) | Show what is on | Shows sources that are not playing and the exact archive.org file of the highlighted programme |
 | Play/Pause | Pause or resume | |
 | Number keys | Jump to a channel number | |
 | Back | Press twice to exit | Close guide |

@@ -143,15 +143,56 @@ public class MainActivity extends Activity {
         }
     }
 
+    // OK / Select: a short press sends "Enter" when released; holding it for about half a second sends "Info"
+    // instead (for remotes with no Info button). Everything else is forwarded straight away.
+    private static final long LONG_PRESS_MS = 550;
+    private boolean centerDown = false;
+    private boolean centerLong = false;
+    private final Runnable centerLongPress = new Runnable() {
+        @Override
+        public void run() {
+            if (centerDown && !centerLong) {
+                centerLong = true;
+                sendKey("Info", false);
+            }
+        }
+    };
+
+    private void sendKey(String key, boolean repeat) {
+        if (web == null) {
+            return;
+        }
+        web.evaluateJavascript("window.dispatchEvent(new KeyboardEvent('keydown',{key:'" + key
+                + "',repeat:" + repeat + ",bubbles:true,cancelable:true}));", null);
+    }
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        String key = pageKey(event.getKeyCode());
+        int code = event.getKeyCode();
+        String key = pageKey(code);
         if (key == null || web == null) {
             return super.dispatchKeyEvent(event);
         }
+        if ("Enter".equals(key)) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                if (event.getRepeatCount() == 0) {
+                    centerDown = true;
+                    centerLong = false;
+                    main.removeCallbacks(centerLongPress);
+                    main.postDelayed(centerLongPress, LONG_PRESS_MS);
+                }
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                main.removeCallbacks(centerLongPress);
+                if (centerDown && !centerLong) {
+                    sendKey("Enter", false);
+                }
+                centerDown = false;
+                centerLong = false;
+            }
+            return true;
+        }
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            web.evaluateJavascript("window.dispatchEvent(new KeyboardEvent('keydown',{key:'" + key
-                    + "',repeat:" + (event.getRepeatCount() > 0) + ",bubbles:true,cancelable:true}));", null);
+            sendKey(key, event.getRepeatCount() > 0);
         }
         return true;
     }

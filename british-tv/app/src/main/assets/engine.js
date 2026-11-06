@@ -81,10 +81,15 @@
     var base = String(name).replace(/^.*\//, '').replace(/\.(ia\.)?(mp4|m4v)$/i, '');
     base = base.replace(/[.\s_]*(\[[^\]\s]+\])+$/, '');       // trailing encoder tags: ".[SR-Enc][bombus]"
     base = base.replace(/^\d{1,3}(?:[.)]\s*|\s+-\s+)(?=[A-Za-z])/, '');   // "01.Are You Being Served" -> words
+    base = base.replace(/^(?:BBC\s?DVD|ITV\s?DVD|2\s?Entertain)\s?\d+\s+/i, '');       // "BBCDVD1860 One Foot..."
+    base = base.replace(/^(?=[0-9A-F]*\d)[0-9A-F]{8}\s+(?=[A-Za-z])/, '');             // "0001AC85 Cannon..."
     var slug = base.indexOf(' ') < 0;                            // "minder.s04e04.tvrip.divx", "the-bill-s11e71"
     if (slug) {
       base = base.replace(/[._]+/g, ' ');                        // "Knightmare_-_1x01" -> words
       if (base.indexOf(' ') < 0 && (base.match(/-/g) || []).length >= 2) base = base.replace(/-+/g, ' ');
+      if (base.indexOf(' ') < 0) {                               // "Bottom-S02E03", "bottom-s02e03-culture"
+        base = base.replace(/([A-Za-z])[-]+(?=S\d{1,2}[ED]\d{1,3}\b)/i, '$1 ').replace(/\b(S\d{1,2}[ED]\d{1,3})-+(?=[A-Za-z])/i, '$1 ');
+      }
     }
     base = stripRelease(base, slug);
     base = base.replace(/\s*\(\s*\d{4}\s*[-\u2013]\s*\d{2,4}\s*\)/g, '');   // series year range "(1976 - 84)"
@@ -199,7 +204,7 @@
         var show = shelf && md.title ? cleanShow(cleanItemTitle(md.title)) : cleanShow(parts[0]);
         if (bucket) { /* no prefix: the file name carries the show */ }
         else if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0) {
-          d.title = show + (/^s\d+e\d+/i.test(d.title) ? ' ' : ' - ') + d.title;
+          d.title = show + (/^s\d+[ed]\d+/i.test(d.title) ? ' ' : ' - ') + d.title;
         }
       }
       d.title = d.title.replace(/^(.+?)\s-\s(S\d+E\d+)/, '$1 $2');

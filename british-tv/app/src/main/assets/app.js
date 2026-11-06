@@ -176,7 +176,7 @@
 
   /** {"4:12": ["Dainty Dish", 1992], ...} for a show, or null if TVmaze has no match. One request at a time (rate limit). */
   function tvmEpisodes(name) {
-    var key = 'tvm2:' + normShow(name);
+    var key = 'tvm3:' + normShow(name);
     var c = store.get(key);
     if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.eps);
     var job = tvmChain.then(function () {
@@ -192,9 +192,12 @@
         });
         if (!best) return null;
         return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + best.id + '/episodes'); }).then(function (eps) {
-          var map = {};
+          var map = {}, abs = 0;
           (eps || []).forEach(function (e) {
-            if (e.season && e.number && e.name) map[e.season + ':' + e.number] = [e.name, e.airdate ? +String(e.airdate).slice(0, 4) : 0];
+            if (!(e.season && e.number && e.name)) return;
+            var hit = [e.name, e.airdate ? +String(e.airdate).slice(0, 4) : 0, e.season, e.number];
+            map[e.season + ':' + e.number] = hit;
+            if (!e.type || e.type === 'regular') map['a:' + (++abs)] = hit;   // n-th episode overall, for "S05D028"-style names
           });
           return map;
         });
@@ -209,12 +212,12 @@
   function enrichNames(ch, progs) {
     var byShow = {};
     progs.forEach(function (p) {
-      var m = /^(.*?)\s+S(\d{1,2})E(\d{1,3})(?:\s+(.*))?$/.exec(p.title || '');
+      var m = /^(.*?)\s+S(\d{1,2})([ED])(\d{1,3})(?:\s+(.*))?$/.exec(p.title || '');
       if (!m || p.tvDone) return;
       var show = m[1].replace(/[\s\-–:]+$/, '').trim();
       if (!show) return;
       var k = normShow(show);
-      (byShow[k] = byShow[k] || { show: show, items: [] }).items.push({ p: p, s: +m[2], e: +m[3], rest: m[4] || '' });
+      (byShow[k] = byShow[k] || { show: show, items: [] }).items.push({ p: p, s: +m[2], e: +m[4], disc: m[3] === 'D', rest: m[5] || '' });
     });
     var keys = Object.keys(byShow);
     var changed = false;
@@ -223,11 +226,13 @@
         return tvmEpisodes(byShow[k].show).then(function (map) {
           if (!map) return;
           byShow[k].items.forEach(function (it) {
-            var hit = map[it.s + ':' + it.e];
+            var hit = it.disc ? map['a:' + it.e] : map[it.s + ':' + it.e];
+            if (hit && it.disc && hit[2] !== it.s) hit = null;                 // overall number must fall in that series
             if (!hit || GENERIC_EP.test(hit[0].trim())) return;
             var y = /(\d{4})$/.exec(it.p.sub || '');
             if (y && hit[1] && Math.abs(+y[1] - hit[1]) > 3) return;      // dates disagree: numbering does not line up
-            var code = 'S' + (it.s < 10 ? '0' : '') + it.s + 'E' + (it.e < 10 ? '0' : '') + it.e;
+            var sn = it.disc ? hit[2] : it.s, en = it.disc ? hit[3] : it.e;
+            var code = 'S' + (sn < 10 ? '0' : '') + sn + 'E' + (en < 10 ? '0' : '') + en;
             var t = byShow[k].show + ' ' + code + ' ' + hit[0];
             if (t !== it.p.title) { it.p.title = t; changed = true; }
             it.p.tvDone = true;

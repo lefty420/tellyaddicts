@@ -241,9 +241,18 @@
         var bucket = /\(\s*[a-z0-9]\s*[-\u2013]\s*[a-z0-9]\s*\)/i.test(parts[0]);
         var show = shelf && md.title ? cleanShow(cleanItemTitle(md.title)) : cleanShow(parts[0]);
         if (bucket) { /* no prefix: the file name carries the show */ }
-        else if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0) {
-          d.title = show + (/^s\d+[ed]\d+/i.test(d.title) ? ' ' : ' - ') + d.title;
+        else {
+          var showBare = show.replace(/\s*\(?\b(?:19|20)\d\d\b\)?\s*$/, '').trim();   // "DuckTales 1987" -> "DuckTales"
+          if (d.title.toLowerCase().indexOf(show.toLowerCase()) !== 0 && !(showBare && d.title.toLowerCase().indexOf(showBare.toLowerCase()) === 0)) {
+            d.title = show + (/^s\d+[ed]\d+/i.test(d.title) ? ' ' : ' - ') + d.title;
+          }
         }
+      }
+      // "DuckTales S1E22 Down & Out - DuckTales 1987": drop the show name repeated at the end
+      var lead = /^(?:.*? - )?(.*?)\s+S\d+E\d+/i.exec(d.title);
+      if (lead && lead[1]) {
+        var lb = lead[1].replace(/\s*\(?\b(?:19|20)\d\d\b\)?\s*$/, '').trim();
+        if (lb) d.title = d.title.replace(new RegExp('\\s+[-\u2013]\\s+' + lb.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s+\\(?(?:19|20)\\d\\d\\)?)?\\s*$', 'i'), '');
       }
       d.title = d.title.replace(/^(.+?)\s-\s(S\d+E\d+)/, '$1 $2');
       if (md.title && isGenericTitle(d.title)) {

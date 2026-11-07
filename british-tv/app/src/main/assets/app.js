@@ -106,7 +106,7 @@
   }
 
   function loadPrograms(ch) {
-    var key = 'plan7:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v1');
+    var key = 'plan7:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v2');   // bump when the naming rules change so stored titles are rebuilt
     ch.cacheKey = key;
     var cached = store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < PLAN_TTL) {
@@ -230,22 +230,35 @@
   }
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
+  /** Of the shows TVmaze returns for a name, the right one: matching name; British first; then the oldest (this is classic TV); a year in the title wins. */
+  function pickShow(list, name, year) {
+    var want = normShow(name), cands = [];
+    (list || []).forEach(function (r) {
+      var sh = r.show || {}, n = normShow(sh.name || '');
+      if (!n || !(n === want || n.indexOf(want) === 0 || want.indexOf(n) === 0)) return;
+      var gb = (sh.network && sh.network.country && sh.network.country.code === 'GB') ||
+               (sh.webChannel && sh.webChannel.country && sh.webChannel.country.code === 'GB');
+      cands.push({ sh: sh, gb: !!gb, exact: n === want, yr: sh.premiered ? +String(sh.premiered).slice(0, 4) : 9999 });
+    });
+    if (!cands.length) return null;
+    cands.sort(function (x, y) {
+      if (year) { var dx = Math.abs(x.yr - year), dy = Math.abs(y.yr - year); if (dx !== dy) return dx - dy; }
+      if (x.exact !== y.exact) return x.exact ? -1 : 1;
+      if (x.gb !== y.gb) return x.gb ? -1 : 1;
+      return x.yr - y.yr;
+    });
+    return cands[0].sh;
+  }
+
   /** {"4:12": ["Dainty Dish", 1992], ...} for a show, or null if TVmaze has no match. One request at a time (rate limit). */
   function tvmEpisodes(name) {
-    var key = 'tvm3:' + normShow(name);
+    var key = 'tvm4:' + normShow(name);
     var c = store.get(key);
     if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.eps);
     var job = tvmChain.then(function () {
       return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(name)).then(function (list) {
-        var want = normShow(name), best = null;
-        (list || []).forEach(function (r) {
-          var sh = r.show || {};
-          var n = normShow(sh.name || '');
-          if (!n || !(n === want || n.indexOf(want) === 0 || want.indexOf(n) === 0)) return;
-          var gb = (sh.network && sh.network.country && sh.network.country.code === 'GB') ||
-                   (sh.webChannel && sh.webChannel.country && sh.webChannel.country.code === 'GB');
-          if (!best || (gb && !best.gb)) best = { id: sh.id, gb: gb };
-        });
+        var best = pickShow(list, name);
+        if (best) best = { id: best.id };
         if (!best) return null;
         return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + best.id + '/episodes'); }).then(function (eps) {
           var map = {}, abs = 0;
@@ -321,27 +334,24 @@
   function parseTitle(title) {
     var t = String(title || '').trim();
     var m = /^(.*?)\s+S(\d{1,2})[ED](\d{1,3})\b/.exec(t);
-    if (m) return { show: m[1].replace(/[\s\-\u2013:]+$/, ''), s: +m[2], e: +m[3] };
-    t = t.replace(/\s*\(.*$/, '').replace(/\s+(Series|Season)\s+\d+.*$/i, '').replace(/\s+[-\u2013]\s+.*$/, '');
-    return { show: t.trim() };
+    var show, res = {};
+    if (m) { show = m[1]; res.s = +m[2]; res.e = +m[3]; }
+    else show = t.replace(/\s*\(.*$/, '').replace(/\s+(Series|Season)\s+\d+.*$/i, '').replace(/\s+[-\u2013]\s+.*$/, '');
+    show = show.split(/\s+[-\u2013]\s+/).pop();                       // "Shows - Show S1E2" -> the part next to the code
+    var y = /\b((?:19|20)\d\d)\b/.exec(show);
+    if (y) { res.year = +y[1]; show = show.replace(/\s*\(?\b(?:19|20)\d\d\b\)?\s*/g, ' '); }
+    res.show = show.replace(/[\s\-\u2013:]+$/, '').trim();
+    return res;
   }
 
-  function tvmFindShow(name) {
+  function tvmFindShow(name, year) {
     return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(name)).then(function (list) {
-      var want = normShow(name), best = null;
-      (list || []).forEach(function (r) {
-        var sh = r.show || {}, n = normShow(sh.name || '');
-        if (!n || !(n === want || n.indexOf(want) === 0 || want.indexOf(n) === 0)) return;
-        var gb = (sh.network && sh.network.country && sh.network.country.code === 'GB') ||
-                 (sh.webChannel && sh.webChannel.country && sh.webChannel.country.code === 'GB');
-        if (!best || (gb && !best.gb)) best = { show: sh, gb: gb };
-      });
-      return best && best.show;
+      return pickShow(list, name, year);
     });
   }
 
   function tvmInfo(p) {
-    var key = 'info1:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
+    var key = 'info2:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
     var c = store.get(key);
     if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.d);
     var words = p.show.split(/\s+/), tries = [p.show];
@@ -351,7 +361,7 @@
       var i = 0;
       function next() {
         if (i >= tries.length) return null;
-        return tvmFindShow(tries[i++]).then(function (sh) { return sh || wait(500).then(next); });
+        return tvmFindShow(tries[i++], p.year).then(function (sh) { return sh || wait(500).then(next); });
       }
       return next();
     }).then(function (sh) {

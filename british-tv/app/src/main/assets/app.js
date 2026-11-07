@@ -337,7 +337,7 @@
     $('imeta').textContent = cur.ch.name;
     $('isum').textContent = '';
     $('isrc').textContent = 'Looking up details…   (Back to close)';
-    if (cur.ad) { $('isum').textContent = 'An advert between programmes.'; $('isrc').textContent = 'Back to close'; return; }
+    if (cur.ad) { $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cur.prog.url || '').replace('https://archive.org/download/', '')); $('isrc').textContent = 'Back to close'; return; }
     var p = parseTitle(title);
     if (!p.show) { $('isrc').textContent = 'Back to close'; return; }
     tvmInfo(p).then(function (d) {
@@ -548,6 +548,12 @@
     v.src = ad.url;
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* error handler covers failures */ });
+    // an advert that has not really started after a few seconds (stalled load) is skipped instead of sitting on one frame
+    var me = cur;
+    setTimeout(function () {
+      if (cur !== me || !cur.ad) return;
+      if (v.currentTime < 0.5) onEnded();
+    }, 5000);
   }
   function onEnded() {
     if (cur && cur.ad && cur.adLeft > 0) return playAd(cur.ch, cur.index, cur.adLeft);

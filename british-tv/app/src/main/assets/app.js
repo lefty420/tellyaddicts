@@ -391,6 +391,7 @@
     $('iep').textContent = '';
     $('imeta').textContent = cur.ch.name;
     $('isum').textContent = '';
+    $('idbg').textContent = pbText();
     $('isrc').textContent = 'Looking up details…   (Back to close)';
     if (cur.ad) { $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cur.prog.url || '').replace('https://archive.org/download/', '')); $('isrc').textContent = 'Back to close'; return; }
     var p = parseTitle(title);
@@ -564,10 +565,25 @@
     bannerTimer = setTimeout(function () { $('banner').className = 'off'; }, 5000);
   }
 
+
+  // ---- playback timing log (shown in the Info panel) so slow starts can be diagnosed
+  var pb = { t0: 0, ev: [], url: '', offset: 0 };
+  function pbStart(url, offset) { pb = { t0: Date.now(), ev: [], url: url, offset: offset || 0 }; }
+  ['loadstart', 'loadedmetadata', 'loadeddata', 'canplay', 'playing', 'waiting', 'stalled', 'seeked', 'error'].forEach(function (n) {
+    v.addEventListener(n, function () {
+      if (pb.ev.length < 14) pb.ev.push(n + ' ' + ((Date.now() - pb.t0) / 1000).toFixed(1) + 's');
+    });
+  });
+  function pbText() {
+    var o = pb.offset ? 'joined ' + fmtPos(pb.offset) + ' in   ' : 'from start   ';
+    return 'Playback: ' + o + (pb.ev.join(' \u00b7 ') || 'no events yet') + '   (readyState ' + v.readyState + ')';
+  }
+
   function playSlot(ch, index, offset, announce, tuning) {
     var prog = ch.sched.order[index];
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
+    pbStart(prog.url, offset);
     v.src = prog.url;
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
@@ -600,6 +616,7 @@
     if (pool.length > 1 && cur && cur.ad && cur.prog.url === ad.url) ad = pool[(pool.indexOf(ad) + 1) % pool.length];   // no immediate repeat
     cur = { ch: ch, index: index, prog: { title: 'Advert', sub: ad.title, url: ad.url }, ad: true, adLeft: left - 1, errors: 0 };
     v.dataset.offset = '0';
+    pbStart(ad.url, 0);
     v.src = ad.url;
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* error handler covers failures */ });
@@ -645,15 +662,15 @@
   function recoverIfStuck() {
     clearTimeout(stuckTimer);
     stuckTimer = setTimeout(function () {
-      // still waiting after a while: reload the same file at the same spot (a hung request sometimes never recovers by itself)
-      if (!cur || v.paused || v.readyState >= 3) return;
-      var t = v.currentTime || 0;
-      v.dataset.offset = String(t);
+      // stalled mid-programme for a long time: reload the same file at the same spot (never during the initial load)
+      if (!cur || v.paused || v.readyState >= 3 || !(v.currentTime > 2)) return;
+      v.dataset.offset = String(v.currentTime);
+      pbStart(v.src, v.currentTime);
       var src = v.src;
       v.src = src;
       var p = v.play();
       if (p && p.catch) p.catch(function () { /* ignore */ });
-    }, 8000);
+    }, 20000);
   }
   v.addEventListener('waiting', function () { if (!v.paused) { spinOn(); recoverIfStuck(); } });
   v.addEventListener('playing', function () { clearTimeout(stuckTimer); });

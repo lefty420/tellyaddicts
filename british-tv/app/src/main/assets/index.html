@@ -127,6 +127,7 @@
   #iep { font-size: 3.4vh; font-weight: 700; color: #ffd24d; margin-top: 1.4vh; }
   #imeta { font-size: 2.4vh; color: #b9c6ff; margin-top: 1.2vh; }
   #isum { font-size: 2.7vh; line-height: 1.45; margin-top: 2.6vh; max-height: 42vh; overflow: hidden; }
+  #idbg { font-size: 2vh; color: #8a98d8; margin-top: 3vh; font-family: monospace; }
   #isum p { margin: 0 0 1.4vh; }
   #isrc { position: absolute; left: 6vw; right: 6vw; bottom: 4vh; font-size: 2vh; color: #8a98d8; }
   #guide {
@@ -209,7 +210,7 @@
 </style>
 </head>
 <body>
-<video id="v" autoplay playsinline preload="auto" poster="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></video>
+<video id="v" autoplay playsinline poster="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></video>
 <div id="crt"><i></i></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="f-crt" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/><feOffset in="r" dx="-1.2" result="ro"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/><feOffset in="b" dx="1.2" result="bo"/><feBlend in="ro" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="bo" mode="screen" result="rgb"/><feGaussianBlur in="rgb" stdDeviation="0.9 0.5"/></filter><filter id="f-vhs" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="1.4 0.4"/></filter><filter id="f-sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -0.55 0 -0.55 3.2 -0.55 0 -0.55 0" divisor="1" bias="0" preserveAlpha="true"/></filter></svg>
 <canvas id="static" class="hidden" width="256" height="144"></canvas>
@@ -242,7 +243,7 @@
   <div id="ibg"></div><div id="ishade"></div>
   <div id="ipanel">
     <img id="iposter" class="hidden" alt="">
-    <div id="itext"><div id="ishow"></div><div id="iep"></div><div id="imeta"></div><div id="isum"></div></div>
+    <div id="itext"><div id="ishow"></div><div id="iep"></div><div id="imeta"></div><div id="isum"></div><div id="idbg"></div></div>
   </div>
   <div id="isrc">Back to close</div>
 </div>

@@ -128,10 +128,11 @@
     var sub = '';
     var title = base;
     // "NOEL'S HOUSE PARTY (BBC ONE - Season 3: Episode 2 / 12.09.92)" -> episode title + air date
+    base = base.replace(/[\uFF1A\uFE55]/g, ':').replace(/[\u2018\u2019\u02BC]/g, "'").replace(/[\u29F8\u2215\uFF0F]/g, '/').replace(/\s+/g, ' ');
     var ep = base.match(/^(.*?)\s*\((?:[^()]*?-\s*)?Season\s+(\d+)[:,\s]+Episode\s+(\d+\w*)\s*(?:[\u29F8\/]\s*(\d{1,2})\.(\d{1,2})\.(\d{2,4}))?[^()]*\)?/i);
     if (ep && ep[1]) {
       var show = ep[1].trim();
-      if (show === show.toUpperCase()) {
+      if (show === show.toUpperCase() || (show.replace(/[^A-Za-z]/g, '').length > 3 && show.replace(/[^a-z]/g, '').length <= 1)) {
         show = show.toLowerCase().replace(/(^|\s)([a-z])/g, function (_, a, b) { return a + b.toUpperCase(); });
       }
       var year = ep[6] ? (ep[6].length === 2 ? (+ep[6] >= 50 ? 1900 : 2000) + (+ep[6]) : +ep[6]) : 0;

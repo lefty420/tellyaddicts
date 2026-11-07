@@ -106,7 +106,7 @@
   }
 
   function loadPrograms(ch) {
-    var key = 'plan7:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v2');   // bump when the naming rules change so stored titles are rebuilt
+    var key = 'plan7:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v3');   // bump when the naming rules change so stored titles are rebuilt
     ch.cacheKey = key;
     var cached = store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < PLAN_TTL) {
@@ -609,6 +609,10 @@
     setTimeout(function () {
       if (cur === meOne && v.readyState < 1 && !meOne.ad) { markSlow(prog.id); nextInChannel(); }   // never even got the file header: move on
     }, 30000);
+    setTimeout(function () {
+      // header arrived but it still can't play 25 s in (slow index/seek on a mid-programme join): move on, and remember it
+      if (cur === meOne && !meOne.ad && v.readyState < 3) { markSlow(prog.id); nextInChannel(); }
+    }, 25000);
     v.src = prog.url;
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
@@ -698,7 +702,14 @@
       if (p && p.catch) p.catch(function () { /* ignore */ });
     }, 20000);
   }
-  v.addEventListener('waiting', function () { if (!v.paused && (v.currentTime > 0.2 || (cur && cur.ad))) { spinOn(); recoverIfStuck(); } });
+  v.addEventListener('waiting', function () {
+    if (!v.paused && (v.currentTime > 0.2 || (cur && cur.ad))) { spinOn(); recoverIfStuck(); }
+    // a file that was slow to start and stalls again straight away: give up on it after 10 s
+    if (cur && !cur.ad && cur.prog && isSlow(cur.prog.id)) {
+      var me = cur;
+      setTimeout(function () { if (cur === me && v.readyState < 3 && !v.paused) nextInChannel(); }, 10000);
+    }
+  });
   v.addEventListener('playing', function () { clearTimeout(stuckTimer); });
   v.addEventListener('seeking', spinOn);
   var sbTimer = null;

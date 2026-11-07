@@ -79,6 +79,22 @@
       ;
   }
 
+  var KEEP_CAPS = /^(BBC|ITV|TV|UK|USA|US|CBBC|CITV|CBeebies|TVS|HTV|STV|ATV|ITN|DVD|VHS|HD|AI|TOTP|MTV|VCR|LWT|GMTV|TVAM|TV-AM|ITV4|ITV2|ITV3|BBC1|BBC2|BBC3|BBC4|II|III|IV|VI|VII|VIII|IX|XI|XII)$/;
+  var SMALL = /^(of|the|and|in|at|on|to|a|an|for|with|by|or|vs)$/i;
+  /** "NOEL'S HOUSE PARTY (BBC ONE - SERIES 3)" -> "Noel's House Party (BBC One - Series 3)". Only touches titles that are mostly shouting. */
+  function calmCaps(t) {
+    var letters = t.replace(/[^A-Za-z]/g, '');
+    if (letters.length < 8) return t;
+    var up = letters.replace(/[^A-Z]/g, '').length;
+    if (up / letters.length < 0.8 || (t.match(/\b[A-Z]{3,}\b/g) || []).length < 2) return t;
+    return t.replace(/[A-Za-z][A-Za-z'\u2019]*/g, function (w, off) {
+      if (KEEP_CAPS.test(w) || /^S\d+E\d+$/i.test(w)) return w;
+      var lw = w.toLowerCase();
+      if (off > 0 && SMALL.test(lw)) return lw;
+      return lw.charAt(0).toUpperCase() + lw.slice(1);
+    });
+  }
+
   /** Turns "Top of the Pops (1976 08 26) Song.mp4" into {title, sub:'26 Aug 1976'}. */
   function describe(name, fallback) {
     var base = String(name).replace(/^.*\//, '').replace(/\.(ia\.)?(mp4|m4v)$/i, '');
@@ -166,6 +182,7 @@
       title = titleCase(title.slice(0, cut).toLowerCase()) + title.slice(cut);   // "DADS ARMY - The Lovely Bunch"
     }
     if (slug && title.replace(/\bS\d+E\d+\b/g, '') === title.replace(/\bS\d+E\d+\b/g, '').toLowerCase()) title = titleCase(title);
+    title = calmCaps(title);
     return { title: title || fallback || base, sub: sub };
   }
 

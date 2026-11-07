@@ -89,6 +89,22 @@
     store.set(ch.cacheKey, { t: ch.cacheT || Date.now(), p: packPlan(ch.plan), r: ch.report || [] });
   }
 
+  /** Keep the groups in the wanted shares of screen time (by duration), e.g. {totp: .6, chart: .4}. */
+  function balanceMix(progs, mix) {
+    var groups = Object.keys(mix), by = {}, tot = {}, D = Infinity;
+    groups.forEach(function (g) { by[g] = []; tot[g] = 0; });
+    var rest = [];
+    progs.forEach(function (p) { if (by[p.group]) { by[p.group].push(p); tot[p.group] += p.dur || 0; } else rest.push(p); });
+    groups.forEach(function (g) { if (tot[g] > 0) D = Math.min(D, tot[g] / mix[g]); });
+    if (!isFinite(D)) return progs;                         // a group is empty: leave things as they are
+    var out = rest;
+    groups.forEach(function (g) {
+      var keep = Math.max(1, Math.round(by[g].length * (mix[g] * D) / tot[g]));
+      out = out.concat(E.sample(by[g], keep));
+    });
+    return out;
+  }
+
   function loadPrograms(ch) {
     var key = 'plan7:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v1');
     ch.cacheKey = key;
@@ -103,17 +119,19 @@
     var optsFor = {};
     var chain = Promise.resolve();
     ch.sources.forEach(function (s) {
-      var skip = s.exclude ? new RegExp(s.exclude, 'i') : null;
+      var skip = s.exclude && !s.search ? null : (s.exclude ? new RegExp(s.exclude, 'i') : null);
+      var skipTitle = s.skipTitle ? new RegExp(s.skipTitle, 'i') : null;
       if (s.item) {
         ids.push(s.item);
-        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title };
+        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
       } else if (s.search) {
         chain = chain.then(function () {
           return getJSON(searchUrl(s.search, s.rows || 25)).then(function (j) {
             ((j.response && j.response.docs) || []).forEach(function (d) {
               if (skip && skip.test((d.title || '') + ' ' + d.identifier)) return; // unwanted result
+              if (skipTitle && skipTitle.test((d.title || '') + ' ' + d.identifier)) return;
               ids.push(d.identifier);
-              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title };
+              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
             });
           }, function () { /* a failed search just contributes nothing */ });
         });
@@ -150,9 +168,12 @@
             got = [];
             order.forEach(function (d) { Array.prototype.push.apply(got, E.sample(byDir[d], cap)); });
           }
+          var grp = optsFor[uniq[i]] && optsFor[uniq[i]].group;
+          if (grp) got.forEach(function (g) { g.group = grp; });
           Array.prototype.push.apply(progs, got);
         });
         ch.report = report;
+        if (ch.mix) progs = balanceMix(progs, ch.mix);
         progs = E.sample(progs, MAX_STORED);
         if (progs.length) {
           // forget older cached lists for this channel (earlier versions of the sources, or the old cache format)
@@ -174,7 +195,7 @@
   // ------------------------------------------------------------------ channels
 
   var channels = window.CHANNELS.map(function (c) {
-    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, adBreak: c.adBreak, report: [], status: 'loading', sched: null };
+    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, adBreak: c.adBreak, report: [], status: 'loading', sched: null };
   });
 
   function ready() {

@@ -147,27 +147,29 @@ window.CHANNELS = [
     id: 'music',
     name: 'Music',
     maxItems: 220,   // many separate episode items: let them all through
+    mix: { totp: 0.6, chart: 0.4 },   // share of screen time: 60% Top of the Pops, 40% The Chart Show
     sources: [
-      // Top of the Pops (kept small so The Chart Show gets most of the screen time)
-      { item: 'tot-p-1985-big-hits', perItem: 6 },
-      { search: 'title:("top of the pops") AND mediatype:movies', rows: 15, perItem: 3,
-        exclude: '^\\s*(19|20)\\d\\d\\s*$' },
-      // The Chart Show episodes only (items with "The Chart Show" in the title; bare year items like "1987" are skipped)
-      { search: 'title:("the chart show") AND mediatype:movies', rows: 200, perItem: 60,
-        exclude: '^\\s*(19|20)\\d\\d\\s*$' },
+      // Top of the Pops: only items with "Top of the Pops" in the title; nothing from the 1970s
+      { item: 'tot-p-1985-big-hits', perItem: 60, group: 'totp', exclude: '(?<![0-9])197[0-9](?![0-9])' },
+      { search: 'title:("top of the pops") AND mediatype:movies', rows: 80, perItem: 25, group: 'totp',
+        skipTitle: '^(?!.*(?:top of the pops|totp))|(?<![0-9])197[0-9](?![0-9])|1970s|music\\W*(?:19|20)\\d\\d',
+        exclude: '(?<![0-9])197[0-9](?![0-9])' },
+      // The Chart Show: only items with "Chart Show" in the title
+      { search: 'title:("the chart show") AND mediatype:movies', rows: 200, perItem: 60, group: 'chart',
+        skipTitle: '^(?!.*chart.?show)|music\\W*(?:19|20)\\d\\d' },
       // hand-picked Chart Show episodes
-      { item: 'chart-show-1-11-97', perItem: 60 },
-      { item: 'chart-show-13-12-97', perItem: 60 },
-      { item: 'chart-show-13-2-93', perItem: 60 },
-      { item: 'chart-show-17-12-94', perItem: 60 },
-      { item: 'chart-show-19-1-92', perItem: 60 },
-      { item: 'chart-show-1989-special', perItem: 60 },
-      { item: 'chart-show-1990-special', perItem: 60 },
-      { item: 'chart-show-25-12-93', perItem: 60 },
-      { item: 'chart-show-27-11-87', perItem: 60 },
-      { item: 'chart-show-30-9-88', perItem: 60 },
-      { item: 'chart-show-4-1-92', perItem: 60 },
-      { item: 'chart-show-6-12-97', perItem: 60 }
+      { item: 'chart-show-1-11-97', perItem: 60, group: 'chart' },
+      { item: 'chart-show-13-12-97', perItem: 60, group: 'chart' },
+      { item: 'chart-show-13-2-93', perItem: 60, group: 'chart' },
+      { item: 'chart-show-17-12-94', perItem: 60, group: 'chart' },
+      { item: 'chart-show-19-1-92', perItem: 60, group: 'chart' },
+      { item: 'chart-show-1989-special', perItem: 60, group: 'chart' },
+      { item: 'chart-show-1990-special', perItem: 60, group: 'chart' },
+      { item: 'chart-show-25-12-93', perItem: 60, group: 'chart' },
+      { item: 'chart-show-27-11-87', perItem: 60, group: 'chart' },
+      { item: 'chart-show-30-9-88', perItem: 60, group: 'chart' },
+      { item: 'chart-show-4-1-92', perItem: 60, group: 'chart' },
+      { item: 'chart-show-6-12-97', perItem: 60, group: 'chart' }
     ]
   },
   {

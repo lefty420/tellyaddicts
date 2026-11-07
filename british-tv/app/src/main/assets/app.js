@@ -192,6 +192,17 @@
     });
   }
 
+
+  // ---- files that take ages to start are remembered for two weeks and left out of the lineup
+  var SLOW_MS = 15000, SLOW_TTL = 14 * 24 * 3600 * 1000;
+  var slow = store.get('slow1') || {};
+  function isSlow(id) { return slow[id] && Date.now() - slow[id] < SLOW_TTL; }
+  function markSlow(id) { if (!id) return; slow[id] = Date.now(); store.set('slow1', slow); }
+  function dropSlow(progs) {
+    var ok = progs.filter(function (p) { return !isSlow(p.id); });
+    return ok.length >= 3 ? ok : progs;
+  }
+
   // ------------------------------------------------------------------ channels
 
   var channels = window.CHANNELS.map(function (c) {
@@ -586,7 +597,7 @@
   });
   function pbText() {
     var o = pb.offset ? 'joined ' + fmtPos(pb.offset) + ' in   ' : 'from start   ';
-    return 'Playback: ' + o + (pb.ev.join(' \u00b7 ') || 'no events yet') + '   (readyState ' + v.readyState + ')';
+    return (cur && cur.prog && isSlow(cur.prog.id) ? 'Slow to start: will be left out of the lineup next time.   ' : '') + 'Playback: ' + o + (pb.ev.join(' \u00b7 ') || 'no events yet') + '   (readyState ' + v.readyState + ')';
   }
 
   function playSlot(ch, index, offset, announce, tuning) {
@@ -594,6 +605,10 @@
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
     pbStart(prog.url, offset);
+    var meOne = cur;
+    setTimeout(function () {
+      if (cur === meOne && v.readyState < 1 && !meOne.ad) { markSlow(prog.id); nextInChannel(); }   // never even got the file header: move on
+    }, 30000);
     v.src = prog.url;
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
@@ -659,6 +674,7 @@
   }
 
   v.addEventListener('loadedmetadata', function () {
+    if (cur && !cur.ad && pb.t0 && Date.now() - pb.t0 > SLOW_MS) markSlow(cur.prog.id);
     var off = parseFloat(v.dataset.offset) || 0;
     v.dataset.offset = '0';
     if (off > 0 && isFinite(v.duration)) {
@@ -1220,6 +1236,7 @@
     channels.forEach(function (c) {
       loadPrograms(c).then(function (progs) {
         if (progs && progs.length) {
+          progs = dropSlow(progs);
           c.sched = E.buildSchedule(progs, c.id);
           c.status = 'ready';
           enrichNames(c, progs).then(null, function () { /* names stay as they are */ });

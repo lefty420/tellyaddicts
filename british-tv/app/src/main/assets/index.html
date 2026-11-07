@@ -112,6 +112,9 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ---------------------------------------------------------------- guide */
+  #spin { position: fixed; right: 4vw; bottom: 6vh; width: 6vh; height: 6vh; z-index: 30; border-radius: 50%; border: .8vh solid rgba(255,255,255,.25); border-top-color: #fff; animation: spin .9s linear infinite; pointer-events: none; }
+  #spin.hidden { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
   #info { position: fixed; inset: 0; z-index: 60; color: #fff; background: #050a2a; overflow: hidden; }
   #info.hidden { display: none; }
   #ibg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: .42; }
@@ -229,6 +232,7 @@
     <div class="ob" id="ob-rew"><span class="ic">&#9664;&#9664;</span><span>30s</span></div>
     <div class="ob" id="ob-pp"><span class="ic" id="oic-pp"></span><span id="olbl-pp"></span></div>
     <div class="ob" id="ob-ff"><span>30s</span><span class="ic">&#9654;&#9654;</span></div>
+    <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
     <div class="ob" id="ob-ar"><span id="olbl-ar"></span></div>
     <div class="ob" id="ob-fx"><span id="olbl-fx"></span></div>
     <div class="ob" id="ob-info"><span>Info</span></div>
@@ -242,6 +246,7 @@
   </div>
   <div id="isrc">Back to close</div>
 </div>
+<div id="spin" class="hidden"></div>
 <div id="toast" class="off"></div>
 
 <div id="guide" class="hidden">

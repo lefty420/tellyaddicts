@@ -617,7 +617,16 @@
       try { v.currentTime = Math.min(off, Math.max(0, v.duration - 2)); } catch (e) { /* not seekable */ }
     }
   });
+  var spinTimer = null;
+  function spinOn() { clearTimeout(spinTimer); spinTimer = setTimeout(function () { $('spin').className = ''; }, 700); }
+  function spinOff() { clearTimeout(spinTimer); $('spin').className = 'hidden'; }
+  v.addEventListener('waiting', function () { if (!v.paused) spinOn(); });
+  v.addEventListener('seeking', spinOn);
+  v.addEventListener('loadstart', spinOn);
+  v.addEventListener('seeked', spinOff);
+  v.addEventListener('timeupdate', function () { if (!v.paused && v.currentTime > 0) spinOff(); });
   v.addEventListener('playing', function () {
+    spinOff();
     hideStatic();
     if (cur) cur.errors = 0;
   });
@@ -886,7 +895,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'ar', 'fx', 'info'];   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'restart', 'ar', 'fx', 'info'];   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -1008,10 +1017,19 @@
   applyAr();
   applyFx();
 
+  function restartShow() {
+    closeOsd();
+    try { v.currentTime = 0; } catch (e) { /* not seekable */ }
+    var p = v.play();
+    if (p && p.catch) p.catch(function () { /* ignore */ });
+    toast('Starting again from the beginning', 2000);
+  }
+
   function osdAct(id) {
     if (id === 'rew') seek(-30);
     else if (id === 'ff') seek(30);
     else if (id === 'pp') togglePlay();
+    else if (id === 'restart') { restartShow(); return; }
     else if (id === 'ar') changeAr(1);
     else if (id === 'fx') changeFx(1);
     else if (id === 'guide') { closeOsd(); openGuide(); }

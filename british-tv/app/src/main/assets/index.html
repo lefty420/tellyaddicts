@@ -52,10 +52,8 @@
   body.fx-vhs:not(.guide-open) #v { filter: url(#f-vhs) contrast(1.05) saturate(1.5) brightness(1.08) sepia(.12); }
   body.fx-vhs:not(.guide-open) #crt { display: block; }
   body.fx-vhs:not(.guide-open) #crt::before { background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0, rgba(0,0,0,.2) .2vh, rgba(0,0,0,0) .4vh); }
-  body.fx-vhs:not(.guide-open) #crt::after { border-radius: 0; box-shadow: none; background:
-    linear-gradient(180deg, rgba(0,0,0,0) 91%, rgba(255,255,255,.22) 93%, rgba(0,0,0,.55) 95%, rgba(255,255,255,.12) 97%, rgba(0,0,0,0) 100%),
-    linear-gradient(90deg, rgba(255,0,60,.05), rgba(0,0,0,0) 8%, rgba(0,0,0,0) 92%, rgba(0,120,255,.05)); }
-  body.fx-vhs:not(.guide-open) #crt i { height: 7vh; top: -9vh; background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.14) 45%, rgba(0,0,0,.25) 55%, rgba(255,255,255,0)); animation: crt-roll 9s linear infinite; }
+  body.fx-vhs:not(.guide-open) #crt::after { border-radius: 0; box-shadow: none; background: linear-gradient(90deg, rgba(255,0,60,.05), rgba(0,0,0,0) 8%, rgba(0,0,0,0) 92%, rgba(0,120,255,.05)); }
+  body.fx-vhs:not(.guide-open) #crt i { display: none; }
   body.fx-vivid:not(.guide-open) #v { filter: contrast(1.12) saturate(1.3) brightness(1.04); }
   body.fx-sharp:not(.guide-open) #v { filter: url(#f-sharp) contrast(1.06) saturate(1.1); }
   video { position: fixed; inset: 0; width: 100%; height: 100%; background: #000; object-fit: contain; }
@@ -208,7 +206,7 @@
 </style>
 </head>
 <body>
-<video id="v" autoplay playsinline></video>
+<video id="v" autoplay playsinline poster="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></video>
 <div id="crt"><i></i></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="f-crt" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/><feOffset in="r" dx="-1.2" result="ro"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/><feOffset in="b" dx="1.2" result="bo"/><feBlend in="ro" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="bo" mode="screen" result="rgb"/><feGaussianBlur in="rgb" stdDeviation="0.9 0.5"/></filter><filter id="f-vhs" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="1.4 0.4"/></filter><filter id="f-sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -0.55 0 -0.55 3.2 -0.55 0 -0.55 0" divisor="1" bias="0" preserveAlpha="true"/></filter></svg>
 <canvas id="static" class="hidden" width="256" height="144"></canvas>

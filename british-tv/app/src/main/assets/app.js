@@ -853,8 +853,8 @@
   }
 
   // ---- picture looks: CSS only (filters on the video, plus an overlay for CRT)
-  var FXMODES = ['off', 'crt', 'vhs', 'vivid', 'sharp'];
-  var FXLABEL = { off: 'Off', crt: 'CRT', vhs: 'VHS', vivid: 'Vivid', sharp: 'Sharp' };
+  var FXMODES = ['off', 'vhs', 'vivid', 'sharp'];
+  var FXLABEL = { off: 'Off', vhs: 'VHS', vivid: 'Vivid', sharp: 'Sharp' };
   var fxMode = 'off';
   var fxWatch = null;
   (function () {
@@ -867,7 +867,7 @@
     document.body.classList.add('fx-' + fxMode);
     store.set('fx2', fxMode);
     clearTimeout(fxWatch);
-    if (fxMode === 'sharp' || fxMode === 'crt') {
+    if (fxMode === 'sharp') {
       // if the TV cannot keep up (many dropped frames), back off to the cheap look
       var q0 = v.getVideoPlaybackQuality ? v.getVideoPlaybackQuality() : null;
       var started = fxMode;

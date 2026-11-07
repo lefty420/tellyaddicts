@@ -620,7 +620,22 @@
   var spinTimer = null;
   function spinOn() { clearTimeout(spinTimer); spinTimer = setTimeout(function () { $('spin').className = ''; }, 700); }
   function spinOff() { clearTimeout(spinTimer); $('spin').className = 'hidden'; }
-  v.addEventListener('waiting', function () { if (!v.paused) spinOn(); });
+  var stuckTimer = null;
+  function recoverIfStuck() {
+    clearTimeout(stuckTimer);
+    stuckTimer = setTimeout(function () {
+      // still waiting after a while: reload the same file at the same spot (a hung request sometimes never recovers by itself)
+      if (!cur || v.paused || v.readyState >= 3) return;
+      var t = v.currentTime || 0;
+      v.dataset.offset = String(t);
+      var src = v.src;
+      v.src = src;
+      var p = v.play();
+      if (p && p.catch) p.catch(function () { /* ignore */ });
+    }, 8000);
+  }
+  v.addEventListener('waiting', function () { if (!v.paused) { spinOn(); recoverIfStuck(); } });
+  v.addEventListener('playing', function () { clearTimeout(stuckTimer); });
   v.addEventListener('seeking', spinOn);
   v.addEventListener('loadstart', spinOn);
   v.addEventListener('seeked', spinOff);

@@ -250,6 +250,139 @@
     });
   }
 
+
+  // ------------------------------------------------------------------ programme info (TVmaze: summary, poster, fanart)
+
+  var infoOpen = false, infoToken = 0;
+
+  function plain(html) {
+    if (!html) return '';
+    var d = new DOMParser().parseFromString(String(html), 'text/html');
+    return (d.body.textContent || '').trim();
+  }
+  function https(u) { return u ? String(u).replace(/^http:/, 'https:') : ''; }
+
+  /** "Bread S01E05" -> {show:"Bread", s:1, e:5}; "Wheel of Fortune" -> {show:"Wheel of Fortune"} */
+  function parseTitle(title) {
+    var t = String(title || '').trim();
+    var m = /^(.*?)\s+S(\d{1,2})[ED](\d{1,3})\b/.exec(t);
+    if (m) return { show: m[1].replace(/[\s\-\u2013:]+$/, ''), s: +m[2], e: +m[3] };
+    t = t.replace(/\s*\(.*$/, '').replace(/\s+(Series|Season)\s+\d+.*$/i, '').replace(/\s+[-\u2013]\s+.*$/, '');
+    return { show: t.trim() };
+  }
+
+  function tvmFindShow(name) {
+    return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(name)).then(function (list) {
+      var want = normShow(name), best = null;
+      (list || []).forEach(function (r) {
+        var sh = r.show || {}, n = normShow(sh.name || '');
+        if (!n || !(n === want || n.indexOf(want) === 0 || want.indexOf(n) === 0)) return;
+        var gb = (sh.network && sh.network.country && sh.network.country.code === 'GB') ||
+                 (sh.webChannel && sh.webChannel.country && sh.webChannel.country.code === 'GB');
+        if (!best || (gb && !best.gb)) best = { show: sh, gb: gb };
+      });
+      return best && best.show;
+    });
+  }
+
+  function tvmInfo(p) {
+    var key = 'info1:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
+    var c = store.get(key);
+    if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.d);
+    var words = p.show.split(/\s+/), tries = [p.show];
+    if (words.length > 3) tries.push(words.slice(0, 3).join(' '));
+    if (words.length > 2) tries.push(words.slice(0, 2).join(' '));
+    var job = tvmChain.then(function () {
+      var i = 0;
+      function next() {
+        if (i >= tries.length) return null;
+        return tvmFindShow(tries[i++]).then(function (sh) { return sh || wait(500).then(next); });
+      }
+      return next();
+    }).then(function (sh) {
+      if (!sh) return null;
+      var d = { show: {
+        name: sh.name, year: sh.premiered ? String(sh.premiered).slice(0, 4) : '', ended: sh.ended ? String(sh.ended).slice(0, 4) : '',
+        network: (sh.network && sh.network.name) || (sh.webChannel && sh.webChannel.name) || '',
+        genres: (sh.genres || []).slice(0, 3).join(', '), rating: sh.rating && sh.rating.average || 0,
+        summary: plain(sh.summary), poster: https(sh.image && (sh.image.original || sh.image.medium)), background: ''
+      }, ep: null };
+      return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + sh.id + '/images'); }).then(function (imgs) {
+        var bg = (imgs || []).filter(function (x) { return x.type === 'background'; })[0];
+        if (bg && bg.resolutions && bg.resolutions.original) d.show.background = https(bg.resolutions.original.url);
+        if (!d.show.poster) { var pp = (imgs || []).filter(function (x) { return x.type === 'poster'; })[0]; if (pp) d.show.poster = https(pp.resolutions.original.url); }
+      }, function () { /* no extra pictures */ }).then(function () {
+        if (!p.e) return d;
+        return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + sh.id + '/episodes'); }).then(function (eps) {
+          var hit = (eps || []).filter(function (e) { return e.season === p.s && e.number === p.e; })[0];
+          if (hit) d.ep = { name: hit.name, season: hit.season, number: hit.number, airdate: hit.airdate || '', runtime: hit.runtime || 0, summary: plain(hit.summary), image: https(hit.image && (hit.image.original || hit.image.medium)) };
+          return d;
+        }, function () { return d; });
+      });
+    });
+    tvmChain = job.then(function () { return wait(400); }, function () { return wait(400); });
+    return job.then(function (d) { if (d) store.set(key, { t: Date.now(), d: d }); return d; });
+  }
+
+  function openInfo() {
+    if (!cur) return;
+    infoOpen = true;
+    var token = ++infoToken;
+    var title = cur.prog.title || '';
+    $('info').className = '';
+    $('ibg').style.backgroundImage = 'none';
+    $('iposter').className = 'hidden';
+    $('ishow').textContent = title;
+    $('iep').textContent = '';
+    $('imeta').textContent = cur.ch.name;
+    $('isum').textContent = '';
+    $('isrc').textContent = 'Looking up details…   (Back to close)';
+    if (cur.ad) { $('isum').textContent = 'An advert between programmes.'; $('isrc').textContent = 'Back to close'; return; }
+    var p = parseTitle(title);
+    if (!p.show) { $('isrc').textContent = 'Back to close'; return; }
+    tvmInfo(p).then(function (d) {
+      if (token !== infoToken || !infoOpen) return;
+      if (!d) {
+        $('isum').textContent = 'No online details found for this one.';
+        $('isrc').textContent = 'Back to close';
+        return;
+      }
+      var s = d.show, e = d.ep;
+      $('ishow').textContent = s.name;
+      var bits = [];
+      if (s.year) bits.push(s.year + (s.ended && s.ended !== s.year ? '\u2013' + s.ended : ''));
+      if (s.network) bits.push(s.network);
+      if (s.genres) bits.push(s.genres);
+      if (s.rating) bits.push('\u2605 ' + s.rating);
+      $('imeta').textContent = bits.join('   \u00b7   ');
+      var parts = [];
+      if (e) {
+        $('iep').textContent = 'S' + e.season + 'E' + e.number + '  ' + e.name + (e.airdate ? '   (' + e.airdate.split('-').reverse().join('/') + ')' : '');
+        if (e.summary) parts.push(e.summary);
+      }
+      if (!parts.length && s.summary) parts.push(s.summary);
+      else if (e && s.summary && parts.join('').length < 160) parts.push(s.summary);
+      var box = $('isum');
+      box.textContent = '';
+      parts.forEach(function (t) { var el = document.createElement('p'); el.textContent = t; box.appendChild(el); });
+      var pic = (e && e.image) || s.poster;
+      var ph = $('iposter');
+      if (s.poster) { ph.src = s.poster; ph.className = ''; }
+      if (s.background || pic) $('ibg').style.backgroundImage = 'url("' + (s.background || pic) + '")';
+      $('isrc').textContent = 'Details from TVmaze   \u00b7   Back to close';
+    }, function () {
+      if (token !== infoToken || !infoOpen) return;
+      $('isum').textContent = 'Could not look this up right now.';
+      $('isrc').textContent = 'Back to close';
+    });
+  }
+
+  function closeInfo() {
+    infoOpen = false;
+    infoToken++;
+    $('info').className = 'hidden';
+  }
+
   // ------------------------------------------------------------------ tuning static
 
   var staticEl = $('static');
@@ -706,7 +839,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'ar', 'fx'];   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'ar', 'fx', 'info'];   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -835,6 +968,7 @@
     else if (id === 'ar') changeAr(1);
     else if (id === 'fx') changeFx(1);
     else if (id === 'guide') { closeOsd(); openGuide(); }
+    else if (id === 'info') { closeOsd(); openInfo(); return; }
     renderOsd();
   }
 
@@ -865,6 +999,12 @@
     var k = e.key;
     var handled = true;
 
+    if (infoOpen) {                       // info panel: any of these closes it, everything else is ignored
+      if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Enter' || k === ' ' || k === 'Info') closeInfo();
+      e.preventDefault();
+      return;
+    }
+
     if (guideOpen) {
       if (k === 'ArrowUp') gMove(-1, true);
       else if (k === 'ArrowDown') gMove(1, true);
@@ -887,7 +1027,7 @@
     else if (k === 'ArrowDown' || k === 'ChannelDown') { surf(-1); }
     else if (k === 'Guide' || k === 'Red') { openGuide(); }
     else if (k === 'Enter') { openOsd(); }
-    else if (k === 'Info') { showBanner(); }
+    else if (k === 'Info') { openInfo(); }
     else if (k === 'ArrowRight' || k === 'MediaFastForward') { seek(30); }
     else if (k === 'ArrowLeft' || k === 'MediaRewind') { seek(-30); }
     else if (k === 'MediaPlayPause' || k === ' ') {

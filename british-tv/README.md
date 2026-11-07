@@ -103,3 +103,7 @@ Change `app/src/main/assets/channels.js`. Examples:
 
 `include` is a regular expression matched against file paths inside the item. `minDur: 600` on a source
 skips anything shorter than that many seconds.
+
+## Programme info
+
+The OSD (press OK while watching) has an **Info** button on the right, and holding OK during playback opens the same panel. It looks the programme up on TVmaze and shows the poster, fanart, year, network, rating and a summary: the episode's own summary if TVmaze has one, otherwise the show's.

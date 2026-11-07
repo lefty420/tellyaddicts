@@ -114,6 +114,20 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ---------------------------------------------------------------- guide */
+  #info { position: fixed; inset: 0; z-index: 60; color: #fff; background: #050a2a; overflow: hidden; }
+  #info.hidden { display: none; }
+  #ibg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: .42; }
+  #ishade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,10,42,.96) 0%, rgba(5,10,42,.86) 45%, rgba(5,10,42,.55) 100%); }
+  #ipanel { position: absolute; left: 6vw; right: 6vw; top: 8vh; bottom: 10vh; display: flex; gap: 4vw; align-items: flex-start; }
+  #iposter { flex: 0 0 24vw; max-height: 74vh; width: 24vw; object-fit: contain; border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); }
+  #iposter.hidden { display: none; }
+  #itext { flex: 1; min-width: 0; }
+  #ishow { font-size: 5.2vh; font-weight: 800; line-height: 1.1; }
+  #iep { font-size: 3.4vh; font-weight: 700; color: #ffd24d; margin-top: 1.4vh; }
+  #imeta { font-size: 2.4vh; color: #b9c6ff; margin-top: 1.2vh; }
+  #isum { font-size: 2.7vh; line-height: 1.45; margin-top: 2.6vh; max-height: 42vh; overflow: hidden; }
+  #isum p { margin: 0 0 1.4vh; }
+  #isrc { position: absolute; left: 6vw; right: 6vw; bottom: 4vh; font-size: 2vh; color: #8a98d8; }
   #guide {
     position: fixed; inset: 0; z-index: 40; color: #fff;
     background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%);
@@ -219,7 +233,16 @@
     <div class="ob" id="ob-ff"><span>30s</span><span class="ic">&#9654;&#9654;</span></div>
     <div class="ob" id="ob-ar"><span id="olbl-ar"></span></div>
     <div class="ob" id="ob-fx"><span id="olbl-fx"></span></div>
+    <div class="ob" id="ob-info"><span>Info</span></div>
   </div>
+</div>
+<div id="info" class="hidden">
+  <div id="ibg"></div><div id="ishade"></div>
+  <div id="ipanel">
+    <img id="iposter" class="hidden" alt="">
+    <div id="itext"><div id="ishow"></div><div id="iep"></div><div id="imeta"></div><div id="isum"></div></div>
+  </div>
+  <div id="isrc">Back to close</div>
 </div>
 <div id="toast" class="off"></div>
 

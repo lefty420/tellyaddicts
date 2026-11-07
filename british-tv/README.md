@@ -107,3 +107,7 @@ skips anything shorter than that many seconds.
 ## Programme info
 
 The OSD (press OK while watching) has an **Info** button on the right, and holding OK during playback opens the same panel. It looks the programme up on TVmaze and shows the poster, fanart, year, network, rating and a summary: the episode's own summary if TVmaze has one, otherwise the show's.
+
+## Speed and the guide
+
+Each channel's list of programmes (and the links to them) is stored on the TV for 7 days and in a compact form, so the app starts without asking archive.org again. The guide's schedule is worked out from that list, so it stays the same all week. Real episode names found online are stored too. In the guide, pressing OK on any programme plays it from the start, whatever the time; the channel carries on from there. The programme airing now joins in progress as before.

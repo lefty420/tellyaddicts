@@ -3,6 +3,7 @@
 
   var E = window.Engine;
   var DAY = 24 * 60 * 60 * 1000;
+  var PLAN_TTL = 7 * DAY;   // the channel lineups (the 'EPG plan') are kept for a week, so the app starts instantly
   var MAX_STORED = 1500;
   var MAX_ERRORS = 6;
   var RETRY_MS = 15000;
@@ -70,12 +71,33 @@
     return Promise.all(workers).then(function () { return out; });
   }
 
+  // Compact storage for a channel's programme list (a few thousand entries per channel adds up)
+  var DL = 'https://archive.org/download/';
+  function packPlan(progs) {
+    return progs.map(function (p) {
+      var u = p.url || '';
+      return { i: p.id, u: u.indexOf(DL) === 0 ? u.slice(DL.length) : u, t: p.title, s: p.sub || '', d: p.dur };
+    });
+  }
+  function unpackPlan(rows) {
+    return rows.map(function (r) {
+      return { id: r.i, item: String(r.i).split('/')[0], url: /^https?:/.test(r.u) ? r.u : DL + r.u, title: r.t, sub: r.s, dur: r.d };
+    });
+  }
+  function savePlan(ch) {
+    if (!ch.cacheKey || !ch.plan) return;
+    store.set(ch.cacheKey, { t: ch.cacheT || Date.now(), p: packPlan(ch.plan), r: ch.report || [] });
+  }
+
   function loadPrograms(ch) {
-    var key = 'lib2:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v4');
+    var key = 'plan7:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v1');
+    ch.cacheKey = key;
     var cached = store.get(key);
-    if (cached && cached.p && cached.p.length && Date.now() - cached.t < DAY) {
+    if (cached && cached.p && cached.p.length && Date.now() - cached.t < PLAN_TTL) {
       ch.report = cached.r || [];
-      return Promise.resolve(cached.p);
+      ch.cacheT = cached.t;
+      ch.plan = unpackPlan(cached.p);
+      return Promise.resolve(ch.plan);
     }
     var ids = [];
     var optsFor = {};
@@ -132,7 +154,18 @@
         });
         ch.report = report;
         progs = E.sample(progs, MAX_STORED);
-        if (progs.length) store.set(key, { t: Date.now(), p: progs, r: report });
+        if (progs.length) {
+          // forget older cached lists for this channel (earlier versions of the sources, or the old cache format)
+          try {
+            for (var k = localStorage.length - 1; k >= 0; k--) {
+              var kn = localStorage.key(k);
+              if (kn && kn !== key && (kn.indexOf('plan7:' + ch.id + ':') === 0 || kn.indexOf('lib2:' + ch.id + ':') === 0)) localStorage.removeItem(kn);
+            }
+          } catch (e) { /* ignore */ }
+          ch.cacheT = Date.now();
+          ch.plan = progs;
+          savePlan(ch);
+        }
         return progs;
       });
     });
@@ -245,6 +278,7 @@
         });
       });
     }, Promise.resolve()).then(function () {
+      if (changed) savePlan(ch);                 // next start already has the real episode names
       if (changed && guideOpen) renderGuide();
       return changed;
     });
@@ -796,7 +830,14 @@
     var c = gChan;
     if (!c) return;
     if (c.status !== 'ready') { toast(c.name + ' is still loading', 2000); return; }
+    var now = Date.now();
+    var b = E.blockAt(c.sched, gFocus);
     closeGuide();
+    if (b && !(b.startMs <= now && now < b.endMs)) {
+      // any other programme in the guide: play it from the start, whatever the time; the channel carries on from there
+      playSlot(c, c.sched.groups[b.gi].first, 0, true, !(cur && cur.ch === c));
+      return;
+    }
     if (cur && cur.ch === c) showBanner(); else tune(c, true);
   }
 

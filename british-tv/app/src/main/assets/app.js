@@ -672,10 +672,33 @@
       if (p && p.catch) p.catch(function () { /* ignore */ });
     }, 20000);
   }
-  v.addEventListener('waiting', function () { if (!v.paused) { spinOn(); recoverIfStuck(); } });
+  v.addEventListener('waiting', function () { if (!v.paused && (v.currentTime > 0.2 || (cur && cur.ad))) { spinOn(); recoverIfStuck(); } });
   v.addEventListener('playing', function () { clearTimeout(stuckTimer); });
   v.addEventListener('seeking', spinOn);
-  v.addEventListener('loadstart', spinOn);
+  var sbTimer = null;
+  function standbyOff() { clearTimeout(sbTimer); $('standby').className = 'hidden'; }
+  function standbyOn() {
+    clearTimeout(sbTimer);
+    sbTimer = setTimeout(function () {
+      if (!cur || cur.ad || v.readyState >= 3 || v.currentTime > 0.2) return;   // adverts and mid-show waits use the small spinner
+      var next = cur.prog && cur.prog.title;
+      $('sbnum').textContent = cur.ch.n;
+      $('sbname').textContent = cur.ch.name;
+      $('sbp').textContent = String(100 + cur.ch.n);
+      $('sbprog').textContent = '';
+      if (next) {
+        $('sbprog').appendChild(document.createTextNode('Coming up: '));
+        var sp = document.createElement('span');
+        sp.textContent = next;
+        $('sbprog').appendChild(sp);
+      }
+      $('standby').className = '';
+    }, 1000);
+  }
+  v.addEventListener('loadstart', standbyOn);
+  v.addEventListener('playing', standbyOff);
+  v.addEventListener('timeupdate', function () { if (v.currentTime > 0.2 && !v.paused) standbyOff(); });
+  v.addEventListener('error', standbyOff);
   v.addEventListener('seeked', spinOff);
   v.addEventListener('timeupdate', function () { if (!v.paused && v.currentTime > 0) spinOff(); });
   v.addEventListener('playing', function () {

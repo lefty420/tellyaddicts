@@ -200,7 +200,7 @@
       title = titleCase(title.slice(0, cut).toLowerCase()) + title.slice(cut);   // "DADS ARMY - The Lovely Bunch"
     }
     if (slug && title.replace(/\bS\d+E\d+\b/g, '') === title.replace(/\bS\d+E\d+\b/g, '').toLowerCase()) title = titleCase(title);
-    title = calmCaps(dropEmptyBrackets(title));
+    title = calmCaps(dropEmptyBrackets(title)).replace(/([A-Za-z]{3,})\.$/, '$1');   // "Sudden Death." -> "Sudden Death" (acronyms like O.T.S. keep theirs)
     return { title: title || fallback || base, sub: sub };
   }
 
@@ -260,6 +260,8 @@
     if (!meta || meta.is_dark) return [];
     var include = opts && opts.include ? new RegExp(opts.include, 'i') : null;
     var exclude = opts && opts.exclude ? new RegExp(opts.exclude, 'i') : null;
+    var maxSize = opts && opts.maxSize ? +opts.maxSize : 0;
+    var needEp = opts && opts.requireEp ? /(s\d+e\d+|\bep\s*\d+|\bepisode\s*\d+|\bpart\s*\d+|\bseason\s*\d+|\b\d{1,2}x\d{1,2}\b)/i : null;
     var skipFile = opts && opts.skipFile ? new RegExp(opts.skipFile, 'i') : null;   // tested on the file's own name only (not its folders)
     if (exclude && exclude.test(String(md0(meta).title || ''))) return [];
     var md = meta.metadata || {};
@@ -323,6 +325,8 @@
       if (f.format && /thumbnail/i.test(f.format)) continue;
       var size = +f.size || 0;
       if (size && size < 200000) continue;
+      if (maxSize && size > maxSize) continue;                                         // a whole season stitched into one file
+      if (needEp && !needEp.test(name + ' ' + (md.title || ''))) continue;             // no episode / season number anywhere: not an EPG-ready episode
       var key = name.toLowerCase().replace(/\.ia\.mp4$|\.mp4$/, '');
       if (seen[key] !== undefined) {
         // Same programme listed twice. archive.org's ".ia.mp4" is the small, TV-friendly H.264 copy.

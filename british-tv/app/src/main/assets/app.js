@@ -121,7 +121,66 @@
     });
   }
 
+  // ---- Auto EPG ready-made lists (autodata.js, made by tools/import_scrape.py from the scraper's text files): no searching needed
+  var autoDataP = null;
+  function loadAutoData() {
+    if (window.AUTODATA) return Promise.resolve(window.AUTODATA);
+    if (autoDataP) return autoDataP;
+    autoDataP = new Promise(function (res) {
+      var sc = document.createElement('script');
+      sc.src = 'autodata.js';
+      sc.onload = function () { res(window.AUTODATA || {}); };
+      sc.onerror = function () { res({}); };
+      document.head.appendChild(sc);
+    });
+    return autoDataP;
+  }
+  var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
+  function progsFromData(items) {
+    var out = [];
+    items.forEach(function (it) {
+      var shows = {}, files = (it.f || []).map(function (f) {
+        var name = typeof f === 'string' ? f : f[0];
+        shows[name] = typeof f === 'string' ? (it.s || '') : f[1];
+        return { name: name, size: '90000000' };                  // size/length are not in the scrape; real length is learned on first play
+      });
+      // the same naming rules as live results (episode codes, tidy titles, .ia.mp4 duplicates)
+      E.pickPrograms(it.id, { metadata: { title: it.t }, files: files }, { requireEp: true, skipFile: AUTO && AUTO.NOT_EPISODE }).forEach(function (p) {
+        var nm = p.id.slice(it.id.length + 1), show = shows[nm] || '';
+        p.group = show;
+        p.dur = AUTO_DUR[show] || 2700;
+        out.push(p);
+      });
+    });
+    return out;
+  }
+  /** No programme of one show should fill the channel (needs three or more shows to apply). */
+  function capShows(progs, share) {
+    var by = {}, n = 0;
+    progs.forEach(function (p) { (by[p.group || ''] = by[p.group || ''] || []).push(p); });
+    var keys = Object.keys(by);
+    if (keys.length < 3) return progs;
+    var cap = Math.max(25, Math.round(progs.length * share)), out = [];
+    keys.forEach(function (k) { out = out.concat(by[k].length > cap ? E.sample(by[k], cap) : by[k]); });
+    return out;
+  }
+
   function loadPrograms(ch, noAuto) {
+    if (autoEpg && !noAuto && !ch.noCache && window.AUTO && AUTO.sourcesFor(ch.id)) {
+      return loadAutoData().then(function (D) {
+        var rows = D && D[ch.id];
+        if (!rows || !rows.length) return loadProgramsLive(ch, noAuto);
+        var progs = dedupeTitles(capShows(progsFromData(rows), 0.25));
+        ch.autoUsed = progs.length > 0;
+        ch.report = [];
+        ch.plan = E.sample(progs, MAX_STORED);
+        return ch.plan.length ? ch.plan : loadProgramsLive(ch, noAuto);
+      });
+    }
+    return loadProgramsLive(ch, noAuto);
+  }
+
+  function loadProgramsLive(ch, noAuto) {
     var auto = !noAuto && !ch.noCache && autoEpg && window.AUTO ? AUTO.sourcesFor(ch.id) : null;
     var sources = auto || ch.sources;
     ch.autoUsed = !!auto;
@@ -143,7 +202,7 @@
       var skipTitle = s.skipTitle ? new RegExp(s.skipTitle, 'i') : null;
       if (s.item) {
         ids.push(s.item);
-        optsFor[s.item] = { include: s.include, exclude: s.exclude, skipFile: s.skipFile, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
+        optsFor[s.item] = { include: s.include, exclude: s.exclude, skipFile: s.skipFile, maxSize: s.maxSize, requireEp: s.requireEp, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
       } else if (s.search) {
         chain = chain.then(function () {
           return getJSON(searchUrl(s.search, s.rows || 25)).then(function (j) {
@@ -151,7 +210,7 @@
               if (skip && skip.test((d.title || '') + ' ' + d.identifier)) return; // unwanted result
               if (skipTitle && skipTitle.test((d.title || '') + ' ' + d.identifier)) return;
               ids.push(d.identifier);
-              optsFor[d.identifier] = { exclude: s.exclude, skipFile: s.skipFile, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
+              optsFor[d.identifier] = { exclude: s.exclude, skipFile: s.skipFile, maxSize: s.maxSize, requireEp: s.requireEp, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
             });
           }, function () { /* a failed search just contributes nothing */ });
         });
@@ -213,6 +272,21 @@
     });
   }
 
+
+  // ---- real running times, learned the first time each programme starts (the scrape has none), used for the guide afterwards
+  var durMem = store.get('dur1') || {}, durTimer = null;
+  function learnDur(id, secs) {
+    if (!id || !isFinite(secs) || secs < 60 || secs > 14400) return;
+    var r = Math.round(secs);
+    if (durMem[id] === r) return;
+    durMem[id] = r;
+    clearTimeout(durTimer);
+    durTimer = setTimeout(function () {
+      var ks = Object.keys(durMem);
+      if (ks.length > 4000) ks.slice(0, ks.length - 4000).forEach(function (k) { delete durMem[k]; });
+      store.set('dur1', durMem);
+    }, 5000);
+  }
 
   // ---- files that take ages to start are remembered for two weeks and left out of the lineup
   var SLOW_MS = 15000, SLOW_TTL = 14 * 24 * 3600 * 1000;
@@ -882,6 +956,7 @@
   }
 
   v.addEventListener('loadedmetadata', function () {
+    if (cur && !cur.ad && cur.prog) learnDur(cur.prog.id, v.duration);
     if (cur && !cur.ad && pb.t0 && Date.now() - pb.t0 > SLOW_MS) markSlow(cur.prog.id);
     var off = parseFloat(v.dataset.offset) || 0;
     v.dataset.offset = '0';
@@ -1550,6 +1625,7 @@
       }).then(function (progs) {
         if (progs && progs.length) {
           progs = dropSlow(progs);
+          progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           c.sched = E.buildSchedule(progs, c.id);
           c.status = 'ready';
           enrichNames(c, progs).then(null, function () { /* names stay as they are */ });

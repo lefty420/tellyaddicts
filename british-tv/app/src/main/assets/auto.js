@@ -6,7 +6,18 @@
 
   // t = main keywords, alt = related shows / networks / synonyms for a second, different search.
   // len = [min, max] seconds for one programme. from = earliest year (music starts in 1980: no 1970s Top of the Pops).
-  var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM_LEN = [3000, 9000];
+  // show names from the scraper script's categories (tools/ keeps the same lists); used as extra search keywords
+var SHOWS = {
+  sitcoms: ['Fawlty Towers', 'Only Fools and Horses', 'Yes Minister', 'Yes Prime Minister', 'Blackadder', 'Porridge', 'Open All Hours', 'Steptoe and Son', 'Dads Army', 'Are You Being Served', 'Rising Damp', 'Whatever Happened to the Likely Lads', 'Some Mothers Do Ave Em', 'The Fall and Rise of Reginald Perrin', 'To the Manor Born', 'Birds of a Feather', 'One Foot in the Grave', 'Keeping Up Appearances', 'Terry and June', 'Ever Decreasing Circles', 'The Brittas Empire', 'Red Dwarf', 'Absolutely Fabulous', 'Vicar of Dibley', 'Drop the Dead Donkey', 'Bread', 'Butterflies', 'The Upper Hand', 'As Time Goes By', 'Waiting for God', 'Dear John'],
+  gameshows: ['Gladiators', 'The Generation Game', 'Bullseye', 'Catchphrase', 'Blind Date', 'Blankety Blank', 'Play Your Cards Right', 'Family Fortunes', 'The Price is Right', 'Blockbusters', 'Countdown', '3-2-1', 'Strike It Lucky', 'The Crystal Maze', 'Surprise Surprise', 'Big Break', 'The Krypton Factor', 'Whose Line Is It Anyway', 'Through the Keyhole', 'Challenge Anneka', 'Pop Quiz'],
+  childrens: ['Grange Hill', 'Blue Peter', 'Byker Grove', 'Live and Kicking', 'Going Live', 'The Demon Headmaster', 'Knightmare', 'Press Gang', 'Maid Marian and her Merry Men', 'Chucklevision', 'Fun House', 'Art Attack', 'Childrens Ward', 'Worzel Gummidge', 'Catweazle', 'The Tomorrow People', 'Finders Keepers', 'How 2', 'The Really Wild Show', 'Newsround', 'The Adventure Game', 'Dark Towers', 'Bernard\'s Watch', 'My Parents Are Aliens', 'The Queens Nose', 'Bodger and Badger'],
+  drama: ['Inspector Morse', 'The Bill', 'Minder', 'A Touch of Frost', 'Bergerac', 'Auf Wiedersehen Pet', 'The Professionals', 'Taggart', 'Heartbeat', 'Juliet Bravo', 'Cracker', 'Prime Suspect', 'Casualty', 'Londons Burning', 'The Sweeney', 'Shoestring', 'Pie in the Sky', 'Lovejoy', 'Midsomer Murders', 'Silent Witness', 'Jonathan Creek', 'Dalziel and Pascoe', 'Wycliffe', 'Hetty Wainthropp Investigates', 'Spooks', 'Rebus', 'Hamish Macbeth', 'Dangerfield', 'Ballykissangel', 'Peak Practice', 'Upstairs Downstairs', 'I Claudius', 'The Agatha Christie Hour', 'Miss Marple', 'Agatha Christies Poirot'],
+  music: ['The Chart Show', 'The Tube', 'The Word', 'Later with Jools Holland', 'CD UK', 'The Old Grey Whistle Test', 'Rapido', 'Snub TV', 'Top of the Pops', 'The White Room', 'The O-Zone', 'The Hitman and Her', 'Never Mind the Buzzcocks', 'Supersonic', 'Revolver', 'TFI Friday'],
+  comedy: ['The Fast Show', 'Harry Enfield', 'French and Saunders', 'Bottom', 'Men Behaving Badly', 'Father Ted', 'The Day Today', 'Brass Eye', 'Spaced', 'Big Train', 'Smack the Pony', 'Goodness Gracious Me', 'The League of Gentlemen', 'A Bit of Fry and Laurie', 'Alas Smith and Jones', 'The Mary Whitehouse Experience', 'Black Books', 'The Royle Family', 'Dinnerladies', 'Game On', 'Goodnight Sweetheart', 'Not the Nine O Clock News', 'Spitting Image', 'Rab C Nesbitt', 'The New Statesman', 'The Comic Strip Presents', 'Victoria Wood As Seen on TV'],
+  tv70s: ['The Sweeney', 'The New Avengers', 'Blakes 7', 'Space 1999', 'Survivors', 'Citizen Smith', 'Man About the House', 'George and Mildred', 'Doctor Who', 'Upstairs Downstairs', 'Poldark', 'Dixon of Dock Green', 'Return of the Saint', 'Secret Army', 'On the Buses', 'The Goodies', 'The Onedin Line', 'Crown Court', 'Follyfoot', 'Robin of Sherwood', 'The Persuaders', 'Department S', 'Jason King'],
+  citv: ['Danger Mouse', 'Count Duckula', 'SuperTed', 'Bananaman', 'The Animals of Farthing Wood', 'The Raggy Dolls', 'The Dreamstone', 'Dogtanian', 'The Mysterious Cities of Gold', 'The Trap Door', 'Postman Pat', 'Fireman Sam', 'Thomas and Friends', 'The Wind in the Willows', 'The Poddington Peas', 'Jimbo and the Jet-Set', 'Willo the Wisp', 'Biker Mice from Mars', 'Rainbow', 'The Sooty Show', 'Pingu', 'Button Moon', 'Bagpuss', 'The Wombles', 'Captain Pugwash', 'The Magic Roundabout', 'Chorlton and the Wheelies', 'Jamie and the Magic Torch', 'Morph', 'TUGS']
+};
+var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM_LEN = [3000, 9000];
   var THEMES = {
     music: { t: ['top of the pops', 'the chart show', 'pop music', 'music video'], alt: ['smash hits', 'the tube', 'the word', 'chart show', 'pop quiz', 'live and kicking'], len: MUSIC_LEN, from: 1980 },
     mtv: { t: ['mtv', 'music video', 'music videos', 'video hits'], alt: ['the box', 'vh1', 'channel v', 'MTV Europe', 'yo mtv raps', 'headbangers ball'], len: MUSIC_LEN, from: 1980 },
@@ -32,7 +43,7 @@
   };
 
   // file-level filters: not an episode (trailers, DVD menus and whole-disc rips), or a year outside the era in the name
-  var NOT_EPISODE = '\\b(trailer|sample|promo|intro|outro|extras?|bonus|menu|behind the scenes|interview|making of|dvd|disc|disk)\\b';
+  var NOT_EPISODE = '\\b(trailer|sample|promo|intro|outro|extras?|bonus|menu|behind the scenes|interview|making of|dvd|disc|disk|complete (season|series)|box-?set|all episodes)\\b';
   var NOT_PROGRAMMES = '(trailer OR sample OR advert OR adverts OR commercial OR commercials OR promo OR interview OR "behind the scenes")';
   var OUT_OF_ERA = '(?<![0-9])(?:20[0-4][0-9]|19[0-6][0-9])(?![0-9])';
 
@@ -46,6 +57,7 @@
   }
 
   function terms(list) { return list.map(function (k) { return '"' + k.replace(/"/g, '') + '"'; }).join(' OR '); }
+  function altFor(channelId, th) { return SHOWS[channelId] || th.alt; }
   function has(channelId) { return !!THEMES[channelId]; }
 
   function q(kw, th, dated) {
@@ -59,12 +71,12 @@
   function sourcesFor(channelId) {
     var th = THEMES[channelId];
     if (!th) return null;
-    var common = { minDur: th.len[0], maxDur: th.len[1], skipFile: NOT_EPISODE + '|' + outOfEra(th), skipTitle: outOfEra(th), group: 'auto' };
+    var common = { minDur: th.len[0], maxDur: th.len[1], skipFile: NOT_EPISODE + '|' + outOfEra(th), skipTitle: outOfEra(th), group: 'auto', maxSize: 1500000000, requireEp: true };
     function src(search, rows, perItem) { var o = { search: search, rows: rows, perItem: perItem }; for (var k in common) o[k] = common[k]; return o; }
     return [
       src(q(th.t, th, true), 30, 6),
-      src(q(th.alt, th, true), 30, 6),
-      src(q(th.t.concat(th.alt), th, false), 15, 3)
+      src(q(altFor(channelId, th), th, true), 30, 6),
+      src(q(th.t.concat(altFor(channelId, th)), th, false), 15, 3)
     ];
   }
 

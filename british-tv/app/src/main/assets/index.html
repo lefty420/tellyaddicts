@@ -229,11 +229,21 @@
   #oprog { position: relative; margin: .4vh 2vw .8vh 9.2vw; height: 1.2vh; background: rgba(255,255,255,.2); border-radius: .6vh; }
   #obar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--hi2); border-radius: .6vh; width: 0; }
   #otime { position: absolute; right: 0; top: 1.8vh; font-size: 2vh; color: rgba(255,255,255,.75); }
-  #obtns { display: flex; flex-wrap: wrap; gap: 1.2vh 1vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
-  .ob { flex: 1 1 17%; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .6vw;
+  #obtns { display: flex; gap: 1vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
+  .ob { flex: 1; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .6vw;
     font-size: 2.5vh; font-weight: 600; background: rgba(255,255,255,.1); border-radius: .7vh; white-space: nowrap; }
   .ob .ic { font-size: 2.6vh; }
   .ob.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
+  #opts { position: fixed; right: 4vw; bottom: 5vh; z-index: 60; }
+  #opts.hidden { display: none; }
+  #opanel { width: 46vw; padding: 2.6vh 2vw 2vh; border-radius: 1.2vh; background: linear-gradient(180deg, #0c2a86, #07184f); border: .25vh solid rgba(255,255,255,.35); box-shadow: 0 1vh 4vh rgba(0,0,0,.6); }
+  #opanel h2 { margin: 0 0 1.6vh; font-size: 2.2vh; letter-spacing: .25em; text-transform: uppercase; color: rgba(255,255,255,.7); font-weight: 600; }
+  .orow { display: flex; justify-content: space-between; align-items: center; gap: 2vw; padding: 1.5vh 1.2vw; margin-bottom: .8vh; border-radius: .7vh; font-size: 2.7vh; background: rgba(255,255,255,.1); }
+  .orow b { font-weight: 600; }
+  .orow span { font-weight: 700; }
+  .orow.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
+  .orow.sel span::before { content: '\25C0  '; } .orow.sel span::after { content: '  \25B6'; }
+  #opanel p { margin: 1.4vh 0 0; font-size: 1.9vh; color: rgba(255,255,255,.6); }
 </style>
 </head>
 <body>
@@ -261,11 +271,18 @@
     <div class="ob" id="ob-pp"><span class="ic" id="oic-pp"></span><span id="olbl-pp"></span></div>
     <div class="ob" id="ob-ff"><span>30s</span><span class="ic">&#9654;&#9654;</span></div>
     <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
-    <div class="ob" id="ob-ar"><span id="olbl-ar"></span></div>
-    <div class="ob" id="ob-fx"><span id="olbl-fx"></span></div>
-    <div class="ob" id="ob-ads"><span id="olbl-ads"></span></div>
-    <div class="ob" id="ob-auto"><span id="olbl-auto"></span></div>
+    <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
     <div class="ob" id="ob-info"><span>Info</span></div>
+  </div>
+</div>
+<div id="opts" class="hidden">
+  <div id="opanel">
+    <h2>Options</h2>
+    <div class="orow" id="or-ar"><b>Picture</b><span id="ov-ar"></span></div>
+    <div class="orow" id="or-fx"><b>Enhancements</b><span id="ov-fx"></span></div>
+    <div class="orow" id="or-ads"><b>Adverts</b><span id="ov-ads"></span></div>
+    <div class="orow" id="or-auto"><b>Auto EPG (experimental)</b><span id="ov-auto"></span></div>
+    <p>Up / Down to choose &nbsp;&middot;&nbsp; Left / Right or OK to change &nbsp;&middot;&nbsp; Back to close</p>
   </div>
 </div>
 <div id="info" class="hidden">

@@ -39,27 +39,42 @@
 
   function orTerms(list) { return list.map(function (k) { return '"' + k.replace(/"/g, '') + '"'; }).join(' OR '); }
 
-  /** Lucene query for one genre (and optionally one decade). dated=false drops the date clause, for items nobody dated. */
-  function buildQuery(cat, era, dated) {
+  var UK_WORDS = ['uk', 'british', 'britain', 'itv', 'channel 4', 'channel 5', 'sky', 'thames', 'granada', 'lwt', 'tvs', 'anglia', 'central', 'yorkshire', 'scottish', 'stv', 'utv'];
+  var NOT_UK = '(bbc OR usa OR american OR america OR nbc OR cbs OR "saturday morning")';
+  var US_RE = /\b(usa|u\.s\.a?|american|america|nbc|cbs|saturday morning|super bowl|1-800)\b/i;
+
+  /** Lucene query for one genre. tier 'uk' = inside archive.org's UK adverts collection; 'g' = anywhere, but the title or
+   *  subject must say it is British. dated=false drops the date clause (items nobody dated). */
+  function buildQuery(cat, era, tier, dated) {
     var kw = orTerms(CATS[cat].kw);
-    var isAd = '(collection:uk-adverts OR subject:(advert OR adverts OR advertisement OR commercial OR commercials) OR title:(advert OR adverts OR advertisement OR commercial OR commercials OR ads))';
-    var q = 'mediatype:movies AND ' + isAd + ' AND (title:(' + kw + ') OR subject:(' + kw + ')) AND NOT title:(bbc)';
-    if (dated && RANGE[era]) q += ' AND date:[' + RANGE[era][0] + '-01-01 TO ' + RANGE[era][1] + '-12-31]';
-    else if (dated) q += ' AND date:[1970-01-01 TO 1999-12-31]';
+    var q = 'mediatype:movies AND (title:(' + kw + ') OR subject:(' + kw + ')) AND NOT title:' + NOT_UK;
+    if (tier === 'uk') {
+      q = 'collection:uk-adverts AND ' + q;
+    } else {
+      var uk = orTerms(UK_WORDS);
+      q = '(subject:(advert OR adverts OR advertisement OR commercial OR commercials) OR title:(advert OR adverts OR advertisement OR commercial OR commercials OR ads)) AND (title:(' + uk + ') OR subject:(' + uk + ')) AND ' + q;
+    }
+    if (dated) q += RANGE[era] ? ' AND date:[' + RANGE[era][0] + '-01-01 TO ' + RANGE[era][1] + '-12-31]' : ' AND date:[1970-01-01 TO 1999-12-31]';
     return q;
   }
 
-  /** The searches that make up one pool: [{search, rows, maxDur, perItem, group, skipTitle}; group d = dated search, u = undated] */
+  /** The searches that make up one pool: [{search, rows, maxDur, perItem, group, skipTitle}].
+   *  group = tier + '-' + d (dated search) or u (undated). The UK collection comes first and gets the most rows. */
   function sourcesFor(cat, eraId) {
     if (!CATS[cat] || eraId === 'off') return [];
     var c = CATS[cat], out = [];
-    var decades = eraId === 'all' ? ['70', '80', '90'] : [eraId];
-    decades.forEach(function (d) {
-      var rows = eraId === 'all' ? ALL_ROWS[d] : 30;
-      out.push({ search: buildQuery(cat, d, true), rows: rows, maxDur: c.maxDur, perItem: 1, group: 'd', skipTitle: '\\bBBC\\b' });
-    });
-    // items with no date at all: kept only if their title names the decade (see accept)
-    out.push({ search: buildQuery(cat, eraId, false), rows: 10, maxDur: c.maxDur, perItem: 1, group: 'u', skipTitle: '\\bBBC\\b' });
+    function add(tier, era, dated, rows) {
+      out.push({ search: buildQuery(cat, era, tier, dated), rows: rows, maxDur: c.maxDur, perItem: 1, group: tier + '-' + (dated ? 'd' : 'u'), skipTitle: '\\bBBC\\b|' + US_RE.source });
+    }
+    if (eraId === 'all') {
+      ['70', '80', '90'].forEach(function (d) { add('uk', d, true, ALL_ROWS[d]); });
+      add('uk', 'all', false, 12);
+      add('g', 'all', true, 12);
+    } else {
+      add('uk', eraId, true, 30);
+      add('uk', eraId, false, 12);
+      add('g', eraId, true, 12);
+    }
     return out;
   }
 
@@ -75,21 +90,23 @@
   /** Keep an advert result for the chosen era? Never the BBC; known-year titles must fit; undated ones only in "All". */
   function accept(prog, eraId) {
     var t = (prog.title || '') + ' ' + (prog.item || '');
-    if (/\bBBC\b/i.test(t)) return false;
+    if (/\bBBC\b/i.test(t) || US_RE.test(t)) return false;
     var e = eraOf(prog.title) || eraOf(prog.item);
     if (e === 'other') return false;
     if (eraId === 'all') return e === null || e === '70' || e === '80' || e === '90';
-    return e === eraId || (e === null && prog.group === 'd');
+    return e === eraId || (e === null && /-d$/.test(prog.group || ''));
   }
 
   function filterPool(progs, eraId) { return (progs || []).filter(function (p) { return accept(p, eraId); }); }
 
-  /** Pick the next advert: random, never the one that just played. */
+  /** Pick the next advert: UK-collection ones about 4 times in 5, random, never the one that just played. */
   function pickNext(pool, lastUrl) {
     if (!pool || !pool.length) return null;
-    var i = Math.floor(Math.random() * pool.length);
-    if (pool.length > 1 && pool[i].url === lastUrl) i = (i + 1) % pool.length;
-    return pool[i];
+    var uk = pool.filter(function (p) { return /^uk-/.test(p.group || ''); });
+    var from = uk.length && Math.random() < 0.8 ? uk : pool;
+    var i = Math.floor(Math.random() * from.length);
+    if (from.length > 1 && from[i].url === lastUrl) i = (i + 1) % from.length;
+    return from[i];
   }
 
   var Ads = { ERAS: ERAS, CATS: CATS, categoryFor: categoryFor, eraIndex: eraIndex, buildQuery: buildQuery,

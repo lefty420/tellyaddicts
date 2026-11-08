@@ -76,12 +76,14 @@
   function packPlan(progs) {
     return progs.map(function (p) {
       var u = p.url || '';
-      return { i: p.id, u: u.indexOf(DL) === 0 ? u.slice(DL.length) : u, t: p.title, s: p.sub || '', d: p.dur };
+      var r = { i: p.id, u: u.indexOf(DL) === 0 ? u.slice(DL.length) : u, t: p.title, s: p.sub || '', d: p.dur };
+      if (p.group && p.group.indexOf('-') > 0) r.g = p.group;   // advert tier (uk/g), kept so UK adverts stay preferred
+      return r;
     });
   }
   function unpackPlan(rows) {
     return rows.map(function (r) {
-      return { id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d };
+      return { id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g };
     });
   }
   function savePlan(ch) {
@@ -648,7 +650,7 @@
     var key = adKey(ch);
     if (!key || adPools[key]) return;
     var cat = ADS.categoryFor(ch.id), era = adEra;
-    var cached = store.get('ads1:' + key);
+    var cached = store.get('ads2:' + key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < AD_TTL) { adPools[key] = unpackPlan(cached.p); return; }
     adPools[key] = [];                  // being fetched (or nothing found): breaks are skipped, and it is not retried until the next launch
     // wait a little so the lookups don't compete with the programme that is still starting up
@@ -657,7 +659,7 @@
         .then(function (p) {
           p = ADS.filterPool(p, era);
           adPools[key] = p;
-          if (p.length) store.set('ads1:' + key, { t: Date.now(), p: packPlan(p) });
+          if (p.length) store.set('ads2:' + key, { t: Date.now(), p: packPlan(p) });
         }, function () { /* no adverts this time */ });
     }, soon ? 1500 : 20000);
   }
@@ -1031,7 +1033,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'restart', 'ar', 'fx', 'ads', 'auto', 'info'];   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'restart', 'options', 'info'];   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -1080,7 +1082,50 @@
   function changeFx(d) {
     fxMode = FXMODES[(FXMODES.indexOf(fxMode) + d + FXMODES.length) % FXMODES.length];
     applyFx();
-    renderOsd();
+    renderOpts();
+  }
+
+  // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG
+  var OPTS = ['ar', 'fx', 'ads', 'auto'];
+  var optsOpen = false, optsSel = 0, optsTimer = null;
+  function optValue(id) {
+    if (id === 'ar') return AR[arIdx].label;
+    if (id === 'fx') return FXLABEL[fxMode];
+    if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
+    return autoEpg ? 'On' : 'Off';
+  }
+  function renderOpts() {
+    OPTS.forEach(function (id, i) {
+      $('ov-' + id).textContent = optValue(id);
+      $('or-' + id).className = 'orow' + (i === optsSel ? ' sel' : '');
+    });
+  }
+  function openOpts() {
+    closeOsd();
+    optsOpen = true; optsSel = 0;
+    renderOpts();
+    $('opts').className = '';
+    optsTouch();
+  }
+  function closeOpts() { optsOpen = false; clearTimeout(optsTimer); $('opts').className = 'hidden'; }
+  function optsTouch() { clearTimeout(optsTimer); optsTimer = setTimeout(closeOpts, 20000); }
+  function optsChange(d) {
+    var id = OPTS[optsSel];
+    if (id === 'ar') changeAr(d);
+    else if (id === 'fx') changeFx(d);
+    else if (id === 'ads') changeAds(d);
+    else toggleAuto();
+  }
+  function optsKey(k) {
+    optsTouch();
+    if (k === 'ArrowUp') optsSel = (optsSel + OPTS.length - 1) % OPTS.length;
+    else if (k === 'ArrowDown') optsSel = (optsSel + 1) % OPTS.length;
+    else if (k === 'ArrowLeft') { optsChange(-1); return true; }
+    else if (k === 'ArrowRight' || k === 'Enter' || k === ' ') { optsChange(1); return true; }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') closeOpts();
+    else if (k === 'Guide' || k === 'Red') { closeOpts(); openGuide(); }
+    renderOpts();
+    return true;
   }
 
   var ERA_SHORT = { off: 'Off', all: 'All', '70': '70s', '80': '80s', '90': '90s' };
@@ -1089,14 +1134,13 @@
     adEra = ids[(ids.indexOf(adEra) + d + ids.length) % ids.length];
     store.set('adera', adEra);
     if (cur) loadAds(cur.ch, true);
-    toast('Adverts: ' + ADS.ERAS[ids.indexOf(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? ' (none on this channel)' : ''), 2000);
-    renderOsd();
+    renderOpts();
   }
   function toggleAuto() {
     autoEpg = !autoEpg;
     store.set('autoepg', autoEpg ? 'on' : 'off');
     toast(autoEpg ? 'Auto EPG on (experimental): rebuilding the guide...' : 'Auto EPG off: back to the normal guide...', 4000);
-    renderOsd();
+    renderOpts();
     setTimeout(function () { location.reload(); }, 1200);   // the start-up loading screen does the rebuild
   }
 
@@ -1126,10 +1170,6 @@
     $('otime').textContent = fmtPos(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtPos(dur) : '');
     $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
     $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
-    $('olbl-ar').textContent = 'Picture: ' + AR[arIdx].label;
-    $('olbl-fx').textContent = 'Enhance: ' + FXLABEL[fxMode];
-    $('olbl-ads').textContent = 'Adverts: ' + ERA_SHORT[adEra];
-    $('olbl-auto').textContent = 'Auto EPG: ' + (autoEpg ? 'On' : 'Off');
     OB.forEach(function (id, i) { $('ob-' + id).className = 'ob' + (i === osdSel ? ' sel' : ''); });
   }
 
@@ -1161,7 +1201,7 @@
   function changeAr(d) {
     arIdx = (arIdx + d + AR.length) % AR.length;
     applyAr();
-    renderOsd();
+    renderOpts();
   }
 
   function togglePlay() {
@@ -1185,10 +1225,7 @@
     else if (id === 'ff') seek(30);
     else if (id === 'pp') togglePlay();
     else if (id === 'restart') { restartShow(); return; }
-    else if (id === 'ar') changeAr(1);
-    else if (id === 'fx') changeFx(1);
-    else if (id === 'ads') changeAds(1);
-    else if (id === 'auto') { toggleAuto(); return; }
+    else if (id === 'options') { openOpts(); return; }
     else if (id === 'guide') { closeOsd(); openGuide(); }
     else if (id === 'info') { closeOsd(); openInfo(); return; }
     renderOsd();
@@ -1241,6 +1278,8 @@
       else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide') closeGuide();
       else if (k === 'Info') showReport();
       else handled = false;
+    } else if (optsOpen) {
+      handled = optsKey(k);
     } else if (osdOpen) {
       handled = osdKey(k);
     } else if (k >= '0' && k <= '9' && k.length === 1) {

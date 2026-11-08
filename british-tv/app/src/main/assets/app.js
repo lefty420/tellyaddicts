@@ -126,7 +126,7 @@
     var sources = auto || ch.sources;
     ch.autoUsed = !!auto;
     var prefix = auto ? 'plan7a:' : 'plan7:';
-    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + '|v4' + (auto ? '|' + AUTO.today() : ''));   // bump when the naming/URL rules change so stored titles are rebuilt
+    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + '|v5' + (auto ? '|' + AUTO.today() : ''));   // bump when the naming/URL rules change so stored titles are rebuilt
     ch.cacheKey = key;
     var cached = ch.noCache ? null : store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < PLAN_TTL) {

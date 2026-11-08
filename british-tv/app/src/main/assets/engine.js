@@ -54,8 +54,17 @@
   function validMonth(m) { return m >= 1 && m <= 12; }
 
   /** Release-group noise in file names: "minder s04e04 tvrip divx" -> "minder s04e04". */
-  var SURE_TAGS = 'tvrip|dvdrip|divx|xvid|hdtv|pdtv|webrip|web-?dl|bdrip|brrip|x26[45]|h\\.?26[45]|hevc|ac3|480p|576p|720p|1080p|2160p';
+  var SURE_TAGS = 'blu-?ray|tvrip|dvdrip|divx|xvid|hdtv|pdtv|webrip|web-?dl|bdrip|brrip|x26[45]|h\\.?26[45]|hevc|ac3|480p|576p|720p|1080p|2160p';
   var SLUG_TAGS = 'dvd|web|aac|mp3|dd\\d?|proper|repack|retail|vhsrip|vhs|pal|ntsc|stereo|mono|rip';
+  // picture-quality notes in names: "(1080p Upscale)", "[AI Upscaled]", "(HD Remaster)", "1080p HD upscale", "Restored 4K"
+  var Q = '(?:\\d{3,4}p|[48]k|uhd|fhd|hd|sd|ai|upscal(?:e|ed|ing)|up-?scaled?|remaster(?:ed)?|restor(?:ed|ation)|enhanced|bluray|blu-?ray|web-?dl|webrip|dvdrip|x26[45]|h\\.?26[45]|hevc|aac|ac3|vhs|dvd|pal|ntsc|\\d+fps|colou?rised|deinterlaced)';
+  var Q_GROUP = new RegExp('\\s*[(\\[]\\s*(?:' + Q + '\\b[\\s,._+&-]*)+[)\\]]', 'ig');
+  var Q_WORDS = new RegExp('(?:^|[\\s_.-])(?:\\d{3,4}p|[48]k|uhd|(?:hd|ai)?[\\s-]*up-?scal(?:e|ed|ing)|(?:hd\\s+)?remaster(?:ed)?|(?:hd\\s+)?restored)(?=$|[\\s_.-])', 'ig');
+  function stripQuality(t) {
+    return String(t).replace(Q_GROUP, ' ').replace(Q_WORDS, ' ').replace(/(^|\s)hd(?=\s*$)/ig, ' ')
+      .replace(/\s*[(\[]\s*[)\]]/g, ' ').replace(/\s+/g, ' ').replace(/[\s\-\u2013]+$/, '').trim();
+  }
+
   function stripRelease(t, slug) {
     var re = new RegExp('(?:^|[\\s\\[(])(?:' + SURE_TAGS + (slug ? '|' + SLUG_TAGS : '') + ')(?:-\\w+)?(?=$|[\\s\\])])', 'ig');
     return t.replace(re, ' ').replace(/\s+/g, ' ').trim();
@@ -67,7 +76,8 @@
          .replace(/\s+(?=\S*\d)(?=\S*[a-f])[0-9a-f]{10,}$/i, '')                              // trailing hash "576e7ba17ef74"
          .replace(/\bS(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')        // "S1, Ep 09"
          .replace(/\b(?:Season|Series)\s*(\d{1,2})[,\s\-\u2013:]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')   // "Series 3 Ep 4", "Season 5 - Episode 01"
-         .replace(/(^|\s)(\d{1,2})x(\d{2,3})\b/g, '$1S$2E$3');                               // "1x01"
+         .replace(/(^|\s)(\d{1,2})x(\d{2,3})\b/g, '$1S$2E$3')
+         .replace(/\b(?:Season|Series)\s*\d{1,2}\s+(?=S\d{1,2}E\d{1,3}\b)/ig, '');   // "Show Season 3 S3E05" -> "Show S3E05"                               // "1x01"
     return t.replace(/\bs\s?(\d{1,2})\s?e\s?(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
       .replace(/(\bS\d+E\d+)\s+Episode\s+\d+\b\s*/ig, '$1 ').replace(/\s+$/, '')                                 // "S01E05 Episode 5"
       .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ')
@@ -102,6 +112,7 @@
     base = base.replace(/^\d{1,3}(?:[.)]\s*|\s+-\s+)(?=[A-Za-z])/, '');   // "01.Are You Being Served" -> words
     base = base.replace(/^(?:BBC\s?DVD|ITV\s?DVD|2\s?Entertain)\s?\d+\s+/i, '');       // "BBCDVD1860 One Foot..."
     base = base.replace(/^(?=[0-9A-F]*\d)[0-9A-F]{8}\s+(?=[A-Za-z])/, '');             // "0001AC85 Cannon..."
+    base = stripQuality(base);
     base = base.replace(/^View\s*Record[\s_\-]+/i, '');                                // uploader tag on game show files
     base = base.replace(/[\s_\-]*cut[\s_\-]*merged[\s_\-]*\d*/ig, '').replace(/[\s_\-]\d{10,13}$/, '');   // "-cut-merged-1775992021051"
     base = base.replace(/[\s_\-]*\bBoB\s*\(\d+\)/g, '').replace(/\s*\(\d{1,3}\)\s*$/, '');          // uploader tag "BoB(63)", trailing "(63)"
@@ -213,7 +224,7 @@
 
   /** "Born And Bred S01-S04 webdl xvid" -> "Born And Bred"; "Mr.Bean.Complete.Collection.H264" -> "Mr Bean". */
   function cleanShow(folder) {
-    var s = String(folder);
+    var s = stripQuality(folder);
     if (s.indexOf(' ') < 0) s = s.replace(/[._-]+/g, ' '); // slug-style names: "the-bill_s01" -> words
     s = s.replace(/\(?\b\d{4}\s*[-\u2013]\s*\d{2,4}\b\)?/g, ' ');                              // "1981-1996"
     s = s.replace(/\b(complete\s+)?(series|seasons?)\s*\d+(\s*(to|-|&|and)\s*\d+)?\b/ig, ' ');   // "Series 1 to 26"
@@ -223,7 +234,7 @@
 
   /** "Inspector Gadget: The Complete Seasons 1 & 2 (1983-86)" -> "Inspector Gadget". */
   function cleanItemTitle(t) {
-    var s = String(t).replace(/\s+/g, ' ').trim();
+    var s = stripQuality(String(t).replace(/\s+/g, ' ').trim());
     var c = s.replace(/\s*[-:\u2013]?\s*(the\s+)?complete\b.*$/i, '').replace(/\s*\(\d{4}\s*[-\u2013]\s*\d{2,4}\)\s*$/, '').trim();
     return c || s;
   }

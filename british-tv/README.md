@@ -108,32 +108,28 @@ OSD › **Options** (Up/Down to choose, Left/Right or OK to change):
 | Option | Values |
 | --- | --- |
 | Picture | Auto, 4:3, 16:9, Zoom, Stretch |
-| Enhancements | Off, VHS, Vivid, Sharp |
-| Overlay | Off, Scanlines, Aperture grille, Curved glass, Portable set, Shadow mask |
+| Enhancements | Off, VHS, Vivid, Sharp, Scanlines, Aperture grille, Curved glass, Portable set, Shadow mask |
+| Television | Off, Walnut, Cream portable, Black, Silver |
 | Extra metadata | On / Off |
 | Adverts | Off, All (70s–90s), 1970s, 1980s, 1990s |
 | Auto EPG (experimental) | On / Off |
 | Keep listings for | 24 hours, 48 hours, 1 week, 4 weeks |
 
-**Enhancements** are screen effects, not a re-render, so they work on any video and cannot fail
-because of the source. VHS warms and softens the picture with faint horizontal lines and a slight
-colour fringe at the edges (no tracking wobble, no bands along the bottom); Vivid adds contrast and
-colour; Sharp sharpens. If the TV struggles to keep up (lots of dropped frames), the app drops back
-to Vivid by itself.
+**Enhancements** covers everything done to the picture itself. The first three change the video: VHS warms and
+softens it with faint horizontal lines and a slight colour fringe (no tracking wobble, no bands along the bottom),
+Vivid adds contrast and colour, Sharp sharpens. If the TV struggles to keep up with Sharp (lots of dropped frames),
+the app drops back to Vivid by itself. The rest are screen looks laid over the picture rather than filters on it,
+so they cost the box next to nothing: **Scanlines** (fine dark lines), **Aperture grille** (red/green/blue stripes,
+a Trinitron up close), **Curved glass** (the tube's curve clips the picture, with a vignette and a reflection),
+**Portable set** (warm, coarse lines and a heavy edge) and **Shadow mask** (dot pitch rather than stripes).
 
-**Overlay** puts a vintage television over the picture, and is separate from Enhancements, so the two can be used
-together. Unlike the Enhancements, an overlay never filters the video: it is a still layer composited once over the
-top, so it costs the box next to nothing however long it is left on, and it needs no frame-drop guard.
-
-* **Scanlines** — fine dark lines, the plain tube look
-* **Aperture grille** — red/green/blue stripes, a Trinitron up close
-* **Curved glass** — the tube's curve clips the picture, with a vignette and a reflection off the glass
-* **Portable set** — warm, coarse lines and a heavy edge, like a 14" in the bedroom
-* **Shadow mask** — dot pitch rather than stripes
-
-The patterns are sized in viewport units so they keep their pitch whatever the screen, and no overlay is drawn over
-the guide. On a 4K set a scanline is only a few physical pixels, so the fine looks are subtle from the sofa; the
-pitch and strength are easy to turn up in `index.html` (the `#ovl` rules) if they do not read from across the room.
+**Television** puts the picture inside an old set: it is scaled into a 4:3 window, the shape these programmes were
+made for, with the cabinet drawn around it in **Walnut**, **Cream portable**, **Black** or **Silver**. The cabinet
+is drawn by the app, not a picture file: one gradient runs across all four panels (each shows its own part of it)
+so the corners have no seams, it is sharp at any resolution, adds nothing to the download and costs the box
+nothing. It combines with the Enhancements, so a walnut set with scanlines is a reasonable thing to ask for. No
+cabinet is drawn over the guide. Note that with a cabinet on, the Picture setting only chooses how the video fills
+that 4:3 window.
 
 **Extra metadata** turns on both the poster on the bar and the show fanart behind the guide header
 (TVmaze, TV shows only).

@@ -1456,8 +1456,10 @@
   }
 
   // ---- picture looks: CSS only (filters on the video, plus an overlay for CRT)
-  var FXMODES = ['off', 'vhs', 'vivid', 'sharp'];
-  var FXLABEL = { off: 'Off', vhs: 'VHS', vivid: 'Vivid', sharp: 'Sharp' };
+  var FXMODES = ['off', 'vhs', 'vivid', 'sharp', 'lines', 'grille', 'glass', 'portable', 'dots'];
+  var FXLABEL = { off: 'Off', vhs: 'VHS', vivid: 'Vivid', sharp: 'Sharp',
+                  lines: 'Scanlines', grille: 'Aperture grille', glass: 'Curved glass',
+                  portable: 'Portable set', dots: 'Shadow mask' };
   var fxMode = 'off';
   var fxWatch = null;
   (function () {
@@ -1488,28 +1490,27 @@
     }
   }
 
-  // ---- vintage overlays: a still layer over the picture, so they cost the box next to nothing
-  var OVL = [
+  // ---- television cabinets: the picture is scaled into a 4:3 window with a cabinet drawn round it
+  var TVSET = [
     { id: 'off', label: 'Off' },
-    { id: 'lines', label: 'Scanlines' },
-    { id: 'grille', label: 'Aperture grille' },
-    { id: 'glass', label: 'Curved glass' },
-    { id: 'portable', label: 'Portable set' },
-    { id: 'dots', label: 'Shadow mask' }
+    { id: 'wood', label: 'Walnut' },
+    { id: 'cream', label: 'Cream portable' },
+    { id: 'black', label: 'Black' },
+    { id: 'silver', label: 'Silver' }
   ];
-  var ovlIdx = 0;
+  var tvIdx = 0;
   (function () {
-    var saved = store.get('ovl1');
-    for (var i = 0; i < OVL.length; i++) if (OVL[i].id === saved) ovlIdx = i;
+    var saved = store.get('tv1');
+    for (var i = 0; i < TVSET.length; i++) if (TVSET[i].id === saved) tvIdx = i;
   })();
-  function applyOvl() {
-    OVL.forEach(function (o) { document.body.classList.remove('ov-' + o.id); });
-    document.body.classList.add('ov-' + OVL[ovlIdx].id);
-    store.set('ovl1', OVL[ovlIdx].id);
+  function applyTv() {
+    TVSET.forEach(function (t) { document.body.classList.remove('tv-' + t.id); });
+    document.body.classList.add('tv-' + TVSET[tvIdx].id);
+    store.set('tv1', TVSET[tvIdx].id);
   }
-  function changeOvl(d) {
-    ovlIdx = (ovlIdx + d + OVL.length) % OVL.length;
-    applyOvl();
+  function changeTv(d) {
+    tvIdx = (tvIdx + d + TVSET.length) % TVSET.length;
+    applyTv();
     renderOpts();
   }
 
@@ -1525,7 +1526,7 @@
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
-    if (id === 'ovl') return OVL[ovlIdx].label;
+    if (id === 'ovl') return TVSET[tvIdx].label;
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'keep') return KEEP[keepIdx].label;
@@ -1559,7 +1560,7 @@
     var id = OPTS[optsSel];
     if (id === 'ar') changeAr(d);
     else if (id === 'fx') changeFx(d);
-    else if (id === 'ovl') changeOvl(d);
+    else if (id === 'ovl') changeTv(d);
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
     else if (id === 'keep') changeKeep(d);
@@ -1683,7 +1684,7 @@
 
   applyAr();
   applyFx();
-  applyOvl();
+  applyTv();
 
   function restartShow() {
     closeOsd();
@@ -1781,13 +1782,22 @@
 
   // ------------------------------------------------------------------ start up
 
+  var bootedAt = Date.now();
+  var FIRST_WAIT = 8000;      // how long to hold the loading screen for the channel we want to open on
+
   function begin() {
     var list = ready();
     if (started || !list.length) return;
+    // The channel we would rather open on: the one that was on last, or else the first in the guide. On This Day
+    // needs no requests at all, so it is ready before anything else; without this wait the app would always open on
+    // it instead. Hold the loading screen a few seconds for the one we want, then start with whatever is ready.
+    var want = store.get('last');
+    var prefer = channels.filter(function (c) { return c.id === want; })[0] ||
+                 channels.slice().sort(function (a, b) { return a.n - b.n; })[0];
+    if (prefer && prefer.status === 'loading' && Date.now() - bootedAt < FIRST_WAIT) return;
     started = true;
     $('splash').className = 'hidden';
-    var last = store.get('last');
-    var pick = list.filter(function (c) { return c.id === last; })[0] || list[0];
+    var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];
     tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
     openGuide();               // ... but land in the TV guide
   }
@@ -1841,6 +1851,6 @@
     renderStatus();
   }
 
-  setInterval(function () { if (!started) renderStatus(); }, 400);
+  setInterval(function () { if (!started) { renderStatus(); begin(); } }, 400);   // also lets the wait above time out
   startLoading();
 })();

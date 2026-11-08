@@ -65,6 +65,11 @@
       .replace(/\s*[(\[]\s*[)\]]/g, ' ').replace(/\s+/g, ' ').replace(/[\s\-\u2013]+$/, '').trim();
   }
 
+  /** "Show S3E04 ( )" -> "Show S3E04": brackets left empty once a tag inside them was removed. */
+  function dropEmptyBrackets(t) {
+    return String(t).replace(/\s*[(\[]\s*[-\u2013,._:\/]*\s*[)\]]/g, '').replace(/\s+/g, ' ').replace(/[\s\-\u2013]+$/, '').trim();
+  }
+
   function stripRelease(t, slug) {
     var re = new RegExp('(?:^|[\\s\\[(])(?:' + SURE_TAGS + (slug ? '|' + SLUG_TAGS : '') + ')(?:-\\w+)?(?=$|[\\s\\])])', 'ig');
     return t.replace(re, ' ').replace(/\s+/g, ' ').trim();
@@ -195,7 +200,7 @@
       title = titleCase(title.slice(0, cut).toLowerCase()) + title.slice(cut);   // "DADS ARMY - The Lovely Bunch"
     }
     if (slug && title.replace(/\bS\d+E\d+\b/g, '') === title.replace(/\bS\d+E\d+\b/g, '').toLowerCase()) title = titleCase(title);
-    title = calmCaps(title);
+    title = calmCaps(dropEmptyBrackets(title));
     return { title: title || fallback || base, sub: sub };
   }
 
@@ -287,7 +292,7 @@
         var lb = lead[1].replace(/\s*\(?\b(?:19|20)\d\d\b\)?\s*$/, '').trim();
         if (lb) d.title = d.title.replace(new RegExp('\\s+[-\u2013]\\s+' + lb.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s+\\(?(?:19|20)\\d\\d\\)?)?\\s*$', 'i'), '');
       }
-      d.title = d.title.replace(/^(.+?)\s-\s(S\d+E\d+)/, '$1 $2');
+      d.title = dropEmptyBrackets(d.title.replace(/^(.+?)\s-\s(S\d+E\d+)/, '$1 $2'));
       if (md.title && isGenericTitle(d.title)) {
         // "Series 7" -> "<item title> - Series 7"
         var itemName = cleanItemTitle(md.title);

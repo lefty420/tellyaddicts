@@ -121,4 +121,5 @@ Each channel's list of programmes (and the links to them) is stored on the TV fo
 - **Auto EPG** (Options, experimental, default Off): builds each channel from three searches (main keywords, related shows, undated uploads) limited to 1970-1999 (`auto.js`), re-picks daily, skips trailers / DVD menus / whole-disc files, drops duplicate titles, uses sensible length limits per channel (music videos allowed on music channels, no 1970s Top of the Pops) and tops a thin channel up from its normal sources. A channel with no results falls back to its normal sources. Toggling restarts the app on the loading screen.
 - **archive.org links** are always built as `https://archive.org/download/<id>/<file>` with the same escaping as Python's `quote(name, safe=",()'-")`; saved links on regional nodes are rewritten to that form (`Engine.archiveUrl` / `canonicalUrl`).
 
+- **Back**: while watching, Back opens the TV guide; in the guide, press Back twice to exit.
 - **CITV** leaves out DVD / disc files and anything over 35 minutes.

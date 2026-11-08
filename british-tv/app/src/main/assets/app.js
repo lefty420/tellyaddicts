@@ -1054,6 +1054,15 @@
   var exitArmed = false;
   var exitTimer = null;
 
+  /** First press asks, a second press within 2.5 s exits. */
+  function pressBackToExit() {
+    if (exitArmed) { exitApp(); return; }
+    exitArmed = true;
+    toast('Press Back again to exit', 2500);
+    clearTimeout(exitTimer);
+    exitTimer = setTimeout(function () { exitArmed = false; }, 2500);
+  }
+
   function exitApp() {
     if (window.NativeHttp && window.NativeHttp.exit) window.NativeHttp.exit();
   }
@@ -1359,7 +1368,8 @@
       else if (k === 'Green' || k === 'MediaFastForward') gJump('later');
       else if (k === 'Yellow' || k === 'MediaRewind') gJump('earlier');
       else if (k === 'Enter' || k === ' ' || k === 'Blue') watchFromGuide();
-      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide') closeGuide();
+      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') pressBackToExit();   // in the guide: Back twice leaves the app
+      else if (k === 'Guide') closeGuide();
       else if (k === 'Info') showReport();
       else handled = false;
     } else if (optsOpen) {
@@ -1380,16 +1390,7 @@
     }
     else if (k === 'MediaPlay') { v.play(); }
     else if (k === 'MediaPause') { v.pause(); toast('Paused', 1500); }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {
-      if (exitArmed) { exitApp(); }
-      else {
-        exitArmed = true;
-        showBanner();
-        toast('Press Back again to exit', 2500);
-        clearTimeout(exitTimer);
-        exitTimer = setTimeout(function () { exitArmed = false; }, 2500);
-      }
-    }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { openGuide(); }   // watching: Back goes to the TV guide
     else handled = false;
 
     if (handled) e.preventDefault();

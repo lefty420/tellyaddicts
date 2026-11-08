@@ -229,7 +229,12 @@ python3 tools/import_scrape.py --library library.db master_list.txt   # or both
 ```
 
 It writes `british-tv/data/` (published, above) and `assets/autodata.js` (the offline copy inside the APK;
-`--no-bundle` skips it and keeps the APK small). Give it files from any of the scraper's categories at once. Every show is routed by its `[Show]` tag
+`--no-bundle` skips it and keeps the APK small). Give it files from any of the scraper's categories at once. A category of songs rather than shows (the scraper's
+Christmas Songs) is filed under one name, so `shows.json` marks it `"songs": true`: it still routes to its channel,
+but it is left out of the genre guard, because a song title says nothing about which channel a programme belongs on.
+
+A channel's show list can run to well over a hundred names (CITV has 166), far too many to put in one archive.org
+search, so the live searches use an even spread of 16 of them. The published lists use the full list. Every show is routed by its `[Show]` tag
 to the channel of its own genre, using `tools/shows.json` (sitcoms, gameshows, childrens,
 Drama = `thebill`, music, comedy, tv70s, citv). A show listed in two categories (Doctor Who,
 Upstairs Downstairs) goes to both channels. Only the channels that get programmes are replaced; the

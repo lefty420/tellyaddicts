@@ -115,8 +115,8 @@ Each channel's list of programmes (and the links to them) is stored on the TV fo
 ## Adverts and Auto EPG (OSD)
 
 - **Artwork**: the OSD shows the show poster (lifted above the bar) with a faint fanart backdrop, from TVmaze, when found.
-- **Guide artwork**: the highlighted programme's show fanart fades in behind the guide header (TVmaze; TV shows only). On/Off in Options.
-- **Options** (OSD > Options): Picture, Enhancements, Guide artwork, Adverts and Auto EPG in one panel (Up/Down to choose, Left/Right or OK to change).
+- **Extra metadata** (Options, On/Off, controls both the OSD poster and the guide fanart): the highlighted programme's show fanart fades in behind the guide header (TVmaze; TV shows only). On/Off in Options.
+- **Options** (OSD > Options): Picture, Enhancements, Extra metadata, Adverts and Auto EPG in one panel (Up/Down to choose, Left/Right or OK to change).
 - **Adverts**: Off / All (70s-90s, leaning 80s and 90s) / 1970s / 1980s / 1990s. Breaks play between episodes and match the channel: toys and sweets (CITV, Children's World, Disney, kids channels), console adverts (Video Games), album and cassette adverts (Music, MTV), household and food (ITV Morning, I'm Off School) and ITV / Channel 4 / Channel 5 / Sky / cable breaks on the rest. UK first: the UK adverts collection is searched first and played about 4 times in 5; anything titled USA/American or BBC is dropped. Never BBC. Classic BBC and Adverts & Continuity have no breaks. Logic is in `ads.js`; pools are cached for 7 days (`ads2:` keys).
 - **Auto EPG** (OSD, experimental, default Off): builds each channel from keyword searches limited to 1970-1999 (`auto.js`) and re-picks daily. A channel with no results falls back to its normal sources. Toggling restarts the app on the loading screen.
 - **archive.org links** are always built as `https://archive.org/download/<id>/<file>` with the same escaping as Python's `quote(name, safe=",()'-")`; saved links on regional nodes are rewritten to that form (`Engine.archiveUrl` / `canonicalUrl`).

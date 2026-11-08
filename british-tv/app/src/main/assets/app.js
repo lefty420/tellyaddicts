@@ -435,7 +435,6 @@
     return job.then(function (d) { store.set(key, { t: Date.now(), d: d }); return d; });
   }
 
-  var gartOn = store.get('gart') !== 'off', gartFor = '', gartTimer = null;
   function guideArt(prog) {
     var el = $('gart');
     var title = gartOn && prog ? (prog.title || '') : '';
@@ -1162,7 +1161,7 @@
     var id = OPTS[optsSel];
     if (id === 'ar') changeAr(d);
     else if (id === 'fx') changeFx(d);
-    else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; renderOpts(); }
+    else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
     else toggleAuto();
   }
@@ -1228,11 +1227,13 @@
     osdTimer = setTimeout(function () { if (v.paused) osdTouch(); else closeOsd(); }, 8000);
   }
 
+  // "Extra metadata" (Options): one switch for the OSD poster/backdrop and the guide fanart
+  var gartOn = store.get('gart') !== 'off', gartFor = '', gartTimer = null;
   // artwork on the OSD: show poster (and a faint fanart backdrop) from TVmaze; nothing shown if there is none
   var artFor = '';
   function osdArt() {
     var art = $('oart'), bg = $('obg');
-    if (!cur || cur.ad) { art.className = 'hidden'; bg.className = ''; artFor = ''; return; }
+    if (!gartOn || !cur || cur.ad) { art.className = 'hidden'; bg.className = ''; artFor = ''; return; }
     var title = cur.prog.title || '';
     if (title === artFor) return;
     artFor = title;

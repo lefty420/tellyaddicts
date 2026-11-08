@@ -81,7 +81,7 @@
   }
   function unpackPlan(rows) {
     return rows.map(function (r) {
-      return { id: r.i, item: String(r.i).split('/')[0], url: /^https?:/.test(r.u) ? r.u : DL + r.u, title: r.t, sub: r.s, dur: r.d };
+      return { id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d };
     });
   }
   function savePlan(ch) {
@@ -105,10 +105,17 @@
     return out;
   }
 
-  function loadPrograms(ch) {
-    var key = 'plan7:' + ch.id + ':' + E.hash(JSON.stringify(ch.sources) + (ch.perItem || '') + '|v3');   // bump when the naming rules change so stored titles are rebuilt
+  // experimental Auto EPG (OSD toggle): programmes come from keyword searches instead of channels.js, and are re-picked daily
+  var autoEpg = store.get('autoepg') === 'on';
+
+  function loadPrograms(ch, noAuto) {
+    var auto = !noAuto && !ch.noCache && autoEpg && window.AUTO ? AUTO.sourcesFor(ch.id) : null;
+    var sources = auto || ch.sources;
+    ch.autoUsed = !!auto;
+    var prefix = auto ? 'plan7a:' : 'plan7:';
+    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + '|v4' + (auto ? '|' + AUTO.today() : ''));   // bump when the naming/URL rules change so stored titles are rebuilt
     ch.cacheKey = key;
-    var cached = store.get(key);
+    var cached = ch.noCache ? null : store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < PLAN_TTL) {
       ch.report = cached.r || [];
       ch.cacheT = cached.t;
@@ -118,7 +125,7 @@
     var ids = [];
     var optsFor = {};
     var chain = Promise.resolve();
-    ch.sources.forEach(function (s) {
+    sources.forEach(function (s) {
       var skip = s.exclude && !s.search ? null : (s.exclude ? new RegExp(s.exclude, 'i') : null);
       var skipTitle = s.skipTitle ? new RegExp(s.skipTitle, 'i') : null;
       if (s.item) {
@@ -175,12 +182,12 @@
         ch.report = report;
         if (ch.mix) progs = balanceMix(progs, ch.mix);
         progs = E.sample(progs, MAX_STORED);
-        if (progs.length) {
+        if (progs.length && !ch.noCache) {
           // forget older cached lists for this channel (earlier versions of the sources, or the old cache format)
           try {
             for (var k = localStorage.length - 1; k >= 0; k--) {
               var kn = localStorage.key(k);
-              if (kn && kn !== key && (kn.indexOf('plan7:' + ch.id + ':') === 0 || kn.indexOf('lib2:' + ch.id + ':') === 0)) localStorage.removeItem(kn);
+              if (kn && kn !== key && (kn.indexOf(prefix + ch.id + ':') === 0 || kn.indexOf('lib2:' + ch.id + ':') === 0)) localStorage.removeItem(kn);
             }
           } catch (e) { /* ignore */ }
           ch.cacheT = Date.now();
@@ -206,7 +213,7 @@
   // ------------------------------------------------------------------ channels
 
   var channels = window.CHANNELS.map(function (c) {
-    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, adBreak: c.adBreak, report: [], status: 'loading', sched: null };
+    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, report: [], status: 'loading', sched: null };
   });
 
   function ready() {
@@ -629,20 +636,35 @@
     playSlot(ch, slot.index, slot.offsetSec, announce !== false, !quiet);
   }
 
-  // ---- ad breaks: after a show ends on a channel with adBreak, play a few random adverts, then carry on
-  var adPools = {};
-  function loadAds(ch) {
-    var ab = ch.adBreak;
-    if (!ab || adPools[ch.id]) return;
-    adPools[ch.id] = [];
-    loadPrograms({ id: ch.id + '-ads', maxItems: ab.rows || 40, report: [],
-      sources: [{ search: ab.search, rows: ab.rows || 40, maxDur: ab.maxDur, perItem: 1 }] })
-      .then(function (p) { adPools[ch.id] = p || []; }, function () { adPools[ch.id] = []; });
+  // ---- ad breaks (see ads.js): after a show, a short break of adverts that suit the channel and the era chosen in the OSD
+  var adEra = (function () {
+    var saved = store.get('adera');
+    return ADS.ERAS.some(function (e) { return e.id === saved; }) ? saved : 'all';
+  })();
+  var adPools = {};                     // 'genre:era' -> filtered adverts (shared by every channel of that genre)
+  var AD_TTL = 7 * 24 * 3600 * 1000;
+  function adKey(ch) { var cat = ADS.categoryFor(ch.id); return cat && adEra !== 'off' ? cat + ':' + adEra : null; }
+  function loadAds(ch, soon) {
+    var key = adKey(ch);
+    if (!key || adPools[key]) return;
+    var cat = ADS.categoryFor(ch.id), era = adEra;
+    var cached = store.get('ads1:' + key);
+    if (cached && cached.p && cached.p.length && Date.now() - cached.t < AD_TTL) { adPools[key] = unpackPlan(cached.p); return; }
+    adPools[key] = [];                  // being fetched (or nothing found): breaks are skipped, and it is not retried until the next launch
+    // wait a little so the lookups don't compete with the programme that is still starting up
+    setTimeout(function () {
+      loadPrograms({ id: 'ads-' + cat + '-' + era, noCache: true, report: [], maxItems: 70, sources: ADS.sourcesFor(cat, era) })
+        .then(function (p) {
+          p = ADS.filterPool(p, era);
+          adPools[key] = p;
+          if (p.length) store.set('ads1:' + key, { t: Date.now(), p: packPlan(p) });
+        }, function () { /* no adverts this time */ });
+    }, soon ? 1500 : 20000);
   }
   function playAd(ch, index, left) {
-    var pool = adPools[ch.id];
-    var ad = pool[Math.floor(Math.random() * pool.length)];
-    if (pool.length > 1 && cur && cur.ad && cur.prog.url === ad.url) ad = pool[(pool.indexOf(ad) + 1) % pool.length];   // no immediate repeat
+    var key = adKey(ch), pool = key && adPools[key];
+    if (!pool || !pool.length) return nextInChannel();
+    var ad = ADS.pickNext(pool, cur && cur.ad ? cur.prog.url : null);
     cur = { ch: ch, index: index, prog: { title: 'Advert', sub: ad.title, url: ad.url }, ad: true, adLeft: left - 1, errors: 0 };
     v.dataset.offset = '0';
     pbStart(ad.url, 0);
@@ -658,8 +680,9 @@
   }
   function onEnded() {
     if (cur && cur.ad && cur.adLeft > 0) return playAd(cur.ch, cur.index, cur.adLeft);
-    if (cur && !cur.ad && cur.ch.adBreak && adPools[cur.ch.id] && adPools[cur.ch.id].length) {
-      return playAd(cur.ch, cur.index, cur.ch.adBreak.count || 2);
+    var key = cur && !cur.ad && adKey(cur.ch);
+    if (key && adPools[key] && adPools[key].length) {
+      return playAd(cur.ch, cur.index, ADS.CATS[ADS.categoryFor(cur.ch.id)].count);
     }
     nextInChannel();
   }
@@ -998,7 +1021,7 @@
     var r = c.report || [];
     var fb = c.status === 'ready' ? E.blockAt(c.sched, gFocus) : null;
     var file = fb && fb.prog && fb.prog.url ? ' | File: ' + decodeURIComponent(fb.prog.url.replace('https://archive.org/download/', '')) : '';
-    toast(c.name + ': ' + (r.length ? 'not playing - ' + r.join('; ') : 'all sources loaded') + file, 12000);
+    toast(c.name + (c.autoUsed ? ' [Auto EPG]' : '') + ': ' + (r.length ? 'not playing - ' + r.join('; ') : 'all sources loaded') + file, 12000);
   }
 
   // ------------------------------------------------------------------ OSD bar (OK while watching)
@@ -1008,7 +1031,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'restart', 'ar', 'fx', 'info'];   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'restart', 'ar', 'fx', 'ads', 'auto', 'info'];   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -1060,6 +1083,23 @@
     renderOsd();
   }
 
+  var ERA_SHORT = { off: 'Off', all: 'All', '70': '70s', '80': '80s', '90': '90s' };
+  function changeAds(d) {
+    var ids = ADS.ERAS.map(function (e) { return e.id; });
+    adEra = ids[(ids.indexOf(adEra) + d + ids.length) % ids.length];
+    store.set('adera', adEra);
+    if (cur) loadAds(cur.ch, true);
+    toast('Adverts: ' + ADS.ERAS[ids.indexOf(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? ' (none on this channel)' : ''), 2000);
+    renderOsd();
+  }
+  function toggleAuto() {
+    autoEpg = !autoEpg;
+    store.set('autoepg', autoEpg ? 'on' : 'off');
+    toast(autoEpg ? 'Auto EPG on (experimental): rebuilding the guide...' : 'Auto EPG off: back to the normal guide...', 4000);
+    renderOsd();
+    setTimeout(function () { location.reload(); }, 1200);   // the start-up loading screen does the rebuild
+  }
+
   function fmtPos(t) {
     if (!isFinite(t) || t < 0) t = 0;
     var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.floor(t % 60);
@@ -1088,6 +1128,8 @@
     $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
     $('olbl-ar').textContent = 'Picture: ' + AR[arIdx].label;
     $('olbl-fx').textContent = 'Enhance: ' + FXLABEL[fxMode];
+    $('olbl-ads').textContent = 'Adverts: ' + ERA_SHORT[adEra];
+    $('olbl-auto').textContent = 'Auto EPG: ' + (autoEpg ? 'On' : 'Off');
     OB.forEach(function (id, i) { $('ob-' + id).className = 'ob' + (i === osdSel ? ' sel' : ''); });
   }
 
@@ -1145,6 +1187,8 @@
     else if (id === 'restart') { restartShow(); return; }
     else if (id === 'ar') changeAr(1);
     else if (id === 'fx') changeFx(1);
+    else if (id === 'ads') changeAds(1);
+    else if (id === 'auto') { toggleAuto(); return; }
     else if (id === 'guide') { closeOsd(); openGuide(); }
     else if (id === 'info') { closeOsd(); openInfo(); return; }
     renderOsd();
@@ -1246,6 +1290,9 @@
     var finished = 0;
     channels.forEach(function (c) {
       loadPrograms(c).then(function (progs) {
+        // Auto EPG found nothing for this channel: use its normal sources instead
+        return (!progs || !progs.length) && c.autoUsed ? loadPrograms(c, true) : progs;
+      }).then(function (progs) {
         if (progs && progs.length) {
           progs = dropSlow(progs);
           c.sched = E.buildSchedule(progs, c.id);

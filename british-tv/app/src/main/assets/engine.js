@@ -123,6 +123,7 @@
       }
     }
     base = stripRelease(base, slug);
+    base = base.replace(/\bS(\d{2})D(\d{2})(\d{2})\b/ig, function (_, a, b, c) { return 'Series ' + (+a) + ' Disc ' + (+b) + ' Part ' + (+c); });   // DVD rip "S04D0111" is not an episode number
     base = base.replace(/\s*\(\s*\d{4}\s*[-\u2013]\s*\d{2,4}\s*\)/g, '');   // series year range "(1976 - 84)"
     base = base.replace(/\((S\d+)\s*[-\u2013]\s*(E\d+)\)/i, '$1$2'); // "(S4 - E18)" -> "S4E18"
     var sub = '';
@@ -187,8 +188,27 @@
     return { title: title || fallback || base, sub: sub };
   }
 
+  // Same result as Python's urllib.parse.quote(name, safe=",()'-"): archive.org 404s if a comma etc. is percent-encoded.
+  function encodeSegment(seg) {
+    return encodeURIComponent(seg)
+      .replace(/!/g, '%21').replace(/\*/g, '%2A')   // encodeURIComponent leaves these; quote() encodes them
+      .replace(/%2C/gi, ',');                       // ... and it encodes the comma; the whitelist keeps it
+  }
   function encodePath(name) {
-    return name.split('/').map(encodeURIComponent).join('/');
+    return name.split('/').map(encodeSegment).join('/');
+  }
+  var DL_BASE = 'https://archive.org/download/';
+  /** Always the clean load-balanced URL, never a regional data node (dn721603.ca.archive.org etc). */
+  function archiveUrl(id, name) {
+    return DL_BASE + encodeSegment(id) + '/' + encodePath(name);
+  }
+  /** Rebuild any archive.org download URL (including ones saved with a node host or ?query) on the clean base. */
+  function canonicalUrl(u) {
+    var m = /^https?:\/\/[^\/]*archive\.org\/(?:download|\d+\/items)\/([^\/?#]+)\/([^?#]+)/i.exec(String(u || ''));
+    if (!m) return null;
+    var id, path;
+    try { id = decodeURIComponent(m[1]); path = decodeURIComponent(m[2]); } catch (e) { id = m[1]; path = m[2]; }
+    return archiveUrl(id, path);
   }
 
   /** "Born And Bred S01-S04 webdl xvid" -> "Born And Bred"; "Mr.Bean.Complete.Collection.H264" -> "Mr Bean". */
@@ -266,7 +286,7 @@
       return {
         id: id + '/' + name,
         item: id,
-        url: 'https://archive.org/download/' + encodeURIComponent(id) + '/' + encodePath(name),
+        url: archiveUrl(id, name),
         title: d.title,
         sub: d.sub,
         dur: len || DEFAULT_DURATION,
@@ -467,7 +487,7 @@
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
     pickPrograms: pickPrograms, whyEmpty: whyEmpty, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
     cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, stepBlock: stepBlock, blocks: blocks,
-    DEFAULT_DURATION: DEFAULT_DURATION
+    DEFAULT_DURATION: DEFAULT_DURATION, encodePath: encodePath, archiveUrl: archiveUrl, canonicalUrl: canonicalUrl
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = Engine;

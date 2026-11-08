@@ -229,8 +229,8 @@
   #oprog { position: relative; margin: .4vh 2vw .8vh 9.2vw; height: 1.2vh; background: rgba(255,255,255,.2); border-radius: .6vh; }
   #obar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--hi2); border-radius: .6vh; width: 0; }
   #otime { position: absolute; right: 0; top: 1.8vh; font-size: 2vh; color: rgba(255,255,255,.75); }
-  #obtns { display: flex; gap: 1vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
-  .ob { flex: 1; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .6vw;
+  #obtns { display: flex; flex-wrap: wrap; gap: 1.2vh 1vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
+  .ob { flex: 1 1 17%; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .6vw;
     font-size: 2.5vh; font-weight: 600; background: rgba(255,255,255,.1); border-radius: .7vh; white-space: nowrap; }
   .ob .ic { font-size: 2.6vh; }
   .ob.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
@@ -263,6 +263,8 @@
     <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
     <div class="ob" id="ob-ar"><span id="olbl-ar"></span></div>
     <div class="ob" id="ob-fx"><span id="olbl-fx"></span></div>
+    <div class="ob" id="ob-ads"><span id="olbl-ads"></span></div>
+    <div class="ob" id="ob-auto"><span id="olbl-auto"></span></div>
     <div class="ob" id="ob-info"><span>Info</span></div>
   </div>
 </div>
@@ -320,6 +322,8 @@
 </div>
 
 <script src="engine.js"></script>
+<script src="ads.js"></script>
+<script src="auto.js"></script>
 <script src="channels.js"></script>
 <script src="app.js"></script>
 </body>

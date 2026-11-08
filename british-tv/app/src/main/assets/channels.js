@@ -277,7 +277,6 @@ window.CHANNELS = [
     name: 'CITV',
     perItem: 30,   // cap per item so Art Attack / Ghostbusters can't crowd out the rest
     maxItems: 80,  // lots of items on this channel
-    adBreak: { search: 'collection:uk-adverts AND subject:"toys" AND mediatype:movies', rows: 60, count: 2, maxDur: 150 },   // test: 2 toy adverts after each show
     sources: CITV_SOURCES
   },
   {

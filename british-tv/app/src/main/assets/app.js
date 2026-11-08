@@ -3,7 +3,16 @@
 
   var E = window.Engine;
   var DAY = 24 * 60 * 60 * 1000;
-  var PLAN_TTL = 7 * DAY;   // the channel lineups (the 'EPG plan') are kept for a week, so the app starts instantly
+  // How long a channel's lineup (and the links in it) is kept before it is built again from archive.org. Chosen in
+  // Options; it is also how often the running order changes, because the guide is worked out from the stored list.
+  var KEEP = [
+    { id: '1d', label: '24 hours', ms: DAY },
+    { id: '2d', label: '48 hours', ms: 2 * DAY },
+    { id: '1w', label: '1 week', ms: 7 * DAY },
+    { id: '4w', label: '4 weeks', ms: 28 * DAY }
+  ];
+  function keepIndex(id) { for (var i = 0; i < KEEP.length; i++) if (KEEP[i].id === id) return i; return 2; }
+  function planTtl() { return KEEP[keepIdx].ms; }
   var MAX_STORED = 1500;
   var MAX_ERRORS = 6;
   var RETRY_MS = 15000;
@@ -86,6 +95,7 @@
       return { id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g };
     });
   }
+  var keepIdx = keepIndex((store.get('keep1') || '1w'));
   function savePlan(ch) {
     if (!ch.cacheKey || !ch.plan) return;
     store.set(ch.cacheKey, { t: ch.cacheT || Date.now(), p: packPlan(ch.plan), r: ch.report || [] });
@@ -172,10 +182,10 @@
     if (autoEpg && !noAuto && !ch.noCache && window.AUTO && AUTO.sourcesFor(ch.id)) {
       // Building a list from the scrape means running thousands of file names through the naming rules, so the
       // finished list is cached for the day like any other: on the box that pass costs a second or two per channel.
-      var dkey = 'plan7d:' + ch.id + ':' + E.hash('v6|' + AUTO.today());
+      var dkey = 'plan7d:' + ch.id + ':' + E.hash('v7');
       ch.cacheKey = dkey;
       var dcached = store.get(dkey);
-      if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < PLAN_TTL) {
+      if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < planTtl()) {
         ch.autoUsed = true;
         ch.report = [];
         ch.cacheT = dcached.t;
@@ -210,10 +220,10 @@
     var sources = auto || ch.sources;
     ch.autoUsed = !!auto;
     var prefix = auto ? 'plan7a:' : 'plan7:';
-    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + '|v6' + (auto ? '|' + AUTO.today() : ''));   // bump when the naming/URL rules change so stored titles are rebuilt
+    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + '|v7');   // bump when the naming/URL rules change so stored titles are rebuilt (how long it is kept is Options > Keep listings)
     ch.cacheKey = key;
     var cached = ch.noCache ? null : store.get(key);
-    if (cached && cached.p && cached.p.length && Date.now() - cached.t < PLAN_TTL) {
+    if (cached && cached.p && cached.p.length && Date.now() - cached.t < planTtl()) {
       ch.report = cached.r || [];
       ch.cacheT = cached.t;
       ch.plan = unpackPlan(cached.p);
@@ -314,9 +324,11 @@
   }
 
   // ---- files that take ages to start are remembered for two weeks and left out of the lineup
-  var SLOW_MS = 15000, SLOW_TTL = 14 * 24 * 3600 * 1000;
+  var SLOW_MS = 15000, SLOW_MIN_TTL = 14 * DAY;
+  /** A programme that would not play stays out of the listings at least as long as the listings themselves live. */
+  function slowTtl() { return Math.max(SLOW_MIN_TTL, planTtl()); }
   var slow = store.get('slow1') || {};
-  function isSlow(id) { return slow[id] && Date.now() - slow[id] < SLOW_TTL; }
+  function isSlow(id) { return slow[id] && Date.now() - slow[id] < slowTtl(); }
   function markSlow(id) { if (!id) return; slow[id] = Date.now(); store.set('slow1', slow); }
   function dropSlow(progs) {
     var ok = progs.filter(function (p) { return !isSlow(p.id); });
@@ -945,6 +957,12 @@
   function revertTrial() {
     var t = cur && cur.trial;
     if (!t) return false;
+    var bad = cur.prog;                 // it loaded but never started playing: treat that link as dead too
+    if (bad) {
+      var ref = LINKS.parseEp(bad.title);
+      if (ref) LINKS.drop(LINKS.key(ref.show, ref.s, ref.e));
+      markSlow(bad.id);
+    }
     toast("Couldn't play the next episode - back to what you were watching", 3500);
     playSlot(t.ch, t.index, t.pos, false, false, t.prog);
     return true;
@@ -968,7 +986,11 @@
       probeUrl(url, 15000).then(function (ok) {
         nextBusy = false;
         if (cur !== me) return;
-        if (!ok) { spinOff(); toast("Couldn't play the next episode", 3000); return; }
+        if (!ok) {                      // the file itself would not load: forget this link so next time searches again
+          if (hit.k) LINKS.drop(hit.k);
+          markSlow(hit.id);
+          spinOff(); toast("Couldn't play the next episode", 3000); return;
+        }
         var pos = v.currentTime || 0;
         playSlot(me.ch, me.index, 0, true, false, { id: hit.id, item: hit.item, url: url, title: hit.title, sub: '', dur: hit.dur });
         var started = cur;
@@ -1424,16 +1446,26 @@
     renderOpts();
   }
 
-  // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG
-  var OPTS = ['ar', 'fx', 'gart', 'ads', 'auto'];
+  // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
+  var OPTS = ['ar', 'fx', 'gart', 'ads', 'auto', 'keep'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
+    if (id === 'keep') return KEEP[keepIdx].label;
     return autoEpg ? 'On' : 'Off';
   }
+
+  /** Picking longer keeps the lists already stored; picking shorter lets them run out. Links are never thrown away. */
+  function changeKeep(d) {
+    keepIdx = (keepIdx + (d < 0 ? KEEP.length - 1 : 1)) % KEEP.length;
+    store.set('keep1', KEEP[keepIdx].id);
+    renderOpts();
+    toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
+  }
+
   function renderOpts() {
     OPTS.forEach(function (id, i) {
       $('ov-' + id).textContent = optValue(id);
@@ -1455,6 +1487,7 @@
     else if (id === 'fx') changeFx(d);
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
+    else if (id === 'keep') changeKeep(d);
     else toggleAuto();
   }
   function optsKey(k) {

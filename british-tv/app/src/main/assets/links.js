@@ -82,6 +82,23 @@
     });
   }
 
+  /** Forget one episode: only for a link that has been shown not to play, so the next try searches for it again. */
+  function drop(k) {
+    delete mem[k];
+    persistMem();
+    return open().then(function (db) {
+      if (!db) return false;
+      return new Promise(function (res) {
+        try {
+          var tx = db.transaction('links', 'readwrite');
+          tx.objectStore('links').delete(k);
+          tx.oncomplete = function () { res(true); };
+          tx.onerror = tx.onabort = function () { res(false); };
+        } catch (err) { res(false); }
+      });
+    });
+  }
+
   /** Turn programmes ({id,item,url,title,dur}) into rows; programmes whose title has no episode number are skipped. */
   function rowsFrom(progs, src) {
     var out = [], seen = {};
@@ -96,6 +113,6 @@
     return out;
   }
 
-  var Links = { norm: norm, key: key, parseEp: parseEp, nextRefs: nextRefs, get: get, putAll: putAll, rowsFrom: rowsFrom, _mem: mem };
+  var Links = { norm: norm, key: key, parseEp: parseEp, nextRefs: nextRefs, get: get, putAll: putAll, drop: drop, rowsFrom: rowsFrom, _mem: mem };
   if (typeof module !== 'undefined' && module.exports) module.exports = Links; else root.LINKS = Links;
 })(typeof window !== 'undefined' ? window : this);

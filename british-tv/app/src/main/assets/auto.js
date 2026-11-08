@@ -7,15 +7,15 @@
   // t = main keywords, alt = related shows / networks / synonyms for a second, different search.
   // len = [min, max] seconds for one programme. from = earliest year (music starts in 1980: no 1970s Top of the Pops).
   // show names from the scraper script's categories (tools/ keeps the same lists); used as extra search keywords
-var SHOWS = {
-  sitcoms: ['Fawlty Towers', 'Only Fools and Horses', 'Yes Minister', 'Yes Prime Minister', 'Blackadder', 'Porridge', 'Open All Hours', 'Steptoe and Son', 'Dads Army', 'Are You Being Served', 'Rising Damp', 'Whatever Happened to the Likely Lads', 'Some Mothers Do Ave Em', 'The Fall and Rise of Reginald Perrin', 'To the Manor Born', 'Birds of a Feather', 'One Foot in the Grave', 'Keeping Up Appearances', 'Terry and June', 'Ever Decreasing Circles', 'The Brittas Empire', 'Red Dwarf', 'Absolutely Fabulous', 'Vicar of Dibley', 'Drop the Dead Donkey', 'Bread', 'Butterflies', 'The Upper Hand', 'As Time Goes By', 'Waiting for God', 'Dear John'],
-  gameshows: ['Gladiators', 'The Generation Game', 'Bullseye', 'Catchphrase', 'Blind Date', 'Blankety Blank', 'Play Your Cards Right', 'Family Fortunes', 'The Price is Right', 'Blockbusters', 'Countdown', '3-2-1', 'Strike It Lucky', 'The Crystal Maze', 'Surprise Surprise', 'Big Break', 'The Krypton Factor', 'Whose Line Is It Anyway', 'Through the Keyhole', 'Challenge Anneka', 'Pop Quiz'],
-  childrens: ['Grange Hill', 'Blue Peter', 'Byker Grove', 'Live and Kicking', 'Going Live', 'The Demon Headmaster', 'Knightmare', 'Press Gang', 'Maid Marian and her Merry Men', 'Chucklevision', 'Fun House', 'Art Attack', 'Childrens Ward', 'Worzel Gummidge', 'Catweazle', 'The Tomorrow People', 'Finders Keepers', 'How 2', 'The Really Wild Show', 'Newsround', 'The Adventure Game', 'Dark Towers', 'Bernard\'s Watch', 'My Parents Are Aliens', 'The Queens Nose', 'Bodger and Badger'],
-  drama: ['Inspector Morse', 'The Bill', 'Minder', 'A Touch of Frost', 'Bergerac', 'Auf Wiedersehen Pet', 'The Professionals', 'Taggart', 'Heartbeat', 'Juliet Bravo', 'Cracker', 'Prime Suspect', 'Casualty', 'Londons Burning', 'The Sweeney', 'Shoestring', 'Pie in the Sky', 'Lovejoy', 'Midsomer Murders', 'Silent Witness', 'Jonathan Creek', 'Dalziel and Pascoe', 'Wycliffe', 'Hetty Wainthropp Investigates', 'Spooks', 'Rebus', 'Hamish Macbeth', 'Dangerfield', 'Ballykissangel', 'Peak Practice', 'Upstairs Downstairs', 'I Claudius', 'The Agatha Christie Hour', 'Miss Marple', 'Agatha Christies Poirot'],
-  music: ['The Chart Show', 'The Tube', 'The Word', 'Later with Jools Holland', 'CD UK', 'The Old Grey Whistle Test', 'Rapido', 'Snub TV', 'Top of the Pops', 'The White Room', 'The O-Zone', 'The Hitman and Her', 'Never Mind the Buzzcocks', 'Supersonic', 'Revolver', 'TFI Friday'],
-  comedy: ['The Fast Show', 'Harry Enfield', 'French and Saunders', 'Bottom', 'Men Behaving Badly', 'Father Ted', 'The Day Today', 'Brass Eye', 'Spaced', 'Big Train', 'Smack the Pony', 'Goodness Gracious Me', 'The League of Gentlemen', 'A Bit of Fry and Laurie', 'Alas Smith and Jones', 'The Mary Whitehouse Experience', 'Black Books', 'The Royle Family', 'Dinnerladies', 'Game On', 'Goodnight Sweetheart', 'Not the Nine O Clock News', 'Spitting Image', 'Rab C Nesbitt', 'The New Statesman', 'The Comic Strip Presents', 'Victoria Wood As Seen on TV'],
-  tv70s: ['The Sweeney', 'The New Avengers', 'Blakes 7', 'Space 1999', 'Survivors', 'Citizen Smith', 'Man About the House', 'George and Mildred', 'Doctor Who', 'Upstairs Downstairs', 'Poldark', 'Dixon of Dock Green', 'Return of the Saint', 'Secret Army', 'On the Buses', 'The Goodies', 'The Onedin Line', 'Crown Court', 'Follyfoot', 'Robin of Sherwood', 'The Persuaders', 'Department S', 'Jason King'],
-  citv: ['Danger Mouse', 'Count Duckula', 'SuperTed', 'Bananaman', 'The Animals of Farthing Wood', 'The Raggy Dolls', 'The Dreamstone', 'Dogtanian', 'The Mysterious Cities of Gold', 'The Trap Door', 'Postman Pat', 'Fireman Sam', 'Thomas and Friends', 'The Wind in the Willows', 'The Poddington Peas', 'Jimbo and the Jet-Set', 'Willo the Wisp', 'Biker Mice from Mars', 'Rainbow', 'The Sooty Show', 'Pingu', 'Button Moon', 'Bagpuss', 'The Wombles', 'Captain Pugwash', 'The Magic Roundabout', 'Chorlton and the Wheelies', 'Jamie and the Magic Torch', 'Morph', 'TUGS']
+var SHOWS = {  // generated from tools/shows.json (the scraper script's categories) - keys are channel ids
+  sitcoms: ['Fawlty Towers', 'Only Fools and Horses', 'Yes Minister', 'Yes Prime Minister', 'Blackadder', 'Porridge', 'Open All Hours', 'Steptoe and Son', 'Dads Army', 'Are You Being Served', 'Rising Damp', 'Whatever Happened to the Likely Lads', 'Some Mothers Do Ave Em', 'The Fall and Rise of Reginald Perrin', 'To the Manor Born', 'Birds of a Feather', 'One Foot in the Grave', 'Keeping Up Appearances', 'Terry and June', 'Ever Decreasing Circles', 'The Brittas Empire', 'Red Dwarf', 'Absolutely Fabulous', 'Vicar of Dibley', 'Drop the Dead Donkey', 'Bread', 'Butterflies', 'The Upper Hand', 'Chef', 'As Time Goes By', 'Waiting for God', 'Dear John'],
+  gameshows: ['Gladiators', 'The Generation Game', 'Bullseye', 'Catchphrase', 'Blind Date', 'Blankety Blank', 'The Two Ronnies', 'The Benny Hill Show', 'Play Your Cards Right', 'Noels House Party', 'Family Fortunes', 'The Price is Right', 'Blockbusters', 'Countdown', '3-2-1', 'Strike It Lucky', 'The Crystal Maze', 'Surprise Surprise', 'Big Break', 'The Krypton Factor', 'Morecambe and Wise', 'Whose Line Is It Anyway', 'Vic Reeves Big Night Out', 'Shooting Stars', 'Through the Keyhole', 'Challenge Anneka', 'Pop Quiz', 'The Jack Docherty Show', 'The Paul Merton Show'],
+  childrens: ['Grange Hill', 'Blue Peter', 'Byker Grove', 'Live and Kicking', 'Going Live', 'The Demon Headmaster', 'Knightmare', 'Press Gang', 'Maid Marian and her Merry Men', 'Chucklevision', 'Fun House', 'Art Attack', 'Childrens Ward', 'Worzel Gummidge', 'Catweazle', 'The Tomorrow People', 'Finders Keepers', 'How 2', 'Smart', 'The Really Wild Show', 'Newsround', 'The Adventure Game', 'Dark Towers', 'Look and Read', 'Words and Pictures', 'Badger Girl', 'Geordie Racer', 'Through The Dragons Eye', 'Earthwarp', 'Spywatch', 'Bernard\'s Watch', 'My Parents Are Aliens', 'The Queens Nose', 'Aquila', 'Bodger and Badger'],
+  thebill: ['Inspector Morse', 'The Bill', 'Minder', 'A Touch of Frost', 'Bergerac', 'Auf Wiedersehen Pet', 'The Professionals', 'Taggart', 'Heartbeat', 'Juliet Bravo', 'Cracker', 'Prime Suspect', 'Casualty', 'Londons Burning', 'The Sweeney', 'Shoestring', 'Pie in the Sky', 'Lovejoy', 'Midsomer Murders', 'Silent Witness', 'Jonathan Creek', 'Dalziel and Pascoe', 'Wycliffe', 'Hetty Wainthropp Investigates', 'Spooks', 'Rebus', 'Hamish Macbeth', 'Dangerfield', 'City Central', 'The Cops', 'Ballykissangel', 'Peak Practice', 'Where the Heart Is', 'Upstairs Downstairs', 'I Claudius', 'The Agatha Christie Hour', 'Miss Marple', 'Agatha Christies Poirot'],
+  music: ['The Chart Show', 'The Tube', 'The Word', 'Later with Jools Holland', 'CD UK', 'The Old Grey Whistle Test', 'Smash Hits Poll Winners', 'Rapido', 'Snub TV', 'Top of the Pops', 'The White Room', 'The O-Zone', 'The Hitman and Her', 'MTVs Most Wanted', 'Pop Quiz', 'Never Mind the Buzzcocks', 'Supersonic', 'Revolver', 'The Roxy', 'TFI Friday', 'Live Aid', 'Montreux Pop Festival', 'The 11 O\'Clock Show'],
+  comedy: ['The Fast Show', 'Harry Enfield', 'French and Saunders', 'Bottom', 'Men Behaving Badly', 'Father Ted', 'The Vicar of Dibley', 'Absolutely Fabulous', 'Drop the Dead Donkey', 'Shooting Stars', 'The Day Today', 'Brass Eye', 'Spaced', 'Big Train', 'Smack the Pony', 'Goodness Gracious Me', 'The League of Gentlemen', 'A Bit of Fry and Laurie', 'Alas Smith and Jones', 'The Mary Whitehouse Experience', 'I\'m Alan Partridge', 'Black Books', 'Peep Show', 'The Royle Family', 'Dinnerladies', 'Game On', 'Goodnight Sweetheart', 'Not the Nine O Clock News', 'Spitting Image', 'Rab C Nesbitt', 'The High Life', 'Nightingales', 'The New Statesman', 'The Comic Strip Presents', 'Victoria Wood As Seen on TV'],
+  tv70s: ['The Sweeney', 'Some Mothers Do Ave Em', 'Are You Being Served', 'The New Avengers', 'Blakes 7', 'Space 1999', 'Survivors', 'Citizen Smith', 'Man About the House', 'George and Mildred', 'Doctor Who', 'I Claudius', 'Upstairs Downstairs', 'Poldark', 'Dixon of Dock Green', 'The Tomorrow People', 'Return of the Saint', 'Secret Army', 'On the Buses', 'The Goodies', 'The Onedin Line', 'When the Boat Comes In', 'Crown Court', 'Follyfoot', 'Robin of Sherwood', 'Dick Turpin', 'The Persuaders', 'Department S', 'The Protectors', 'Jason King'],
+  citv: ['Danger Mouse', 'Count Duckula', 'SuperTed', 'Bananaman', 'The Animals of Farthing Wood', 'The Raggy Dolls', 'The Dreamstone', 'Dogtanian', 'The Mysterious Cities of Gold', 'Penny Crayon', 'The Trap Door', 'Postman Pat', 'Fireman Sam', 'Thomas and Friends', 'The Wind in the Willows', 'The Shoe People', 'The Poddington Peas', 'Family-Ness', 'Jimbo and the Jet-Set', 'Willo the Wisp', 'Biker Mice from Mars', 'Teenage Mutant Hero Turtles', 'Rainbow', 'The Sooty Show', 'Pingu', 'Button Moon', 'The Raccoons', 'Chocky', 'The Box of Delights', 'Bod', 'Bagpuss', 'Paddington', 'The Wombles', 'Captain Pugwash', 'The Magic Roundabout', 'Chorlton and the Wheelies', 'Jamie and the Magic Torch', 'Morph', 'Bertha', 'TUGS']
 };
 var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM_LEN = [3000, 9000];
   var THEMES = {
@@ -80,8 +80,40 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
     ];
   }
 
+  /* ---- genre guard: a show only belongs on channels of its own genre (no Miss Marple on CITV) ---- */
+  function norm(t) {
+    return ' ' + String(t || '').toLowerCase().replace(/&/g, ' and ').replace(/['\u2019`]/g, '').replace(/[^a-z0-9]+/g, ' ').trim().replace(/^the /, '') + ' ';
+  }
+  var SHOW_CATS = {};                                    // normalised show name -> {category: true}
+  Object.keys(SHOWS).forEach(function (cat) {
+    SHOWS[cat].forEach(function (name) { var k = norm(name); (SHOW_CATS[k] = SHOW_CATS[k] || {})[cat] = true; });
+  });
+  var SHOW_KEYS = Object.keys(SHOW_CATS);
+  var ALL = Object.keys(SHOWS);
+  function except(list) { return ALL.filter(function (c) { return list.indexOf(c) < 0; }); }
+  var KIDS = ['citv', 'childrens'];
+  var ALLOWED = {
+    sitcoms: ['sitcoms'], comedy: ['comedy', 'sitcoms'], gameshows: ['gameshows'], noel: ['gameshows'],
+    thebill: ['thebill'], tv70s: ['tv70s'], music: ['music'], mtv: ['music'], xmasmusic: ['music'],
+    citv: KIDS, childrens: KIDS, kidsxmas: KIDS, offschool: KIDS, disney: KIDS,
+    bbc: except(KIDS.concat('music')), itv: except(KIDS.concat('music')), itvam: except(KIDS)
+  };
+  /** True unless the text names a known show and every show it names belongs to other genres than this channel's. */
+  function genreOk(channelId, text) {
+    var allow = ALLOWED[channelId];
+    if (!allow) return true;
+    var t = norm(text), hit = false;
+    for (var i = 0; i < SHOW_KEYS.length; i++) {
+      if (t.indexOf(' ' + SHOW_KEYS[i].trim() + ' ') < 0) continue;
+      hit = true;
+      var cats = SHOW_CATS[SHOW_KEYS[i]];
+      for (var j = 0; j < allow.length; j++) if (cats[allow[j]]) return true;
+    }
+    return !hit;
+  }
+
   function today() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 
-  var Auto = { THEMES: THEMES, has: has, sourcesFor: sourcesFor, today: today, OUT_OF_ERA: OUT_OF_ERA, NOT_EPISODE: NOT_EPISODE };
+  var Auto = { THEMES: THEMES, has: has, sourcesFor: sourcesFor, genreOk: genreOk, SHOWS: SHOWS, today: today, OUT_OF_ERA: OUT_OF_ERA, NOT_EPISODE: NOT_EPISODE };
   if (typeof module !== 'undefined' && module.exports) module.exports = Auto; else root.AUTO = Auto;
 })(typeof window !== 'undefined' ? window : this);

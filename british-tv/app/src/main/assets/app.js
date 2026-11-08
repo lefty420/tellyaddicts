@@ -165,12 +165,15 @@
     return out;
   }
 
+  /** Auto EPG only: keep a programme off channels of another genre (a drama on CITV, a cartoon on the sitcom channel). */
+  function genreFits(ch, p) { return !window.AUTO || AUTO.genreOk(ch.id, (p.group && p.group !== 'auto' ? p.group + ' ' : '') + (p.title || '') + ' ' + (p.sub || '') + ' ' + (p.id || '').split('/')[0].replace(/[-_]/g, ' ')); }
+
   function loadPrograms(ch, noAuto) {
     if (autoEpg && !noAuto && !ch.noCache && window.AUTO && AUTO.sourcesFor(ch.id)) {
       return loadAutoData().then(function (D) {
         var rows = D && D[ch.id];
         if (!rows || !rows.length) return loadProgramsLive(ch, noAuto);
-        var progs = dedupeTitles(capShows(progsFromData(rows), 0.25));
+        var progs = dedupeTitles(capShows(progsFromData(rows).filter(function (p) { return genreFits(ch, p); }), 0.25));
         ch.autoUsed = progs.length > 0;
         ch.report = [];
         ch.plan = E.sample(progs, MAX_STORED);
@@ -252,7 +255,7 @@
           Array.prototype.push.apply(progs, got);
         });
         ch.report = report;
-        if (auto) progs = dedupeTitles(progs);
+        if (auto) progs = dedupeTitles(progs.filter(function (p) { return genreFits(ch, p); }));
         if (ch.mix) progs = balanceMix(progs, ch.mix);
         progs = E.sample(progs, MAX_STORED);
         if (progs.length && !ch.noCache) {

@@ -62,9 +62,9 @@
     var common = { minDur: th.len[0], maxDur: th.len[1], skipFile: NOT_EPISODE + '|' + outOfEra(th), skipTitle: outOfEra(th), group: 'auto' };
     function src(search, rows, perItem) { var o = { search: search, rows: rows, perItem: perItem }; for (var k in common) o[k] = common[k]; return o; }
     return [
-      src(q(th.t, th, true), 40, 6),
-      src(q(th.alt, th, true), 40, 6),
-      src(q(th.t.concat(th.alt), th, false), 20, 3)
+      src(q(th.t, th, true), 30, 6),
+      src(q(th.alt, th, true), 30, 6),
+      src(q(th.t.concat(th.alt), th, false), 15, 3)
     ];
   }
 

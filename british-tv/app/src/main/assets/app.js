@@ -109,7 +109,7 @@
 
   // experimental Auto EPG (OSD toggle): programmes come from keyword searches instead of channels.js, and are re-picked daily
   var autoEpg = store.get('autoepg') === 'on';
-  var AUTO_MIN = 15;   // fewer programmes than this from Auto EPG and the channel is topped up from its normal sources
+  var AUTO_MIN = 8;   // fewer programmes than this from Auto EPG and the channel is topped up from its normal sources
 
   /** The same programme often sits in several uploads: keep one of each title. */
   function dedupeTitles(progs) {
@@ -160,8 +160,8 @@
     return chain.then(function () {
       var seen = {};
       var uniq = ids.filter(function (id) { return id && !seen[id] && (seen[id] = true); })
-        .slice(0, auto ? 70 : (ch.maxItems || 40));
-      return pool(uniq, 4, function (id) {
+        .slice(0, auto ? 45 : (ch.maxItems || 40));
+      return pool(uniq, ch.conc || 4, function (id) {
         var url = 'https://archive.org/metadata/' + encodeURIComponent(id);
         // one retry: a busy archive.org sometimes drops a request
         return getJSON(url).then(null, function () { return getJSON(url); });
@@ -229,6 +229,9 @@
   var channels = window.CHANNELS.map(function (c) {
     return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, report: [], status: 'loading', sched: null };
   });
+
+  /** True once every channel has finished loading: optional extras (artwork, advert lists) wait for this so they never compete with start-up. */
+  function quiet() { return channels.every(function (c) { return c.status !== 'loading'; }); }
 
   function ready() {
     return channels.filter(function (c) { return c.status === 'ready'; })
@@ -450,6 +453,7 @@
   function guideArt(prog) {
     var el = $('gart');
     var title = gartOn && prog ? (prog.title || '') : '';
+    if (title && !quiet()) return;
     if (title === gartFor) return;
     gartFor = title;
     clearTimeout(gartTimer);
@@ -463,7 +467,7 @@
         el.style.backgroundImage = 'url("' + a.background + '")';
         el.className = 'on';
       }, function () { /* no artwork */ });
-    }, 700);
+    }, 1200);
   }
 
   function openInfo() {
@@ -712,8 +716,9 @@
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < AD_TTL) { adPools[key] = unpackPlan(cached.p); return; }
     adPools[key] = [];                  // being fetched (or nothing found): breaks are skipped, and it is not retried until the next launch
     // wait a little so the lookups don't compete with the programme that is still starting up
-    setTimeout(function () {
-      loadPrograms({ id: 'ads-' + cat + '-' + era, noCache: true, report: [], maxItems: 70, sources: ADS.sourcesFor(cat, era) })
+    setTimeout(function fetchAds() {
+      if (!quiet()) { setTimeout(fetchAds, 5000); return; }   // never while the channels are still loading
+      loadPrograms({ id: 'ads-' + cat + '-' + era, noCache: true, report: [], maxItems: 40, conc: 2, sources: ADS.sourcesFor(cat, era) })
         .then(function (p) {
           p = ADS.filterPool(p, era);
           adPools[key] = p;
@@ -1256,7 +1261,7 @@
     var art = $('oart'), bg = $('obg');
     if (!gartOn || !cur || cur.ad) { art.className = 'hidden'; bg.className = ''; artFor = ''; return; }
     var title = cur.prog.title || '';
-    if (title === artFor) return;
+    if (title === artFor || !quiet()) return;
     artFor = title;
     art.className = 'hidden'; bg.className = '';
     var p = parseTitle(title);

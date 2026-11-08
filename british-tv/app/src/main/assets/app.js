@@ -813,6 +813,33 @@
     });
   }
 
+  /** Can this file start playing? Tried on a hidden second player, so the programme being watched keeps playing meanwhile. */
+  function probeUrl(url, ms) {
+    return new Promise(function (res) {
+      var t = document.createElement('video'), done = false, timer;
+      function finish(ok) {
+        if (done) return;
+        done = true; clearTimeout(timer);
+        try { t.removeAttribute('src'); t.load(); } catch (e) { /* ignore */ }
+        res(ok);
+      }
+      t.muted = true; t.preload = 'auto';
+      t.addEventListener('canplay', function () { finish(true); });
+      t.addEventListener('error', function () { finish(false); });
+      timer = setTimeout(function () { finish(false); }, ms);
+      t.src = url;
+    });
+  }
+
+  /** The episode we switched to did not work out: go back to what was playing, at the same spot. */
+  function revertTrial() {
+    var t = cur && cur.trial;
+    if (!t) return false;
+    toast("Couldn't play the next episode - back to what you were watching", 3500);
+    playSlot(t.ch, t.index, t.pos, false, false, t.prog);
+    return true;
+  }
+
   function playNext() {
     if (nextBusy || !cur) return;
     if (cur.ad || !window.LINKS || !LINKS.parseEp(cur.prog.title)) { toast('Next episode not found', 2500); return; }
@@ -827,7 +854,17 @@
       if (cur !== me) return;           // the viewer changed channel meanwhile
       if (!hit) { spinOff(); toast('Next episode not found', 3000); return; }
       var url = E.canonicalUrl(hit.url) || hit.url;
-      playSlot(me.ch, me.index, 0, true, false, { id: hit.id, item: hit.item, url: url, title: hit.title, sub: '', dur: hit.dur });
+      nextBusy = true;                  // keep the spinner up while the new file is tried out; the current programme keeps playing
+      probeUrl(url, 15000).then(function (ok) {
+        nextBusy = false;
+        if (cur !== me) return;
+        if (!ok) { spinOff(); toast("Couldn't play the next episode", 3000); return; }
+        var pos = v.currentTime || 0;
+        playSlot(me.ch, me.index, 0, true, false, { id: hit.id, item: hit.item, url: url, title: hit.title, sub: '', dur: hit.dur });
+        var started = cur;
+        started.trial = { ch: me.ch, index: me.index, prog: me.prog, pos: pos };
+        setTimeout(function () { if (cur === started && v.readyState < 3) revertTrial(); }, 20000);   // still not playing: go back
+      });
     });
   }
 
@@ -908,11 +945,12 @@
   v.addEventListener('playing', function () {
     spinOff();
     hideStatic();
-    if (cur) cur.errors = 0;
+    if (cur) { cur.errors = 0; cur.trial = null; }   // it started fine: no going back
   });
   v.addEventListener('ended', onEnded);
   v.addEventListener('error', function () {
     if (!cur) return;
+    if (cur.trial && revertTrial()) return;   // a Play Next episode that fails: back to the previous programme
     cur.errors++;
     if (cur.errors >= MAX_ERRORS) {
       cur.errors = 0;

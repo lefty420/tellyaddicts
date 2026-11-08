@@ -81,8 +81,10 @@ fails, uninstall the old app first (needed once for builds made before the fixed
 
 - `python3 tools/check_sources.py` tests every source in `channels.js` and writes
   `sources-report.txt` listing the ones that fail and why.
-- `python3 tools/import_scrape.py archive_*.txt` turns the archive.org scraper's text files into
-  ready-made channel lists for Auto EPG (`autodata.js`), routing every show to the channel of its
-  own genre. `tools/shows.json` holds those genre lists.
+- `python3 tools/import_scrape.py --library library.db` (or `archive_*.txt`) turns the Telly Addict
+  Scraper's master library into ready-made channel lists for Auto EPG, routing every show to the
+  channel of its own genre. `tools/shows.json` holds those genre lists. The lists are written to
+  `british-tv/data/` and the app fetches them from GitHub at start-up, so a new scrape reaches the
+  TV without building a new APK — scrape, commit, push.
 
 Both need a computer that can reach archive.org.

@@ -44,6 +44,8 @@ public class MainActivity extends Activity {
     private static final String PAGE = "file:///android_asset/index.html";
     private static final String ALLOWED_PREFIX = "https://archive.org/";
     private static final String ALLOWED_PREFIX_2 = "https://api.tvmaze.com/";   // episode names
+    // Ready-made channel lists published from the scraper, so a new scrape reaches the TV without a new APK
+    private static final String ALLOWED_PREFIX_3 = "https://raw.githubusercontent.com/";
     private static final int MAX_BODY_BYTES = 8 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
     private static final int HTTP_THREADS = 8;                  // archive.org is happier with a few connections than with hundreds
 
@@ -284,7 +286,8 @@ public class MainActivity extends Activity {
                     String body = "";
                     HttpURLConnection c = null;
                     try {
-                        if (url == null || !(url.startsWith(ALLOWED_PREFIX) || url.startsWith(ALLOWED_PREFIX_2))) {
+                        if (url == null || !(url.startsWith(ALLOWED_PREFIX) || url.startsWith(ALLOWED_PREFIX_2)
+                                || url.startsWith(ALLOWED_PREFIX_3))) {
                             throw new SecurityException("blocked url");
                         }
                         c = (HttpURLConnection) new URL(url).openConnection();

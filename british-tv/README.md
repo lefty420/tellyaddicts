@@ -204,17 +204,32 @@ genre: Miss Marple cannot appear on CITV, and Danger Mouse cannot appear on Clas
 Programmes that name no known show are kept. This applies to both the searches and the scraped
 lists.
 
-### Scraper lists (`autodata.js`)
+### Scraper lists: published, so a new scrape needs no new APK
 
-`tools/import_scrape.py` turns the text files written by the archive.org scraper script
-(`archive_*.txt`) into `assets/autodata.js`: ready-made episode lists, so those channels load
-straight away with no searching on the TV. Only used when Auto EPG is On.
+The ready-made lists live in `british-tv/data/`: one small `<channel>.json` per channel plus an `index.json`
+giving each channel a revision. When Auto EPG is on the app fetches `index.json` at start-up and downloads only
+the channels whose revision it has not already built. So the round trip is **scrape on the Mac, commit, push**,
+and the TV has it at its next start: no rebuild, no reinstall.
+
+The revision is part of the cache key, so a freshly pushed list is picked up straight away whatever **Keep
+listings for** is set to, while unchanged channels stay on their stored lists. If GitHub cannot be reached the
+app falls back to the copy built into the APK (`autodata.js`), and failing that to the channel's live searches.
+`raw.githubusercontent.com` is the only host added to the native allow-list for this. Pushes can take a few
+minutes to show up, because raw.githubusercontent.com caches.
+
+### Building the lists (`tools/import_scrape.py`)
+
+The lists are built from the **Telly Addict Scraper**, either from its text files or straight from its master
+library, which is better: the library has already deduplicated each episode and picked the best copy of it.
 
 ```sh
-python3 tools/import_scrape.py archive_*.txt
+python3 tools/import_scrape.py --library ~/Library/Application\ Support/Telly\ Addict\ Scraper/library.db
+python3 tools/import_scrape.py archive_*.txt            # or the text files
+python3 tools/import_scrape.py --library library.db master_list.txt   # or both
 ```
 
-Give it files from any of the script's categories at once. Every show is routed by its `[Show]` tag
+It writes `british-tv/data/` (published, above) and `assets/autodata.js` (the offline copy inside the APK;
+`--no-bundle` skips it and keeps the APK small). Give it files from any of the scraper's categories at once. Every show is routed by its `[Show]` tag
 to the channel of its own genre, using `tools/shows.json` (sitcoms, gameshows, childrens,
 Drama = `thebill`, music, comedy, tv70s, citv). A show listed in two categories (Doctor Who,
 Upstairs Downstairs) goes to both channels. Only the channels that get programmes are replaced; the

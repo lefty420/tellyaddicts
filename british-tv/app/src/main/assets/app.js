@@ -131,8 +131,16 @@
     });
   }
 
-  // ---- Auto EPG ready-made lists (autodata.js, made by tools/import_scrape.py from the scraper's text files): no searching needed
-  var autoDataP = null;
+  // ---- Auto EPG ready-made lists -------------------------------------------------------------------------------
+  // Published by the scraper (tools/import_scrape.py --publish) as one small file per channel, so a new scrape
+  // reaches the TV without a new APK and a channel only downloads its own list. data/index.json names a revision
+  // per channel; that revision goes into the cache key, so pushing a scrape refreshes just the channels that
+  // changed. If the published list cannot be reached, the copy built into the app (autodata.js) is used instead,
+  // and failing that the channel falls back to its live searches.
+  var DATA_BASE = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/british-tv/data/';
+  var autoDataP = null, indexP = null;
+
+  /** The bundled autodata.js, loaded once and only when it is actually needed. */
   function loadAutoData() {
     if (window.AUTODATA) return Promise.resolve(window.AUTODATA);
     if (autoDataP) return autoDataP;
@@ -144,6 +152,25 @@
       document.head.appendChild(sc);
     });
     return autoDataP;
+  }
+
+  /** {channel: revision} for the published lists; {} when there are none or the fetch fails. */
+  function loadDataIndex() {
+    if (indexP) return indexP;
+    indexP = getJSON(DATA_BASE + 'index.json').then(function (j) {
+      return (j && j.channels) || {};
+    }, function () { return {}; });
+    return indexP;
+  }
+
+  /** One channel's published list, falling back to the bundled copy. */
+  function loadChannelData(id, rev) {
+    if (!rev) return loadAutoData().then(function (D) { return (D && D[id]) || null; });
+    return getJSON(DATA_BASE + encodeURIComponent(id) + '.json').then(function (rows) {
+      return rows && rows.length ? rows : null;
+    }, function () {
+      return loadAutoData().then(function (D) { return (D && D[id]) || null; });
+    });
   }
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
   function progsFromData(items) {
@@ -181,38 +208,46 @@
   function loadPrograms(ch, noAuto) {
     if (autoEpg && !noAuto && !ch.noCache && window.AUTO && AUTO.sourcesFor(ch.id)) {
       // Building a list from the scrape means running thousands of file names through the naming rules, so the
-      // finished list is cached for the day like any other: on the box that pass costs a second or two per channel.
-      var dkey = 'plan7d:' + ch.id + ':' + E.hash('v7');
-      ch.cacheKey = dkey;
-      var dcached = store.get(dkey);
-      if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < planTtl()) {
-        ch.autoUsed = true;
-        ch.report = [];
-        ch.cacheT = dcached.t;
-        ch.plan = unpackPlan(dcached.p);
-        return Promise.resolve(ch.plan);
-      }
-      return loadAutoData().then(function (D) {
-        var rows = D && D[ch.id];
-        if (!rows || !rows.length) return loadProgramsLive(ch, noAuto);
-        var progs = dedupeTitles(capShows(progsFromData(rows).filter(function (p) { return genreFits(ch, p); }), 0.25));
-        ch.autoUsed = progs.length > 0;
-        ch.report = [];
-        ch.plan = E.sample(progs, MAX_STORED);
-        if (ch.plan.length) {
-          try {                                   // drop this channel's lists from earlier days
-            for (var k = localStorage.length - 1; k >= 0; k--) {
-              var kn = localStorage.key(k);
-              if (kn && kn !== dkey && kn.indexOf('plan7d:' + ch.id + ':') === 0) localStorage.removeItem(kn);
-            }
-          } catch (e) { /* ignore */ }
-          ch.cacheT = Date.now();
-          savePlan(ch);
+      // finished list is cached like any other: on the box that pass costs a second or two per channel. The
+      // published revision is part of the key, so a newly scraped list is picked up straight away.
+      return loadDataIndex().then(function (idx) {
+        var rev = idx[ch.id] || '';
+        var dkey = 'plan7d:' + ch.id + ':' + E.hash('v8|' + rev);
+        ch.cacheKey = dkey;
+        var dcached = store.get(dkey);
+        if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < planTtl()) {
+          ch.autoUsed = true;
+          ch.report = [];
+          ch.cacheT = dcached.t;
+          ch.plan = unpackPlan(dcached.p);
+          return ch.plan;
         }
-        return ch.plan.length ? ch.plan : loadProgramsLive(ch, noAuto);
+        return buildFromData(ch, noAuto, rev, dkey);
       });
     }
     return loadProgramsLive(ch, noAuto);
+  }
+
+  /** Turn a published (or bundled) channel list into this channel's programmes, and store the result. */
+  function buildFromData(ch, noAuto, rev, dkey) {
+    return loadChannelData(ch.id, rev).then(function (rows) {
+      if (!rows || !rows.length) return loadProgramsLive(ch, noAuto);
+      var progs = dedupeTitles(capShows(progsFromData(rows).filter(function (p) { return genreFits(ch, p); }), 0.25));
+      ch.autoUsed = progs.length > 0;
+      ch.report = [];
+      ch.plan = E.sample(progs, MAX_STORED);
+      if (ch.plan.length) {
+        try {                                   // drop this channel's lists from earlier revisions
+          for (var k = localStorage.length - 1; k >= 0; k--) {
+            var kn = localStorage.key(k);
+            if (kn && kn !== dkey && kn.indexOf('plan7d:' + ch.id + ':') === 0) localStorage.removeItem(kn);
+          }
+        } catch (e) { /* ignore */ }
+        ch.cacheT = Date.now();
+        savePlan(ch);
+      }
+      return ch.plan.length ? ch.plan : loadProgramsLive(ch, noAuto);
+    });
   }
 
   function loadProgramsLive(ch, noAuto) {

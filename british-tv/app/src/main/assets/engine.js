@@ -244,6 +244,7 @@
     if (!meta || meta.is_dark) return [];
     var include = opts && opts.include ? new RegExp(opts.include, 'i') : null;
     var exclude = opts && opts.exclude ? new RegExp(opts.exclude, 'i') : null;
+    var skipFile = opts && opts.skipFile ? new RegExp(opts.skipFile, 'i') : null;   // tested on the file's own name only (not its folders)
     if (exclude && exclude.test(String(md0(meta).title || ''))) return [];
     var md = meta.metadata || {};
     if (String(md['access-restricted-item']).toLowerCase() === 'true') return [];
@@ -302,6 +303,7 @@
       if (/sample|trailer/i.test(name)) continue;
       if (include && !include.test(name)) continue;
       if (exclude && exclude.test(name)) continue;
+      if (skipFile && skipFile.test(name.split('/').pop())) continue;
       if (f.format && /thumbnail/i.test(f.format)) continue;
       var size = +f.size || 0;
       if (size && size < 200000) continue;

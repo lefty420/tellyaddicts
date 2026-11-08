@@ -55,6 +55,11 @@ var CITV_SOURCES = [
   { item: 'tots-tv-uk-vhs-and-dvd-collection' },
   { search: 'title:("the tick") AND "1994" AND mediatype:movies', rows: 10 }
 ];
+// CITV: whole-DVD rips (long, and rarely a proper episode) are left out; kids' episodes are 30 minutes at most
+CITV_SOURCES.forEach(function (s) {
+  if (!s.skipFile) s.skipFile = '\\b(dvd|disc|disk)\\b|\\bfull (series|dvd)\\b';
+  if (!s.maxDur) s.maxDur = 2100;
+});
 var XMAS_RE = 'christmas|xmas|santa|nativity';
 function xmasOnly(src) {
   var o = {}; for (var k in src) o[k] = src[k];

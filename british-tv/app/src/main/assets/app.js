@@ -109,6 +109,17 @@
 
   // experimental Auto EPG (OSD toggle): programmes come from keyword searches instead of channels.js, and are re-picked daily
   var autoEpg = store.get('autoepg') === 'on';
+  var AUTO_MIN = 15;   // fewer programmes than this from Auto EPG and the channel is topped up from its normal sources
+
+  /** The same programme often sits in several uploads: keep one of each title. */
+  function dedupeTitles(progs) {
+    var seen = {};
+    return progs.filter(function (p) {
+      var k = String(p.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!k || seen[k]) return false;
+      return (seen[k] = true);
+    });
+  }
 
   function loadPrograms(ch, noAuto) {
     var auto = !noAuto && !ch.noCache && autoEpg && window.AUTO ? AUTO.sourcesFor(ch.id) : null;
@@ -132,7 +143,7 @@
       var skipTitle = s.skipTitle ? new RegExp(s.skipTitle, 'i') : null;
       if (s.item) {
         ids.push(s.item);
-        optsFor[s.item] = { include: s.include, exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
+        optsFor[s.item] = { include: s.include, exclude: s.exclude, skipFile: s.skipFile, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
       } else if (s.search) {
         chain = chain.then(function () {
           return getJSON(searchUrl(s.search, s.rows || 25)).then(function (j) {
@@ -140,7 +151,7 @@
               if (skip && skip.test((d.title || '') + ' ' + d.identifier)) return; // unwanted result
               if (skipTitle && skipTitle.test((d.title || '') + ' ' + d.identifier)) return;
               ids.push(d.identifier);
-              optsFor[d.identifier] = { exclude: s.exclude, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
+              optsFor[d.identifier] = { exclude: s.exclude, skipFile: s.skipFile, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
             });
           }, function () { /* a failed search just contributes nothing */ });
         });
@@ -149,7 +160,7 @@
     return chain.then(function () {
       var seen = {};
       var uniq = ids.filter(function (id) { return id && !seen[id] && (seen[id] = true); })
-        .slice(0, ch.maxItems || 40);
+        .slice(0, auto ? 70 : (ch.maxItems || 40));
       return pool(uniq, 4, function (id) {
         var url = 'https://archive.org/metadata/' + encodeURIComponent(id);
         // one retry: a busy archive.org sometimes drops a request
@@ -182,6 +193,7 @@
           Array.prototype.push.apply(progs, got);
         });
         ch.report = report;
+        if (auto) progs = dedupeTitles(progs);
         if (ch.mix) progs = balanceMix(progs, ch.mix);
         progs = E.sample(progs, MAX_STORED);
         if (progs.length && !ch.noCache) {
@@ -1402,7 +1414,13 @@
     channels.forEach(function (c) {
       loadPrograms(c).then(function (progs) {
         // Auto EPG found nothing for this channel: use its normal sources instead
-        return (!progs || !progs.length) && c.autoUsed ? loadPrograms(c, true) : progs;
+        if (!c.autoUsed || (progs && progs.length >= AUTO_MIN)) return progs;
+        // too little found (or nothing): fill the channel up from its normal sources
+        var found = progs || [];
+        return loadPrograms(c, true).then(function (extra) {
+          c.autoUsed = found.length > 0;
+          return dedupeTitles(found.concat(extra || []));
+        });
       }).then(function (progs) {
         if (progs && progs.length) {
           progs = dropSlow(progs);

@@ -44,8 +44,8 @@ public class MainActivity extends Activity {
     private static final String PAGE = "file:///android_asset/index.html";
     private static final String ALLOWED_PREFIX = "https://archive.org/";
     private static final String ALLOWED_PREFIX_2 = "https://api.tvmaze.com/";   // episode names
-    private static final int MAX_BODY_BYTES = 4 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
-    private static final int HTTP_THREADS = 6;                  // archive.org is happier with a few connections than with hundreds
+    private static final int MAX_BODY_BYTES = 8 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
+    private static final int HTTP_THREADS = 8;                  // archive.org is happier with a few connections than with hundreds
 
     private final Handler main = new Handler(Looper.getMainLooper());
     /** All requests share a small pool: one thread per request used to leave 50+ threads competing during start-up. */

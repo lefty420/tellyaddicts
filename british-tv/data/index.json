@@ -1,10 +1,10 @@
 {
- "updated": "2026-11-08T23:49:18Z",
+ "updated": "2026-11-08T23:54:29Z",
  "channels": {
   "childrens": "72f3303d91",
   "citv": "c99e88f6f5",
   "comedy": "ecf0b47bc2",
-  "gameshows": "84e0ea2d7f",
+  "gameshows": "7437e72507",
   "music": "afcee2ff05",
   "offschool": "28a9bc41be",
   "sitcoms": "2ab8b168ad",
@@ -16,7 +16,7 @@
   "childrens": 172,
   "citv": 98,
   "comedy": 2,
-  "gameshows": 207,
+  "gameshows": 265,
   "music": 189,
   "offschool": 66,
   "sitcoms": 76,

@@ -99,6 +99,7 @@ OSD › **Options** (Up/Down to choose, Left/Right or OK to change):
 | --- | --- |
 | Picture | Auto, 4:3, 16:9, Zoom, Stretch |
 | Enhancements | Off, VHS, Vivid, Sharp |
+| Overlay | Off, Scanlines, Aperture grille, Curved glass, Portable set, Shadow mask |
 | Extra metadata | On / Off |
 | Adverts | Off, All (70s–90s), 1970s, 1980s, 1990s |
 | Auto EPG (experimental) | On / Off |
@@ -109,6 +110,20 @@ because of the source. VHS warms and softens the picture with faint horizontal l
 colour fringe at the edges (no tracking wobble, no bands along the bottom); Vivid adds contrast and
 colour; Sharp sharpens. If the TV struggles to keep up (lots of dropped frames), the app drops back
 to Vivid by itself.
+
+**Overlay** puts a vintage television over the picture, and is separate from Enhancements, so the two can be used
+together. Unlike the Enhancements, an overlay never filters the video: it is a still layer composited once over the
+top, so it costs the box next to nothing however long it is left on, and it needs no frame-drop guard.
+
+* **Scanlines** — fine dark lines, the plain tube look
+* **Aperture grille** — red/green/blue stripes, a Trinitron up close
+* **Curved glass** — the tube's curve clips the picture, with a vignette and a reflection off the glass
+* **Portable set** — warm, coarse lines and a heavy edge, like a 14" in the bedroom
+* **Shadow mask** — dot pitch rather than stripes
+
+The patterns are sized in viewport units so they keep their pitch whatever the screen, and no overlay is drawn over
+the guide. On a 4K set a scanline is only a few physical pixels, so the fine looks are subtle from the sofa; the
+pitch and strength are easy to turn up in `index.html` (the `#ovl` rules) if they do not read from across the room.
 
 **Extra metadata** turns on both the poster on the bar and the show fanart behind the guide header
 (TVmaze, TV shows only).

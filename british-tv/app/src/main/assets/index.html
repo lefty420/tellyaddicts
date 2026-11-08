@@ -46,9 +46,6 @@
     animation: crt-roll 7s linear infinite; will-change: transform; }
   @keyframes crt-roll { from { transform: translateY(0); } to { transform: translateY(160vh); } }
   @keyframes crt-flick { 0%, 100% { opacity: 1; } 50% { opacity: .965; } }
-  body.fx-crt:not(.guide-open) #crt { display: block; }
-  body.fx-crt:not(.guide-open) #crt i { display: none; }
-  body.fx-crt:not(.guide-open) #v { filter: contrast(1.12) saturate(1.2) brightness(1.15); }
   body.fx-vhs:not(.guide-open) #v { filter: contrast(1.05) saturate(1.5) brightness(1.08) sepia(.12) blur(.5px); }
   body.fx-vhs:not(.guide-open) #crt { display: block; }
   body.fx-vhs:not(.guide-open) #crt::before { background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0, rgba(0,0,0,.2) .2vh, rgba(0,0,0,0) .4vh); }
@@ -57,6 +54,37 @@
   body.fx-vivid:not(.guide-open) #v { filter: contrast(1.12) saturate(1.3) brightness(1.04); }
   body.fx-sharp:not(.guide-open) #v { filter: url(#f-sharp) contrast(1.06) saturate(1.1); }
   video { position: fixed; inset: 0; width: 100%; height: 100%; background: #000; object-fit: contain; }
+
+  /* Vintage overlays (Options > Overlay). A still layer composited over the picture: unlike the Enhancements above
+     these never filter the video, so they cost the box almost nothing however long they are left on. Sizes are in
+     vh so the pattern keeps its pitch whatever the screen. */
+  #ovl { position: fixed; inset: 0; z-index: 7; pointer-events: none; display: none; }
+  body[class*="ov-"]:not(.guide-open):not(.ov-off) #ovl { display: block; }
+  #ovl::before, #ovl::after { content: ""; position: absolute; inset: 0; }
+
+  /* 1 scanlines */
+  body.ov-lines #ovl { background: repeating-linear-gradient(0deg, rgba(0,0,0,.30) 0 .14vh, rgba(0,0,0,0) .14vh .38vh); }
+  /* 2 aperture grille */
+  body.ov-grille #ovl::before { background: repeating-linear-gradient(90deg,
+      rgba(255,40,40,.16) 0 .07vh, rgba(40,255,40,.16) .07vh .14vh, rgba(60,60,255,.16) .14vh .21vh); }
+  body.ov-grille #ovl::after { background: repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 .12vh, rgba(0,0,0,0) .12vh .34vh); }
+  /* 3 curved glass: the tube's curve clips the picture itself, so no square corners show through */
+  body.ov-glass:not(.guide-open) #v { border-radius: 9vh / 11vh; }
+  body.ov-glass #ovl { border-radius: 9vh / 11vh; box-shadow: inset 0 0 7vh 3vh rgba(0,0,0,.55);
+    background:
+      linear-gradient(118deg, rgba(255,255,255,.085) 0 16%, rgba(255,255,255,0) 34%),
+      radial-gradient(130% 115% at 50% 48%, rgba(0,0,0,0) 54%, rgba(0,0,0,.45) 100%); }
+  body.ov-glass #ovl::after { border-radius: inherit;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 .13vh, rgba(0,0,0,0) .13vh .36vh); }
+  /* 4 portable set */
+  body.ov-portable #ovl { box-shadow: inset 0 0 9vh 4vh rgba(0,0,0,.6);
+    background:
+      linear-gradient(0deg, rgba(255,176,86,.07), rgba(255,176,86,.07)),
+      radial-gradient(118% 108% at 50% 46%, rgba(255,230,190,.10) 0 38%, rgba(0,0,0,.5) 100%); }
+  body.ov-portable #ovl::after { background: repeating-linear-gradient(0deg, rgba(0,0,0,.34) 0 .26vh, rgba(0,0,0,0) .26vh .62vh); }
+  /* 5 shadow mask */
+  body.ov-dots #ovl { background-image: radial-gradient(rgba(0,0,0,.30) 34%, rgba(0,0,0,0) 36%); background-size: .34vh .34vh; }
+  body.ov-dots #ovl::after { background: repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 .17vh, rgba(0,0,0,0) .17vh .44vh); }
   .hidden { display: none !important; }
 
   /* mini TV window while the guide is open */
@@ -259,6 +287,7 @@
 <body>
 <video id="v" autoplay playsinline poster="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></video>
 <div id="crt"><i></i></div>
+<div id="ovl"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="f-crt" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/><feOffset in="r" dx="-1.2" result="ro"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/><feOffset in="b" dx="1.2" result="bo"/><feBlend in="ro" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="bo" mode="screen" result="rgb"/><feGaussianBlur in="rgb" stdDeviation="0.9 0.5"/></filter><filter id="f-vhs" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="1.4 0.4"/></filter><filter id="f-sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -0.55 0 -0.55 3.2 -0.55 0 -0.55 0" divisor="1" bias="0" preserveAlpha="true"/></filter></svg>
 <canvas id="static" class="hidden" width="256" height="144"></canvas>
 <div id="spinner" class="hidden"></div>
@@ -293,6 +322,7 @@
     <h2>Options</h2>
     <div class="orow" id="or-ar"><b>Picture</b><span id="ov-ar"></span></div>
     <div class="orow" id="or-fx"><b>Enhancements</b><span id="ov-fx"></span></div>
+    <div class="orow" id="or-ovl"><b>Overlay</b><span id="ov-ovl"></span></div>
     <div class="orow" id="or-gart"><b>Extra metadata</b><span id="ov-gart"></span></div>
     <div class="orow" id="or-ads"><b>Adverts</b><span id="ov-ads"></span></div>
     <div class="orow" id="or-auto"><b>Auto EPG (experimental)</b><span id="ov-auto"></span></div>

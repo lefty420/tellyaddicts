@@ -1475,6 +1475,31 @@
     }
   }
 
+  // ---- vintage overlays: a still layer over the picture, so they cost the box next to nothing
+  var OVL = [
+    { id: 'off', label: 'Off' },
+    { id: 'lines', label: 'Scanlines' },
+    { id: 'grille', label: 'Aperture grille' },
+    { id: 'glass', label: 'Curved glass' },
+    { id: 'portable', label: 'Portable set' },
+    { id: 'dots', label: 'Shadow mask' }
+  ];
+  var ovlIdx = 0;
+  (function () {
+    var saved = store.get('ovl1');
+    for (var i = 0; i < OVL.length; i++) if (OVL[i].id === saved) ovlIdx = i;
+  })();
+  function applyOvl() {
+    OVL.forEach(function (o) { document.body.classList.remove('ov-' + o.id); });
+    document.body.classList.add('ov-' + OVL[ovlIdx].id);
+    store.set('ovl1', OVL[ovlIdx].id);
+  }
+  function changeOvl(d) {
+    ovlIdx = (ovlIdx + d + OVL.length) % OVL.length;
+    applyOvl();
+    renderOpts();
+  }
+
   function changeFx(d) {
     fxMode = FXMODES[(FXMODES.indexOf(fxMode) + d + FXMODES.length) % FXMODES.length];
     applyFx();
@@ -1482,11 +1507,12 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['ar', 'fx', 'gart', 'ads', 'auto', 'keep'];
+  var OPTS = ['ar', 'fx', 'ovl', 'gart', 'ads', 'auto', 'keep'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
+    if (id === 'ovl') return OVL[ovlIdx].label;
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'keep') return KEEP[keepIdx].label;
@@ -1520,6 +1546,7 @@
     var id = OPTS[optsSel];
     if (id === 'ar') changeAr(d);
     else if (id === 'fx') changeFx(d);
+    else if (id === 'ovl') changeOvl(d);
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
     else if (id === 'keep') changeKeep(d);
@@ -1643,6 +1670,7 @@
 
   applyAr();
   applyFx();
+  applyOvl();
 
   function restartShow() {
     closeOsd();

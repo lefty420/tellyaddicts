@@ -60,6 +60,9 @@ CITV_SOURCES.forEach(function (s) {
   if (!s.skipFile) s.skipFile = '\\b(dvd|disc|disk)\\b|\\bfull (series|dvd)\\b';
   if (!s.maxDur) s.maxDur = 2100;
 });
+// Daytime searches turn up whole-disc rips, compilations and best-of reels as well as episodes; skip those.
+var DAY_SKIP = '\\b(dvd|disc|disk|compilation|best of|highlights|montage|titles|opening|theme|trailer|promo|advert)\\b';
+
 var XMAS_RE = 'christmas|xmas|santa|nativity';
 function xmasOnly(src) {
   var o = {}; for (var k in src) o[k] = src[k];
@@ -348,9 +351,20 @@ window.CHANNELS = [
     n: 20,
     id: 'offschool',
     name: "I'm Off School",
+    // What was actually on in the morning and afternoon when you were off school: soaps, talk shows and morning TV.
+    // Searches rather than fixed items, so the channel picks up whatever is on archive.org at the time.
     sources: [
       { item: 'neighbours-episode-27' },
-      { item: 'neighbours-episode-275' }
+      { item: 'neighbours-episode-275' },
+      // the soaps
+      { search: 'title:("neighbours" OR "home and away" OR "sons and daughters") AND mediatype:movies',
+        rows: 60, perItem: 20, minDur: 600, maxDur: 4200, maxSize: 1500000000, skipFile: DAY_SKIP },
+      // the talk shows
+      { search: 'title:("trisha" OR "kilroy" OR "jerry springer" OR "jenny jones" OR "ricki lake" OR "montel williams") AND mediatype:movies',
+        rows: 50, perItem: 15, minDur: 600, maxDur: 4200, maxSize: 1500000000, skipFile: DAY_SKIP },
+      // morning TV
+      { search: 'title:("this morning" OR "gmtv" OR "good morning britain" OR "richard and judy" OR "pebble mill" OR "the time the place") AND mediatype:movies',
+        rows: 50, perItem: 15, minDur: 600, maxDur: 4200, maxSize: 1500000000, skipFile: DAY_SKIP }
     ]
   },
   {

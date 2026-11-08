@@ -49,11 +49,11 @@ archive.org has made an `.mp4` copy next to them.
 | 17 | Kids Movies | children's films (currently Beauty and the Beast: The Enchanted Christmas) |
 | 18 | Children's Christmas | the Christmas files from the children's sources |
 | 19 | Christmas Music | Christmas number ones and festive pop (Slade, Wham!, Band Aid, the MTV Christmas 100) |
-| 20 | I'm Off School | daytime sick-day telly (Neighbours) |
+| 20 | I'm Off School | what was on when you were off school: Neighbours, Home and Away, Sons and Daughters, Trisha, Kilroy, Jerry Springer, Jenny Jones, This Morning, GMTV, Richard & Judy |
 | 21 | Disney | Disney cartoon shorts |
 
-Some of these are thin on hand-picked sources — Kids Movies and I'm Off School in particular.
-**Auto EPG** is what fills them out from archive.org itself.
+Kids Movies is still thin on hand-picked sources; **Auto EPG** is what fills a channel out from
+archive.org itself.
 
 The full source list for each is in `channels.js`. **CITV** leaves out DVD / disc files and anything
 over 35 minutes, because those are usually whole discs rather than episodes.

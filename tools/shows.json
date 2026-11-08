@@ -300,5 +300,31 @@
    "Bertha",
    "TUGS"
   ]
+ },
+ "offschool": {
+  "name": "Daytime & Off-School TV",
+  "shows": [
+   "Sons and Daughters",
+   "Neighbours",
+   "Home and Away",
+   "Kilroy",
+   "Trisha",
+   "Jerry Springer",
+   "The Jerry Springer Show",
+   "Jenny Jones",
+   "The Jenny Jones Show",
+   "This Morning",
+   "GMTV",
+   "Richard and Judy",
+   "The Time The Place",
+   "Pebble Mill at One",
+   "Going for Gold",
+   "Ricki Lake",
+   "Montel Williams",
+   "Open Air",
+   "Good Morning Britain",
+   "Lorraine",
+   "TV-am"
+  ]
  }
 }

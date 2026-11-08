@@ -48,7 +48,8 @@ Nothing is hosted by the app. It reads archive.org directly on the TV and plays 
 
 Music, MTV, Classic BBC, ITV Morning, Classic Sitcoms, Game Shows, Drama, Christmas TV, 70s TV,
 Adverts & Continuity, ITV, Noel's House Party, CITV, Video Games, Comedy, Children's World,
-Kids Movies, Children's Christmas, Christmas Music, I'm Off School and Disney.
+Kids Movies, Children's Christmas, Christmas Music, I'm Off School (daytime soaps and talk shows)
+and Disney.
 
 The archive.org sources behind each one are in `british-tv/app/src/main/assets/channels.js`.
 

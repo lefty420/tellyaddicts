@@ -123,3 +123,7 @@ Each channel's list of programmes (and the links to them) is stored on the TV fo
 
 - **Back**: while watching, Back opens the TV guide; in the guide, press Back twice to exit.
 - **CITV** leaves out DVD / disc files and anything over 35 minutes.
+
+## Play Next
+
+OSD > **Play Next** (or the remote's Next key) plays the next episode of what is on: the title is parsed (`Knightmare S01E03` or `Season 7 Episode 15`) and the episode number goes up by one (and to episode 1 of the next season if that season has no more). The link is found in this order: (1) the local link database (IndexedDB, `links.js`), which is filled with every channel's links after start-up and with anything found by searching; (2) archive.org: the item that is playing first, then a search for the show plus the episode number. Whatever the search finds is saved to the database so it is never searched for again. Links are always `https://archive.org/download/<id>/<file>` with `,()'-` left unescaped. If nothing is found the toast says "Next episode not found" and playback carries on.

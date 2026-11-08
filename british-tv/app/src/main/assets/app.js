@@ -670,8 +670,8 @@
     return (cur && cur.prog && isSlow(cur.prog.id) ? 'Slow to start: will be left out of the lineup next time.   ' : '') + 'Playback: ' + o + (pb.ev.join(' \u00b7 ') || 'no events yet') + '   (readyState ' + v.readyState + ')';
   }
 
-  function playSlot(ch, index, offset, announce, tuning) {
-    var prog = ch.sched.order[index];
+  function playSlot(ch, index, offset, announce, tuning, progOverride) {
+    var prog = progOverride || ch.sched.order[index];   // progOverride: Play Next plays an episode that is not in the schedule
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
     pbStart(prog.url, offset);
@@ -752,6 +752,85 @@
     nextInChannel();
   }
 
+  // ---- Play Next: the next episode of what is playing. Local link database first, archive.org search second.
+  var nextBusy = false, linksSeeded = false;
+
+  /** Put the links of every loaded channel into the local database (once per launch, after start-up, in small chunks). */
+  function seedLinks() {
+    if (linksSeeded || !window.LINKS) return;
+    linksSeeded = true;
+    var rows = [];
+    channels.forEach(function (c) { if (c.plan) rows = rows.concat(LINKS.rowsFrom(c.plan, 'plan')); });
+    (function chunk(i) {
+      if (i >= rows.length) return;
+      LINKS.putAll(rows.slice(i, i + 400)).then(function () { setTimeout(function () { chunk(i + 400); }, 60); });
+    })(0);
+  }
+
+  /** Fetch an item's file list, save every episode found in it to the database, and say whether wantKey was among them. */
+  function saveItemEpisodes(id, wantKey) {
+    return getJSON('https://archive.org/metadata/' + encodeURIComponent(id)).then(function (meta) {
+      var rows = LINKS.rowsFrom(E.pickPrograms(id, meta, {}), 'search');   // pickPrograms builds clean https://archive.org/download/<id>/<file> links
+      return LINKS.putAll(rows).then(function () { return rows.some(function (r) { return r.k === wantKey; }); });
+    }, function () { return false; });
+  }
+
+  /** Step 2: the current item first (the next episode is usually in it), then items found by searching for the show. */
+  function searchAndSave(ref, curItem, wantKey) {
+    function runIds(ids, i) {
+      if (i >= ids.length) return Promise.resolve(false);
+      return saveItemEpisodes(ids[i], wantKey).then(function (found) { return found || runIds(ids, i + 1); });
+    }
+    return (curItem ? saveItemEpisodes(curItem, wantKey) : Promise.resolve(false)).then(function (found) {
+      if (found) return true;
+      // search by show name plus the episode number first, then by show name alone
+      var name = ref.show.replace(/"/g, ''), n = wantKey.split(':'), ss = +n[1], ee = +n[2], pad = function (x) { return (x < 10 ? '0' : '') + x; };
+      var withCode = 'title:("' + name + '") AND mediatype:movies AND (title:("S' + pad(ss) + 'E' + pad(ee) + '" OR "S' + ss + 'E' + ee + '" OR "' + ss + 'x' + pad(ee) + '" OR "Season ' + ss + ' Episode ' + ee + '" OR "Series ' + ss + ' Episode ' + ee + '"))';
+      var nameOnly = 'title:("' + name + '") AND mediatype:movies';
+      function idsFor(q) {
+        return getJSON(searchUrl(q, 8)).then(function (j) {
+          return ((j.response && j.response.docs) || []).map(function (d) { return d.identifier; }).filter(function (id) { return id && id !== curItem; });
+        }, function () { return []; });
+      }
+      return idsFor(withCode).then(function (a) {
+        return idsFor(nameOnly).then(function (b) {
+          var seen = {}, ids = a.concat(b).filter(function (id) { return !seen[id] && (seen[id] = 1); }).slice(0, 6);
+          return runIds(ids, 0);
+        });
+      });
+    });
+  }
+
+  function resolveNext(prog) {
+    var ref = LINKS.parseEp(prog.title);
+    if (!ref) return Promise.resolve(null);
+    var c = LINKS.nextRefs(ref), k1 = LINKS.key(c[0].show, c[0].s, c[0].e), k2 = LINKS.key(c[1].show, c[1].s, c[1].e);
+    return LINKS.get(k1).then(function (hit) {                       // step 1: local database
+      if (hit) return hit;
+      return searchAndSave(ref, prog.item, k1).then(function () {   // step 2: search (results are saved as they are found)
+        return LINKS.get(k1);
+      }).then(function (h) { return h || LINKS.get(k2); });         // no next episode in this season: first of the next
+    });
+  }
+
+  function playNext() {
+    if (nextBusy || !cur) return;
+    if (cur.ad || !window.LINKS || !LINKS.parseEp(cur.prog.title)) { toast('Next episode not found', 2500); return; }
+    nextBusy = true;
+    closeOsd();
+    clearTimeout(spinTimer);
+    $('spin').className = '';           // spinner straight away: the current programme keeps playing until the next one is found
+    var me = cur;
+    var limit = new Promise(function (res) { setTimeout(function () { res(null); }, 25000); });
+    Promise.race([resolveNext(me.prog), limit]).then(function (hit) { return hit; }, function () { return null; }).then(function (hit) {
+      nextBusy = false;
+      if (cur !== me) return;           // the viewer changed channel meanwhile
+      if (!hit) { spinOff(); toast('Next episode not found', 3000); return; }
+      var url = E.canonicalUrl(hit.url) || hit.url;
+      playSlot(me.ch, me.index, 0, true, false, { id: hit.id, item: hit.item, url: url, title: hit.title, sub: '', dur: hit.dur });
+    });
+  }
+
   function nextInChannel() {
     if (!cur) return;
     playSlot(cur.ch, (cur.index + 1) % cur.ch.sched.order.length, 0, true);
@@ -775,7 +854,7 @@
   });
   var spinTimer = null;
   function spinOn() { clearTimeout(spinTimer); spinTimer = setTimeout(function () { $('spin').className = ''; }, 700); }
-  function spinOff() { clearTimeout(spinTimer); $('spin').className = 'hidden'; }
+  function spinOff() { if (nextBusy) return; clearTimeout(spinTimer); $('spin').className = 'hidden'; }   // Play Next keeps the spinner up while it looks for the episode
   var stuckTimer = null;
   function recoverIfStuck() {
     clearTimeout(stuckTimer);
@@ -798,7 +877,7 @@
       setTimeout(function () { if (cur === me && v.readyState < 3 && !v.paused) nextInChannel(); }, 10000);
     }
   });
-  v.addEventListener('playing', function () { clearTimeout(stuckTimer); });
+  v.addEventListener('playing', function () { clearTimeout(stuckTimer); if (!nextBusy) spinOff(); });
   v.addEventListener('seeking', spinOn);
   var sbTimer = null;
   function standbyOff() { clearTimeout(sbTimer); $('standby').className = 'hidden'; }
@@ -1106,7 +1185,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'restart', 'options', 'info'];   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'next', 'restart', 'options', 'info'];   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -1322,6 +1401,7 @@
     if (id === 'rew') seek(-30);
     else if (id === 'ff') seek(30);
     else if (id === 'pp') togglePlay();
+    else if (id === 'next') { closeOsd(); playNext(); return; }
     else if (id === 'restart') { restartShow(); return; }
     else if (id === 'options') { openOpts(); return; }
     else if (id === 'guide') { closeOsd(); openGuide(); }
@@ -1336,6 +1416,7 @@
     else if (k === 'Enter') osdAct(OB[osdSel]);
     else if (k === 'MediaRewind') osdAct('rew');
     else if (k === 'MediaFastForward') osdAct('ff');
+    else if (k === 'MediaNext') osdAct('next');
     else if (k === 'MediaPlayPause' || k === ' ') osdAct('pp');
     else if (k === 'MediaPlay') { v.play(); setTimeout(renderOsd, 60); }
     else if (k === 'MediaPause') { v.pause(); setTimeout(renderOsd, 60); }
@@ -1393,6 +1474,7 @@
     else if (k === 'MediaPlayPause' || k === ' ') {
       if (v.paused) { v.play(); toast('Play', 1000); } else { v.pause(); toast('Paused', 1500); }
     }
+    else if (k === 'MediaNext') { playNext(); }
     else if (k === 'MediaPlay') { v.play(); }
     else if (k === 'MediaPause') { v.pause(); toast('Paused', 1500); }
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { openGuide(); }   // watching: Back goes to the TV guide
@@ -1439,6 +1521,7 @@
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
         renderStatus();
+        if (finished === channels.length) setTimeout(seedLinks, 4000);
         begin();
         if (guideOpen) renderGuide();
         if (finished === channels.length && !started) {

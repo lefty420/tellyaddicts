@@ -141,6 +141,8 @@ public class MainActivity extends Activity {
             case KeyEvent.KEYCODE_MEDIA_PAUSE: return "MediaPause";
             case KeyEvent.KEYCODE_MEDIA_REWIND: return "MediaRewind";
             case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD: return "MediaFastForward";
+            case KeyEvent.KEYCODE_MEDIA_NEXT:
+            case KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD: return "MediaNext";
             default:
                 if (code >= KeyEvent.KEYCODE_0 && code <= KeyEvent.KEYCODE_9) {
                     return String.valueOf(code - KeyEvent.KEYCODE_0);

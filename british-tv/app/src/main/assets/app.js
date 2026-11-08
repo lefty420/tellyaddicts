@@ -409,6 +409,52 @@
     return job.then(function (d) { if (d) store.set(key, { t: Date.now(), d: d }); return d; });
   }
 
+  // fanart for the TV guide: just the show's backdrop (search + images), cached for a month
+  function tvmArt(p) {
+    var key = 'art1:' + normShow(p.show);
+    var c = store.get(key);
+    if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.d);
+    var words = p.show.split(/\s+/), tries = [p.show];
+    if (words.length > 3) tries.push(words.slice(0, 3).join(' '));
+    if (words.length > 2) tries.push(words.slice(0, 2).join(' '));
+    var job = tvmChain.then(function () {
+      var i = 0;
+      function next() {
+        if (i >= tries.length) return null;
+        return tvmFindShow(tries[i++], p.year).then(function (sh) { return sh || wait(500).then(next); });
+      }
+      return next();
+    }).then(function (sh) {
+      if (!sh) return { background: '' };
+      return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + sh.id + '/images'); }).then(function (imgs) {
+        var bg = (imgs || []).filter(function (x) { return x.type === 'background'; })[0];
+        return { background: bg && bg.resolutions && bg.resolutions.original ? https(bg.resolutions.original.url) : '' };
+      }, function () { return { background: '' }; });
+    });
+    tvmChain = job.then(function () { return wait(400); }, function () { return wait(400); });
+    return job.then(function (d) { store.set(key, { t: Date.now(), d: d }); return d; });
+  }
+
+  var gartOn = store.get('gart') !== 'off', gartFor = '', gartTimer = null;
+  function guideArt(prog) {
+    var el = $('gart');
+    var title = gartOn && prog ? (prog.title || '') : '';
+    if (title === gartFor) return;
+    gartFor = title;
+    clearTimeout(gartTimer);
+    el.className = '';
+    if (!title) return;
+    gartTimer = setTimeout(function () {          // wait until the highlight stops moving before looking anything up
+      var p = parseTitle(title);
+      if (!p.show) return;
+      tvmArt(p).then(function (a) {
+        if (gartFor !== title || !a || !a.background) return;
+        el.style.backgroundImage = 'url("' + a.background + '")';
+        el.className = 'on';
+      }, function () { /* no artwork */ });
+    }, 700);
+  }
+
   function openInfo() {
     if (!cur) return;
     infoOpen = true;
@@ -904,6 +950,7 @@
         ? 'Plus ' + (fb.count - 1) + ' more programme' + (fb.count > 2 ? 's' : '')
         : (fb.prog.sub || '');
     }
+    guideArt(fb ? fb.prog : null);
   }
 
   function openGuide() {
@@ -1087,11 +1134,12 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG
-  var OPTS = ['ar', 'fx', 'ads', 'auto'];
+  var OPTS = ['ar', 'fx', 'gart', 'ads', 'auto'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
+    if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     return autoEpg ? 'On' : 'Off';
   }
@@ -1114,6 +1162,7 @@
     var id = OPTS[optsSel];
     if (id === 'ar') changeAr(d);
     else if (id === 'fx') changeFx(d);
+    else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; renderOpts(); }
     else if (id === 'ads') changeAds(d);
     else toggleAuto();
   }

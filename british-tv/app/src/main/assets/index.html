@@ -218,6 +218,12 @@
     border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); transition: opacity .2s;
   }
   #osd.off { opacity: 0; pointer-events: none; }
+  #obg { position: absolute; inset: 0; border-radius: 1vh; background-size: cover; background-position: center 30%; opacity: 0; transition: opacity .5s; pointer-events: none; }
+  #obg.on { opacity: .22; }
+  #osd > :not(#obg) { position: relative; }
+  #oart { flex: 0 0 auto; height: 21vh; width: 14vh; margin: -8vh 1vw 1vh 1.6vw; object-fit: cover; border-radius: .8vh; box-shadow: 0 .8vh 3vh rgba(0,0,0,.7); border: .2vh solid rgba(255,255,255,.35); background: #0a1f66; }
+  #oart.hidden { display: none; }
+  #oart ~ #onum { min-width: 5.5vw; padding-left: 0; }
   #onow { display: flex; align-items: stretch; }
   #onum { padding: 1.6vh 2.2vw; font-size: 6vh; font-weight: 700; color: var(--hi2); min-width: 8vw; text-align: center; }
   #oinfo { padding: 1.6vh 1vw 1vh 0; flex: 1; min-width: 0; }
@@ -259,7 +265,9 @@
   <div id="bnext"></div>
 </div>
 <div id="osd" class="off">
+  <div id="obg"></div>
   <div id="onow">
+    <img id="oart" class="hidden" alt="">
     <div id="onum"></div>
     <div id="oinfo"><div id="ochan"></div><div id="otitle"></div><div id="osub"></div></div>
     <div id="onext"></div>

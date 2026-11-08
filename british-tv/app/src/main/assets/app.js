@@ -629,6 +629,7 @@
     if (tuning) showStatic();   // static only when changing channel, not between episodes or ads
     if (announce) showBanner();
     loadAds(ch);
+    setTimeout(function () { if (cur === meOne) osdArt(); }, 4000);   // have the artwork ready before the OSD is opened
   }
 
   function tune(ch, announce, quiet) {
@@ -1178,16 +1179,37 @@
     osdTimer = setTimeout(function () { if (v.paused) osdTouch(); else closeOsd(); }, 8000);
   }
 
+  // artwork on the OSD: show poster (and a faint fanart backdrop) from TVmaze; nothing shown if there is none
+  var artFor = '';
+  function osdArt() {
+    var art = $('oart'), bg = $('obg');
+    if (!cur || cur.ad) { art.className = 'hidden'; bg.className = ''; artFor = ''; return; }
+    var title = cur.prog.title || '';
+    if (title === artFor) return;
+    artFor = title;
+    art.className = 'hidden'; bg.className = '';
+    var p = parseTitle(title);
+    if (!p.show) return;
+    tvmInfo(p).then(function (d) {
+      if (!d || artFor !== title || !cur || cur.prog.title !== title) return;
+      var pic = d.show.poster || (d.ep && d.ep.image) || '';
+      if (pic) { art.onerror = function () { art.className = 'hidden'; }; art.src = pic; art.className = ''; }
+      var back = d.show.background || (d.ep && d.ep.image) || '';
+      if (back) { bg.style.backgroundImage = 'url("' + back + '")'; bg.className = 'on'; }
+    }, function () { /* no artwork */ });
+  }
+
   function openOsd() {
     if (!cur) { openGuide(); return; }
     osdOpen = true;
+    osdArt();
     osdSel = OB.indexOf('pp');      // start on play/pause
     clearTimeout(bannerTimer);
     $('banner').className = 'off';
     renderOsd();
     $('osd').className = '';
     clearInterval(osdTick);
-    osdTick = setInterval(renderOsd, 500);
+    osdTick = setInterval(function () { renderOsd(); osdArt(); }, 500);
     osdTouch();
   }
 

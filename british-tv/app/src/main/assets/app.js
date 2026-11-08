@@ -170,6 +170,18 @@
 
   function loadPrograms(ch, noAuto) {
     if (autoEpg && !noAuto && !ch.noCache && window.AUTO && AUTO.sourcesFor(ch.id)) {
+      // Building a list from the scrape means running thousands of file names through the naming rules, so the
+      // finished list is cached for the day like any other: on the box that pass costs a second or two per channel.
+      var dkey = 'plan7d:' + ch.id + ':' + E.hash('v6|' + AUTO.today());
+      ch.cacheKey = dkey;
+      var dcached = store.get(dkey);
+      if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < PLAN_TTL) {
+        ch.autoUsed = true;
+        ch.report = [];
+        ch.cacheT = dcached.t;
+        ch.plan = unpackPlan(dcached.p);
+        return Promise.resolve(ch.plan);
+      }
       return loadAutoData().then(function (D) {
         var rows = D && D[ch.id];
         if (!rows || !rows.length) return loadProgramsLive(ch, noAuto);
@@ -177,6 +189,16 @@
         ch.autoUsed = progs.length > 0;
         ch.report = [];
         ch.plan = E.sample(progs, MAX_STORED);
+        if (ch.plan.length) {
+          try {                                   // drop this channel's lists from earlier days
+            for (var k = localStorage.length - 1; k >= 0; k--) {
+              var kn = localStorage.key(k);
+              if (kn && kn !== dkey && kn.indexOf('plan7d:' + ch.id + ':') === 0) localStorage.removeItem(kn);
+            }
+          } catch (e) { /* ignore */ }
+          ch.cacheT = Date.now();
+          savePlan(ch);
+        }
         return ch.plan.length ? ch.plan : loadProgramsLive(ch, noAuto);
       });
     }
@@ -315,20 +337,31 @@
       .sort(function (a, b) { return a.n - b.n; });
   }
 
+  var statusSig = null;
   function renderStatus() {
-    var box = $('chstatus');
-    box.textContent = '';
-    channels.forEach(function (c) {
-      var line = document.createElement('div');
+    var lines = channels.map(function (c) {
       var mark = c.status === 'ready' ? '✓' : c.status === 'empty' ? '–' : '…';
-      line.textContent = mark + '  ' + c.n + '  ' + c.name +
+      return mark + '  ' + c.n + '  ' + c.name +
         (c.status === 'ready' ? '  (' + Math.round(c.sched.total / 60) + ' min of programmes)' :
           c.status === 'empty' ? '  (nothing found)' : '');
-      box.appendChild(line);
     });
+    var sig = lines.join('\n');
+    if (sig !== statusSig) {        // only when a channel actually changed, not on every tick of the bars
+      statusSig = sig;
+      var box = $('chstatus');
+      box.textContent = '';
+      lines.forEach(function (text) {
+        var line = document.createElement('div');
+        line.textContent = text;
+        box.appendChild(line);
+      });
+    }
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;
-    for (var i = 0; i < bars.length; i++) bars[i].className = i < on ? 'on' : '';
+    for (var i = 0; i < bars.length; i++) {
+      var cn = i < on ? 'on' : '';
+      if (bars[i].className !== cn) bars[i].className = cn;
+    }
   }
 
   // ------------------------------------------------------------------ real episode names (TVmaze, free, no key)
@@ -1074,7 +1107,54 @@
     return d;
   }
 
-  function renderGuide() {
+  var gPaint = null;        // what the grid currently shows, so moving the highlight need not rebuild it
+
+  /** Highlight, "on now" marks, clock and the details line: everything that changes without the grid changing. */
+  function paintSelection(list) {
+    var now = Date.now();
+    $('gclock').textContent = fmtTime(now);
+    gPaint.rows.forEach(function (row, i) {
+      var want = 'gch' + (gPaint.top + i === gRow ? ' sel' : '');
+      if (row.cell.className !== want) row.cell.className = want;
+      if (row.ld) {                                 // channel still loading: one wide block, highlighted or not
+        var lw = 'blk ld' + (row.ch === list[gRow] ? ' foc' : '');
+        if (row.ld.className !== lw) row.ld.className = lw;
+      }
+      row.blocks.forEach(function (bl) {
+        var w = bl.base +
+          ((row.ch === list[gRow] && bl.b.startMs <= gFocus && gFocus < bl.b.endMs) ? ' foc' : '') +
+          ((bl.b.startMs <= now && now < bl.b.endMs) ? ' now' : '');
+        if (bl.el.className !== w) bl.el.className = w;
+      });
+    });
+
+    // programme details for the highlighted block
+    var sel = list[gRow];
+    var fb = sel.status === 'ready' ? E.blockAt(sel.sched, gFocus) : null;
+    if (!fb) {
+      $('gtitle').textContent = sel.name;
+      $('gchan').textContent = sel.n + '  ' + sel.name;
+      $('gtime').textContent = 'Loading programmes\u2026';
+      $('gsub').textContent = '';
+    } else {
+      $('gtitle').textContent = fb.prog.title;
+      $('gchan').textContent = sel.n + '  ' + sel.name;
+      var when;
+      if (fb.startMs <= now && now < fb.endMs) when = 'Showing now';
+      else if (fb.startMs > now) {
+        var mins = Math.round((fb.startMs - now) / 60000);
+        when = mins < 60 ? 'Starts in ' + mins + ' min' : 'Starts at ' + fmtTime(fb.startMs);
+      } else when = 'Earlier';
+      $('gtime').textContent = fmtTime(fb.startMs) + ' \u2013 ' + fmtTime(fb.endMs) + '   ' + when;
+      $('gsub').textContent = fb.count > 1
+        ? 'Plus ' + (fb.count - 1) + ' more programme' + (fb.count > 2 ? 's' : '')
+        : (fb.prog.sub || '');
+    }
+    guideArt(fb ? fb.prog : null);
+  }
+
+  /** light = the highlight moved; rebuild the grid only when the rows or the time window actually change. */
+  function renderGuide(light) {
     var list = guideList();
     if (!list.length) return;
     var now = Date.now();
@@ -1083,10 +1163,16 @@
     if (gRow < gTop) gTop = gRow;
     if (gRow >= gTop + VISIBLE_ROWS) gTop = gRow - VISIBLE_ROWS + 1;
 
+    if (light && gPaint && gPaint.top === gTop && gPaint.win === gWin && gPaint.len === list.length) {
+      paintSelection(list);
+      return;
+    }
+
     $('gclock').textContent = fmtTime(now);
 
     var grid = $('ggrid');
     grid.textContent = '';
+    gPaint = { top: gTop, win: gWin, len: list.length, rows: [] };
 
     var th = div('trow');
     th.appendChild(div('tday', dayLabel(gWin)));
@@ -1106,62 +1192,46 @@
       cell.appendChild(div('n', ch.n));
       cell.appendChild(div('name', ch.name));
       row.appendChild(cell);
+      var rec = { ch: ch, cell: cell, blocks: [] };
+      gPaint.rows.push(rec);
       var line = div('tline');
       if (ch.status !== 'ready') {
         var ld = div('blk ld' + (ch === gChan ? ' foc' : ''));
         ld.style.left = '0';
         ld.style.width = 'calc(100% - .4vw)';
         ld.appendChild(div('t', 'Loading programmes\u2026'));
+        rec.ld = ld;
         line.appendChild(ld);
         row.appendChild(line);
         grid.appendChild(row);
         continue;
       }
-      E.blocks(ch.sched, gWin, gWin + SPAN).forEach(function (b) {
-        var s = Math.max(b.startMs, gWin);
-        var e = Math.min(b.endMs, gWin + SPAN);
-        if (e <= s) return;
-        var focused = (ch === list[gRow]) && b.startMs <= gFocus && gFocus < b.endMs;
-        var frac = (e - s) / SPAN;
-        var clipL = b.startMs < gWin, clipR = b.endMs > gWin + SPAN;
-        var el = div('blk' + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : '') +
-          (clipL ? ' cl' : '') + (clipR ? ' cr' : ''));
-        el.style.left = ((s - gWin) / SPAN * 100) + '%';
-        el.style.width = 'calc(' + (frac * 100) + '% - .4vw)';
-        if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text
-        if (clipL) el.appendChild(div('arr l', '◄'));
-        if (clipR) el.appendChild(div('arr r', '►'));
-        el.appendChild(div('t', b.prog.title));
-        el.appendChild(div('s', b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '')));
-        line.appendChild(el);
-      });
+      (function (rec, line, ch) {
+        E.blocks(ch.sched, gWin, gWin + SPAN).forEach(function (b) {
+          var s = Math.max(b.startMs, gWin);
+          var e = Math.min(b.endMs, gWin + SPAN);
+          if (e <= s) return;
+          var focused = (ch === list[gRow]) && b.startMs <= gFocus && gFocus < b.endMs;
+          var frac = (e - s) / SPAN;
+          var clipL = b.startMs < gWin, clipR = b.endMs > gWin + SPAN;
+          var base = 'blk' + (clipL ? ' cl' : '') + (clipR ? ' cr' : '');
+          var el = div(base + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : ''));
+          el.style.left = ((s - gWin) / SPAN * 100) + '%';
+          el.style.width = 'calc(' + (frac * 100) + '% - .4vw)';
+          rec.blocks.push({ el: el, b: b, base: base });
+          if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text
+          if (clipL) el.appendChild(div('arr l', '\u25c4'));
+          if (clipR) el.appendChild(div('arr r', '\u25ba'));
+          el.appendChild(div('t', b.prog.title));
+          el.appendChild(div('s', b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '')));
+          line.appendChild(el);
+        });
+      })(rec, line, ch);
       row.appendChild(line);
       grid.appendChild(row);
     }
 
-    // programme details for the highlighted block
-    var sel = list[gRow];
-    var fb = sel.status === 'ready' ? E.blockAt(sel.sched, gFocus) : null;
-    if (!fb) {
-      $('gtitle').textContent = sel.name;
-      $('gchan').textContent = sel.n + '  ' + sel.name;
-      $('gtime').textContent = 'Loading programmes\u2026';
-      $('gsub').textContent = '';
-    } else {
-      $('gtitle').textContent = fb.prog.title;
-      $('gchan').textContent = sel.n + '  ' + sel.name;
-      var when;
-      if (fb.startMs <= now && now < fb.endMs) when = 'Showing now';
-      else if (fb.startMs > now) {
-        var mins = Math.round((fb.startMs - now) / 60000);
-        when = mins < 60 ? 'Starts in ' + mins + ' min' : 'Starts at ' + fmtTime(fb.startMs);
-      } else when = 'Earlier';
-      $('gtime').textContent = fmtTime(fb.startMs) + ' – ' + fmtTime(fb.endMs) + '   ' + when;
-      $('gsub').textContent = fb.count > 1
-        ? 'Plus ' + (fb.count - 1) + ' more programme' + (fb.count > 2 ? 's' : '')
-        : (fb.prog.sub || '');
-    }
-    guideArt(fb ? fb.prog : null);
+    paintSelection(list);
   }
 
   function openGuide() {
@@ -1183,11 +1253,12 @@
     guideTimer = setInterval(function () {
       var t = Date.now();
       if (gWin < floorHalf(t)) { gWin = floorHalf(t); if (gFocus < t) gFocus = t; }
-      renderGuide();
+      renderGuide(true);
     }, 20000);
   }
 
   function closeGuide() {
+    gPaint = null;
     guideOpen = false;
     document.body.classList.remove('guide-open');
     $('guide').className = 'hidden';
@@ -1200,7 +1271,7 @@
     var i = Math.max(0, list.indexOf(gChan));
     i = wrap ? (i + delta + n) % n : Math.max(0, Math.min(n - 1, i + delta));
     gChan = list[i];
-    renderGuide();
+    renderGuide(true);
   }
 
   function gHoriz(dir) {
@@ -1220,7 +1291,7 @@
       gFocus = Math.min(nb.startMs + 1000, nb.endMs - 1);
       if (nb.startMs >= gWin + SPAN) gWin = floorHalf(nb.startMs);
     }
-    renderGuide();
+    renderGuide(true);
   }
 
   function gJump(kind) {
@@ -1229,7 +1300,7 @@
     if (kind === 'now') { gWin = base; gFocus = now; }
     else if (kind === 'later') { gWin += SPAN; gFocus = gWin; }
     else { gWin = Math.max(base, gWin - SPAN); gFocus = gWin === base ? now : gWin; }
-    renderGuide();
+    renderGuide(true);
   }
 
   function watchFromGuide() {
@@ -1615,7 +1686,13 @@
   function startLoading() {
     channels.forEach(function (c) { c.status = 'loading'; c.sched = null; });
     var finished = 0;
-    channels.forEach(function (c) {
+    // the native side now serves a few requests at a time, so ask in the order they are wanted: the channel that was
+    // on last, then down the guide. The first rows fill in first instead of whichever channel happened to answer.
+    var last = store.get('last');
+    var order = channels.slice().sort(function (a, b) {
+      return (a.id === last ? -1 : b.id === last ? 1 : 0) || a.n - b.n;
+    });
+    order.forEach(function (c) {
       loadPrograms(c).then(function (progs) {
         // Auto EPG found nothing for this channel: use its normal sources instead
         if (!c.autoUsed || (progs && progs.length >= AUTO_MIN)) return progs;

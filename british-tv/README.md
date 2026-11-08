@@ -112,6 +112,13 @@ The OSD (press OK while watching) has an **Info** button on the right, and holdi
 
 Each channel's list of programmes (and the links to them) is stored on the TV for 7 days and in a compact form, so the app starts without asking archive.org again. The guide's schedule is worked out from that list, so it stays the same all week. Real episode names found online are stored too. In the guide, pressing OK on any programme plays it from the start, whatever the time; the channel carries on from there. The programme airing now joins in progress as before.
 
+**What keeps it quick on the box**
+
+* **A few connections, not hundreds.** Requests used to get a fresh thread each, so a start-up could leave 50+ threads fighting over the network. They now share a pool of six, asked for in the order they are wanted: the channel that was on last, then down the guide, so the top rows fill in first.
+* **Only the fields the app reads.** An item's metadata lists every file with its checksums and timestamps, which for a box set runs to megabytes of fields that are never looked at. It is now cut down to the title and each file's name, size, length and format while the reply is being read, so the big text never reaches the page. On a 1,200-file item that is about 70% less to hand over and parse, with exactly the same programmes coming out.
+* **The guide redraws, rather than rebuilds.** Moving the highlight used to throw the whole grid away and build it again. Now it only changes the highlight, the "on now" marks and the details line, and rebuilds just when the rows or the two-hour window actually change.
+* **Scraped lists are kept.** Building a channel from `autodata.js` means running thousands of file names through the naming rules, a second or two per channel on the TV. The finished list is now stored for the day like any other.
+
 ## Adverts and Auto EPG (OSD)
 
 - **Artwork**: the OSD shows the show poster (lifted above the bar) with a faint fanart backdrop, from TVmaze, when found.

@@ -22,10 +22,17 @@ import android.widget.FrameLayout;
 
 import org.json.JSONObject;
 
+import android.util.JsonReader;
+import android.util.JsonToken;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Hosts the bundled British TV guide/player (assets/index.html) full screen.
@@ -37,9 +44,20 @@ public class MainActivity extends Activity {
     private static final String PAGE = "file:///android_asset/index.html";
     private static final String ALLOWED_PREFIX = "https://archive.org/";
     private static final String ALLOWED_PREFIX_2 = "https://api.tvmaze.com/";   // episode names
-    private static final int MAX_BODY_BYTES = 24 * 1024 * 1024; // big box sets list thousands of files
+    private static final int MAX_BODY_BYTES = 4 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
+    private static final int HTTP_THREADS = 6;                  // archive.org is happier with a few connections than with hundreds
 
     private final Handler main = new Handler(Looper.getMainLooper());
+    /** All requests share a small pool: one thread per request used to leave 50+ threads competing during start-up. */
+    private final ExecutorService http = Executors.newFixedThreadPool(HTTP_THREADS, new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r, "tv-http");
+            t.setDaemon(true);
+            t.setPriority(Thread.NORM_PRIORITY - 1);   // never ahead of the thread drawing the guide
+            return t;
+        }
+    });
     private FrameLayout root;
     private WebView web;
     private boolean onTv;
@@ -249,6 +267,7 @@ public class MainActivity extends Activity {
             web.destroy();
             web = null;
         }
+        http.shutdownNow();
         super.onDestroy();
     }
 
@@ -258,7 +277,7 @@ public class MainActivity extends Activity {
     private class Bridge {
         @JavascriptInterface
         public void get(final int id, final String url) {
-            new Thread(new Runnable() {
+            http.execute(new Runnable() {
                 @Override
                 public void run() {
                     int status = 0;
@@ -275,17 +294,11 @@ public class MainActivity extends Activity {
                         status = c.getResponseCode();
                         InputStream in = status >= 200 && status < 300 ? c.getInputStream() : c.getErrorStream();
                         if (in != null) {
-                            ByteArrayOutputStream out = new ByteArrayOutputStream();
-                            byte[] buf = new byte[16384];
-                            int n;
-                            while ((n = in.read(buf)) > 0) {
-                                out.write(buf, 0, n);
-                                if (out.size() > MAX_BODY_BYTES) {
-                                    throw new java.io.IOException("response too large");
-                                }
-                            }
+                            boolean ok = status >= 200 && status < 300;
+                            // An item's metadata lists every file with its checksums: megabytes of fields the page never
+                            // reads. Keep only what it uses, as the response is read, so the big string is never built.
+                            body = ok && url.contains("/metadata/") ? trimMetadata(in) : readAll(in);
                             in.close();
-                            body = out.toString("UTF-8");
                         }
                     } catch (Exception e) {
                         status = 0;
@@ -305,7 +318,7 @@ public class MainActivity extends Activity {
                         }
                     });
                 }
-            }).start();
+            });
         }
 
         @JavascriptInterface
@@ -317,5 +330,124 @@ public class MainActivity extends Activity {
                 }
             });
         }
+    }
+
+    private static String readAll(InputStream in) throws java.io.IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buf = new byte[16384];
+        int n;
+        while ((n = in.read(buf)) > 0) {
+            out.write(buf, 0, n);
+            if (out.size() > MAX_BODY_BYTES) {
+                throw new java.io.IOException("response too large");
+            }
+        }
+        return out.toString("UTF-8");
+    }
+
+    /**
+     * Reads an archive.org item metadata response and writes back only the fields the page uses:
+     * is_dark, metadata.title, metadata["access-restricted-item"], and name/size/length/format per file.
+     * Streamed, so a box set listing thousands of files never becomes a multi-megabyte string.
+     */
+    private static String trimMetadata(InputStream in) throws java.io.IOException {
+        JsonReader r = new JsonReader(new InputStreamReader(in, "UTF-8"));
+        StringBuilder files = new StringBuilder("[");
+        String title = null, restricted = null;
+        boolean dark = false;
+        int kept = 0;
+        r.beginObject();
+        while (r.hasNext()) {
+            String top = r.nextName();
+            if ("is_dark".equals(top)) {
+                // the page treats any value here as "unavailable", so only a real yes is passed on
+                String d = str(r);
+                dark = d != null && !"false".equalsIgnoreCase(d) && !"0".equals(d);
+            } else if ("metadata".equals(top) && r.peek() == JsonToken.BEGIN_OBJECT) {
+                r.beginObject();
+                while (r.hasNext()) {
+                    String k = r.nextName();
+                    if ("title".equals(k)) {
+                        title = str(r);
+                    } else if ("access-restricted-item".equals(k)) {
+                        restricted = str(r);
+                    } else {
+                        r.skipValue();
+                    }
+                }
+                r.endObject();
+            } else if ("files".equals(top) && r.peek() == JsonToken.BEGIN_ARRAY) {
+                r.beginArray();
+                while (r.hasNext()) {
+                    r.beginObject();
+                    String name = null, size = null, len = null, format = null;
+                    while (r.hasNext()) {
+                        String k = r.nextName();
+                        if ("name".equals(k)) {
+                            name = str(r);
+                        } else if ("size".equals(k)) {
+                            size = str(r);
+                        } else if ("length".equals(k)) {
+                            len = str(r);
+                        } else if ("format".equals(k)) {
+                            format = str(r);
+                        } else {
+                            r.skipValue();
+                        }
+                    }
+                    r.endObject();
+                    if (name == null) {
+                        continue;
+                    }
+                    if (kept++ > 0) {
+                        files.append(',');
+                    }
+                    files.append('{').append("\"name\":").append(JSONObject.quote(name));
+                    if (size != null) {
+                        files.append(",\"size\":").append(JSONObject.quote(size));
+                    }
+                    if (len != null) {
+                        files.append(",\"length\":").append(JSONObject.quote(len));
+                    }
+                    if (format != null) {
+                        files.append(",\"format\":").append(JSONObject.quote(format));
+                    }
+                    files.append('}');
+                }
+                r.endArray();
+            } else {
+                r.skipValue();
+            }
+        }
+        r.endObject();
+        files.append(']');
+        StringBuilder out = new StringBuilder("{\"metadata\":{");
+        out.append("\"title\":").append(title == null ? "\"\"" : JSONObject.quote(title));
+        if (restricted != null) {
+            out.append(",\"access-restricted-item\":").append(JSONObject.quote(restricted));
+        }
+        out.append('}');
+        if (dark) {
+            out.append(",\"is_dark\":true");
+        }
+        out.append(",\"files\":").append(files).append('}');
+        return out.toString();
+    }
+
+    /** Any scalar as a string (archive.org writes numbers and booleans both ways). */
+    private static String str(JsonReader r) throws java.io.IOException {
+        JsonToken t = r.peek();
+        if (t == JsonToken.NULL) {
+            r.nextNull();
+            return null;
+        }
+        if (t == JsonToken.BOOLEAN) {
+            return String.valueOf(r.nextBoolean());
+        }
+        if (t == JsonToken.BEGIN_ARRAY || t == JsonToken.BEGIN_OBJECT) {
+            r.skipValue();
+            return null;
+        }
+        return r.nextString();
     }
 }

@@ -373,5 +373,14 @@ window.CHANNELS = [
     name: 'Disney',
     maxItems: 100,
     sources: DISNEY
+  },
+  {
+    n: 22,
+    id: 'onthisday',
+    name: 'On This Day',
+    // BBC Archive clips, listed with their links in onthisday.js, so the channel needs no lookups at all.
+    // They are short, so the guide groups a run of them into one block; the real length of each is learned
+    // the first time it plays.
+    sources: [{ files: (typeof window !== 'undefined' && window.OTD) || [], dur: 150 }]
   }
 ];

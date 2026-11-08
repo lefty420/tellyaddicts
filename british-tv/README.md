@@ -51,9 +51,19 @@ archive.org has made an `.mp4` copy next to them.
 | 19 | Christmas Music | Christmas number ones and festive pop (Slade, Wham!, Band Aid, the MTV Christmas 100) |
 | 20 | I'm Off School | what was on when you were off school: Neighbours, Home and Away, Sons and Daughters, Trisha, Kilroy, Jerry Springer, Jenny Jones, This Morning, GMTV, Richard & Judy |
 | 21 | Disney | Disney cartoon shorts |
+| 22 | On This Day | BBC Archive clips: 165 of them, listed with their links in `onthisday.js` |
 
 Kids Movies is still thin on hand-picked sources; **Auto EPG** is what fills a channel out from
 archive.org itself.
+
+**On This Day** is built differently from the rest. Its clips are listed with their links in
+`app/src/main/assets/onthisday.js` as `[url, title]`, which a source picks up with `files:` instead of `item:` or
+`search:`. Nothing is looked up, so the channel is ready without a single request. The titles have had the
+"BBC Archive -" prefix and the hashes taken off, and the five ways the show was tagged (`#OnThisDay`, `#OTD`,
+`#Onthisday` and so on) all read as "On This Day". Alternative copies of the same clip are left out. The clips are
+short, so the guide groups a run of them into one block, and each one's real length is learned the first time it
+plays; until then the source's `dur` (150 seconds) is assumed. Being BBC, the channel has no advert breaks, and
+Auto EPG leaves it alone rather than replacing the clips with searches.
 
 The full source list for each is in `channels.js`. **CITV** leaves out DVD / disc files and anything
 over 35 minutes, because those are usually whole discs rather than episodes.

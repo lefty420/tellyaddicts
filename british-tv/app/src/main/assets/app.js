@@ -266,10 +266,23 @@
     }
     var ids = [];
     var optsFor = {};
+    var direct = [];                      // programmes from sources that already name their files
     var chain = Promise.resolve();
     sources.forEach(function (s) {
       var skip = s.exclude && !s.search ? null : (s.exclude ? new RegExp(s.exclude, 'i') : null);
       var skipTitle = s.skipTitle ? new RegExp(s.skipTitle, 'i') : null;
+      if (s.files) {
+        // A list of [url, title]: nothing to look up, so the channel is ready without a single request. The real
+        // running time is not known until a clip has played once; until then each uses the source's dur.
+        (s.files || []).forEach(function (f) {
+          var url = E.canonicalUrl(f[0]) || f[0];
+          if (!url || url.indexOf(DL) !== 0) return;
+          var id = url.slice(DL.length).split('?')[0];
+          direct.push({ id: decodeURIComponent(id), item: decodeURIComponent(id).split('/')[0], url: url,
+                        title: f[1] || '', sub: '', dur: f[2] || s.dur || 150, group: s.group });
+        });
+        return;
+      }
       if (s.item) {
         ids.push(s.item);
         optsFor[s.item] = { include: s.include, exclude: s.exclude, skipFile: s.skipFile, maxSize: s.maxSize, requireEp: s.requireEp, minDur: s.minDur, maxDur: s.maxDur, perItem: s.perItem, title: s.title, group: s.group };
@@ -295,7 +308,7 @@
         // one retry: a busy archive.org sometimes drops a request
         return getJSON(url).then(null, function () { return getJSON(url); });
       }).then(function (metas) {
-        var progs = [];
+        var progs = direct.slice();
         var report = [];
         metas.forEach(function (m, i) {
           if (!m) { report.push(uniq[i] + ': could not be loaded'); return; }

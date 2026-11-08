@@ -364,7 +364,10 @@ window.CHANNELS = [
         rows: 50, perItem: 15, minDur: 600, maxDur: 4200, maxSize: 1500000000, skipFile: DAY_SKIP },
       // morning TV
       { search: 'title:("this morning" OR "gmtv" OR "good morning britain" OR "richard and judy" OR "pebble mill" OR "the time the place") AND mediatype:movies',
-        rows: 50, perItem: 15, minDur: 600, maxDur: 4200, maxSize: 1500000000, skipFile: DAY_SKIP }
+        rows: 50, perItem: 15, minDur: 600, maxDur: 4200, maxSize: 1500000000, skipFile: DAY_SKIP },
+      // the rest of the daytime line-up
+      { search: 'title:("going for gold" OR "open air" OR "lorraine" OR "tv-am" OR "tvam") AND mediatype:movies',
+        rows: 40, perItem: 15, minDur: 600, maxDur: 4200, maxSize: 1500000000, skipFile: DAY_SKIP }
     ]
   },
   {

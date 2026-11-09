@@ -385,5 +385,16 @@ window.CHANNELS = [
     // They are short, so the guide groups a run of them into one block; the real length of each is learned
     // the first time it plays.
     sources: [{ files: (typeof window !== 'undefined' && window.OTD) || [], dur: 150 }]
+  },
+  {
+    n: 23,
+    id: 'movies',
+    name: 'Movies',
+    maxItems: 60,
+    // Films from the scraper's Movies category, published as data/movies.json. Every film is one "episode" of a
+    // single show called "Movies" and carries its own title ("Ghostbusters (1984)") and real running time, so the
+    // channel needs no archive.org lookups: the list is read straight from the published data, with Auto EPG on
+    // or off. Until something is published the channel finds nothing and hides itself.
+    sources: [{ data: 'movies' }]
   }
 ];

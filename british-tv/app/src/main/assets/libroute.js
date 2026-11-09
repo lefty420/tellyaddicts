@@ -94,6 +94,7 @@
           if (ep.a) d.a = ep.a;
           if (ep.l) d.l = ep.l;
           if (sh.song) d.song = 1;
+          if (sh.film) d.film = 1;                   // a film: its own title, and no episode number to expect
           it.m[ep.f] = d;
         });
       });
@@ -110,10 +111,11 @@
   }
 
   /** The title to show for a programme when the library knows better than the file name: TVmaze's episode title
-   *  ("The Bill S11E71 Kicking"), or a song's "Artist - Song (Year)". null = keep the engine's own tidy title. */
+   *  ("The Bill S11E71 Kicking"), a song's "Artist - Song (Year)", or a film's "Ghostbusters (1984)".
+   *  null = keep the engine's own tidy title. */
   function titleFor(show, d) {
     if (!d) return null;
-    if (d.song) return d.n || null;
+    if (d.song || d.film) return d.n || null;
     if (!d.tvm || !d.n) return null;
     return (show ? show + ' ' : '') + (d.c && d.c !== 'Special' ? d.c + ' ' : '') + d.n;
   }

@@ -166,14 +166,40 @@
   var SHOWS_URL = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/tools/shows.json';
   var libP = null, libRevs = null;
 
+  /** Shows the scraper has listed that tools/shows.json has not caught up with yet (data/routes.json). Merged in
+   *  so a newly scraped show reaches its channel straight away; shows.json wins wherever both name a show. */
+  function mergeRoutes(shows, routes) {
+    var chans = routes && routes.channels;
+    if (!shows || !chans) return shows;
+    var known = {};
+    Object.keys(shows).forEach(function (ch) {
+      ((shows[ch] || {}).shows || []).forEach(function (n) { known[LIBROUTE.norm(n)] = 1; });
+    });
+    var out = {}, added = 0;
+    Object.keys(shows).forEach(function (ch) { out[ch] = shows[ch]; });
+    Object.keys(chans).forEach(function (ch) {
+      var extra = ((chans[ch] || {}).shows || []).filter(function (n) { return !known[LIBROUTE.norm(n)]; });
+      if (!extra.length) return;
+      var had = out[ch] || { name: (chans[ch] || {}).name || ch, shows: [] };
+      var merged = {};
+      Object.keys(had).forEach(function (k) { merged[k] = had[k]; });
+      merged.shows = (had.shows || []).concat(extra);
+      out[ch] = merged;
+      added += extra.length;
+    });
+    return added ? out : shows;
+  }
+
   /** {channel: rows} from the whole library; null if it or shows.json can't be had. */
   function loadLibraryRoutes(libRev, showsText) {
     if (libP) return libP;
     var showsP = showsText ? Promise.resolve(JSON.parse(showsText)) : getJSON(SHOWS_URL);
-    libP = Promise.all([getJSON(DATA_BASE + 'library.json'), showsP]).then(function (r) {
+    // routes.json is optional: when it is not published the lists in shows.json are used on their own
+    var routesP = getJSON(DATA_BASE + 'routes.json').then(null, function () { return null; });
+    libP = Promise.all([getJSON(DATA_BASE + 'library.json'), showsP, routesP]).then(function (r) {
       var lib = r[0], shows = r[1];
       if (!lib || !lib.shows || !shows || !window.LIBROUTE || (libRev && lib.rev && lib.rev !== libRev)) return null;
-      return LIBROUTE.route(lib, shows);
+      return LIBROUTE.route(lib, mergeRoutes(shows, r[2]));
     }).catch(function () { return null; });
     return libP;
   }
@@ -187,7 +213,9 @@
       // Which channels changed only shows once the library is routed, so remember the answer per library and
       // shows.json revision: an unchanged library costs one small download, not the whole file.
       return http(SHOWS_URL).then(function (showsText) {
-        var key = 'librevs:' + j.library + ':' + E.hash(showsText);
+        // the routes revision is part of the key: a new routes.json moves shows between channels just as
+        // an edit to shows.json does, so the answer stored for the old one must not be reused
+        var key = 'librevs:' + j.library + ':' + (j.routes || '-') + ':' + E.hash(showsText);
         var known = store.get(key);
         if (known && known.revs) { libRevs = known.revs; return known.revs; }
         return loadLibraryRoutes(j.library, showsText).then(function (routed) {
@@ -229,7 +257,15 @@
     });
   }
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
-  function progsFromData(items) {
+  var NO_EPISODES = { xmasmusic: 1, movies: 1, kidsmovies: 1 };   // channels of songs and films, which have no episode numbers
+  /** A row of songs or films: nothing in it will carry SxxExx, so insisting on one empties the channel. */
+  function wantsEpisodes(channelId, it) {
+    if (NO_EPISODES[channelId]) return false;
+    var m = it.m;
+    if (m) for (var k in m) if (m.hasOwnProperty(k) && (m[k].song || m[k].film)) return false;
+    return true;
+  }
+  function progsFromData(items, channelId) {
     var out = [];
     items.forEach(function (it) {
       var shows = {}, files = (it.f || []).map(function (f) {
@@ -238,7 +274,8 @@
         return { name: name, size: '90000000' };                  // size/length are not in the scrape; real length is learned on first play
       });
       // the same naming rules as live results (episode codes, tidy titles, .ia.mp4 duplicates)
-      E.pickPrograms(it.id, { metadata: { title: it.t }, files: files }, { requireEp: true, skipFile: AUTO && AUTO.NOT_EPISODE }).forEach(function (p) {
+      E.pickPrograms(it.id, { metadata: { title: it.t }, files: files },
+                     { requireEp: wantsEpisodes(channelId, it), skipFile: AUTO && AUTO.NOT_EPISODE }).forEach(function (p) {
         var nm = p.id.slice(it.id.length + 1), show = shows[nm] || '';
         p.group = show;
         p.show = show;        // used for the artwork and Info lookups, which beat guessing from the file name
@@ -300,7 +337,7 @@
   function buildFromData(ch, noAuto, rev, dkey) {
     return loadChannelData(ch.id, rev).then(function (rows) {
       if (!rows || !rows.length) { ch.autoUsed = true; ch.report = ['nothing in the library for this channel']; ch.plan = []; return []; }
-      var progs = dedupeTitles(capShows(progsFromData(rows).filter(function (p) { return genreFits(ch, p); }), 0.25));
+      var progs = dedupeTitles(capShows(progsFromData(rows, ch.id).filter(function (p) { return genreFits(ch, p); }), 0.25));
       ch.autoUsed = progs.length > 0;
       ch.report = [];
       ch.plan = E.sample(progs, MAX_STORED);
@@ -318,12 +355,22 @@
     });
   }
 
+  /** A channel whose sources read a published list (data/<id>.json) must notice when a new one is published, so
+   *  its revision goes into the cache key. Everything else goes straight through. */
   function loadProgramsLive(ch, noAuto) {
+    var reads = (ch.sources || []).map(function (s) { return s.data; }).filter(Boolean);
+    if (!reads.length) return liveBuild(ch, noAuto, '');
+    return loadDataIndex().then(function (idx) {
+      return liveBuild(ch, noAuto, reads.map(function (d) { return d + (idx[d] || ''); }).join('|'));
+    }, function () { return liveBuild(ch, noAuto, ''); });
+  }
+
+  function liveBuild(ch, noAuto, salt) {
     var auto = !noAuto && !ch.noCache && autoEpg && window.AUTO ? AUTO.sourcesFor(ch.id) : null;
     var sources = auto || ch.sources;
     ch.autoUsed = !!auto;
     var prefix = auto ? 'plan7a:' : 'plan7:';
-    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + '|v7|' + epgGen);   // bump when the naming/URL rules change so stored titles are rebuilt (how long it is kept is Options > Keep listings)
+    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + salt + '|v7|' + epgGen);   // bump when the naming/URL rules change so stored titles are rebuilt (how long it is kept is Options > Keep listings)
     ch.cacheKey = key;
     var cached = ch.noCache ? null : store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < planTtl()) {
@@ -348,6 +395,17 @@
           var id = url.slice(DL.length).split('?')[0];
           direct.push({ id: decodeURIComponent(id), item: decodeURIComponent(id).split('/')[0], url: url,
                         title: f[1] || '', sub: '', dur: f[2] || s.dur || 150, group: s.group });
+        });
+        return;
+      }
+      if (s.data) {
+        // A published list (data/<id>.json, or that channel's slice of the whole library): already named and
+        // already timed, so there is nothing to look up. Missing or empty means this source contributes nothing.
+        chain = chain.then(function () {
+          return loadDataIndex().then(function (idx) { return loadChannelData(s.data, idx[s.data] || ''); })
+            .then(function (rows) {
+              if (rows && rows.length) Array.prototype.push.apply(direct, progsFromData(rows, s.data));
+            }, function () { /* nothing published for it */ });
         });
         return;
       }

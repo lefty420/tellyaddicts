@@ -20,6 +20,26 @@
     return t.replace(/[^a-z0-9]+/g, ' ').trim().replace(/^the /, '');
   }
 
+  // Words that may follow a one-word show name without making it a different programme ("Bread series 3",
+  // "Lovejoy S01E01"). Anything else - "Rainbow Six", "Smart Guy" - is another title, and routing on it would
+  // file an unrelated programme under that show. The same rule the scraper uses for its own matching.
+  var NEXT_OK = {
+    series: 1, season: 1, seasons: 1, episode: 1, episodes: 1, ep: 1, eps: 1, part: 1, parts: 1, pt: 1,
+    special: 1, specials: 1, christmas: 1, xmas: 1, complete: 1, collection: 1, compilation: 1, uncut: 1,
+    remastered: 1, upscaled: 1, dvd: 1, vhs: 1, rip: 1, pilot: 1, volume: 1, vol: 1, disc: 1, disk: 1,
+    box: 1, set: 1, uk: 1, itv: 1, bbc: 1, citv: 1, cbbc: 1, mp4: 1, ia: 1, hq: 1, hd: 1, sd: 1, the: 1
+  };
+  /** For a one-word name found inside a longer title, is what follows it harmless? */
+  function okAfter(padded, key) {
+    if (key.indexOf(' ') >= 0) return true;              // several words: specific enough on its own
+    var at = padded.indexOf(' ' + key + ' ');
+    if (at < 0) return false;
+    var rest = padded.slice(at + key.length + 2).trim();
+    if (!rest) return true;
+    var w = rest.split(' ')[0];
+    return !w || !!NEXT_OK[w] || /^s\d{1,2}(e\d{1,3})?$/.test(w) || /^\d{1,2}x\d{1,3}$/.test(w) || /^\d{1,4}$/.test(w);
+  }
+
   function uniqSorted(list) {
     var seen = {}, out = [];
     list.forEach(function (x) { if (!seen[x]) { seen[x] = true; out.push(x); } });
@@ -48,7 +68,7 @@
       var padded = ' ' + n + ' ', hit = [];
       for (var j = 0; j < keys.length; j++) {
         var k = keys[j];
-        if (k.length > 4 && padded.indexOf(' ' + k + ' ') >= 0) hit = hit.concat(smap[k]);
+        if (k.length > 4 && padded.indexOf(' ' + k + ' ') >= 0 && okAfter(padded, k)) hit = hit.concat(smap[k]);
       }
       if (hit.length) return uniqSorted(hit);
     }
@@ -98,6 +118,6 @@
     return (show ? show + ' ' : '') + (d.c && d.c !== 'Special' ? d.c + ' ' : '') + d.n;
   }
 
-  var LibRoute = { norm: norm, showMap: showMap, channelsFor: channelsFor, route: route, titleFor: titleFor };
+  var LibRoute = { norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, titleFor: titleFor };
   if (typeof module !== 'undefined' && module.exports) module.exports = LibRoute; else root.LIBROUTE = LibRoute;
 })(typeof window !== 'undefined' ? window : this);

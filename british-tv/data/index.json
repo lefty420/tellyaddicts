@@ -1,33 +1,33 @@
 {
- "updated": "2026-11-09T14:57:45Z",
+ "updated": "2026-11-09T16:00:57Z",
  "channels": {
-  "childrens": "c10172727b",
-  "citv": "35fd08f290",
-  "comedy": "6dc7afa44d",
-  "gameshows": "928463ccac",
-  "music": "c98d533aec",
-  "offschool": "a39a9f6055",
-  "sitcoms": "ec2bce64c2",
-  "thebill": "484e21672a",
-  "tv70s": "7602b205d8",
-  "xmasmusic": "bbb8e7e145"
+  "childrens": "65fee82eb2",
+  "citv": "d498e6e73a",
+  "comedy": "415007d4dc",
+  "gameshows": "2a5202845c",
+  "music": "c8aeb81141",
+  "offschool": "6791793680",
+  "sitcoms": "0cb06db407",
+  "thebill": "dec23596f4",
+  "tv70s": "ebb0675da2",
+  "xmasmusic": "f1ab0e2c34"
  },
  "counts": {
-  "childrens": 116,
-  "citv": 438,
-  "comedy": 101,
-  "gameshows": 291,
-  "music": 160,
+  "childrens": 113,
+  "citv": 407,
+  "comedy": 83,
+  "gameshows": 173,
+  "music": 144,
   "offschool": 23,
-  "sitcoms": 108,
-  "thebill": 110,
-  "tv70s": 152,
-  "xmasmusic": 52
+  "sitcoms": 81,
+  "thebill": 102,
+  "tv70s": 146,
+  "xmasmusic": 51
  },
- "library": "1bf6576cf6",
+ "library": "01fd9eeec0",
  "library_counts": {
-  "shows": 280,
-  "episodes": 20651,
-  "copies": 46881
+  "shows": 275,
+  "episodes": 19636,
+  "copies": 44385
  }
 }

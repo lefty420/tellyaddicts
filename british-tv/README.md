@@ -114,6 +114,7 @@ OSD › **Options** (Up/Down to choose, Left/Right or OK to change):
 | Adverts | Off, All (70s–90s), 1970s, 1980s, 1990s |
 | Auto EPG (experimental) | On / Off |
 | Keep listings for | 24 hours, 48 hours, 1 week, 4 weeks |
+| Refresh listings | Press OK twice |
 
 **Enhancements** covers everything done to the picture itself. The first three change the video: VHS warms and
 softens it with faint horizontal lines and a slight colour fringe (no tracking wobble, no bands along the bottom),
@@ -136,6 +137,10 @@ and the picture is necessarily smaller, because the cabinet has to go somewhere.
 These are drawn rather than photographed, so they look like a good illustration of a television rather than a
 photograph of one. Swapping in a real image later is a small change: the window, the scaling and the plumbing are
 already here, and only the drawing would go.
+
+**Refresh listings** throws away every stored lineup and gathers them all again, in a new running order, so each
+channel comes back with different programmes in different places while staying on its own theme. It asks twice,
+because it reloads the app. Use it when a channel has gone stale before its **Keep listings for** time is up.
 
 **Extra metadata** turns on both the poster on the bar and the show fanart behind the guide header
 (TVmaze, TV shows only).

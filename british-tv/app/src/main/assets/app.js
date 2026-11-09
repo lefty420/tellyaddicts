@@ -96,6 +96,9 @@
     });
   }
   var keepIdx = keepIndex((store.get('keep1') || '1w'));
+  // Bumped by Options > Refresh listings. It goes into each channel's running order, so every channel comes back
+  // with its programmes in different places, and into the cache keys, so the lists are gathered again from source.
+  var epgGen = +(store.get('epggen') || 0) || 0;
   function savePlan(ch) {
     if (!ch.cacheKey || !ch.plan) return;
     store.set(ch.cacheKey, { t: ch.cacheT || Date.now(), p: packPlan(ch.plan), r: ch.report || [] });
@@ -212,7 +215,7 @@
       // published revision is part of the key, so a newly scraped list is picked up straight away.
       return loadDataIndex().then(function (idx) {
         var rev = idx[ch.id] || '';
-        var dkey = 'plan7d:' + ch.id + ':' + E.hash('v8|' + rev);
+        var dkey = 'plan7d:' + ch.id + ':' + E.hash('v8|' + rev + '|' + epgGen);
         ch.cacheKey = dkey;
         var dcached = store.get(dkey);
         if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < planTtl()) {
@@ -255,7 +258,7 @@
     var sources = auto || ch.sources;
     ch.autoUsed = !!auto;
     var prefix = auto ? 'plan7a:' : 'plan7:';
-    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + '|v7');   // bump when the naming/URL rules change so stored titles are rebuilt (how long it is kept is Options > Keep listings)
+    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + '|v7|' + epgGen);   // bump when the naming/URL rules change so stored titles are rebuilt (how long it is kept is Options > Keep listings)
     ch.cacheKey = key;
     var cached = ch.noCache ? null : store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < planTtl()) {
@@ -1520,7 +1523,7 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['ar', 'fx', 'ovl', 'gart', 'ads', 'auto', 'keep'];
+  var OPTS = ['ar', 'fx', 'ovl', 'gart', 'ads', 'auto', 'keep', 'refresh'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -1529,6 +1532,7 @@
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'keep') return KEEP[keepIdx].label;
+    if (id === 'refresh') return refreshArmed ? 'Press OK again' : 'Press OK';
     return autoEpg ? 'On' : 'Off';
   }
 
@@ -1555,6 +1559,32 @@
   }
   function closeOpts() { optsOpen = false; clearTimeout(optsTimer); $('opts').className = 'hidden'; }
   function optsTouch() { clearTimeout(optsTimer); optsTimer = setTimeout(closeOpts, 20000); }
+  /** Throw away every stored lineup and gather them again, in a new running order. Asks twice: it reloads. */
+  var refreshArmed = false, refreshTimer = null;
+  function refreshEpg() {
+    if (!refreshArmed) {
+      refreshArmed = true;
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(function () { refreshArmed = false; renderOpts(); }, 5000);
+      renderOpts();
+      toast('Press OK again to build every channel afresh', 4500);
+      return;
+    }
+    refreshArmed = false;
+    clearTimeout(refreshTimer);
+    epgGen = (epgGen + 1) % 100000;
+    store.set('epggen', epgGen);
+    try {
+      for (var k = localStorage.length - 1; k >= 0; k--) {
+        var kn = localStorage.key(k);
+        if (kn && /^plan7[ad]?:/.test(kn)) localStorage.removeItem(kn);
+      }
+    } catch (e) { /* ignore */ }
+    toast('Building every channel afresh\u2026', 4000);
+    renderOpts();
+    setTimeout(function () { location.reload(); }, 1200);   // the start-up loading screen does the rebuild
+  }
+
   function optsChange(d) {
     var id = OPTS[optsSel];
     if (id === 'ar') changeAr(d);
@@ -1563,6 +1593,7 @@
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
     else if (id === 'keep') changeKeep(d);
+    else if (id === 'refresh') refreshEpg();
     else toggleAuto();
   }
   function optsKey(k) {
@@ -1824,7 +1855,7 @@
         if (progs && progs.length) {
           progs = dropSlow(progs);
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
-          c.sched = E.buildSchedule(progs, c.id);
+          c.sched = E.buildSchedule(progs, c.id + (epgGen ? ':' + epgGen : ''));
           c.status = 'ready';
           enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
         } else {

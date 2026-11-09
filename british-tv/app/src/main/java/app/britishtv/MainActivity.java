@@ -50,6 +50,7 @@ public class MainActivity extends Activity {
     private static final int HTTP_THREADS = 8;                  // archive.org is happier with a few connections than with hundreds
 
     private final Handler main = new Handler(Looper.getMainLooper());
+    private MediaCache cache;
     /** All requests share a small pool: one thread per request used to leave 50+ threads competing during start-up. */
     private final ExecutorService http = Executors.newFixedThreadPool(HTTP_THREADS, new ThreadFactory() {
         @Override
@@ -69,6 +70,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         onTv = isTv();
+        cache = new MediaCache(getCacheDir());
 
         root = new FrameLayout(this);
         root.setBackgroundColor(Color.BLACK);
@@ -270,6 +272,10 @@ public class MainActivity extends Activity {
             web = null;
         }
         http.shutdownNow();
+        if (cache != null) {
+            cache.shutdown();
+            cache = null;
+        }
         super.onDestroy();
     }
 
@@ -322,6 +328,29 @@ public class MainActivity extends Activity {
                     });
                 }
             });
+        }
+
+        /**
+         * Buffer a programme ahead of the picture and give back the address to play. Returns the original address
+         * when buffering is off or cannot be set up, so playback is never worse than before.
+         */
+        @JavascriptInterface
+        public String buffer(String url, int megabytes) {
+            MediaCache c = cache;
+            if (c == null || url == null || megabytes <= 0 || !url.startsWith(ALLOWED_PREFIX)) {
+                return url;
+            }
+            String local = c.start(url, (long) megabytes * 1024L * 1024L);
+            return local != null ? local : url;
+        }
+
+        /** Stop buffering and delete what was kept. */
+        @JavascriptInterface
+        public void release() {
+            MediaCache c = cache;
+            if (c != null) {
+                c.release();
+            }
         }
 
         @JavascriptInterface

@@ -88,67 +88,6 @@
   body.fx-dots #ovl::after { background: repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 .17vh, rgba(0,0,0,0) .17vh .44vh); }
   .hidden { display: none !important; }
 
-  /* Television sets (Options > Television). The picture is scaled into a 4:3 window and a whole telly drawn round
-     it: case, surround, tube, dials and a standby light. Everything is gradients and one small noise tile, so there
-     are no image files, it is sharp at any size, and nothing animates - the layer is composited once. */
-  #tvset { position: fixed; inset: 0; z-index: 8; pointer-events: none; display: none;
-    --b1: #7d5733; --b2: #53381f; --b3: #2d1c0e; --hi: rgba(255,236,205,.30); --knob: #30200f; --wood: .42;
-    --grainimg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.004 0.16' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
-  body[class*="tv-"]:not(.guide-open):not(.tv-off) #tvset { display: block; }
-  /* the 4:3 window. Stated outright: width:auto on a <video> takes the size of the file, not the box. */
-  body[class*="tv-"]:not(.guide-open):not(.tv-off) #v {
-    inset: auto; top: 12.5%; left: 17%; width: 56%; height: 74.67%; border-radius: 4.4% / 6%; }
-  #tvset i { position: absolute; display: block; }
-  #tvset .room { inset: 0; background: radial-gradient(120% 110% at 50% 34%, #1b1e24 0%, #0a0b0e 62%, #050607 100%); }
-  #tvset .cast { left: 20%; right: 20%; bottom: 1.2%; height: 5%; border-radius: 50%;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.85), rgba(0,0,0,0) 70%); filter: blur(1.1vh); }
-  #tvset .body { top: 2%; bottom: 2%; left: 14.9%; right: 14.9%; border-radius: 2.4vh; overflow: hidden;
-    background: linear-gradient(152deg, var(--b1), var(--b2) 54%, var(--b3));
-    box-shadow: 0 2vh 5vh rgba(0,0,0,.8), inset 0 .3vh .7vh var(--hi), inset 0 -.45vh .9vh rgba(0,0,0,.6),
-                inset .3vh 0 .7vh rgba(255,255,255,.06), inset -.35vh 0 .8vh rgba(0,0,0,.45); }
-  #tvset .body::before { content: ""; position: absolute; inset: 0; opacity: var(--wood); mix-blend-mode: overlay;
-    background-image: var(--grainimg); background-size: 100% 100%; }
-  #tvset .body::after { content: ""; position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(255,255,255,.16) 0 1.4%, rgba(255,255,255,0) 9%),
-      linear-gradient(0deg, rgba(0,0,0,.34) 0 2%, rgba(0,0,0,0) 12%),
-      radial-gradient(90% 60% at 28% 8%, rgba(255,255,255,.10), rgba(255,255,255,0) 60%); }
-  #tvset .bezel { top: 10%; left: 15.4%; width: 59.2%; height: 79.4%; border-radius: 5% / 6.6%;
-    background: linear-gradient(161deg, #24242a, #141418 48%, #0a0a0c);
-    box-shadow: inset 0 .34vh .8vh rgba(255,255,255,.13), inset 0 -.3vh .7vh rgba(0,0,0,.8), 0 .25vh .9vh rgba(0,0,0,.55); }
-  #tvset .bezel::after { content: ""; position: absolute; inset: 0; border-radius: inherit; opacity: .5;
-    mix-blend-mode: overlay; background-image: var(--grainimg); background-size: 100% 100%; }
-  /* the tube: darker at the edges so it reads as curved, with the room caught in the glass */
-  #tvset .glass { top: 12.5%; left: 17%; width: 56%; height: 74.67%; border-radius: 4.4% / 6%;
-    box-shadow: inset 0 0 2.6vh 1.1vh rgba(0,0,0,.62), inset 0 0 .5vh .18vh rgba(0,0,0,.9),
-                0 0 0 .2vh rgba(0,0,0,.85), 0 0 2.2vh rgba(120,180,255,.05);
-    background: linear-gradient(118deg, rgba(255,255,255,.11) 0 13%, rgba(255,255,255,.03) 24%, rgba(255,255,255,0) 38%),
-      radial-gradient(70% 45% at 78% 88%, rgba(255,255,255,.055), rgba(255,255,255,0) 70%),
-      radial-gradient(120% 108% at 50% 48%, rgba(0,0,0,0) 56%, rgba(0,0,0,.42) 100%); }
-  #tvset .ctl { top: 14.5%; left: 75.2%; width: 8.4%; height: 58%; }
-  #tvset .ctl b { display: block; width: 66%; margin: 0 auto 13%; aspect-ratio: 1; border-radius: 50%;
-    background: radial-gradient(circle at 34% 28%, var(--hi) 0 6%, var(--knob) 58%, #050505 100%);
-    box-shadow: 0 .25vh .6vh rgba(0,0,0,.7), inset 0 -.15vh .3vh rgba(0,0,0,.7), inset 0 .12vh .25vh rgba(255,255,255,.22); }
-  #tvset .ctl s { display: block; width: 82%; height: 7%; margin: 0 auto 8%; border-radius: .25vh; text-decoration: none;
-    background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(0,0,0,.45));
-    box-shadow: 0 .12vh .3vh rgba(0,0,0,.6), inset 0 .1vh .2vh rgba(255,255,255,.25); }
-  #tvset .spk { left: 74.6%; bottom: 11%; width: 9.6%; height: 17%; border-radius: .4vh;
-    background-image: radial-gradient(rgba(0,0,0,.55) 34%, rgba(255,255,255,.07) 38%, transparent 40%);
-    background-size: .8vh .8vh; box-shadow: inset 0 .15vh .4vh rgba(0,0,0,.6); }
-  #tvset .led { left: 78.6%; bottom: 6.6%; width: .95vh; height: .95vh; border-radius: 50%;
-    background: radial-gradient(circle at 34% 30%, #ffb3a2, #d41c00 68%); box-shadow: 0 0 1.5vh rgba(255,70,25,.8); }
-
-  body.tv-console #tvset { --b1: #4b321c; --b2: #2a1a0c; --b3: #120a04; --hi: rgba(224,186,122,.26);
-    --knob: #1a1109; --wood: .55; }
-  body.tv-console #tvset .body { border-radius: 1vh; }
-  body.tv-console #tvset .bezel { top: 8.5%; left: 15.6%; width: 59.2%; height: 82%; border-radius: 7% / 9%; }
-  body.tv-console #tvset .glass { border-radius: 6.2% / 8.4%; }
-  body.tv-console:not(.guide-open) #v { border-radius: 6.2% / 8.4%; }
-  body.tv-grey #tvset { --b1: #b4bac2; --b2: #848b94; --b3: #565c64; --hi: rgba(255,255,255,.6);
-    --knob: #3c4147; --wood: .22; --grainimg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9 0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
-  body.tv-grey #tvset .bezel { top: 9.4%; left: 15.2%; width: 59.6%; height: 80.5%; border-radius: 4.2% / 5.6%; }
-  body.tv-grey #tvset .glass { border-radius: 3.6% / 4.8%; }
-  body.tv-grey:not(.guide-open) #v { border-radius: 3.6% / 4.8%; }
-
   /* mini TV window while the guide is open */
   body.guide-open #v {
     inset: auto; left: 4vw; top: 4vh; width: 34vw; height: auto; aspect-ratio: 16 / 9; z-index: 45;
@@ -350,7 +289,6 @@
 <video id="v" autoplay playsinline poster="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></video>
 <div id="crt"><i></i></div>
 <div id="ovl"></div>
-<div id="tvset"><i class="room"></i><i class="cast"></i><i class="body"></i><i class="bezel"></i><i class="glass"></i><i class="ctl"><b></b><b></b><s></s><s></s><s></s></i><i class="spk"></i><i class="led"></i></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="f-crt" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/><feOffset in="r" dx="-1.2" result="ro"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/><feOffset in="b" dx="1.2" result="bo"/><feBlend in="ro" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="bo" mode="screen" result="rgb"/><feGaussianBlur in="rgb" stdDeviation="0.9 0.5"/></filter><filter id="f-vhs" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="1.4 0.4"/></filter><filter id="f-sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -0.55 0 -0.55 3.2 -0.55 0 -0.55 0" divisor="1" bias="0" preserveAlpha="true"/></filter></svg>
 <canvas id="static" class="hidden" width="256" height="144"></canvas>
 <div id="spinner" class="hidden"></div>
@@ -376,8 +314,8 @@
     <div class="ob" id="ob-ff"><span>30s</span><span class="ic">&#9654;&#9654;</span></div>
     <div class="ob" id="ob-next"><span class="ic">&#9654;&#10072;</span><span>Play Next</span></div>
     <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
-    <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
     <div class="ob" id="ob-info"><span>Info</span></div>
+    <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
   </div>
 </div>
 <div id="opts" class="hidden">
@@ -385,9 +323,9 @@
     <h2>Options</h2>
     <div class="orow" id="or-ar"><b>Picture</b><span id="ov-ar"></span></div>
     <div class="orow" id="or-fx"><b>Enhancements</b><span id="ov-fx"></span></div>
-    <div class="orow" id="or-ovl"><b>Television</b><span id="ov-ovl"></span></div>
     <div class="orow" id="or-gart"><b>Extra metadata</b><span id="ov-gart"></span></div>
     <div class="orow" id="or-ads"><b>Adverts</b><span id="ov-ads"></span></div>
+    <div class="orow" id="or-buf"><b>Buffer</b><span id="ov-buf"></span></div>
     <div class="orow" id="or-auto"><b>Auto EPG (experimental)</b><span id="ov-auto"></span></div>
     <div class="orow" id="or-keep"><b>Keep listings for</b><span id="ov-keep"></span></div>
     <div class="orow" id="or-refresh"><b>Refresh listings</b><span id="ov-refresh"></span></div>

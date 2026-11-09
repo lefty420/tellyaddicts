@@ -952,7 +952,7 @@
       // header arrived but it still can't play 25 s in (slow index/seek on a mid-programme join): move on, and remember it
       if (cur === meOne && !meOne.ad && v.readyState < 3) { markSlow(prog.id); nextInChannel(); }
     }, 25000);
-    v.src = prog.url;
+    v.src = playUrl(prog.url);      // buffered through this device when Options > Buffer is on
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
     store.set('last', ch.id);
@@ -1541,7 +1541,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'next', 'restart', 'options', 'info'];   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'next', 'restart', 'info', 'options'];   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -1589,27 +1589,35 @@
     }
   }
 
-  // ---- television cabinets: the picture is scaled into a 4:3 window with a cabinet drawn round it
-  var TVSET = [
-    { id: 'off', label: 'Off' },
-    { id: 'wood', label: 'Portable (wood)' },
-    { id: 'console', label: 'Console (walnut)' },
-    { id: 'grey', label: 'Portable (grey)' }
+  // ---- buffer: the native side keeps the programme ahead of the picture and serves it from this device
+  var BUF = [
+    { id: 'off', label: 'Off', mb: 0 },
+    { id: '50', label: '50 MB', mb: 50 },
+    { id: '100', label: '100 MB', mb: 100 },
+    { id: '250', label: '250 MB', mb: 250 }
   ];
-  var tvIdx = 0;
+  var bufIdx = 0;
   (function () {
-    var saved = store.get('tv1');
-    for (var i = 0; i < TVSET.length; i++) if (TVSET[i].id === saved) tvIdx = i;
+    var saved = store.get('buf1');
+    for (var i = 0; i < BUF.length; i++) if (BUF[i].id === saved) bufIdx = i;
   })();
-  function applyTv() {
-    TVSET.forEach(function (t) { document.body.classList.remove('tv-' + t.id); });
-    document.body.classList.add('tv-' + TVSET[tvIdx].id);
-    store.set('tv1', TVSET[tvIdx].id);
+  function bufferAvailable() { return !!(window.NativeHttp && NativeHttp.buffer); }
+  /** The address to play: the buffered copy when that is on and possible, otherwise archive.org itself. */
+  function playUrl(url) {
+    if (!url || !bufferAvailable() || !BUF[bufIdx].mb) return url;
+    try { return NativeHttp.buffer(url, BUF[bufIdx].mb) || url; } catch (e) { return url; }
   }
-  function changeTv(d) {
-    tvIdx = (tvIdx + d + TVSET.length) % TVSET.length;
-    applyTv();
+  function releaseBuffer() {
+    if (!bufferAvailable() || !NativeHttp.release) return;
+    try { NativeHttp.release(); } catch (e) { /* nothing held */ }
+  }
+  function changeBuf(d) {
+    bufIdx = (bufIdx + d + BUF.length) % BUF.length;
+    store.set('buf1', BUF[bufIdx].id);
+    if (!BUF[bufIdx].mb) releaseBuffer();
     renderOpts();
+    toast(BUF[bufIdx].mb ? 'Buffering ' + BUF[bufIdx].label + ' ahead from the next programme'
+                         : 'Buffering off: playing from archive.org directly', 3000);
   }
 
   function changeFx(d) {
@@ -1619,14 +1627,14 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['ar', 'fx', 'ovl', 'gart', 'ads', 'auto', 'keep', 'refresh'];
+  var OPTS = ['ar', 'fx', 'gart', 'ads', 'buf', 'auto', 'keep', 'refresh'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
-    if (id === 'ovl') return TVSET[tvIdx].label;
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
+    if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again' : 'Press OK';
     return autoEpg ? 'On' : 'Off';
@@ -1685,9 +1693,9 @@
     var id = OPTS[optsSel];
     if (id === 'ar') changeAr(d);
     else if (id === 'fx') changeFx(d);
-    else if (id === 'ovl') changeTv(d);
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
+    else if (id === 'buf') changeBuf(d);
     else if (id === 'keep') changeKeep(d);
     else if (id === 'refresh') refreshEpg();
     else toggleAuto();
@@ -1811,7 +1819,6 @@
 
   applyAr();
   applyFx();
-  applyTv();
 
   function restartShow() {
     closeOsd();
@@ -1878,7 +1885,8 @@
       else if (k === 'Green' || k === 'MediaFastForward') gJump('later');
       else if (k === 'Yellow' || k === 'MediaRewind') gJump('earlier');
       else if (k === 'Enter' || k === ' ' || k === 'Blue') watchFromGuide();
-      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') pressBackToExit();   // in the guide: Back twice leaves the app
+      // in the guide: Back goes back to what is playing; with nothing playing, Back twice leaves the app
+      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { if (cur) closeGuide(); else pressBackToExit(); }
       else if (k === 'Guide') closeGuide();
       else if (k === 'Info') showReport();
       else handled = false;

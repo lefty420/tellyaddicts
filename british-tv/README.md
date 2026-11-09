@@ -84,7 +84,7 @@ over 35 minutes, because those are usually whole discs rather than episodes.
 | Info | Show what is on | Sources that are not playing, and the archive.org file behind the highlighted programme |
 | Play/Pause | Pause or resume | |
 | Number keys | Jump to a channel number | |
-| Back | **Open the guide** | Press twice to exit |
+| Back | **Open the guide** | Back to what is playing (twice to exit with nothing playing) |
 
 The guide is styled after the classic UK satellite-TV programme guides: blue background, a mini TV
 window top-left, a half-hour time grid with the selected programme highlighted, and a
@@ -98,7 +98,7 @@ carries on from there. The programme airing now joins in progress.
 ## The on-screen bar (OSD)
 
 Press OK while watching. Left to right: **TV Guide**, rewind 30 s, play/pause, forward 30 s,
-**Play Next**, **Restart**, **Options**, **Info**. Left/Right chooses, OK uses. When Extra metadata
+**Play Next**, **Restart**, **Info**, **Options**. Left/Right chooses, OK uses. When Extra metadata
 is on, the show's poster sits above the bar with a faint fanart backdrop.
 
 ## Options
@@ -109,9 +109,9 @@ OSD › **Options** (Up/Down to choose, Left/Right or OK to change):
 | --- | --- |
 | Picture | Auto, 4:3, 16:9, Zoom, Stretch |
 | Enhancements | Off, VHS, Vivid, Sharp, Scanlines, Aperture grille, Curved glass, Portable set, Shadow mask |
-| Television | Off, Portable (wood), Console (walnut), Portable (grey) |
 | Extra metadata | On / Off |
 | Adverts | Off, All (70s–90s), 1970s, 1980s, 1990s |
+| Buffer | Off, 50 MB, 100 MB, 250 MB |
 | Auto EPG (experimental) | On / Off |
 | Keep listings for | 24 hours, 48 hours, 1 week, 4 weeks |
 | Refresh listings | Press OK twice |
@@ -124,19 +124,14 @@ so they cost the box next to nothing: **Scanlines** (fine dark lines), **Apertur
 a Trinitron up close), **Curved glass** (the tube's curve clips the picture, with a vignette and a reflection),
 **Portable set** (warm, coarse lines and a heavy edge) and **Shadow mask** (dot pitch rather than stripes).
 
-**Television** puts the picture inside an old set: it is scaled into a 4:3 window, the shape these programmes were
-made for, and a whole telly is drawn around it — case, surround, curved tube, dials, speaker grille and a standby
-light, standing in a dark room. Three of them: **Portable (wood)**, **Console (walnut)** and **Portable (grey)**.
-
-It is all gradients and one small noise tile that gives the case its grain, so there are no image files, nothing to
-download, and it is sharp at any resolution. Nothing animates: the layer is composited once and then costs the box
-nothing. It combines with the Enhancements, so a walnut set with scanlines is a reasonable thing to ask for, and no
-set is drawn over the guide. With a set on, the Picture option only chooses how the video fills that 4:3 window,
-and the picture is necessarily smaller, because the cabinet has to go somewhere.
-
-These are drawn rather than photographed, so they look like a good illustration of a television rather than a
-photograph of one. Swapping in a real image later is a small change: the window, the scaling and the plumbing are
-already here, and only the drawing would go.
+**Buffer** keeps the programme ahead of the picture. With it on, the app downloads what you are watching into its
+own cache and plays it from this device rather than straight off archive.org, so a slow spell empties the buffer
+instead of stopping the picture. The file is deleted as soon as you stop or something else starts, so nothing is
+kept after watching. Roughly: 50 MB is about three minutes of a programme, 100 MB about six and a half, 250 MB
+about sixteen. It is **Off by default** and experimental: it has not been tried on a real box yet, and if the
+buffer cannot be set up for any reason the programme simply plays from archive.org as before. Advert breaks are
+short, so they always play direct. Only this device is allowed to serve cleartext; everything on the internet
+stays HTTPS (`res/xml/network_security_config.xml`).
 
 **Refresh listings** throws away every stored lineup and gathers them all again, in a new running order, so each
 channel comes back with different programmes in different places while staying on its own theme. It asks twice,

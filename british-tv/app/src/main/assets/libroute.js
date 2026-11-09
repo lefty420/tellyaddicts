@@ -75,13 +75,35 @@
     return [];
   }
 
+  // Channels that belong to children, which the broadcaster channels leave alone: a cartoon that happened to be
+  // on BBC1 belongs on CITV or Children's World, not among the evening's drama.
+  var KIDS = { citv: 1, childrens: 1, disney: 1, kidsmovies: 1, kidsxmas: 1 };
+  var NET = { bbc: 'bbc', itv: 'itv' };          // c4, c5 and sky have no channel of their own yet
+
+  /** Classic British telly is 1970 to 1999. An episode with no air date is kept; a later one is not. */
+  function inEra(ep) {
+    var a = ep && ep.a;
+    if (!a) return true;
+    var y = parseInt(String(a).slice(0, 4), 10);
+    return !(y > 1999);
+  }
+
   /** library.json + shows.json -> {channel: rows}. A row is {id, t, f, s?, m}: one archive.org item, its file names
    *  (or [name, show] pairs when the item holds more than one show), and m = {file name: episode details}. */
   function route(lib, showsJson) {
     var smap = showMap(showsJson), keys = Object.keys(smap), per = {}, order = {};
     ((lib && lib.shows) || []).forEach(function (sh) {
+      var net = NET[String(sh.net || '').toLowerCase()];
       (sh.e || []).forEach(function (ep) {
-        var chs = channelsFor(sh.n, ep.t, smap, keys);
+        if (!inEra(ep)) return;
+        var genre = channelsFor(sh.n, ep.t, smap, keys);
+        var forKids = genre.some(function (c) { return KIDS[c]; });
+        var also = [];
+        // the broadcaster's own channel, as well as wherever the genre lists put it
+        if (net && !forKids) also.push(net);
+        // and a Christmas episode goes to the Christmas channel of the right sort
+        if (ep.xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
+        var chs = also.length ? uniqSorted(genre.concat(also)) : genre;
         chs.forEach(function (ch) {
           var items = per[ch] = per[ch] || {};
           order[ch] = order[ch] || [];

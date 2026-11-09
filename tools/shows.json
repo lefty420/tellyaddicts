@@ -683,5 +683,31 @@
   "shows": [
    "The Video Shop"
   ]
+ },
+ "bbc": {
+  "name": "BBC soaps and continuing drama",
+  "shows": [
+   "EastEnders",
+   "Eldorado",
+   "Howards' Way",
+   "Angels",
+   "The Brothers",
+   "Triangle",
+   "Pobol y Cwm"
+  ]
+ },
+ "itv": {
+  "name": "ITV soaps and continuing drama",
+  "shows": [
+   "Coronation Street",
+   "Emmerdale",
+   "Emmerdale Farm",
+   "Crossroads",
+   "Albion Market",
+   "Families",
+   "Take the High Road",
+   "Prisoner Cell Block H",
+   "The Sullivans"
+  ]
  }
 }

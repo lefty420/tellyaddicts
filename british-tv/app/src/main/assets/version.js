@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.6.1",
-  "version": "0.6.1",
-  "code": 61,
+  "name": "Alpha 0.6.2",
+  "version": "0.6.2",
+  "code": 62,
   "date": "2026-11-09",
   "notes": [
-    "The TMDB logo now sits beside their credit on a film's Info screen and in About & credits, which is what their terms ask for"
+    "The TMDB credit and logo live in Options > About & credits, and a film's Info screen just says where its details came from, the way the TVmaze screens do"
   ],
   "history": [
+    {
+      "name": "Alpha 0.6.1",
+      "date": "2026-11-09",
+      "notes": [
+        "The TMDB logo now sits beside their credit on a film's Info screen and in About & credits, which is what their terms ask for"
+      ]
+    },
     {
       "name": "Alpha 0.6",
       "date": "2026-11-09",

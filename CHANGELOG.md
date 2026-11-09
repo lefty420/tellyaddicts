@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.6.2 — 2026-11-09
+
+- The TMDB credit and logo live in Options > About & credits, and a film's Info screen just says where its details came from, the way the TVmaze screens do
+
 ## Alpha 0.6.1 — 2026-11-09
 
 - The TMDB logo now sits beside their credit on a film's Info screen and in About & credits, which is what their terms ask for

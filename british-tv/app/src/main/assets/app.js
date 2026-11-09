@@ -997,23 +997,9 @@
       ph.src = f.poster; ph.className = '';
       $('ibg').style.backgroundImage = 'url("' + f.poster + '")';
     }
-    tmdbCredit($('isrc'));
-  }
-
-  /** What TMDb's terms ask for wherever their words or pictures are shown. The logo sits beside it when the
-   *  file is there; without it the sentence stands on its own rather than leaving a broken picture. */
-  function tmdbCredit(into) {
-    into.textContent = '';
-    var logo = document.createElement('img');
-    logo.className = 'tmdb';
-    logo.alt = 'TMDB';
-    logo.onerror = function () { logo.parentNode && logo.parentNode.removeChild(logo); };
-    logo.src = 'tmdb.svg';
-    into.appendChild(logo);
-    var words = document.createElement('span');
-    words.textContent = 'This product uses the TMDB API but is not endorsed or certified by TMDB.' +
-                        '   ·   Back to close';
-    into.appendChild(words);
+    // just where it came from, as the TVmaze screens say. The credit TMDb's terms ask for, with their logo,
+    // lives in Options > About & credits rather than on top of every film.
+    $('isrc').textContent = 'Details from TMDB   ·   Back to close';
   }
 
   function closeInfo() {

@@ -111,13 +111,34 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
     offschool: ['offschool'],          // daytime soaps and talk shows, not kids TV
     bbc: except(KIDS.concat('music')), itv: except(KIDS.concat('music')), itvam: except(KIDS)
   };
+  // Words that may follow a one-word show name without making it a different programme ("Bread series 3",
+  // "Pingu complete", "Lovejoy S01E01"). Anything else - "Rainbow Six", "Smart Guy" - is another title, and
+  // matching it would file it under the wrong show.
+  var NEXT_OK = {
+    series: 1, season: 1, seasons: 1, episode: 1, episodes: 1, ep: 1, eps: 1, part: 1, parts: 1, pt: 1,
+    special: 1, specials: 1, christmas: 1, xmas: 1, complete: 1, collection: 1, compilation: 1, uncut: 1,
+    remastered: 1, upscaled: 1, dvd: 1, vhs: 1, rip: 1, pilot: 1, volume: 1, vol: 1, disc: 1, disk: 1,
+    box: 1, set: 1, uk: 1, itv: 1, bbc: 1, citv: 1, cbbc: 1, mp4: 1, ia: 1, hq: 1, hd: 1, sd: 1, the: 1
+  };
+  /** For a one-word name, is what follows it harmless? (The text is already normalised to lowercase words.) */
+  function okAfter(text, key) {
+    if (key.indexOf(' ') >= 0) return true;                 // several words: specific enough on its own
+    var at = text.indexOf(' ' + key + ' ');
+    if (at < 0) return false;
+    var rest = text.slice(at + key.length + 2);
+    if (!rest) return true;                                 // the name ends the title
+    var w = rest.split(' ')[0];
+    return !w || !!NEXT_OK[w] || /^s\d{1,2}(e\d{1,3})?$/.test(w) || /^\d{1,2}x\d{1,3}$/.test(w) || /^\d{1,4}$/.test(w);
+  }
+
   /** True unless the text names a known show and every show it names belongs to other genres than this channel's. */
   function genreOk(channelId, text) {
     var allow = ALLOWED[channelId];
     if (!allow) return true;
     var t = norm(text), hit = false;
     for (var i = 0; i < SHOW_KEYS.length; i++) {
-      if (t.indexOf(' ' + SHOW_KEYS[i].trim() + ' ') < 0) continue;
+      var key = SHOW_KEYS[i].trim();
+      if (t.indexOf(' ' + key + ' ') < 0 || !okAfter(t, key)) continue;
       hit = true;
       var cats = SHOW_CATS[SHOW_KEYS[i]];
       for (var j = 0; j < allow.length; j++) if (cats[allow[j]]) return true;
@@ -127,6 +148,6 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
 
   function today() { var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
 
-  var Auto = { THEMES: THEMES, has: has, sourcesFor: sourcesFor, genreOk: genreOk, SHOWS: SHOWS, today: today, OUT_OF_ERA: OUT_OF_ERA, NOT_EPISODE: NOT_EPISODE };
+  var Auto = { THEMES: THEMES, has: has, sourcesFor: sourcesFor, genreOk: genreOk, okAfter: okAfter, norm: norm, SHOWS: SHOWS, today: today, OUT_OF_ERA: OUT_OF_ERA, NOT_EPISODE: NOT_EPISODE };
   if (typeof module !== 'undefined' && module.exports) module.exports = Auto; else root.AUTO = Auto;
 })(typeof window !== 'undefined' ? window : this);

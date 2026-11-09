@@ -622,7 +622,11 @@
   })();
   function knownShowIn(text) {
     var t = normWords(text);
-    for (var i = 0; i < KNOWN_SHOWS.length; i++) if (t.indexOf(' ' + KNOWN_SHOWS[i].k + ' ') >= 0) return KNOWN_SHOWS[i].name;
+    for (var i = 0; i < KNOWN_SHOWS.length; i++) {
+      var k = KNOWN_SHOWS[i].k;
+      // same rule as the genre guard: a one-word name must not be running into a different title
+      if (t.indexOf(' ' + k + ' ') >= 0 && (!AUTO.okAfter || AUTO.okAfter(t, k))) return KNOWN_SHOWS[i].name;
+    }
     return '';
   }
 

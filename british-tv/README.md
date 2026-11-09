@@ -243,7 +243,9 @@ are still there and still shape the live keywords, but they are no longer used w
 **Genre guard.** A programme is dropped from a channel when the show it names belongs to another
 genre: Miss Marple cannot appear on CITV, and Danger Mouse cannot appear on Classic Sitcoms.
 Programmes that name no known show are kept. This applies to both the searches and the scraped
-lists.
+lists. A one-word show name only counts when what follows it is harmless (`Bread series 3`, `Pingu complete`,
+`Lovejoy S01E01`); it is not matched when it runs into a different title, so *Rainbow Six* is not filed as
+*Rainbow* and *Smart Guy* is not filed as *Smart*.
 
 ### Scraper lists: published, so a new scrape needs no new APK
 

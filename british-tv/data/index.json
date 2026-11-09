@@ -1,27 +1,27 @@
 {
- "updated": "2026-11-08T23:54:29Z",
+ "updated": "2026-11-09T00:04:46Z",
  "channels": {
-  "childrens": "72f3303d91",
-  "citv": "c99e88f6f5",
-  "comedy": "ecf0b47bc2",
-  "gameshows": "7437e72507",
-  "music": "afcee2ff05",
-  "offschool": "28a9bc41be",
-  "sitcoms": "2ab8b168ad",
-  "thebill": "f436ec9ed9",
-  "tv70s": "11e2ba271a",
-  "xmasmusic": "2b8eb7ef16"
+  "childrens": "305775daa0",
+  "citv": "dca376d515",
+  "comedy": "9bf6bd4377",
+  "gameshows": "ace4ca83e9",
+  "music": "09cd2d3195",
+  "offschool": "0f52c59766",
+  "sitcoms": "42ea758344",
+  "thebill": "77c9de83c6",
+  "tv70s": "2d7b5fc138",
+  "xmasmusic": "6bc56f48b2"
  },
  "counts": {
-  "childrens": 172,
-  "citv": 98,
-  "comedy": 2,
-  "gameshows": 265,
-  "music": 189,
-  "offschool": 66,
-  "sitcoms": 76,
-  "thebill": 117,
-  "tv70s": 30,
-  "xmasmusic": 11
+  "childrens": 110,
+  "citv": 79,
+  "comedy": 3,
+  "gameshows": 120,
+  "music": 153,
+  "offschool": 11,
+  "sitcoms": 66,
+  "thebill": 73,
+  "tv70s": 28,
+  "xmasmusic": 10
  }
 }

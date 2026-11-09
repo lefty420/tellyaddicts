@@ -384,6 +384,110 @@
     return out;
   }
 
+  var DAY_SEC = 86400, WEEK_SEC = 7 * DAY_SEC;
+
+  /** "18:30" or "Sat 19:00" as seconds into the cycle. Day names are Sun..Sat, as JavaScript counts them. */
+  var DAYS = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+  function clockSec(when) {
+    var m = /^(?:([a-z]{3})\s+)?(\d{1,2}):(\d{2})$/i.exec(String(when || '').trim());
+    if (!m) return null;
+    var day = m[1] ? DAYS[m[1].toLowerCase()] : 0;
+    if (m[1] && day === undefined) return null;
+    return day * DAY_SEC + (+m[2]) * 3600 + (+m[3]) * 60;
+  }
+
+  /** Where the clock is in a daily or weekly cycle, in the viewer's own time, so 6pm is 6pm wherever they are. */
+  function cyclePos(sched, tMs) {
+    var d = new Date(tMs);
+    var s = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+    return sched.cycle === 'week' ? d.getDay() * DAY_SEC + s : s;
+  }
+
+  /** How far into a schedule a moment is: the time of day for a clock schedule, otherwise a point in the loop. */
+  function posIn(sched, tMs) {
+    if (!sched.cycle) return (tMs / 1000) % sched.total;
+    return (cyclePos(sched, tMs) - sched.base + sched.total * 2) % sched.total;
+  }
+
+  /**
+   * Lay a channel out against the clock rather than as one endless loop: the same programme is on at the same
+   * time every day (or every week), the way a real channel works.
+   *
+   * blocks are [{ at: "13:00" or "Sat 19:00", exact: true, items: [programmes] }] in time order. A block runs
+   * until the next one begins, looping its own items if it has fewer than it needs, so a thin block repeats its
+   * own programmes instead of borrowing from another genre.
+   *
+   * An exact block starts on the dot: the gap before it is filled with `filler` (short clips, idents), and the
+   * last of those is cut short so the programme after it starts exactly on time. That is what the continuity
+   * announcer is for. Without filler the previous programme is trimmed instead, so there is never dead air.
+   */
+  function buildClockSchedule(blocks, filler, seed, cycle) {
+    var span = cycle === 'week' ? WEEK_SEC : DAY_SEC;
+    var seeded = hash(String(seed));
+    var fill = shuffle((filler || []).filter(function (p) { return p && p.dur > 0; }), seeded ^ 0x5f5f);
+    var marks = [];
+    (blocks || []).forEach(function (b) {
+      var at = typeof b.at === 'number' ? b.at : clockSec(b.at);
+      var items = (b.items || []).filter(function (p) { return p && p.dur > 0; });
+      if (at === null || at === undefined || !items.length) return;
+      marks.push({ at: ((at % span) + span) % span, exact: !!b.exact, items: shuffle(items, seeded ^ at) });
+    });
+    if (!marks.length) return null;
+    marks.sort(function (a, b) { return a.at - b.at; });
+
+    var order = [], starts = [], at = marks[0].at, fillAt = 0;
+    function put(prog, dur) { order.push(prog.dur === dur ? prog : clone(prog, dur)); starts.push(at); at += dur; }
+
+    /** Reach a time exactly: short filler, the last of it cut to fit. With no filler left, hold the previous
+     *  programme on screen for the remainder, which is still better than dead air. */
+    function padTo(target) {
+      for (var guard = 0; at < target && fill.length && guard < fill.length * 4; guard++) {
+        var f = fill[fillAt++ % fill.length];
+        put(f, Math.min(f.dur, target - at));
+      }
+      if (at < target && order.length) {
+        var last = order.length - 1;
+        order[last] = clone(order[last], target - starts[last]);
+      }
+      if (at < target) { at = target; }
+    }
+
+    for (var i = 0; i < marks.length; i++) {
+      var block = marks[i], next = marks[i + 1];
+      var ends = next ? next.at : marks[0].at + span;         // the cycle has to close on its own start time
+      var mustEnd = next ? next.exact : true;
+      if (at < block.at) padTo(block.at);                     // run up to an exact start
+      else if (at > block.at && block.exact && order.length) {
+        var over = order.length - 1, keep = block.at - starts[over];
+        if (keep >= 60) { order[over] = clone(order[over], keep); at = block.at; }   // the news waits for nobody
+      }
+      for (var k = 0; at < ends && k <= block.items.length * 40; k++) {
+        var p = block.items[k % block.items.length];
+        if (p.dur <= ends - at) { put(p, p.dur); continue; }
+        // it will not finish in time: let it overrun into a block that is not fussy, otherwise fill to the mark
+        if (!mustEnd) { put(p, p.dur); break; }
+        padTo(ends);
+        break;
+      }
+      if (at < ends) padTo(ends);
+    }
+    var total = at - starts[0];
+    if (total <= 0) return null;
+    var shift = starts[0];                                    // starts are measured from the first block's time
+    for (var j = 0; j < starts.length; j++) starts[j] = starts[j] - shift;
+    var g = buildGroups(order, starts);
+    return { order: order, starts: starts, total: total, cycle: cycle === 'week' ? 'week' : 'day',
+             base: ((shift % span) + span) % span, groups: g.groups, gstarts: g.gstarts };
+  }
+
+  /** The same programme at a different length: a clip cut short to reach the news on time. */
+  function clone(prog, dur) {
+    var out = {};
+    for (var k in prog) if (prog.hasOwnProperty(k)) out[k] = prog[k];
+    out.dur = Math.max(1, Math.round(dur));
+    return out;
+  }
+
   /** Deterministic shuffled loop. Everyone running the app sees the same programme at the same time. */
   function buildSchedule(programs, seed) {
     var order = shuffle(programs, hash(String(seed)));
@@ -434,7 +538,7 @@
   function blockAt(s, tMs) {
     var G = s.groups;
     if (!G.length || !s.total) return null;
-    var pos = (tMs / 1000) % s.total;
+    var pos = posIn(s, tMs);
     var lo = 0, hi = G.length - 1;
     while (lo < hi) {
       var mid = (lo + hi + 1) >> 1;
@@ -471,7 +575,7 @@
   function at(sched, tMs) {
     var n = sched.order.length;
     if (!n || !sched.total) return null;
-    var pos = (tMs / 1000) % sched.total;
+    var pos = posIn(sched, tMs);
     var lo = 0, hi = n - 1;
     while (lo < hi) {
       var mid = (lo + hi + 1) >> 1;
@@ -508,6 +612,7 @@
   var Engine = {
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
     pickPrograms: pickPrograms, whyEmpty: whyEmpty, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
+    buildClockSchedule: buildClockSchedule, clockSec: clockSec,
     cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, stepBlock: stepBlock, blocks: blocks,
     DEFAULT_DURATION: DEFAULT_DURATION, encodePath: encodePath, archiveUrl: archiveUrl, canonicalUrl: canonicalUrl
   };

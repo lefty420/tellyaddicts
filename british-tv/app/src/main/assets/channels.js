@@ -379,12 +379,17 @@ window.CHANNELS = [
   },
   {
     n: 22,
-    id: 'onthisday',
-    name: 'On This Day',
-    // BBC Archive clips, listed with their links in onthisday.js, so the channel needs no lookups at all.
-    // They are short, so the guide groups a run of them into one block; the real length of each is learned
-    // the first time it plays.
-    sources: [{ files: (typeof window !== 'undefined' && window.OTD) || [], dur: 150 }]
+    id: 'tvarchive',
+    name: 'TV Archive',
+    // Television from today's date, whatever the year: programmes whose air date falls on today's day and month
+    // (dated by the library, see onDate in app.js), with news bulletins at one, six and ten. Between them, the
+    // BBC Archive clips that used to be the On This Day channel, which this replaces: they are short, so the
+    // guide groups a run of them into one block and they fill the run-up to each bulletin.
+    maxItems: 120,
+    sources: [
+      { data: 'tvarchive' },
+      { files: (typeof window !== 'undefined' && window.OTD) || [], dur: 150, group: 'BBC Archive' }
+    ]
   },
   {
     n: 23,
@@ -396,5 +401,14 @@ window.CHANNELS = [
     // channel needs no archive.org lookups: the list is read straight from the published data, with Auto EPG on
     // or off. Until something is published the channel finds nothing and hides itself.
     sources: [{ data: 'movies' }]
+  },
+  {
+    n: 24,
+    id: 'saturday',
+    name: 'Saturday Night TV',
+    // The Saturday evening line-up, kept to Saturday's shape every day: lighter shows at teatime, the shows the
+    // night was built around from seven to nine, and what followed them after that (see dayparts.js).
+    maxItems: 80,
+    sources: [{ data: 'saturday' }]
   }
 ];

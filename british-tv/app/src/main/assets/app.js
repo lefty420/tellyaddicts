@@ -257,7 +257,9 @@
     });
   }
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
-  var NO_EPISODES = { xmasmusic: 1, movies: 1, kidsmovies: 1 };   // channels of songs and films, which have no episode numbers
+  // Channels whose programmes carry no episode number: songs, films, Disney shorts ("How to Sleep"), MTV's
+  // untitled and dated blocks, and news bulletins. Insisting on one empties them.
+  var NO_EPISODES = { xmasmusic: 1, movies: 1, kidsmovies: 1, mtv: 1, disney: 1, tvarchive: 1, saturday: 0 };
   /** A row of songs or films: nothing in it will carry SxxExx, so insisting on one empties the channel. */
   function wantsEpisodes(channelId, it) {
     if (NO_EPISODES[channelId]) return false;
@@ -304,6 +306,55 @@
     return out;
   }
 
+  /** Programmes from a channel's "files" sources: links already named, so there is nothing to look up. */
+  function namedFiles(ch) {
+    var out = [];
+    (ch.sources || []).forEach(function (s) {
+      (s.files || []).forEach(function (f) {
+        var url = E.canonicalUrl(f[0]) || f[0];
+        if (!url || url.indexOf(DL) !== 0) return;
+        var id = decodeURIComponent(url.slice(DL.length).split('?')[0]);
+        out.push({ id: id, item: id.split('/')[0], url: url, title: f[1] || '', sub: '',
+                   dur: f[2] || s.dur || 150, group: s.group, show: s.group });
+      });
+    });
+    return out;
+  }
+
+  /** A date in a file name or an item name: "15-01-1985", "1985-01-15", "15 Jan 1985". Returns "MM-DD" or ''. */
+  var MON = { jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+              jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12' };
+  function monthDay(text) {
+    var s = String(text || '');
+    var iso = /(19[789]\d)[-_. ](\d{2})[-_. ](\d{2})/.exec(s);                       // 1985-01-15
+    if (iso && +iso[2] <= 12 && +iso[3] <= 31) return iso[2] + '-' + iso[3];
+    var uk = /\b(\d{1,2})[-_. /](\d{1,2})[-_. /](19[789]\d)\b/.exec(s);              // 15-01-1985
+    if (uk && +uk[2] <= 12 && +uk[1] <= 31) return pad2(uk[2]) + '-' + pad2(uk[1]);
+    var named = /\b(\d{1,2})\s*([a-z]{3})[a-z]*\.?\s*(19[789]\d)\b/i.exec(s);        // 15 Jan 1985
+    if (named && MON[named[2].toLowerCase()]) return MON[named[2].toLowerCase()] + '-' + pad2(named[1]);
+    return '';
+  }
+  function pad2(n) { return (+n < 10 ? '0' : '') + (+n); }
+
+  /** TV Archive only: keep what went out on today's day and month, whatever the year. Undated clips stay, because
+   *  that is what fills the time between the bulletins; if nothing at all is dated today, keep the lot rather
+   *  than show an empty channel. */
+  function datedToday(ch, progs) {
+    if (ch.id !== 'tvarchive' || !progs.length) return progs;
+    var now = new Date(), today = pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
+    var dated = 0, keep = progs.filter(function (p) {
+      var md = (p.aired && /^\d{4}-(\d{2}-\d{2})$/.exec(p.aired) || [])[1] ||
+               monthDay(p.sub) || monthDay(p.title) || monthDay(p.id);
+      if (!md) return true;                                   // no date on it: the clips and odds and ends
+      dated++;
+      return md === today;
+    });
+    if (!dated) return progs;
+    var onDay = keep.length - (progs.length - dated);
+    ch.report = (ch.report || []).concat(onDay + ' of ' + dated + ' dated programmes are from today, ' + today);
+    return keep;
+  }
+
   /** Auto EPG only: keep a programme off channels of another genre (a drama on CITV, a cartoon on the sitcom channel). */
   function genreFits(ch, p) { return !window.AUTO || AUTO.genreOk(ch.id, (p.group && p.group !== 'auto' ? p.group + ' ' : '') + (p.title || '') + ' ' + (p.sub || '') + ' ' + (p.id || '').split('/')[0].replace(/[-_]/g, ' ')); }
 
@@ -338,6 +389,10 @@
     return loadChannelData(ch.id, rev).then(function (rows) {
       if (!rows || !rows.length) { ch.autoUsed = true; ch.report = ['nothing in the library for this channel']; ch.plan = []; return []; }
       var progs = dedupeTitles(capShows(progsFromData(rows, ch.id).filter(function (p) { return genreFits(ch, p); }), 0.25));
+      // hand-listed clips belong to the channel whichever way its programmes were gathered (TV Archive's BBC
+      // Archive clips), and they need no lookups, so bring them in here too
+      Array.prototype.push.apply(progs, namedFiles(ch));
+      progs = datedToday(ch, progs);
       ch.autoUsed = progs.length > 0;
       ch.report = [];
       ch.plan = E.sample(progs, MAX_STORED);
@@ -394,7 +449,7 @@
           if (!url || url.indexOf(DL) !== 0) return;
           var id = url.slice(DL.length).split('?')[0];
           direct.push({ id: decodeURIComponent(id), item: decodeURIComponent(id).split('/')[0], url: url,
-                        title: f[1] || '', sub: '', dur: f[2] || s.dur || 150, group: s.group });
+                        title: f[1] || '', sub: '', dur: f[2] || s.dur || 150, group: s.group, show: s.group });
         });
         return;
       }
@@ -462,6 +517,7 @@
         });
         ch.report = report;
         if (auto) progs = dedupeTitles(progs.filter(function (p) { return genreFits(ch, p); }));
+        progs = datedToday(ch, progs);
         if (ch.mix) progs = balanceMix(progs, ch.mix);
         progs = E.sample(progs, MAX_STORED);
         if (progs.length && !ch.noCache) {
@@ -2095,7 +2151,21 @@
     greetRelease();            // and say once if this is a version they have not run before
   }
 
+  /** Throw away stored lineups for channels that no longer exist, so a retired channel (On This Day, which
+   *  became TV Archive) does not sit in storage for ever taking up room. */
+  function forgetOldChannels() {
+    var live = {};
+    channels.forEach(function (c) { live[c.id] = 1; });
+    try {
+      for (var k = localStorage.length - 1; k >= 0; k--) {
+        var kn = localStorage.key(k), m = /^plan7[ad]?:([^:]+):/.exec(kn || '');
+        if (m && !live[m[1]]) localStorage.removeItem(kn);
+      }
+    } catch (e) { /* storage unavailable: nothing to tidy */ }
+  }
+
   function startLoading() {
+    forgetOldChannels();
     channels.forEach(function (c) { c.status = 'loading'; c.sched = null; });
     var finished = 0;
     // the native side now serves a few requests at a time, so ask in the order they are wanted: the channel that was
@@ -2111,7 +2181,10 @@
         if (progs && progs.length) {
           progs = dropSlow(progs);
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
-          c.sched = E.buildSchedule(progs, c.id + (epgGen ? ':' + epgGen : ''));
+          var seed = c.id + (epgGen ? ':' + epgGen : '');
+          // a channel with a daypart plan is laid out against the clock; the rest are one shuffled loop
+          c.sched = (window.DAYPARTS && DAYPARTS.has(c.id) && DAYPARTS.schedule(c.id, progs, seed)) ||
+                    E.buildSchedule(progs, seed);
           c.status = 'ready';
           enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
         } else {

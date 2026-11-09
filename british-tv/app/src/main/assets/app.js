@@ -86,13 +86,14 @@
     return progs.map(function (p) {
       var u = p.url || '';
       var r = { i: p.id, u: u.indexOf(DL) === 0 ? u.slice(DL.length) : u, t: p.title, s: p.sub || '', d: p.dur };
+      if (p.show) r.h = p.show;                                 // the scrape knew the real show name; don't lose it
       if (p.group && p.group.indexOf('-') > 0) r.g = p.group;   // advert tier (uk/g), kept so UK adverts stay preferred
       return r;
     });
   }
   function unpackPlan(rows) {
     return rows.map(function (r) {
-      return { id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g };
+      return { show: r.h, id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g };
     });
   }
   var keepIdx = keepIndex((store.get('keep1') || '1w'));
@@ -188,6 +189,7 @@
       E.pickPrograms(it.id, { metadata: { title: it.t }, files: files }, { requireEp: true, skipFile: AUTO && AUTO.NOT_EPISODE }).forEach(function (p) {
         var nm = p.id.slice(it.id.length + 1), show = shows[nm] || '';
         p.group = show;
+        p.show = show;        // used for the artwork and Info lookups, which beat guessing from the file name
         p.dur = AUTO_DUR[show] || 2700;
         out.push(p);
       });
@@ -430,6 +432,7 @@
   // ------------------------------------------------------------------ real episode names (TVmaze, free, no key)
 
   var TVM_DAY = 30 * 24 * 3600 * 1000;
+  var TVM_MISS = 5 * 24 * 3600 * 1000;   // a show TVmaze does not have: remember that too, but re-check sooner
   var tvmChain = Promise.resolve();
   var GENERIC_EP = /^(episode|ep|series|season|part|chapter)?\s*#?\d+(\s*[-:,]\s*\d+)?$|^episode\b|^series\b|^season\b/i;
 
@@ -539,6 +542,27 @@
   function https(u) { return u ? String(u).replace(/^http:/, 'https:') : ''; }
 
   /** "Bread S01E05" -> {show:"Bread", s:1, e:5}; "Wheel of Fortune" -> {show:"Wheel of Fortune"} */
+  /** Show names we already know (the scraper's genre lists), longest first, for reading a show out of a messy title. */
+  function normWords(s) {
+    return ' ' + String(s || '').toLowerCase().replace(/&/g, ' and ').replace(/['\u2019]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ').trim().replace(/^the /, '') + ' ';
+  }
+  var KNOWN_SHOWS = (function () {
+    var out = [], seen = {};
+    if (window.AUTO && AUTO.SHOWS) Object.keys(AUTO.SHOWS).forEach(function (c) {
+      AUTO.SHOWS[c].forEach(function (n) {
+        var k = normWords(n).trim();
+        if (k.length > 2 && !seen[k]) { seen[k] = 1; out.push({ k: k, name: n }); }
+      });
+    });
+    return out.sort(function (a, b) { return b.k.length - a.k.length; });
+  })();
+  function knownShowIn(text) {
+    var t = normWords(text);
+    for (var i = 0; i < KNOWN_SHOWS.length; i++) if (t.indexOf(' ' + KNOWN_SHOWS[i].k + ' ') >= 0) return KNOWN_SHOWS[i].name;
+    return '';
+  }
+
   function parseTitle(title) {
     var t = String(title || '').trim();
     var m = /^(.*?)\s+S(\d{1,2})[ED](\d{1,3})\b/.exec(t);
@@ -549,6 +573,9 @@
     var y = /\b((?:19|20)\d\d)\b/.exec(show);
     if (y) { res.year = +y[1]; show = show.replace(/\s*\(?\b(?:19|20)\d\d\b\)?\s*/g, ' '); }
     res.show = show.replace(/[\s\-\u2013:]+$/, '').trim();
+    // "Last of the Summer Wine - Christmas Special S01E01" would otherwise look up "Christmas Special"
+    var known = knownShowIn(res.show) || knownShowIn(t);
+    if (known) res.show = known;
     return res;
   }
 
@@ -561,7 +588,7 @@
   function tvmInfo(p) {
     var key = 'info2:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
     var c = store.get(key);
-    if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.d);
+    if (c && Date.now() - c.t < (c.d ? TVM_DAY : TVM_MISS)) return Promise.resolve(c.d);
     var words = p.show.split(/\s+/), tries = [p.show];
     if (words.length > 3) tries.push(words.slice(0, 3).join(' '));
     if (words.length > 2) tries.push(words.slice(0, 2).join(' '));
@@ -594,7 +621,7 @@
       });
     });
     tvmChain = job.then(function () { return wait(400); }, function () { return wait(400); });
-    return job.then(function (d) { if (d) store.set(key, { t: Date.now(), d: d }); return d; });
+    return job.then(function (d) { store.set(key, { t: Date.now(), d: d || null }); return d; });
   }
 
   // fanart for the TV guide: just the show's backdrop (search + images), cached for a month
@@ -634,6 +661,7 @@
     if (!title) return;
     gartTimer = setTimeout(function () {          // wait until the highlight stops moving before looking anything up
       var p = parseTitle(title);
+      if (prog && prog.show) p.show = prog.show;
       if (!p.show) return;
       tvmArt(p).then(function (a) {
         if (gartFor !== title || !a || !a.background) return;
@@ -659,6 +687,7 @@
     $('isrc').textContent = 'Looking up details…   (Back to close)';
     if (cur.ad) { $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cur.prog.url || '').replace('https://archive.org/download/', '')); $('isrc').textContent = 'Back to close'; return; }
     var p = parseTitle(title);
+    if (cur.prog && cur.prog.show) p.show = cur.prog.show;
     if (!p.show) { $('isrc').textContent = 'Back to close'; return; }
     tvmInfo(p).then(function (d) {
       if (token !== infoToken || !infoOpen) return;
@@ -1670,6 +1699,7 @@
     artFor = title;
     art.className = 'hidden'; bg.className = '';
     var p = parseTitle(title);
+    if (cur.prog && cur.prog.show) p.show = cur.prog.show;
     if (!p.show) return;
     tvmInfo(p).then(function (d) {
       if (!d || artFor !== title || !cur || cur.prog.title !== title) return;

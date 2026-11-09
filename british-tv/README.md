@@ -187,7 +187,12 @@ listed. Real episode names found online are stored too.
 ## Episode names and programme info
 
 File names on archive.org are often messy, so once a channel has loaded the app looks up real
-episode names on TVmaze (free, no key) for anything shown as `Show S04E12`. It only swaps the name
+episode names on TVmaze (free, no key) for anything shown as `Show S04E12`. Three things help it find the show:
+the scraped lists carry the real show name, which is used in preference to anything read out of the file name; a
+title that is still messy is matched against the show names in `tools/shows.json`, which also settles the spelling
+TVmaze expects (`Dad's Army` and `Thundercats` become `Dads Army` and `ThunderCats`); and a show TVmaze does not
+have is remembered as a miss for 5 days, so opening Info on it does not ask again every time. Adding a show to the
+scraper's categories therefore improves the artwork and Info as well as the routing. It only swaps the name
 when the show matches and that season/episode number exists (and, if the file has an air date, when
 the years agree). Results are cached for 30 days.
 

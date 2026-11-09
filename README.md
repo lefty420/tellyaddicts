@@ -10,6 +10,21 @@ can channel-surf, written from scratch around British television. None of its co
 
 Nothing is hosted by the app. It reads archive.org directly on the TV and plays only mp4 files.
 
+## Who changes what
+
+This app and the [Telly Addict Scraper](https://github.com/lefty420/Telly-addict-scraper) are worked on in two
+separate chats, so the line between them is:
+
+* **This repository is the TV app's.** Its code is changed here: `british-tv/app/**`, `tools/**` and the READMEs.
+* **The scraper owns itself**, and in this repository writes only `british-tv/data/**` — the channel lists and
+  `library.json` its *Send to Telly Addicts* button generates. Those files are generated, never hand-edited here.
+* **`tools/shows.json` is the contract between them.** The TV app reads it to decide which channel a show belongs
+  on (fetched at run time, so a change needs no new build), and the scraper reads it to route what it sends. It
+  lives here; the scraper's category lists should follow it.
+
+Either side can read the other's repository at any time, and should, before changing anything that crosses the
+line. Both had built the same feature twice before this was written down.
+
 ## Features
 
 **Channels and guide**

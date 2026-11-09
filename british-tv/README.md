@@ -258,6 +258,20 @@ app falls back to the copy built into the APK (`autodata.js`), and failing that 
 `raw.githubusercontent.com` is the only host added to the native allow-list for this. Pushes can take a few
 minutes to show up, because raw.githubusercontent.com caches.
 
+### The scraper's whole library (`data/library.json`)
+
+**Send to TV app** in the scraper also publishes `data/library.json`: every show and episode in its master library, with the best (or pinned) copy of each and, where the scraper synced them, TVmaze's episode titles, air dates and running times. `index.json` names its revision under `"library"`.
+
+When it's there, the TV builds the channels from it itself (`assets/libroute.js`). It fetches `tools/shows.json` alongside and routes each show to the channel of its genre, with the same rules as `import_scrape.py`: an exact name, then a listed show named inside a longer title, and both channels for a show listed twice. On the same library it puts every episode on the same channels as the per-channel files.
+
+- **Episode details:** where TVmaze matched an episode, its title replaces the one tidied from the file name, for example "The Bill S11E71 Kicking". The library's running time replaces the guess.
+- **Which channels rebuild:** each channel's revision is a hash of its own routed rows, so only channels whose programmes changed are rebuilt.
+- **Downloads:** which channels changed is remembered per library and `shows.json` revision, so a start with nothing new downloads only `index.json` and `shows.json`.
+- **Changing a genre list:** editing `tools/shows.json` re-routes the library at the next start. That needs no scrape and no APK.
+- **Fallback:** if `library.json` or `shows.json` can't be reached, the per-channel files below are used as before, and failing that the copy built into the app. Older APKs ignore `library.json`.
+
+`import_scrape.py` doesn't write `library.json`. If you rebuild `index.json` with it, the TV goes back to the per-channel files until the scraper sends again.
+
 ### Building the lists (`tools/import_scrape.py`)
 
 The lists are built from the **Telly Addict Scraper**, either from its text files or straight from its master

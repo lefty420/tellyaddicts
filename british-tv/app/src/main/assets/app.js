@@ -158,17 +158,69 @@
     return autoDataP;
   }
 
+  // The scraper also sends its whole library (data/library.json): every show and episode with the best copy, and
+  // TVmaze's titles and air dates. When it's there the TV decides the channels itself (libroute.js), with the genre
+  // lists in tools/shows.json, so a list change needs neither a new APK nor a new scrape. Each channel's revision is
+  // a hash of its own routed rows, so still only the channels that changed are rebuilt. Anything missing falls back
+  // to the per-channel files, then the copy in the app.
+  var SHOWS_URL = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/tools/shows.json';
+  var libP = null, libRevs = null;
+
+  /** {channel: rows} from the whole library; null if it or shows.json can't be had. */
+  function loadLibraryRoutes(libRev, showsText) {
+    if (libP) return libP;
+    var showsP = showsText ? Promise.resolve(JSON.parse(showsText)) : getJSON(SHOWS_URL);
+    libP = Promise.all([getJSON(DATA_BASE + 'library.json'), showsP]).then(function (r) {
+      var lib = r[0], shows = r[1];
+      if (!lib || !lib.shows || !shows || !window.LIBROUTE || (libRev && lib.rev && lib.rev !== libRev)) return null;
+      return LIBROUTE.route(lib, shows);
+    }).catch(function () { return null; });
+    return libP;
+  }
+
   /** {channel: revision} for the published lists; {} when there are none or the fetch fails. */
   function loadDataIndex() {
     if (indexP) return indexP;
     indexP = getJSON(DATA_BASE + 'index.json').then(function (j) {
-      return (j && j.channels) || {};
+      var chans = (j && j.channels) || {};
+      if (!j || !j.library || !window.LIBROUTE) return chans;
+      // Which channels changed only shows once the library is routed, so remember the answer per library and
+      // shows.json revision: an unchanged library costs one small download, not the whole file.
+      return http(SHOWS_URL).then(function (showsText) {
+        var key = 'librevs:' + j.library + ':' + E.hash(showsText);
+        var known = store.get(key);
+        if (known && known.revs) { libRevs = known.revs; return known.revs; }
+        return loadLibraryRoutes(j.library, showsText).then(function (routed) {
+          if (!routed) return chans;
+          var revs = {};
+          Object.keys(routed).forEach(function (ch) { revs[ch] = 'L' + E.hash(JSON.stringify(routed[ch])).toString(36); });
+          try {                                 // forget answers for older libraries
+            for (var k = localStorage.length - 1; k >= 0; k--) {
+              var kn = localStorage.key(k);
+              if (kn && kn !== key && kn.indexOf('librevs:') === 0) localStorage.removeItem(kn);
+            }
+          } catch (e) { /* ignore */ }
+          store.set(key, { revs: revs });
+          libRevs = revs;
+          return revs;
+        });
+      }, function () { return chans; });
     }, function () { return {}; });
     return indexP;
   }
 
-  /** One channel's published list, falling back to the bundled copy. */
+  /** One channel's published list: from the whole library when that's in use, else its own file, else the bundled copy. */
   function loadChannelData(id, rev) {
+    if (libRevs && rev && rev === libRevs[id]) {
+      return loadLibraryRoutes().then(function (routed) {
+        if (routed && routed[id] && routed[id].length) return routed[id];
+        return loadChannelFile(id, true);
+      });
+    }
+    return loadChannelFile(id, rev);
+  }
+
+  function loadChannelFile(id, rev) {
     if (!rev) return loadAutoData().then(function (D) { return (D && D[id]) || null; });
     return getJSON(DATA_BASE + encodeURIComponent(id) + '.json').then(function (rows) {
       return rows && rows.length ? rows : null;
@@ -191,6 +243,14 @@
         p.group = show;
         p.show = show;        // used for the artwork and Info lookups, which beat guessing from the file name
         p.dur = AUTO_DUR[show] || 2700;
+        // From the whole library: TVmaze's episode title, the air date and the real running time
+        var d = it.m && it.m[nm];
+        if (d) {
+          var t = window.LIBROUTE && LIBROUTE.titleFor(show, d);
+          if (t) p.title = t;
+          if (d.a) p.aired = d.a;
+          if (d.l > 60) p.dur = d.l;
+        }
         out.push(p);
       });
     });

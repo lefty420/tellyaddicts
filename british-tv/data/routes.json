@@ -1,0 +1,33 @@
+{
+ "format": "telly-addicts-routes",
+ "v": 1,
+ "rev": "393aa67720",
+ "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
+ "channels": {
+  "disney": {
+   "name": "Disney Shorts",
+   "shows": [
+    "Disney Cartoon",
+    "Oswald the Lucky Rabbit",
+    "Silly Symphony",
+    "Walt Disney Cartoon"
+   ]
+  },
+  "mtv": {
+   "name": "MTV (to Dec 1999)",
+   "shows": [
+    "Liquid Television",
+    "MTV",
+    "MTV Spring Break",
+    "Remote Control"
+   ]
+  },
+  "saturday": {
+   "name": "Saturday Night TV",
+   "shows": [
+    "Barrymore",
+    "Little and Large"
+   ]
+  }
+ }
+}

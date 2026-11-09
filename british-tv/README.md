@@ -109,7 +109,7 @@ OSD › **Options** (Up/Down to choose, Left/Right or OK to change):
 | --- | --- |
 | Picture | Auto, 4:3, 16:9, Zoom, Stretch |
 | Enhancements | Off, VHS, Vivid, Sharp, Scanlines, Aperture grille, Curved glass, Portable set, Shadow mask |
-| Television | Off, Walnut, Cream portable, Black, Silver |
+| Television | Off, Portable (wood), Console (walnut), Portable (grey) |
 | Extra metadata | On / Off |
 | Adverts | Off, All (70s–90s), 1970s, 1980s, 1990s |
 | Auto EPG (experimental) | On / Off |
@@ -124,12 +124,18 @@ a Trinitron up close), **Curved glass** (the tube's curve clips the picture, wit
 **Portable set** (warm, coarse lines and a heavy edge) and **Shadow mask** (dot pitch rather than stripes).
 
 **Television** puts the picture inside an old set: it is scaled into a 4:3 window, the shape these programmes were
-made for, with the cabinet drawn around it in **Walnut**, **Cream portable**, **Black** or **Silver**. The cabinet
-is drawn by the app, not a picture file: one gradient runs across all four panels (each shows its own part of it)
-so the corners have no seams, it is sharp at any resolution, adds nothing to the download and costs the box
-nothing. It combines with the Enhancements, so a walnut set with scanlines is a reasonable thing to ask for. No
-cabinet is drawn over the guide. Note that with a cabinet on, the Picture setting only chooses how the video fills
-that 4:3 window.
+made for, and a whole telly is drawn around it — case, surround, curved tube, dials, speaker grille and a standby
+light, standing in a dark room. Three of them: **Portable (wood)**, **Console (walnut)** and **Portable (grey)**.
+
+It is all gradients and one small noise tile that gives the case its grain, so there are no image files, nothing to
+download, and it is sharp at any resolution. Nothing animates: the layer is composited once and then costs the box
+nothing. It combines with the Enhancements, so a walnut set with scanlines is a reasonable thing to ask for, and no
+set is drawn over the guide. With a set on, the Picture option only chooses how the video fills that 4:3 window,
+and the picture is necessarily smaller, because the cabinet has to go somewhere.
+
+These are drawn rather than photographed, so they look like a good illustration of a television rather than a
+photograph of one. Swapping in a real image later is a small change: the window, the scaling and the plumbing are
+already here, and only the drawing would go.
 
 **Extra metadata** turns on both the poster on the bar and the show fanart behind the guide header
 (TVmaze, TV shows only).

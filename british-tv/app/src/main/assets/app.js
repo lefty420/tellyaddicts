@@ -1493,10 +1493,9 @@
   // ---- television cabinets: the picture is scaled into a 4:3 window with a cabinet drawn round it
   var TVSET = [
     { id: 'off', label: 'Off' },
-    { id: 'wood', label: 'Walnut' },
-    { id: 'cream', label: 'Cream portable' },
-    { id: 'black', label: 'Black' },
-    { id: 'silver', label: 'Silver' }
+    { id: 'wood', label: 'Portable (wood)' },
+    { id: 'console', label: 'Console (walnut)' },
+    { id: 'grey', label: 'Portable (grey)' }
   ];
   var tvIdx = 0;
   (function () {

@@ -283,6 +283,31 @@
   .orow.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
   .orow.sel span::before { content: '\25C0  '; } .orow.sel span::after { content: '  \25B6'; }
   #opanel p { margin: 1.4vh 0 0; font-size: 1.9vh; color: rgba(255,255,255,.6); }
+  /* rows that do something on OK rather than cycling through values: no left/right arrows */
+  .orow.sel.act span::before, .orow.sel.act span::after { content: ''; }
+  /* What's new: this release's notes, and the ones before it */
+  #rel { position: fixed; inset: 0; z-index: 61; color: #fff; background: linear-gradient(180deg, #0c2a86, #07184f 55%, #030d36); overflow: hidden; }
+  #rel.hidden { display: none; }
+  #rhead { position: absolute; left: 7vw; right: 7vw; top: 6vh; }
+  #rkick { font-size: 2.2vh; letter-spacing: .3em; text-transform: uppercase; color: rgba(255,255,255,.65); font-weight: 600; }
+  #rver { font-size: 5.6vh; font-weight: 800; line-height: 1.1; margin-top: .8vh; }
+  #rver i { font-style: normal; color: #ffd24d; }
+  #rdate { font-size: 2.3vh; color: #b9c6ff; margin-top: .8vh; }
+  #rbody { position: absolute; left: 7vw; right: 7vw; top: 24vh; bottom: 9vh; overflow: hidden; }
+  #rbody h3 { margin: 3.4vh 0 1.4vh; font-size: 2.1vh; letter-spacing: .25em; text-transform: uppercase;
+    font-weight: 600; color: rgba(255,255,255,.55); border-top: .2vh solid rgba(255,255,255,.18); padding-top: 2.2vh; }
+  #rbody h3:first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+  #rbody ul { margin: 0; padding: 0; list-style: none; }
+  #rbody li { position: relative; padding-left: 2.6vw; margin-bottom: 1.5vh; font-size: 2.6vh; line-height: 1.4; }
+  #rbody li::before { content: ''; position: absolute; left: 0; top: 1.5vh; width: 1.3vw; height: .35vh;
+    background: #ffd24d; border-radius: .2vh; }
+  /* softens the line that the scroll cuts off, instead of chopping it mid-letter */
+  #rfade { position: absolute; left: 0; right: 0; bottom: 9vh; height: 7vh; pointer-events: none;
+    background: linear-gradient(180deg, rgba(4,16,63,0), rgba(4,16,63,.97)); transition: opacity .2s; }
+  #rfoot { position: absolute; left: 7vw; right: 7vw; bottom: 4vh; display: flex; justify-content: space-between;
+    font-size: 2vh; color: #8a98d8; }
+  #rmore { opacity: 0; transition: opacity .2s; }
+  #rmore.on { opacity: 1; }
 </style>
 </head>
 <body>
@@ -328,8 +353,22 @@
     <div class="orow" id="or-buf"><b>Buffer</b><span id="ov-buf"></span></div>
     <div class="orow" id="or-auto"><b>Auto EPG (experimental)</b><span id="ov-auto"></span></div>
     <div class="orow" id="or-keep"><b>Keep listings for</b><span id="ov-keep"></span></div>
-    <div class="orow" id="or-refresh"><b>Refresh listings</b><span id="ov-refresh"></span></div>
+    <div class="orow act" id="or-refresh"><b>Refresh listings</b><span id="ov-refresh"></span></div>
+    <div class="orow act" id="or-rel"><b>What&rsquo;s new</b><span id="ov-rel"></span></div>
     <p>Up / Down to choose &nbsp;&middot;&nbsp; Left / Right or OK to change &nbsp;&middot;&nbsp; Back to close</p>
+  </div>
+</div>
+<div id="rel" class="hidden">
+  <div id="rhead">
+    <div id="rkick">What&rsquo;s new</div>
+    <div id="rver"></div>
+    <div id="rdate"></div>
+  </div>
+  <div id="rbody"></div>
+  <div id="rfade"></div>
+  <div id="rfoot">
+    <span>Back to close</span>
+    <span id="rmore">Up / Down to scroll &#9660;</span>
   </div>
 </div>
 <div id="info" class="hidden">
@@ -386,6 +425,7 @@
   <p>Trying again shortly&hellip;</p>
 </div>
 
+<script src="version.js"></script>
 <script src="engine.js"></script>
 <script src="links.js"></script>
 <script src="ads.js"></script>

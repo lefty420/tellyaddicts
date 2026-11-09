@@ -5,15 +5,14 @@ on:
     branches: [main, master]
     paths:
       - "british-tv/**"
+      - "CHANGELOG.md"
+      - "tools/make_version.py"
       - ".github/workflows/build-british-tv.yml"
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: british-tv
     steps:
       - uses: actions/checkout@v4
 
@@ -24,15 +23,31 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # CHANGELOG.md is the only place the version is written down. Doing this here means a forgotten
+      # local run cannot ship an APK whose version disagrees with the release notes inside it.
+      - name: Set the version from the changelog
+        id: version
+        run: |
+          python3 tools/make_version.py
+          echo "name=$(python3 -c "import json,re;s=open('british-tv/app/src/main/assets/version.js').read();print(json.loads(s[s.index('{'):s.rindex('}')+1])['name'])")" >> "$GITHUB_OUTPUT"
+          echo "version=$(grep -oP 'versionName = \"\K[^\"]+' british-tv/app/build.gradle.kts)" >> "$GITHUB_OUTPUT"
+
       - name: Build debug APK
+        working-directory: british-tv
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Name the APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk tellyaddicts.apk
+      - name: Gather the release
+        run: |
+          cp british-tv/app/build/outputs/apk/debug/app-debug.apk british-tv/tellyaddicts.apk
+          cp CHANGELOG.md british-tv/CHANGELOG.md
+          echo "${{ steps.version.outputs.name }}" > british-tv/VERSION.txt
 
       - uses: actions/upload-artifact@v4
         with:
-          name: tellyaddicts-apk
-          path: british-tv/tellyaddicts.apk
+          name: tellyaddicts-${{ steps.version.outputs.version }}
+          path: |
+            british-tv/tellyaddicts.apk
+            british-tv/CHANGELOG.md
+            british-tv/VERSION.txt

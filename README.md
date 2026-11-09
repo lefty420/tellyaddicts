@@ -72,11 +72,26 @@ The archive.org sources behind each one are in `british-tv/app/src/main/assets/c
 
 1. Open the repo's **Actions** tab and pick **Build Telly Addicts APK** (it runs on every push to
    `main`, or press **Run workflow**).
-2. Open the finished run and download the **tellyaddicts-apk** artifact.
-3. Unzip it to get `tellyaddicts.apk`.
+2. Open the finished run and download the **tellyaddicts-&lt;version&gt;** artifact, for example
+   `tellyaddicts-0.1`.
+3. Unzip it to get `tellyaddicts.apk`, plus `CHANGELOG.md` and `VERSION.txt` saying what is in it.
 
 Every build is signed with the same key, so a new APK installs over the previous one. If an install
 fails, uninstall the old app first (needed once for builds made before the fixed key).
+
+## Releases
+
+Releases are named `Alpha 0.1`, `Alpha 0.2` and so on; a quick fix on top of one gets a third
+number, `Alpha 0.1.1`.
+
+`CHANGELOG.md` is the only place a release is written down. `python3 tools/make_version.py` reads it
+and sets the version in the app and on the APK, and the build runs it too, so the version on the
+TV, the version of the APK and the changelog can never disagree. To make a release: add a
+`## Alpha 0.2 — YYYY-MM-DD` heading at the top of the changelog with a `- ` line per change, run the
+script, and commit.
+
+On the TV, **Options > What's new** shows the release name, its date and that list, with earlier
+releases below it. The first time a new version runs it says so once, in a corner message.
 
 ## Install on the TV
 

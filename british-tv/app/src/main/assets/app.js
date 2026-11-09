@@ -1634,8 +1634,91 @@
     renderOpts();
   }
 
+  // ---- What's new: what came with this build. version.js is written from CHANGELOG.md by tools/make_version.py,
+  // so this panel and the changelog in the APK zip can never say different things.
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+  var relOpen = false;
+  function release() { return window.RELEASE || null; }
+  function relName() { var r = release(); return (r && r.name) || 'unnumbered build'; }
+  /** "2026-11-09" as "9 November 2026". Empty for anything else, so a missing date just shows nothing. */
+  function relDate(d) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d || '')) return '';
+    var p = d.split('-');
+    return (+p[2]) + ' ' + MONTHS[+p[1] - 1] + ' ' + p[0];
+  }
+  function relList(notes) {
+    var ul = document.createElement('ul');
+    (notes || []).forEach(function (n) {
+      var li = document.createElement('li');
+      li.textContent = n;                      // text, never markup: notes are written by hand in the changelog
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  function buildRel() {
+    var r = release(), body = $('rbody');
+    body.textContent = '';
+    $('rver').innerHTML = '';
+    $('rdate').textContent = '';
+    if (!r) {                                  // version.js missing: say so rather than showing an empty screen
+      $('rver').textContent = 'Version unknown';
+      body.appendChild(relList(['This build carries no release notes.']));
+      return;
+    }
+    var name = document.createElement('i');
+    name.textContent = r.name;
+    $('rver').appendChild(name);
+    $('rdate').textContent = relDate(r.date);
+    body.appendChild(relList(r.notes));
+    (r.history || []).forEach(function (h) {
+      var head = document.createElement('h3');
+      head.textContent = h.name + (relDate(h.date) ? '  ·  ' + relDate(h.date) : '');
+      body.appendChild(head);
+      body.appendChild(relList(h.notes));
+    });
+  }
+  function openRel() {
+    closeOpts();
+    buildRel();
+    relOpen = true;
+    $('rel').className = '';
+    $('rbody').scrollTop = 0;
+    relMore();
+  }
+  function closeRel() {
+    relOpen = false;
+    $('rel').className = 'hidden';
+    openOpts();
+    optsSel = OPTS.indexOf('rel');             // back on the row it was opened from
+    renderOpts();
+  }
+  /** Only promise scrolling, and only fade the last line, while there is something below the fold. */
+  function relMore() {
+    var b = $('rbody'), left = b.scrollHeight - b.clientHeight - b.scrollTop;
+    $('rmore').className = left > 4 ? 'on' : '';
+    $('rfade').style.opacity = left > 4 ? '1' : '0';
+  }
+  function relKey(k) {
+    var b = $('rbody'), step = Math.max(80, Math.round(b.clientHeight * 0.55));
+    if (k === 'ArrowDown' || k === 'ChannelDown') { b.scrollTop += step; relMore(); }
+    else if (k === 'ArrowUp' || k === 'ChannelUp') { b.scrollTop -= step; relMore(); }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Enter' || k === ' ' || k === 'Info') closeRel();
+    else if (k === 'Guide' || k === 'Red') { relOpen = false; $('rel').className = 'hidden'; openGuide(); }
+    else return false;
+    return true;
+  }
+  /** Mention a new version once, the first time it runs, and leave the detail in Options. */
+  function greetRelease() {
+    var r = release();
+    if (!r || !r.name) return;
+    if (store.get('relseen') === r.name) return;
+    store.set('relseen', r.name);
+    toast('Updated to ' + r.name + '  ·  Options > What’s new', 6000);
+  }
+
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['ar', 'fx', 'gart', 'ads', 'buf', 'auto', 'keep', 'refresh'];
+  var OPTS = ['ar', 'fx', 'gart', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -1645,6 +1728,7 @@
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again' : 'Press OK';
+    if (id === 'rel') return relName();
     return autoEpg ? 'On' : 'Off';
   }
 
@@ -1656,10 +1740,11 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
+  var ACTION = { refresh: 1, rel: 1 };         // rows that do something on OK, so they show no left/right arrows
   function renderOpts() {
     OPTS.forEach(function (id, i) {
       $('ov-' + id).textContent = optValue(id);
-      $('or-' + id).className = 'orow' + (i === optsSel ? ' sel' : '');
+      $('or-' + id).className = 'orow' + (ACTION[id] ? ' act' : '') + (i === optsSel ? ' sel' : '');
     });
   }
   function openOpts() {
@@ -1706,6 +1791,7 @@
     else if (id === 'buf') changeBuf(d);
     else if (id === 'keep') changeKeep(d);
     else if (id === 'refresh') refreshEpg();
+    else if (id === 'rel') openRel();
     else toggleAuto();
   }
   function optsKey(k) {
@@ -1876,6 +1962,11 @@
     var k = e.key;
     var handled = true;
 
+    if (relOpen) {                        // What's new sits above the options panel it was opened from
+      if (relKey(k)) e.preventDefault();
+      return;
+    }
+
     if (infoOpen) {                       // info panel: any of these closes it, everything else is ignored
       if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Enter' || k === ' ' || k === 'Info') closeInfo();
       e.preventDefault();
@@ -1943,6 +2034,7 @@
     var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];
     tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
     openGuide();               // ... but land in the TV guide
+    greetRelease();            // and say once if this is a version they have not run before
   }
 
   function startLoading() {

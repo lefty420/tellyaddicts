@@ -546,5 +546,14 @@
   "shows": [
    "Christmas Songs"
   ]
+ },
+ "games": {
+  "name": "Video Game Shows",
+  "shows": [
+   "GamesMaster",
+   "Bad Influence",
+   "Cybernet",
+   "Games World"
+  ]
  }
 }

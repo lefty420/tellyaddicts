@@ -1,17 +1,28 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.4",
-  "version": "0.4",
-  "code": 40,
+  "name": "Alpha 0.5",
+  "version": "0.5",
+  "code": 50,
   "date": "2026-11-09",
   "notes": [
-    "Films on the Movies channel now have a proper Info screen: the poster, the plot, the year, the genres and the running time, all from the details the scraper gathers, so it appears at once with nothing to look up",
-    "Film posters show on the on-screen bar and behind the guide",
-    "New **About & credits** in Options, listing where everything comes from: archive.org, TVmaze, TMDB and the scraper",
-    "Film details are stored once each rather than repeated on every listing, so posters and plots cost almost nothing to keep"
+    "**A film now plays only if it carries a certificate.** The scraped film list turned out to include pornography sitting next to the children's films, and nothing in the data told them apart, so a film with no certificate is not scheduled at all. Until certificates arrive the film channels find nothing and hide themselves",
+    "Adult material is kept off every channel, whichever list it arrives on",
+    "**New channel 25, The Video Shop**: the rental shelf, scheduled by certificate — family films through the day, 15s from eight, and the 18s only after nine, as they were on television. Checked minute by minute across a full day",
+    "Kids Films and The Video Shop added to the genre lists, with no episode numbers demanded of either",
+    "A film's certificate shows on its Info screen"
   ],
   "history": [
+    {
+      "name": "Alpha 0.4",
+      "date": "2026-11-09",
+      "notes": [
+        "Films on the Movies channel now have a proper Info screen: the poster, the plot, the year, the genres and the running time, all from the details the scraper gathers, so it appears at once with nothing to look up",
+        "Film posters show on the on-screen bar and behind the guide",
+        "New **About & credits** in Options, listing where everything comes from: archive.org, TVmaze, TMDB and the scraper",
+        "Film details are stored once each rather than repeated on every listing, so posters and plots cost almost nothing to keep"
+      ]
+    },
     {
       "name": "Alpha 0.3",
       "date": "2026-11-09",

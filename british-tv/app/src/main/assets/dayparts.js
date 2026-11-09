@@ -90,7 +90,36 @@
     ]
   };
 
-  var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY };
+  // ---------------------------------------------------------------- The Video Shop
+
+  /**
+   * The watershed. A film plays by its certificate: family certificates through the day, 15s from eight, and
+   * the 18s only after nine, as they were on television.
+   *
+   * A film with no certificate is treated as an 18, not as a U. The scraped list has had pornography in it, and
+   * an unknown certificate is exactly the case that cannot be vouched for, so it waits until after nine rather
+   * than being given the benefit of the doubt in the middle of the afternoon.
+   */
+  function certOf(p) { return String(p.cert || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); }
+  var DAYTIME = { U: 1, UC: 1, PG: 1, '12': 1, '12A': 1, G: 1, TVY: 1, TVG: 1, TVPG: 1 };
+  var EVENING = { '15': 1, PG13: 1, R: 1, TV14: 1 };
+  function familyFilm(p) { return !!DAYTIME[certOf(p)]; }
+  function eveningFilm(p) { return !!EVENING[certOf(p)]; }
+  function lateFilm(p) { var c = certOf(p); return !DAYTIME[c] && !EVENING[c]; }   // 18, NC17, X, and the unknown
+
+  var VIDEOSHOP = {
+    cycle: 'day',
+    filler: function (progs) { return progs.filter(shorter(900)); },
+    blocks: [
+      // the watershed runs from nine at night to half past five in the morning, so the family films start there
+      { at: '05:30', exact: true, want: familyFilm },
+      { at: '20:00', want: function (p) { return eveningFilm(p) || familyFilm(p); } },
+      { at: '21:00', exact: true, want: lateFilm },             // the watershed, on the hour
+      { at: '01:00', want: function (p) { return lateFilm(p) || eveningFilm(p); } }
+    ]
+  };
+
+  var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP };
 
   /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. */
   function schedule(channelId, progs, seed) {

@@ -88,13 +88,14 @@
       var r = { i: p.id, u: u.indexOf(DL) === 0 ? u.slice(DL.length) : u, t: p.title, s: p.sub || '', d: p.dur };
       if (p.show) r.h = p.show;                                 // the scrape knew the real show name; don't lose it
       if (p.filmKey) r.f = p.filmKey;                           // where this film's TMDb details are kept
+      if (p.cert) r.c = p.cert;                                 // BBFC certificate: decides what plays before nine
       if (p.group && p.group.indexOf('-') > 0) r.g = p.group;   // advert tier (uk/g), kept so UK adverts stay preferred
       return r;
     });
   }
   function unpackPlan(rows) {
     return rows.map(function (r) {
-      return { show: r.h, id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g, filmKey: r.f };
+      return { show: r.h, id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g, filmKey: r.f, cert: r.c };
     });
   }
   var keepIdx = keepIndex((store.get('keep1') || '1w'));
@@ -260,7 +261,7 @@
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
   // Channels whose programmes carry no episode number: songs, films, Disney shorts ("How to Sleep"), MTV's
   // untitled and dated blocks, and news bulletins. Insisting on one empties them.
-  var NO_EPISODES = { xmasmusic: 1, movies: 1, kidsmovies: 1, mtv: 1, disney: 1, tvarchive: 1, saturday: 0 };
+  var NO_EPISODES = { xmasmusic: 1, movies: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, saturday: 0 };
   /** A row of songs or films: nothing in it will carry SxxExx, so insisting on one empties the channel. */
   function wantsEpisodes(channelId, it) {
     if (NO_EPISODES[channelId]) return false;
@@ -290,7 +291,7 @@
           if (t) p.title = t;
           if (d.a) p.aired = d.a;
           if (d.l > 60) p.dur = d.l;
-          if (d.film) p.filmKey = keepFilm(d);     // TMDb plot and poster, stored once and found again by key
+          if (d.film) { p.filmKey = keepFilm(d); p.cert = d.cert || ''; }   // TMDb details, and the certificate
         }
         out.push(p);
       });
@@ -308,6 +309,26 @@
     return out;
   }
 
+  // Pornography has turned up in the scraped film list, so it is kept off every channel here rather than relying
+  // on the list being clean. These markers were checked against the whole library: they catch what is there and
+  // leave alone the things that merely sound like them (Adult Swim, The Naked Truth, Sex, Lies and Videotape).
+  // Keyword matching cannot catch everything, which is why a film with no certificate is also kept out of the
+  // daytime further down. The certificate the scraper is adding is the real answer.
+  var BLOCKED = new RegExp([
+    'adult footage', 'adult film', 'adult movie', 'adult version',
+    '\\bporn\\b', '\\bporno\\b', '\\bxxx\\b', 'hardcore', 'softcore', '\\berotica?\\b',
+    'sexual techniques', '\\bplayboy\\b', '\\bpenthouse\\b', '\\bemanuelle\\b', '\\bemmanuelle\\b'
+  ].join('|'), 'i');
+  /** Keep adult material off every channel, whichever list it came in on. */
+  function blocked(p) {
+    if (!p) return false;
+    var t = (p.show || p.group || '') + ' ' + (p.title || '') + ' ' + (p.sub || '') + ' ' +
+            String(p.id || '').replace(/[-_]/g, ' ');
+    if (BLOCKED.test(t)) return true;
+    // "adult" on its own is ambiguous in a programme title but not in a film's
+    return !!p.filmKey && /\badults?\b/i.test(t);
+  }
+
   // A film's details come from TMDb with the scraper's library: the plot and poster are far too big to repeat on
   // every stored listing, so each film is kept once under its own key and the listing only carries the key.
   var TMDB_IMG = 'https://image.tmdb.org/';
@@ -317,8 +338,8 @@
     var poster = String(d.p || '');
     var film = { title: d.n || '', plot: d.ov || '', poster: poster.indexOf(TMDB_IMG) === 0 ? poster : '',
                  genres: Array.isArray(d.g) ? d.g.join(', ') : (d.g || ''),
-                 mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '' };
-    if (!film.plot && !film.poster && !film.genres) return '';     // nothing worth storing or crediting
+                 mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '', cert: d.cert || '' };
+    // stored even when TMDb knew nothing, so Info shows the film's own title instead of hunting for a TV series
     store.set('film1:' + key, film);
     return key;
   }
@@ -356,6 +377,28 @@
     return '';
   }
   function pad2(n) { return (+n < 10 ? '0' : '') + (+n); }
+
+  /**
+   * A film plays only if it carries a certificate.
+   *
+   * The scraped film list is an archive dump, and what came back included pornography, sex instructional tapes
+   * and worse, sitting next to A Bug's Life with nothing to tell them apart. Neither a list of banned words nor
+   * "has the film been identified" is enough: several of the identified films are adult titles with perfectly
+   * ordinary TMDb entries. The certificate is the one piece of information that actually says what a film is and
+   * when it may be shown, so a film without one is not scheduled at all.
+   *
+   * This only touches films from the library. Hand-picked items on a channel's own sources are unaffected.
+   * Until films carry certificates the film channels find nothing and hide themselves, which is the right way
+   * round: an empty channel is a far smaller problem than an 18 in the middle of the afternoon.
+   */
+  function certified(ch, progs) {
+    var keep = progs.filter(function (p) { return !p.filmKey || !!String(p.cert || '').trim(); });
+    if (keep.length !== progs.length) {
+      ch.report = (ch.report || []).concat((progs.length - keep.length) +
+        ' films left out: without a certificate there is no way to know what they are or when they may play');
+    }
+    return keep;
+  }
 
   /** TV Archive only: keep what went out on today's day and month, whatever the year. Undated clips stay, because
    *  that is what fills the time between the bulletins; if nothing at all is dated today, keep the lot rather
@@ -409,11 +452,11 @@
   function buildFromData(ch, noAuto, rev, dkey) {
     return loadChannelData(ch.id, rev).then(function (rows) {
       if (!rows || !rows.length) { ch.autoUsed = true; ch.report = ['nothing in the library for this channel']; ch.plan = []; return []; }
-      var progs = dedupeTitles(capShows(progsFromData(rows, ch.id).filter(function (p) { return genreFits(ch, p); }), 0.25));
+      var progs = dedupeTitles(capShows(progsFromData(rows, ch.id).filter(function (p) { return genreFits(ch, p) && !blocked(p); }), 0.25));
       // hand-listed clips belong to the channel whichever way its programmes were gathered (TV Archive's BBC
       // Archive clips), and they need no lookups, so bring them in here too
       Array.prototype.push.apply(progs, namedFiles(ch));
-      progs = datedToday(ch, progs);
+      progs = datedToday(ch, certified(ch, progs));
       ch.autoUsed = progs.length > 0;
       ch.report = [];
       ch.plan = E.sample(progs, MAX_STORED);
@@ -538,7 +581,8 @@
         });
         ch.report = report;
         if (auto) progs = dedupeTitles(progs.filter(function (p) { return genreFits(ch, p); }));
-        progs = datedToday(ch, progs);
+        progs = progs.filter(function (p) { return !blocked(p); });
+        progs = datedToday(ch, certified(ch, progs));
         if (ch.mix) progs = balanceMix(progs, ch.mix);
         progs = E.sample(progs, MAX_STORED);
         if (progs.length && !ch.noCache) {
@@ -940,6 +984,7 @@
     $('ishow').textContent = f.title || (cur.prog.title || '');
     var bits = [];
     if (f.released) bits.push(String(f.released).slice(0, 4));
+    if (f.cert) bits.push(f.cert);
     if (f.genres) bits.push(f.genres);
     if (f.mins) bits.push(f.mins + ' min');
     bits.push(cur.ch.name);

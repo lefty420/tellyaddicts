@@ -677,5 +677,19 @@
    "London Tonight",
    "BBC Archive"
   ]
+ },
+ "kidsmovies": {
+  "name": "Kids Films",
+  "films": true,
+  "shows": [
+   "Kids Films"
+  ]
+ },
+ "videoshop": {
+  "name": "The Video Shop",
+  "films": true,
+  "shows": [
+   "The Video Shop"
+  ]
  }
 }

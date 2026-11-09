@@ -410,5 +410,14 @@ window.CHANNELS = [
     // night was built around from seven to nine, and what followed them after that (see dayparts.js).
     maxItems: 80,
     sources: [{ data: 'saturday' }]
+  },
+  {
+    n: 25,
+    id: 'videoshop',
+    name: 'The Video Shop',
+    // What you came home with on a Friday night: the rental shelf, mostly 15s and 18s. The certificate decides
+    // when a film can play (dayparts.js): nothing above a 12 before eight, and the 18s after the watershed.
+    maxItems: 80,
+    sources: [{ data: 'videoshop' }]
   }
 ];

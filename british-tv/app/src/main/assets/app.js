@@ -995,9 +995,17 @@
         }, function () { /* no adverts this time */ });
     }, soon ? 1500 : 20000);
   }
+  /** The adverts this channel can play: the hand-picked ones for it, plus whatever the search found. */
+  function adPool(ch) {
+    var key = adKey(ch);
+    if (!key) return [];
+    var fixed = (window.ADS && ADS.fixedFor) ? ADS.fixedFor(ch.id, adEra) : [];
+    return fixed.concat(adPools[key] || []);
+  }
+
   function playAd(ch, index, left) {
-    var key = adKey(ch), pool = key && adPools[key];
-    if (!pool || !pool.length) return nextInChannel();
+    var key = adKey(ch), pool = adPool(ch);
+    if (!pool.length) return nextInChannel();
     var ad = ADS.pickNext(pool, cur && cur.ad ? cur.prog.url : null);
     cur = { ch: ch, index: index, prog: { title: 'Advert', sub: ad.title, url: ad.url }, ad: true, adLeft: left - 1, errors: 0 };
     v.dataset.offset = '0';
@@ -1015,7 +1023,7 @@
   function onEnded() {
     if (cur && cur.ad && cur.adLeft > 0) return playAd(cur.ch, cur.index, cur.adLeft);
     var key = cur && !cur.ad && adKey(cur.ch);
-    if (key && adPools[key] && adPools[key].length) {
+    if (key && adPool(cur.ch).length) {              // hand-picked adverts count too, not only what the search found
       return playAd(cur.ch, cur.index, ADS.CATS[ADS.categoryFor(cur.ch.id)].count);
     }
     nextInChannel();

@@ -218,6 +218,12 @@ World, Disney, kids channels), console adverts (Video Games), album and cassette
 MTV), household and food (ITV Morning, I'm Off School), and ITV / Channel 4 / Channel 5 / Sky /
 cable breaks on the rest.
 
+**Hand-picked adverts.** `assets/adverts.js` holds adverts chosen by hand as `[url, title, channels]`, and each
+one names the channels it may appear on, so a video game advert can play on Video Games, CITV and Children's World
+without turning up on Disney or Kids Movies. They are played alongside whatever the search finds and go through
+exactly the same checks, so the **Adverts** era setting still applies and nothing outside 1970-1999 appears in a
+70s-90s break. Dated ones count as UK-dated and so are preferred; undated ones only appear under *All*.
+
 **UK first:** the UK adverts collection is searched first and played about four times in five, and
 anything titled USA/American is dropped. Never BBC — Classic BBC and Adverts & Continuity have no
 breaks at all. The logic is in `ads.js`; pools are cached for 7 days (`ads2:` keys).

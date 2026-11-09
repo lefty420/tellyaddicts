@@ -80,17 +80,26 @@
 
   /** Decade named in a title ("1984", "80s", "'90s", "1970s") -> '70' | '80' | '90' | 'other' | null */
   function eraOf(title) {
-    var t = String(title || '');
-    var y = /(?:^|[^0-9])(19\d\d|20\d\d)(?![0-9])/.exec(t);
-    if (y) { var n = +y[1]; return n >= 1970 && n <= 1999 ? String(Math.floor((n - 1900) / 10) * 10) : 'other'; }
+    var t = String(title || ''), re = /(?:^|[^0-9])((?:19|20)\d\d)(?![0-9])/g, m, any = false;
+    // Take the first year that is actually in the era, not simply the first number that looks like one: plenty of
+    // titles carry a number that is part of a name ("Wipeout 2097, Playstation (Psygnosis, 1996)").
+    while ((m = re.exec(t))) {
+      any = true;
+      var n = +m[1];
+      if (n >= 1970 && n <= 1999) return String(Math.floor((n - 1900) / 10) * 10);
+    }
+    if (any) return 'other';
     var d = /(?:^|[^0-9])(?:19)?'?([789]0)'?s\b/i.exec(t);
     return d ? d[1] : null;
   }
 
   /** Keep an advert result for the chosen era? Never the BBC; known-year titles must fit; undated ones only in "All". */
+  // Hardware and services that did not exist in the era: a title with no year in it can still be plainly modern.
+  var MODERN_RE = /\b(nintendo switch|switch|wii ?u|wii|3ds|dsi|nintendo ds|gamecube|game ?cube|xbox|ps[345]|playstation [345]|crunchyroll|e3 20\d\d|netflix|youtube)\b/i;
+
   function accept(prog, eraId) {
     var t = (prog.title || '') + ' ' + (prog.item || '');
-    if (/\bBBC\b/i.test(t) || US_RE.test(t)) return false;
+    if (/\bBBC\b/i.test(t) || US_RE.test(t) || MODERN_RE.test(t)) return false;
     var e = eraOf(prog.title) || eraOf(prog.item);
     if (e === 'other') return false;
     if (eraId === 'all') return e === null || e === '70' || e === '80' || e === '90';
@@ -98,6 +107,23 @@
   }
 
   function filterPool(progs, eraId) { return (progs || []).filter(function (p) { return accept(p, eraId); }); }
+
+  /** Hand-picked adverts (adverts.js) for one channel, checked the same way as the ones found by searching. */
+  function fixedFor(channelId, eraId) {
+    var all = (typeof root !== 'undefined' && root.ADVERTS) || [];
+    var out = [];
+    all.forEach(function (a) {
+      var url = a[0], title = a[1], chans = ' ' + (a[2] || '') + ' ';
+      if (!url || chans.indexOf(' ' + channelId + ' ') < 0) return;
+      var dated = eraOf(title) !== null;
+      var path = url.replace(/^https?:\/\/[^\/]*\/download\//, '');
+      try { path = decodeURIComponent(path); } catch (e) { /* leave it encoded */ }
+      var p = { id: url, item: path, url: url, title: title, sub: '', dur: 40,
+                group: dated ? 'uk-d' : 'uk-u' };
+      if (accept(p, eraId)) out.push(p);
+    });
+    return out;
+  }
 
   /** Pick the next advert: UK-collection ones about 4 times in 5, random, never the one that just played. */
   function pickNext(pool, lastUrl) {
@@ -109,7 +135,7 @@
     return from[i];
   }
 
-  var Ads = { ERAS: ERAS, CATS: CATS, categoryFor: categoryFor, eraIndex: eraIndex, buildQuery: buildQuery,
+  var Ads = { ERAS: ERAS, CATS: CATS, categoryFor: categoryFor, fixedFor: fixedFor, eraIndex: eraIndex, buildQuery: buildQuery,
     sourcesFor: sourcesFor, eraOf: eraOf, accept: accept, filterPool: filterPool, pickNext: pickNext };
   if (typeof module !== 'undefined' && module.exports) module.exports = Ads; else root.ADS = Ads;
 })(typeof window !== 'undefined' ? window : this);

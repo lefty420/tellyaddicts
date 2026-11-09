@@ -185,7 +185,11 @@
   #isum { font-size: 2.7vh; line-height: 1.45; margin-top: 2.6vh; max-height: 42vh; overflow: hidden; }
   #idbg { font-size: 2vh; color: #8a98d8; margin-top: 3vh; font-family: monospace; }
   #isum p { margin: 0 0 1.4vh; }
-  #isrc { position: absolute; left: 6vw; right: 6vw; bottom: 4vh; font-size: 2vh; color: #8a98d8; }
+  #isrc { position: absolute; left: 6vw; right: 6vw; bottom: 4vh; font-size: 2vh; color: #8a98d8;
+    display: flex; align-items: center; gap: .8vw; }
+  /* the TMDB logo, shown beside their credit when assets/tmdb.svg is present */
+  img.tmdb { height: 2.4vh; width: auto; vertical-align: middle; }
+  #rbody h3 img.tmdb { height: 2.6vh; margin-left: .8vw; }
   #guide {
     position: fixed; inset: 0; z-index: 40; color: #fff;
     background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%);
@@ -355,6 +359,7 @@
     <div class="orow" id="or-keep"><b>Keep listings for</b><span id="ov-keep"></span></div>
     <div class="orow act" id="or-refresh"><b>Refresh listings</b><span id="ov-refresh"></span></div>
     <div class="orow act" id="or-rel"><b>What&rsquo;s new</b><span id="ov-rel"></span></div>
+    <div class="orow act" id="or-about"><b>About &amp; credits</b><span id="ov-about"></span></div>
     <p>Up / Down to choose &nbsp;&middot;&nbsp; Left / Right or OK to change &nbsp;&middot;&nbsp; Back to close</p>
   </div>
 </div>

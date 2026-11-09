@@ -1,19 +1,29 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.3",
-  "version": "0.3",
-  "code": 30,
+  "name": "Alpha 0.4",
+  "version": "0.4",
+  "code": 40,
   "date": "2026-11-09",
   "notes": [
-    "**The guide can follow the clock.** A channel can now be laid out against the time of day instead of as one endless loop, so the same programme is on at the same time every day, and a programme can be made to start on the dot. Short items before it are cut to fit, the way continuity fills the run-up to the news, so there is never dead air",
-    "**TV Archive replaces On This Day on channel 22**: television from today's date, whatever the year, with news bulletins at 1pm, 6pm and 10pm, and the BBC Archive clips still playing between them. Programmes dated to another day are left out; if nothing at all is dated today the channel plays everything rather than going dark",
-    "**New channel 24, Saturday Night TV**: lighter shows at teatime, the shows the night was built around from seven to nine, and what followed them after that",
-    "MTV and Disney take the scraper's own listings, with the shorts and the untitled blocks no longer thrown away for having no episode number (\"Mickey Mouse — How to Sleep\", \"Yo! MTV Raps\")",
-    "Genre lists for MTV, Disney, Saturday Night and TV Archive, and the guard widened so MTV-only and Disney-only shows are no longer turned away from their own channels",
-    "Stored listings for a channel that no longer exists are cleared out instead of sitting in storage for ever"
+    "Films on the Movies channel now have a proper Info screen: the poster, the plot, the year, the genres and the running time, all from the details the scraper gathers, so it appears at once with nothing to look up",
+    "Film posters show on the on-screen bar and behind the guide",
+    "New **About & credits** in Options, listing where everything comes from: archive.org, TVmaze, TMDB and the scraper",
+    "Film details are stored once each rather than repeated on every listing, so posters and plots cost almost nothing to keep"
   ],
   "history": [
+    {
+      "name": "Alpha 0.3",
+      "date": "2026-11-09",
+      "notes": [
+        "**The guide can follow the clock.** A channel can now be laid out against the time of day instead of as one endless loop, so the same programme is on at the same time every day, and a programme can be made to start on the dot. Short items before it are cut to fit, the way continuity fills the run-up to the news, so there is never dead air",
+        "**TV Archive replaces On This Day on channel 22**: television from today's date, whatever the year, with news bulletins at 1pm, 6pm and 10pm, and the BBC Archive clips still playing between them. Programmes dated to another day are left out; if nothing at all is dated today the channel plays everything rather than going dark",
+        "**New channel 24, Saturday Night TV**: lighter shows at teatime, the shows the night was built around from seven to nine, and what followed them after that",
+        "MTV and Disney take the scraper's own listings, with the shorts and the untitled blocks no longer thrown away for having no episode number (\"Mickey Mouse — How to Sleep\", \"Yo! MTV Raps\")",
+        "Genre lists for MTV, Disney, Saturday Night and TV Archive, and the guard widened so MTV-only and Disney-only shows are no longer turned away from their own channels",
+        "Stored listings for a channel that no longer exists are cleared out instead of sitting in storage for ever"
+      ]
+    },
     {
       "name": "Alpha 0.2",
       "date": "2026-11-09",

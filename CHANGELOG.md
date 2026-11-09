@@ -7,6 +7,13 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.4 — 2026-11-09
+
+- Films on the Movies channel now have a proper Info screen: the poster, the plot, the year, the genres and the running time, all from the details the scraper gathers, so it appears at once with nothing to look up
+- Film posters show on the on-screen bar and behind the guide
+- New **About & credits** in Options, listing where everything comes from: archive.org, TVmaze, TMDB and the scraper
+- Film details are stored once each rather than repeated on every listing, so posters and plots cost almost nothing to keep
+
 ## Alpha 0.3 — 2026-11-09
 
 - **The guide can follow the clock.** A channel can now be laid out against the time of day instead of as one endless loop, so the same programme is on at the same time every day, and a programme can be made to start on the dot. Short items before it are cut to fit, the way continuity fills the run-up to the news, so there is never dead air

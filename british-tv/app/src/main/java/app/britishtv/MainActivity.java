@@ -46,6 +46,9 @@ public class MainActivity extends Activity {
     private static final String ALLOWED_PREFIX_2 = "https://api.tvmaze.com/";   // episode names
     // Ready-made channel lists published from the scraper, so a new scrape reaches the TV without a new APK
     private static final String ALLOWED_PREFIX_3 = "https://raw.githubusercontent.com/";
+    // Film posters that come with the scraper's TMDb details. The page shows these in an <img>, which the WebView
+    // fetches itself; this is here so anything that does go through the bridge is not blocked.
+    private static final String ALLOWED_PREFIX_4 = "https://image.tmdb.org/";
     private static final int MAX_BODY_BYTES = 8 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
     private static final int HTTP_THREADS = 8;                  // archive.org is happier with a few connections than with hundreds
 
@@ -293,7 +296,7 @@ public class MainActivity extends Activity {
                     HttpURLConnection c = null;
                     try {
                         if (url == null || !(url.startsWith(ALLOWED_PREFIX) || url.startsWith(ALLOWED_PREFIX_2)
-                                || url.startsWith(ALLOWED_PREFIX_3))) {
+                                || url.startsWith(ALLOWED_PREFIX_3) || url.startsWith(ALLOWED_PREFIX_4))) {
                             throw new SecurityException("blocked url");
                         }
                         c = (HttpURLConnection) new URL(url).openConnection();

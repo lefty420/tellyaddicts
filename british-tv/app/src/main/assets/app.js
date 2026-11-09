@@ -87,13 +87,14 @@
       var u = p.url || '';
       var r = { i: p.id, u: u.indexOf(DL) === 0 ? u.slice(DL.length) : u, t: p.title, s: p.sub || '', d: p.dur };
       if (p.show) r.h = p.show;                                 // the scrape knew the real show name; don't lose it
+      if (p.filmKey) r.f = p.filmKey;                           // where this film's TMDb details are kept
       if (p.group && p.group.indexOf('-') > 0) r.g = p.group;   // advert tier (uk/g), kept so UK adverts stay preferred
       return r;
     });
   }
   function unpackPlan(rows) {
     return rows.map(function (r) {
-      return { show: r.h, id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g };
+      return { show: r.h, id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g, filmKey: r.f };
     });
   }
   var keepIdx = keepIndex((store.get('keep1') || '1w'));
@@ -289,6 +290,7 @@
           if (t) p.title = t;
           if (d.a) p.aired = d.a;
           if (d.l > 60) p.dur = d.l;
+          if (d.film) p.filmKey = keepFilm(d);     // TMDb plot and poster, stored once and found again by key
         }
         out.push(p);
       });
@@ -304,6 +306,25 @@
     var cap = Math.max(25, Math.round(progs.length * share)), out = [];
     keys.forEach(function (k) { out = out.concat(by[k].length > cap ? E.sample(by[k], cap) : by[k]); });
     return out;
+  }
+
+  // A film's details come from TMDb with the scraper's library: the plot and poster are far too big to repeat on
+  // every stored listing, so each film is kept once under its own key and the listing only carries the key.
+  var TMDB_IMG = 'https://image.tmdb.org/';
+  function keepFilm(d) {
+    var key = String(d.tm || '').trim() || normShow(d.n || '');
+    if (!key) return '';
+    var poster = String(d.p || '');
+    var film = { title: d.n || '', plot: d.ov || '', poster: poster.indexOf(TMDB_IMG) === 0 ? poster : '',
+                 genres: Array.isArray(d.g) ? d.g.join(', ') : (d.g || ''),
+                 mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '' };
+    if (!film.plot && !film.poster && !film.genres) return '';     // nothing worth storing or crediting
+    store.set('film1:' + key, film);
+    return key;
+  }
+  function filmFor(prog) {
+    if (!prog || !prog.filmKey) return null;
+    return store.get('film1:' + prog.filmKey) || null;
   }
 
   /** Programmes from a channel's "files" sources: links already named, so there is nothing to look up. */
@@ -841,6 +862,11 @@
     el.className = '';
     if (!title) return;
     gartTimer = setTimeout(function () {          // wait until the highlight stops moving before looking anything up
+      var film = filmFor(prog);
+      if (film) {
+        if (film.poster && gartFor === title) { el.style.backgroundImage = 'url("' + film.poster + '")'; el.className = 'on'; }
+        return;
+      }
       var p = parseTitle(title);
       if (prog && prog.show) p.show = prog.show;
       if (!p.show) return;
@@ -867,6 +893,8 @@
     $('idbg').textContent = pbText();
     $('isrc').textContent = 'Looking up details…   (Back to close)';
     if (cur.ad) { $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cur.prog.url || '').replace('https://archive.org/download/', '')); $('isrc').textContent = 'Back to close'; return; }
+    var film = filmFor(cur.prog);
+    if (film) { showFilmInfo(film); return; }                 // a film: TMDb already told us everything
     var p = parseTitle(title);
     if (cur.prog && cur.prog.show) p.show = cur.prog.show;
     if (!p.show) { $('isrc').textContent = 'Back to close'; return; }
@@ -905,6 +933,42 @@
       $('isum').textContent = 'Could not look this up right now.';
       $('isrc').textContent = 'Back to close';
     });
+  }
+
+  /** A film's Info screen, straight from the details the scraper gathered: no lookup, so it is up at once. */
+  function showFilmInfo(f) {
+    $('ishow').textContent = f.title || (cur.prog.title || '');
+    var bits = [];
+    if (f.released) bits.push(String(f.released).slice(0, 4));
+    if (f.genres) bits.push(f.genres);
+    if (f.mins) bits.push(f.mins + ' min');
+    bits.push(cur.ch.name);
+    $('imeta').textContent = bits.join('   ·   ');
+    var box = $('isum');
+    box.textContent = '';
+    if (f.plot) { var el = document.createElement('p'); el.textContent = f.plot; box.appendChild(el); }
+    if (f.poster) {
+      var ph = $('iposter');
+      ph.src = f.poster; ph.className = '';
+      $('ibg').style.backgroundImage = 'url("' + f.poster + '")';
+    }
+    tmdbCredit($('isrc'));
+  }
+
+  /** What TMDb's terms ask for wherever their words or pictures are shown. The logo sits beside it when the
+   *  file is there; without it the sentence stands on its own rather than leaving a broken picture. */
+  function tmdbCredit(into) {
+    into.textContent = '';
+    var logo = document.createElement('img');
+    logo.className = 'tmdb';
+    logo.alt = 'TMDB';
+    logo.onerror = function () { logo.parentNode && logo.parentNode.removeChild(logo); };
+    logo.src = 'tmdb.svg';
+    into.appendChild(logo);
+    var words = document.createElement('span');
+    words.textContent = 'This product uses the TMDB API but is not endorsed or certified by TMDB.' +
+                        '   ·   Back to close';
+    into.appendChild(words);
   }
 
   function closeInfo() {
@@ -1770,9 +1834,40 @@
     });
     return ul;
   }
+  /** Where everything on this channel list comes from, and the credits those sources ask for. */
+  var CREDITS = [
+    { who: 'archive.org', what: 'Every programme is played from a public upload at archive.org. Nothing is hosted by this app.' },
+    { who: 'TVmaze', what: 'Episode titles, air dates, posters and summaries for television programmes.' },
+    { who: 'TMDB', tmdb: true,
+      what: 'Film titles, plots, posters and running times. This product uses the TMDB API but is not endorsed or certified by TMDB.' },
+    { who: 'Telly Addict Scraper', what: 'The listings behind Auto EPG, and the film and programme details that come with them.' }
+  ];
+  function buildAbout() {
+    var body = $('rbody');
+    body.textContent = '';
+    $('rkick').textContent = 'About';
+    $('rver').textContent = 'Telly Addicts';
+    $('rdate').textContent = relName() + (relDate((release() || {}).date) ? '   ·   ' + relDate(release().date) : '');
+    CREDITS.forEach(function (c) {
+      var head = document.createElement('h3');
+      head.textContent = c.who;
+      if (c.tmdb) {
+        var logo = document.createElement('img');
+        logo.className = 'tmdb';
+        logo.alt = '';
+        logo.onerror = function () { logo.parentNode && logo.parentNode.removeChild(logo); };
+        logo.src = 'tmdb.svg';
+        head.appendChild(logo);
+      }
+      body.appendChild(head);
+      body.appendChild(relList([c.what]));
+    });
+  }
+
   function buildRel() {
     var r = release(), body = $('rbody');
     body.textContent = '';
+    $('rkick').textContent = 'What’s new';
     $('rver').innerHTML = '';
     $('rdate').textContent = '';
     if (!r) {                                  // version.js missing: say so rather than showing an empty screen
@@ -1792,9 +1887,11 @@
       body.appendChild(relList(h.notes));
     });
   }
-  function openRel() {
+  var relRow = 'rel';
+  function openRel(which) {
     closeOpts();
-    buildRel();
+    relRow = which === 'about' ? 'about' : 'rel';
+    if (relRow === 'about') buildAbout(); else buildRel();
     relOpen = true;
     $('rel').className = '';
     $('rbody').scrollTop = 0;
@@ -1804,7 +1901,7 @@
     relOpen = false;
     $('rel').className = 'hidden';
     openOpts();
-    optsSel = OPTS.indexOf('rel');             // back on the row it was opened from
+    optsSel = Math.max(0, OPTS.indexOf(relRow));   // back on the row it was opened from
     renderOpts();
   }
   /** Only promise scrolling, and only fade the last line, while there is something below the fold. */
@@ -1832,7 +1929,7 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['ar', 'fx', 'gart', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel'];
+  var OPTS = ['ar', 'fx', 'gart', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel', 'about'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -1843,6 +1940,7 @@
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again' : 'Press OK';
     if (id === 'rel') return relName();
+    if (id === 'about') return 'Press OK';
     return autoEpg ? 'On' : 'Off';
   }
 
@@ -1854,7 +1952,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { refresh: 1, rel: 1 };         // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { refresh: 1, rel: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
   function renderOpts() {
     OPTS.forEach(function (id, i) {
       $('ov-' + id).textContent = optValue(id);
@@ -1905,7 +2003,8 @@
     else if (id === 'buf') changeBuf(d);
     else if (id === 'keep') changeKeep(d);
     else if (id === 'refresh') refreshEpg();
-    else if (id === 'rel') openRel();
+    else if (id === 'rel') openRel('rel');
+    else if (id === 'about') openRel('about');
     else toggleAuto();
   }
   function optsKey(k) {
@@ -1981,6 +2080,15 @@
     if (title === artFor || !quiet()) return;
     artFor = title;
     art.className = 'hidden'; bg.className = '';
+    var film = filmFor(cur.prog);                              // a film already has its poster: no lookup needed
+    if (film) {
+      if (film.poster) {
+        art.onerror = function () { art.className = 'hidden'; };
+        art.src = film.poster; art.className = '';
+        bg.style.backgroundImage = 'url("' + film.poster + '")'; bg.className = 'on';
+      }
+      return;
+    }
     var p = parseTitle(title);
     if (cur.prog && cur.prog.show) p.show = cur.prog.show;
     if (!p.show) return;

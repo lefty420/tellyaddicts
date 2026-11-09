@@ -229,12 +229,16 @@ breaks at all. The logic is in `ads.js`; pools are cached for 7 days (`ads2:` ke
 
 ## Auto EPG (experimental)
 
-Options › Auto EPG, default Off. Instead of the hand-picked sources, each channel is built from
-archive.org itself, limited to 1970–1999 (`auto.js`): three searches per channel (main keywords,
-related shows, undated uploads), skipping trailers, DVD menus and whole-disc files, dropping
-duplicate titles, and applying sensible length limits per channel. A thin channel is topped up from
-its normal sources, and a channel with no results falls back to them entirely. How often it is built
-again follows **Keep listings for**. Toggling it restarts the app on the loading screen.
+Options › Auto EPG, default Off. With it on, a channel is built **only from the scraper's own library** — the
+published lists, or the copy inside the app when those cannot be reached. Nothing is searched for on archive.org
+and nothing is topped up from the hand-picked sources, so a channel the library has nothing for stays empty and
+hides itself. That makes the experimental guide an honest view of what you have actually scraped, and it loads
+without a single search. How often it is built again follows **Keep listings for**, and **Refresh listings**
+rebuilds it on demand. Toggling it restarts the app on the loading screen.
+
+Two channels sit outside this, because Auto EPG has no theme for them: **On This Day**, which is its own curated
+clip list, and **Adverts & Continuity**, which keeps its normal search. The searches and era rules in `auto.js`
+are still there and still shape the live keywords, but they are no longer used while Auto EPG is on.
 
 **Genre guard.** A programme is dropped from a channel when the show it names belongs to another
 genre: Miss Marple cannot appear on CITV, and Danger Mouse cannot appear on Classic Sitcoms.

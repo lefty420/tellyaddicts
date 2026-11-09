@@ -210,6 +210,9 @@
   /** Auto EPG only: keep a programme off channels of another genre (a drama on CITV, a cartoon on the sitcom channel). */
   function genreFits(ch, p) { return !window.AUTO || AUTO.genreOk(ch.id, (p.group && p.group !== 'auto' ? p.group + ' ' : '') + (p.title || '') + ' ' + (p.sub || '') + ' ' + (p.id || '').split('/')[0].replace(/[-_]/g, ' ')); }
 
+  /** With Auto EPG on a channel is built only from the scraper's own library (the published lists, or the copy in
+   *  the app when they cannot be reached). Nothing is searched for on archive.org and nothing is topped up from the
+   *  hand-picked sources, so a channel the library has nothing for simply stays empty and hides itself. */
   function loadPrograms(ch, noAuto) {
     if (autoEpg && !noAuto && !ch.noCache && window.AUTO && AUTO.sourcesFor(ch.id)) {
       // Building a list from the scrape means running thousands of file names through the naming rules, so the
@@ -236,7 +239,7 @@
   /** Turn a published (or bundled) channel list into this channel's programmes, and store the result. */
   function buildFromData(ch, noAuto, rev, dkey) {
     return loadChannelData(ch.id, rev).then(function (rows) {
-      if (!rows || !rows.length) return loadProgramsLive(ch, noAuto);
+      if (!rows || !rows.length) { ch.autoUsed = true; ch.report = ['nothing in the library for this channel']; ch.plan = []; return []; }
       var progs = dedupeTitles(capShows(progsFromData(rows).filter(function (p) { return genreFits(ch, p); }), 0.25));
       ch.autoUsed = progs.length > 0;
       ch.report = [];
@@ -251,7 +254,7 @@
         ch.cacheT = Date.now();
         savePlan(ch);
       }
-      return ch.plan.length ? ch.plan : loadProgramsLive(ch, noAuto);
+      return ch.plan;
     });
   }
 
@@ -1873,14 +1876,7 @@
     });
     order.forEach(function (c) {
       loadPrograms(c).then(function (progs) {
-        // Auto EPG found nothing for this channel: use its normal sources instead
-        if (!c.autoUsed || (progs && progs.length >= AUTO_MIN)) return progs;
-        // too little found (or nothing): fill the channel up from its normal sources
-        var found = progs || [];
-        return loadPrograms(c, true).then(function (extra) {
-          c.autoUsed = found.length > 0;
-          return dedupeTitles(found.concat(extra || []));
-        });
+        return progs;   // Auto EPG stands on the library alone; a channel it has nothing for stays empty
       }).then(function (progs) {
         if (progs && progs.length) {
           progs = dropSlow(progs);

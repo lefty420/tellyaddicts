@@ -379,6 +379,25 @@
   function pad2(n) { return (+n < 10 ? '0' : '') + (+n); }
 
   /**
+   * Classic British telly means 1970 to 1999, so an episode the library dates to 2000 or later is left out.
+   *
+   * This is not about the show but about the episode: the scrape matches some shows to their modern remake or
+   * to a revival, so "Sailor Moon" came back as Sailor Moon Crystal from 2012, Thomas as the 2007 series, and
+   * The Bill brought 867 episodes made after the cut-off. Judging each episode by its own air date keeps the
+   * early years of a long-running show and drops the later ones, which is exactly what is wanted.
+   *
+   * An episode with no air date is kept: most of the library has one, and throwing away everything unknown
+   * would empty the channels that were built from file names alone.
+   */
+  var ERA_END = 1999;
+  function inEra(p) {
+    var a = p && p.aired;
+    if (!a) return true;
+    var y = parseInt(String(a).slice(0, 4), 10);
+    return !(y > ERA_END);
+  }
+
+  /**
    * A film plays only if it carries a certificate.
    *
    * The scraped film list is an archive dump, and what came back included pornography, sex instructional tapes
@@ -397,7 +416,11 @@
       ch.report = (ch.report || []).concat((progs.length - keep.length) +
         ' films left out: without a certificate there is no way to know what they are or when they may play');
     }
-    return keep;
+    var era = keep.filter(inEra);
+    if (era.length !== keep.length) {
+      ch.report = (ch.report || []).concat((keep.length - era.length) + ' episodes left out: made after ' + ERA_END);
+    }
+    return era;
   }
 
   /** TV Archive only: keep what went out on today's day and month, whatever the year. Undated clips stay, because

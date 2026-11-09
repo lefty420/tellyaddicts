@@ -1,18 +1,26 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.5",
-  "version": "0.5",
-  "code": 50,
+  "name": "Alpha 0.6",
+  "version": "0.6",
+  "code": 60,
   "date": "2026-11-09",
   "notes": [
-    "**A film now plays only if it carries a certificate.** The scraped film list turned out to include pornography sitting next to the children's films, and nothing in the data told them apart, so a film with no certificate is not scheduled at all. Until certificates arrive the film channels find nothing and hide themselves",
-    "Adult material is kept off every channel, whichever list it arrives on",
-    "**New channel 25, The Video Shop**: the rental shelf, scheduled by certificate — family films through the day, 15s from eight, and the 18s only after nine, as they were on television. Checked minute by minute across a full day",
-    "Kids Films and The Video Shop added to the genre lists, with no episode numbers demanded of either",
-    "A film's certificate shows on its Info screen"
+    "**You can see the buffer working.** The on-screen bar now shows how far ahead the programme is loaded, behind the played part, and turns amber with \"on this device\" when the picture is genuinely coming off the box rather than straight from archive.org. Info spells it out in words",
+    "The Movies channel is gone, its films having been split into Kids Films and The Video Shop. Saturday Night TV is channel 23 and The Video Shop is 24"
   ],
   "history": [
+    {
+      "name": "Alpha 0.5",
+      "date": "2026-11-09",
+      "notes": [
+        "**A film now plays only if it carries a certificate.** The scraped film list turned out to include pornography sitting next to the children's films, and nothing in the data told them apart, so a film with no certificate is not scheduled at all. Until certificates arrive the film channels find nothing and hide themselves",
+        "Adult material is kept off every channel, whichever list it arrives on",
+        "**New channel 25, The Video Shop**: the rental shelf, scheduled by certificate — family films through the day, 15s from eight, and the 18s only after nine, as they were on television. Checked minute by minute across a full day",
+        "Kids Films and The Video Shop added to the genre lists, with no episode numbers demanded of either",
+        "A film's certificate shows on its Info screen"
+      ]
+    },
     {
       "name": "Alpha 0.4",
       "date": "2026-11-09",

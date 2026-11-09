@@ -556,13 +556,6 @@
    "Games World"
   ]
  },
- "movies": {
-  "name": "Movies (TV broadcasts & VHS)",
-  "films": true,
-  "shows": [
-   "Movies"
-  ]
- },
  "mtv": {
   "name": "MTV (to Dec 1999)",
   "shows": [

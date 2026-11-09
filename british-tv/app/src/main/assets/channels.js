@@ -393,17 +393,6 @@ window.CHANNELS = [
   },
   {
     n: 23,
-    id: 'movies',
-    name: 'Movies',
-    maxItems: 60,
-    // Films from the scraper's Movies category, published as data/movies.json. Every film is one "episode" of a
-    // single show called "Movies" and carries its own title ("Ghostbusters (1984)") and real running time, so the
-    // channel needs no archive.org lookups: the list is read straight from the published data, with Auto EPG on
-    // or off. Until something is published the channel finds nothing and hides itself.
-    sources: [{ data: 'movies' }]
-  },
-  {
-    n: 24,
     id: 'saturday',
     name: 'Saturday Night TV',
     // The Saturday evening line-up, kept to Saturday's shape every day: lighter shows at teatime, the shows the
@@ -412,7 +401,7 @@ window.CHANNELS = [
     sources: [{ data: 'saturday' }]
   },
   {
-    n: 25,
+    n: 24,
     id: 'videoshop',
     name: 'The Video Shop',
     // What you came home with on a Friday night: the rental shelf, mostly 15s and 18s. The certificate decides

@@ -47,7 +47,6 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
     // Films as they went out on telly or were taped off it. Every film is filed under the one show name "Movies",
     // so the genre guard is deliberately left off this channel (ALLOWED has no entry): a film's own title says
     // nothing about the category it belongs to, and matching one would only throw good films away.
-    movies: { t: ['feature film', 'tv movie', 'film premiere'], alt: ['the big film', 'friday night film', 'sunday matinee', 'film of the week', 'late night film'], len: FILM_LEN },
     videoshop: { t: ['video rental', 'vhs rental', 'action film', 'thriller film'], alt: ['robocop', 'die hard', 'lethal weapon', 'predator', 'the terminator', 'alien', 'rambo'], len: FILM_LEN },
     saturday: { t: ['saturday night tv', 'light entertainment', 'saturday evening'], alt: ['noels house party', 'gladiators', 'blind date', 'the generation game', 'beadles about', 'stars in their eyes', 'you bet'], len: [900, 5400] },
     // news and programmes from today's date, whatever the year; app.js keeps only what went out on this day

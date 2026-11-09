@@ -183,7 +183,7 @@
   #iep { font-size: 3.4vh; font-weight: 700; color: #ffd24d; margin-top: 1.4vh; }
   #imeta { font-size: 2.4vh; color: #b9c6ff; margin-top: 1.2vh; }
   #isum { font-size: 2.7vh; line-height: 1.45; margin-top: 2.6vh; max-height: 42vh; overflow: hidden; }
-  #idbg { font-size: 2vh; color: #8a98d8; margin-top: 3vh; font-family: monospace; }
+  #idbg { font-size: 2vh; color: #8a98d8; margin-top: 3vh; font-family: monospace; white-space: pre-line; line-height: 1.6; }
   #isum p { margin: 0 0 1.4vh; }
   #isrc { position: absolute; left: 6vw; right: 6vw; bottom: 4vh; font-size: 2vh; color: #8a98d8;
     display: flex; align-items: center; gap: .8vw; }
@@ -270,6 +270,10 @@
   #onext { padding: 1.6vh 2vw; font-size: 2.2vh; color: rgba(255,255,255,.7); max-width: 28vw; align-self: center; }
   #onext b { display: block; color: #fff; font-weight: 600; margin-top: .3vh; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #oprog { position: relative; margin: .4vh 2vw .8vh 9.2vw; height: 1.2vh; background: rgba(255,255,255,.2); border-radius: .6vh; }
+  /* how far ahead the picture is loaded, behind the played part, the way a video site shows it */
+  #obuf { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255,255,255,.42); border-radius: .6vh; width: 0; transition: width .3s linear; }
+  /* amber while it is coming off this device rather than straight from archive.org */
+  #obuf.local { background: rgba(255,210,77,.55); }
   #obar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--hi2); border-radius: .6vh; width: 0; }
   #otime { position: absolute; right: 0; top: 1.8vh; font-size: 2vh; color: rgba(255,255,255,.75); }
   #obtns { display: flex; gap: 1vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
@@ -335,7 +339,7 @@
     <div id="oinfo"><div id="ochan"></div><div id="otitle"></div><div id="osub"></div></div>
     <div id="onext"></div>
   </div>
-  <div id="oprog"><i id="obar"></i><span id="otime"></span></div>
+  <div id="oprog"><i id="obuf"></i><i id="obar"></i><span id="otime"></span></div>
   <div id="obtns">
     <div class="ob" id="ob-guide"><span>TV Guide</span></div>
     <div class="ob" id="ob-rew"><span class="ic">&#9664;&#9664;</span><span>30s</span></div>

@@ -261,7 +261,7 @@
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
   // Channels whose programmes carry no episode number: songs, films, Disney shorts ("How to Sleep"), MTV's
   // untitled and dated blocks, and news bulletins. Insisting on one empties them.
-  var NO_EPISODES = { xmasmusic: 1, movies: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, saturday: 0 };
+  var NO_EPISODES = { xmasmusic: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, saturday: 0 };
   /** A row of songs or films: nothing in it will carry SxxExx, so insisting on one empties the channel. */
   function wantsEpisodes(channelId, it) {
     if (NO_EPISODES[channelId]) return false;
@@ -1157,9 +1157,26 @@
       if (pb.ev.length < 14) pb.ev.push(n + ' ' + ((Date.now() - pb.t0) / 1000).toFixed(1) + 's');
     });
   });
+  /** How far into the programme the picture is loaded: the end of the stretch the player holds around now. */
+  function loadedTo() {
+    try {
+      var b = v.buffered, at = v.currentTime;
+      for (var i = 0; i < b.length; i++) if (b.start(i) <= at + 0.5 && b.end(i) >= at) return b.end(i);
+      return b.length ? b.end(b.length - 1) : 0;
+    } catch (e) { return 0; }                  // some players refuse buffered until a frame has shown
+  }
+  /** True when the picture is coming off this device's own copy rather than straight from archive.org. */
+  function playingLocally() { return String(v.currentSrc || v.src || '').indexOf('http://127.0.0.1:') === 0; }
+
   function pbText() {
     var o = pb.offset ? 'joined ' + fmtPos(pb.offset) + ' in   ' : 'from start   ';
-    return (cur && cur.prog && isSlow(cur.prog.id) ? 'Slow to start: will be left out of the lineup next time.   ' : '') + 'Playback: ' + o + (pb.ev.join(' \u00b7 ') || 'no events yet') + '   (readyState ' + v.readyState + ')';
+    var ahead = Math.max(0, Math.round(loadedTo() - v.currentTime));
+    var how = !BUF[bufIdx].mb ? 'Buffer off: playing from archive.org'
+            : playingLocally() ? 'Buffer on (' + BUF[bufIdx].label + '): playing from this device'
+            : 'Buffer set to ' + BUF[bufIdx].label + ' but this programme is playing from archive.org';
+    return (cur && cur.prog && isSlow(cur.prog.id) ? 'Slow to start: will be left out of the lineup next time.   ' : '') +
+      'Playback: ' + o + (pb.ev.join(' \u00b7 ') || 'no events yet') + '   (readyState ' + v.readyState + ')' +
+      '\n' + how + '   \u00b7   ' + fmtPos(ahead) + ' loaded ahead';
   }
 
   function playSlot(ch, index, offset, announce, tuning, progOverride) {
@@ -2103,7 +2120,13 @@
     }
     var dur = v.duration, pos = v.currentTime;
     $('obar').style.width = (isFinite(dur) && dur > 0 ? Math.min(100, pos / dur * 100) : 0) + '%';
-    $('otime').textContent = fmtPos(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtPos(dur) : '');
+    var ahead = loadedTo();
+    var buf = $('obuf');
+    buf.style.width = (isFinite(dur) && dur > 0 && ahead > 0 ? Math.min(100, ahead / dur * 100) : 0) + '%';
+    buf.className = playingLocally() ? 'local' : '';
+    var secs = ahead > pos ? Math.round(ahead - pos) : 0;
+    $('otime').textContent = fmtPos(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtPos(dur) : '') +
+      (secs > 1 ? '   ·   ' + fmtPos(secs) + ' ahead' + (playingLocally() ? ' on this device' : '') : '');
     $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
     $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
     OB.forEach(function (id, i) { $('ob-' + id).className = 'ob' + (i === osdSel ? ' sel' : ''); });

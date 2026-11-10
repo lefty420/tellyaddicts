@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.23.2",
-  "version": "0.23.2",
-  "code": 2302,
+  "name": "Alpha 0.23.3",
+  "version": "0.23.3",
+  "code": 2303,
   "date": "2026-11-10",
   "notes": [
-    "**On Demand can be reached with the arrow keys and OK alone.** In the guide there is an **On Demand** button beside the clock: press Up from the first channel to reach it, then OK (Down goes back to the channels). While watching, the OK bar has an **On Demand** button beside Options. The coloured-button and Menu shortcuts still work for remotes that have them"
+    "**A much quicker way to the guide's On Demand button: press Left.** When the guide is on what is on now (as it is when it opens), one Left reaches the button, then OK. Right or Down goes back to the channels. Up from the first channel still works, but with many channels that was too far to climb. The guide's bottom line says so"
   ],
   "history": [
+    {
+      "name": "Alpha 0.23.2",
+      "date": "2026-11-10",
+      "notes": [
+        "**On Demand can be reached with the arrow keys and OK alone.** In the guide there is an **On Demand** button beside the clock: press Up from the first channel to reach it, then OK (Down goes back to the channels). While watching, the OK bar has an **On Demand** button beside Options. The coloured-button and Menu shortcuts still work for remotes that have them"
+      ]
+    },
     {
       "name": "Alpha 0.23.1",
       "date": "2026-11-10",
@@ -59,13 +66,6 @@ window.RELEASE = {
         "**The debug log can now say why a programme is wrong, not only why one failed.** Pressing Info on anything that is playing writes a record of it: the show it was listed as, the archive.org item and file it came from, how long the listing says it should be and how long the file really is, and the picture size. The app also asks archive.org what that upload actually is (its title, who uploaded it, language, collections, the start of its description) and records the answer, which is what shows a programme to be a different show with the same name",
         "A file much shorter than its listing is logged as a mismatch the moment it loads, with the same details, without anyone having to press anything",
         "The Debug log screen says how to use this and lists the latest programmes you checked"
-      ]
-    },
-    {
-      "name": "Alpha 0.19",
-      "date": "2026-11-10",
-      "notes": [
-        "**The debug log opens from a phone or computer.** The log page could only answer one connection at a time, and a browser opens spare ones that say nothing, so the real request waited and then failed with \"unexpectedly closed the connection\". Each connection is now answered separately. The Debug log screen also spells out that the address must be typed with `http://` at the front, because a browser left to guess tries a secure connection, which this page does not speak"
       ]
     }
   ]

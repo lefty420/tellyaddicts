@@ -1958,7 +1958,7 @@
     var now = Date.now();
     var nb;
     if (dir < 0) {
-      if (fb.startMs <= now) return;            // cannot go back before what is on now
+      if (fb.startMs <= now) { gOdSet(true); return; }   // already on what is on now: one more Left reaches the On Demand button
       nb = E.stepBlock(sched, fb, -1);
       // land a second inside the block: sitting exactly on the boundary can round into the neighbour
       gFocus = Math.max(nb.startMs + 1000, now);
@@ -2605,11 +2605,12 @@
     if (k === 'Menu' || k === 'ContextMenu') { odOpenUi(); e.preventDefault(); return; }
 
     if (guideOpen) {
-      // On Demand is a button at the top of the guide: Up from the first channel reaches it, OK opens it
+      // On Demand is a button at the top of the guide: Left from what is on now (or Up from the first channel) reaches it, OK opens it
       if (gOd && (k === 'Enter' || k === ' ')) { gOdSet(false); odOpenUi(); }
       else if (gOd && k === 'ArrowDown') gOdSet(false);
       else if (gOd && k === 'ArrowUp') { gOdSet(false); gMove(-1, true); }
-      else if (gOd && (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ChannelUp' || k === 'ChannelDown')) { /* nothing to move along */ }
+      else if (gOd && k === 'ArrowRight') gOdSet(false);
+      else if (gOd && (k === 'ArrowLeft' || k === 'ChannelUp' || k === 'ChannelDown')) { /* nothing to move along */ }
       else if (k === 'ArrowUp') { if (gRow === 0) gOdSet(true); else gMove(-1, true); }
       else if (k === 'ArrowDown') gMove(1, true);
       else if (k === 'ChannelUp') gMove(-(VISIBLE_ROWS - 1), false);

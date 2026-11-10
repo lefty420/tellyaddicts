@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-10T22:13:29Z",
+ "updated": "2026-11-10T23:11:01Z",
  "channels": {
   "bbc": "58c50b2f37",
   "childrens": "48f33ce9e3",
@@ -10,7 +10,7 @@
   "games": "8f0f201dc4",
   "gameshows": "cc64a75aed",
   "itv": "7fa0bb9d20",
-  "kidsmovies": "b4baa53d57",
+  "kidsmovies": "bc22cc0155",
   "kidsxmas": "c305b142a7",
   "mtv": "0eb466dcdc",
   "music": "54cb4bd9eb",
@@ -22,7 +22,7 @@
   "thebill": "d98ff837f6",
   "tv70s": "4b9b9e0f59",
   "tvarchive": "da5b320468",
-  "videoshop": "1f1e6854ac",
+  "videoshop": "5d50e55bc1",
   "xmasmusic": "90b6177c37"
  },
  "counts": {
@@ -35,7 +35,7 @@
   "games": 64,
   "gameshows": 326,
   "itv": 323,
-  "kidsmovies": 59,
+  "kidsmovies": 75,
   "kidsxmas": 74,
   "mtv": 265,
   "music": 161,
@@ -47,14 +47,14 @@
   "thebill": 99,
   "tv70s": 119,
   "tvarchive": 35,
-  "videoshop": 139,
+  "videoshop": 290,
   "xmasmusic": 51
  },
- "library": "130aa6be9f",
+ "library": "92c8399d98",
  "library_counts": {
   "shows": 414,
-  "episodes": 27506,
-  "copies": 57039
+  "episodes": 27673,
+  "copies": 58407
  },
  "routes": "965eff5a84",
  "art": "a50dca0936"

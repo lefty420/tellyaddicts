@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.10",
-  "version": "0.10",
-  "code": 1000,
+  "name": "Alpha 0.11",
+  "version": "0.11",
+  "code": 1100,
   "date": "2026-11-10",
   "notes": [
-    "**Drama (channel 7) now follows the clock.** The Bill was three-quarters of the channel and played back to back all day. Now the gentler dramas fill the day (Lovejoy, Heartbeat, Ballykissangel, Upstairs Downstairs, Poirot, Hetty Wainthropp and the like), The Bill starts at 8pm on the dot as it did on ITV, and the heavier crime comes after the 9pm watershed: The Professionals, Minder, Bergerac, Spooks, Morse, Prime Suspect and I, Claudius. A thin library falls back to the ordinary loop rather than leaving the channel empty"
+    "**The Bill is limited to three episodes a day** on Drama. It makes up about half of what the channel has, so it was crowding everything else out. Now there is one at half past six, then the eight o'clock slot, and the rest of the day belongs to the other dramas. The three change every day, so the week shows twenty-one different episodes, and Drama's schedule now repeats weekly instead of daily"
   ],
   "history": [
+    {
+      "name": "Alpha 0.10",
+      "date": "2026-11-10",
+      "notes": [
+        "**Drama (channel 7) now follows the clock.** The Bill was three-quarters of the channel and played back to back all day. Now the gentler dramas fill the day (Lovejoy, Heartbeat, Ballykissangel, Upstairs Downstairs, Poirot, Hetty Wainthropp and the like), The Bill starts at 8pm on the dot as it did on ITV, and the heavier crime comes after the 9pm watershed: The Professionals, Minder, Bergerac, Spooks, Morse, Prime Suspect and I, Claudius. A thin library falls back to the ordinary loop rather than leaving the channel empty"
+      ]
+    },
     {
       "name": "Alpha 0.9",
       "date": "2026-11-10",
@@ -68,16 +75,6 @@ window.RELEASE = {
         "**New channel 25, The Video Shop**: the rental shelf, scheduled by certificate — family films through the day, 15s from eight, and the 18s only after nine, as they were on television. Checked minute by minute across a full day",
         "Kids Films and The Video Shop added to the genre lists, with no episode numbers demanded of either",
         "A film's certificate shows on its Info screen"
-      ]
-    },
-    {
-      "name": "Alpha 0.4",
-      "date": "2026-11-09",
-      "notes": [
-        "Films on the Movies channel now have a proper Info screen: the poster, the plot, the year, the genres and the running time, all from the details the scraper gathers, so it appears at once with nothing to look up",
-        "Film posters show on the on-screen bar and behind the guide",
-        "New **About & credits** in Options, listing where everything comes from: archive.org, TVmaze, TMDB and the scraper",
-        "Film details are stored once each rather than repeated on every listing, so posters and plots cost almost nothing to keep"
       ]
     }
   ]

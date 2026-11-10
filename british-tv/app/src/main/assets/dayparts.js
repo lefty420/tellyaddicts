@@ -139,16 +139,56 @@
     'city central', 'the cops', 'shoestring', 'i claudius'
   ]);
 
+  var DAY = 86400;
+  function secs(h, m) { return h * 3600 + m * 60; }
+  function ceil5(sec) { return Math.ceil(sec / 300) * 300; }
+  function seedOf(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function shuffled(list, seed) {
+    var a = list.slice(), x = seed || 1;
+    for (var i = a.length - 1; i > 0; i--) {
+      x = (Math.imul(x, 1664525) + 1013904223) >>> 0;
+      var j = x % (i + 1), t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  /** The Bill has hundreds of episodes and most of the other dramas have a handful, so left alone it takes over.
+   *  It is capped at BILL_PER_DAY a day, a different set each day of the week: one at teatime, then the eight
+   *  o'clock slot. Everything else in the day is the other dramas. */
+  var BILL_PER_DAY = 3;
   var DRAMA = {
-    cycle: 'day',
+    cycle: 'week',
     filler: function (progs) { return progs.filter(shorter(900)); },
-    blocks: [
-      { at: '06:00', want: GENTLE },                                   // morning and afternoon: the gentler shows
-      { at: '17:00', want: function (p) { return !DARK(p); } },        // teatime: The Bill and the gentler shows
-      { at: '20:00', exact: true, want: BILL },                        // The Bill at eight, on the dot
-      { at: '21:00', exact: true, want: DARK },                        // after the watershed: the heavier crime
-      { at: '23:00', want: function (p) { return DARK(p) || BILL(p); } }
-    ]
+    make: function (progs, seed) {
+      var bills = progs.filter(function (p) { return BILL(p) && p.dur >= 1200 && p.dur <= 3300; });
+      bills = shuffled(bills, seedOf(String(seed) + 'bill'));
+      var gentle = progs.filter(function (p) { return GENTLE(p) && !BILL(p); });
+      var dark = progs.filter(function (p) { return DARK(p) && !BILL(p); });
+      var rest = progs.filter(function (p) { return !BILL(p); });
+      if (!gentle.length) gentle = rest;
+      if (!dark.length) dark = rest;
+      var blocks = [];
+      for (var d = 0; d < 7; d++) {
+        var o = d * DAY, n = bills.length, pick = [];
+        for (var k = 0; k < BILL_PER_DAY && n; k++) pick.push(bills[(d * BILL_PER_DAY + k) % n]);
+        blocks.push({ at: o + secs(6, 0), items: gentle });
+        var a = pick[0];
+        if (a) {
+          // one Bill at half past six, then back to the others until eight
+          var aEnd = secs(18, 30) + ceil5(a.dur);
+          blocks.push({ at: o + secs(17, 30), items: gentle });
+          blocks.push({ at: o + secs(18, 30), exact: true, items: [a] });
+          blocks.push({ at: o + aEnd, exact: true, items: gentle });
+        } else {
+          blocks.push({ at: o + secs(17, 30), items: gentle });
+        }
+        if (pick.length > 1) blocks.push({ at: o + secs(20, 0), exact: true, items: pick.slice(1) });
+        else blocks.push({ at: o + secs(20, 0), exact: true, items: gentle });
+        blocks.push({ at: o + secs(21, 0), exact: true, items: dark });      // after the watershed
+        blocks.push({ at: o + secs(23, 0), items: dark });
+      }
+      return blocks;
+    }
   };
 
   var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, thebill: DRAMA };
@@ -158,7 +198,8 @@
     var plan = DAYPARTS[channelId];
     if (!plan || !progs || progs.length < 4 || !root.Engine) return null;
     var blocks = [];
-    plan.blocks.forEach(function (b) {
+    if (plan.make) blocks = plan.make(progs, seed);          // a plan that needs more than "which programmes fit"
+    else plan.blocks.forEach(function (b) {
       var items = progs.filter(b.want);
       if (items.length) blocks.push({ at: b.at, exact: b.exact, items: items });
     });

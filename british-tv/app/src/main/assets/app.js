@@ -38,6 +38,50 @@
     }
     gone.forEach(function (k2) { localStorage.removeItem(k2); });
   } catch (e) { /* storage blocked */ }
+  // Programmes marked "slow to start" by versions whose buffer could not join a long programme part-way through:
+  // the fault was the buffer's, not theirs, so they get a clean slate once.
+  try { if (!localStorage.getItem('slowfix1')) { localStorage.removeItem('slow1'); localStorage.setItem('slowfix1', '1'); } } catch (e) { /* storage blocked */ }
+
+  // ------------------------------------------------------------------ debug log
+  //
+  // What was played, how it went, and why it failed, kept on the TV so it can be sent when something will not
+  // play. Options > About & debug log puts it on the home network for a phone or computer to open and copy.
+  var DLOG = store.get('dbglog1') || [], dlogTimer = null, httpFails = 0;
+  if (!(DLOG instanceof Array)) DLOG = [];
+  function two(n) { return (n < 10 ? '0' : '') + n; }
+  function dlog(text) {
+    var d = new Date();
+    DLOG.push(two(d.getDate()) + '/' + two(d.getMonth() + 1) + ' ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) +
+      '  ' + String(text).slice(0, 700));
+    if (DLOG.length > 400) DLOG.splice(0, DLOG.length - 400);
+    clearTimeout(dlogTimer);
+    dlogTimer = setTimeout(function () { store.set('dbglog1', DLOG); }, 2000);
+  }
+  window.addEventListener('error', function (e) {
+    dlog('SCRIPT ERROR ' + (e && e.message) + ' @' + String((e && e.filename) || '').split('/').pop() + ':' + (e && e.lineno));
+  });
+  /** Ask archive.org about a file that would not play: is it there, is it allowed, is it really an mp4? */
+  var probeId = 0, probes = {};
+  window.__probe = function (id, json) {
+    var url = probes[id];
+    delete probes[id];
+    dlog('  CHECK ' + json + (url ? '  ' + url : ''));
+  };
+  function diagnose(url) {
+    if (!url || !window.NativeHttp || !NativeHttp.probe) return;
+    var id = ++probeId;
+    probes[id] = url;
+    try { NativeHttp.probe(id, url); } catch (e) { delete probes[id]; }
+  }
+  /** The whole log as text, with the buffer's own notes on the end. */
+  function logText() {
+    var head = ['Telly Addicts debug log', 'Version: ' + ((window.RELEASE && RELEASE.name) || 'unnumbered'),
+      'Device: ' + (window.NativeHttp && NativeHttp.device ? NativeHttp.device() : 'not the TV app'),
+      'Browser: ' + navigator.userAgent, 'Written: ' + new Date().toString(), ''];
+    var notes = '';
+    try { notes = window.NativeHttp && NativeHttp.cacheLog ? NativeHttp.cacheLog() : ''; } catch (e) { notes = ''; }
+    return head.concat(DLOG).join('\n') + '\n\n--- buffer notes (this run of the app) ---\n' + (notes || '(none)\n');
+  }
 
   // ------------------------------------------------------------------ network
 
@@ -49,17 +93,21 @@
     var p = pending[id];
     if (!p) return;
     delete pending[id];
-    if (status >= 200 && status < 300) p.res(body); else p.rej(new Error('HTTP ' + status));
+    if (status >= 200 && status < 300) p.res(body);
+    else {
+      if (++httpFails <= 40) dlog('REQUEST FAILED ' + (status || 'no answer') + '  ' + p.url);
+      p.rej(new Error('HTTP ' + status));
+    }
   };
 
   function http(url) {
     if (window.NativeHttp) {
       return new Promise(function (res, rej) {
         var id = ++reqId;
-        pending[id] = { res: res, rej: rej };
+        pending[id] = { res: res, rej: rej, url: url };
         window.NativeHttp.get(id, url);
         setTimeout(function () {
-          if (pending[id]) { delete pending[id]; rej(new Error('timeout')); }
+          if (pending[id]) { delete pending[id]; if (++httpFails <= 40) dlog('REQUEST TIMED OUT  ' + url); rej(new Error('timeout')); }
         }, 40000);
       });
     }
@@ -1267,6 +1315,20 @@
       if (pb.ev.length < 14) pb.ev.push(n + ' ' + ((Date.now() - pb.t0) / 1000).toFixed(1) + 's');
     });
   });
+  /** Where the player has got to, in the browser's own terms, for the debug log. */
+  function playState() {
+    var err = v.error ? 'error ' + v.error.code + (v.error.message ? ' "' + v.error.message + '"' : '') + ', ' : '';
+    return err + 'ready ' + v.readyState + ', network ' + v.networkState + ', at ' + Math.round(v.currentTime || 0) + 's, events: ' + (pb.ev.join(', ') || 'none');
+  }
+  v.addEventListener('playing', function () {
+    if (pb.said) return;
+    pb.said = true;
+    dlog('  ok, playing after ' + ((Date.now() - pb.t0) / 1000).toFixed(1) + 's' + (cur && cur.ad ? ' (advert)' : ''));
+  });
+  v.addEventListener('error', function () {
+    dlog('FAILED ' + (cur && cur.ad ? 'advert ' : '') + (cur && cur.prog ? (cur.prog.title || '') : '') + ' (' + playState() + ')');
+    diagnose(pb.url);
+  });
   /** How far into the programme the picture is loaded: the end of the stretch the player holds around now. */
   function loadedTo() {
     try {
@@ -1296,13 +1358,21 @@
     pbStart(prog.url, offset);
     var meOne = cur;
     setTimeout(function () {
-      if (cur === meOne && v.readyState < 1 && !meOne.ad) { markSlow(prog.id); nextInChannel(); }   // never even got the file header: move on
+      if (cur === meOne && v.readyState < 1 && !meOne.ad) {       // never even got the file header: move on
+        dlog('GAVE UP after 30s: nothing arrived at all (' + playState() + ')');
+        diagnose(prog.url); markSlow(prog.id); nextInChannel();
+      }
     }, 30000);
     setTimeout(function () {
       // header arrived but it still can't play 25 s in (slow index/seek on a mid-programme join): move on, and remember it
-      if (cur === meOne && !meOne.ad && v.readyState < 3) { markSlow(prog.id); nextInChannel(); }
+      if (cur === meOne && !meOne.ad && v.readyState < 3) {
+        dlog('GAVE UP after 25s: it never got going (' + playState() + ')');
+        diagnose(prog.url); markSlow(prog.id); nextInChannel();
+      }
     }, 25000);
     v.src = playUrl(prog.url);      // buffered through this device when Options > Buffer is on
+    dlog('PLAY ' + ch.n + ' ' + ch.name + ' | ' + (prog.title || '?') + ' | from ' + Math.round(offset || 0) + 's of ' + Math.round(prog.dur || 0) + 's | ' +
+      (v.src.indexOf('http://127.0.0.1') === 0 ? 'buffered' : 'direct') + ' | ' + prog.url);
     var p = v.play();
     if (p && p.catch) p.catch(function () { /* autoplay blocked or interrupted; error handler covers failures */ });
     store.set('last', ch.id);
@@ -1537,7 +1607,8 @@
       // stalled mid-programme for a long time: reload the same file at the same spot (never during the initial load)
       if (!cur || v.paused || v.readyState >= 3 || !(v.currentTime > 2)) return;
       v.dataset.offset = String(v.currentTime);
-      pbStart(v.src, v.currentTime);
+      dlog('STALLED 20s mid-programme, reloading at ' + Math.round(v.currentTime) + 's');
+      pbStart(cur && cur.prog ? cur.prog.url : v.src, v.currentTime);
       var src = v.src;
       v.src = src;
       var p = v.play();
@@ -2020,6 +2091,18 @@
     $('rkick').textContent = 'About';
     $('rver').textContent = 'Telly Addicts';
     $('rdate').textContent = relName() + (relDate((release() || {}).date) ? '   ·   ' + relDate(release().date) : '');
+    var lh = document.createElement('h3');
+    lh.textContent = 'Debug log';
+    body.appendChild(lh);
+    var where = '';
+    try { where = window.NativeHttp && NativeHttp.shareLog ? NativeHttp.shareLog(logText()) : ''; } catch (e) { where = ''; }
+    var fails = DLOG.filter(function (l) { return /  (FAILED|GAVE UP|STALLED)/.test(l); });
+    var lines = [where
+      ? 'To send it: on a phone or computer on the same Wi-Fi, open  ' + where + '  then copy everything on the page.'
+      : 'It can be opened from a phone or computer when the TV is on the home network.',
+      DLOG.length + ' entries kept, ' + fails.length + ' of them programmes that failed or stalled.'];
+    fails.slice(-4).forEach(function (l) { lines.push(l); });
+    body.appendChild(relList(lines));
     CREDITS.forEach(function (c) {
       var head = document.createElement('h3');
       head.textContent = c.who;

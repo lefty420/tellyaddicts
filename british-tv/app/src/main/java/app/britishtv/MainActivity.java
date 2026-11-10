@@ -54,6 +54,7 @@ public class MainActivity extends Activity {
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private MediaCache cache;
+    private final LogServer logs = new LogServer();
     /** All requests share a small pool: one thread per request used to leave 50+ threads competing during start-up. */
     private final ExecutorService http = Executors.newFixedThreadPool(HTTP_THREADS, new ThreadFactory() {
         @Override
@@ -275,6 +276,7 @@ public class MainActivity extends Activity {
             web = null;
         }
         http.shutdownNow();
+        logs.stop();
         if (cache != null) {
             cache.shutdown();
             cache = null;
@@ -354,6 +356,95 @@ public class MainActivity extends Activity {
             if (c != null) {
                 c.release();
             }
+        }
+
+        /** What the buffer has been doing, for the debug log. */
+        @JavascriptInterface
+        public String cacheLog() {
+            MediaCache c = cache;
+            return c != null ? c.log() : "";
+        }
+
+        /** Put the debug log on the home network. Returns the address to open on a phone or computer, or "". */
+        @JavascriptInterface
+        public String shareLog(String text) {
+            return logs.share(text);
+        }
+
+        @JavascriptInterface
+        public String device() {
+            return android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL + ", Android " + android.os.Build.VERSION.RELEASE;
+        }
+
+        /**
+         * Ask archive.org about a file that would not play: the status it answers with, what it says the file is,
+         * how big, and the first bytes, which say whether it really is an mp4. Answers window.__probe(id, text).
+         */
+        @JavascriptInterface
+        public void probe(final int id, final String url) {
+            http.execute(new Runnable() {
+                @Override
+                public void run() {
+                    String out;
+                    HttpURLConnection c = null;
+                    try {
+                        if (url == null || !url.startsWith(ALLOWED_PREFIX)) {
+                            throw new SecurityException("blocked url");
+                        }
+                        c = (HttpURLConnection) new URL(url).openConnection();
+                        c.setConnectTimeout(15000);
+                        c.setReadTimeout(20000);
+                        c.setRequestProperty("User-Agent", "BritishTV/1.0 (Android TV)");
+                        c.setRequestProperty("Range", "bytes=0-15");
+                        int status = c.getResponseCode();
+                        StringBuilder b = new StringBuilder();
+                        b.append("archive.org says ").append(status);
+                        String type = c.getHeaderField("Content-Type");
+                        if (type != null) {
+                            b.append(", type ").append(type);
+                        }
+                        String range = c.getHeaderField("Content-Range");
+                        if (range != null && range.contains("/")) {
+                            b.append(", size ").append(range.substring(range.indexOf('/') + 1)).append(" bytes");
+                        }
+                        String host = c.getURL() != null ? c.getURL().getHost() : null;
+                        if (host != null) {
+                            b.append(", served by ").append(host);
+                        }
+                        if (status >= 200 && status < 300) {
+                            InputStream in = c.getInputStream();
+                            byte[] first = new byte[16];
+                            int n = 0, r;
+                            while (n < first.length && (r = in.read(first, n, first.length - n)) > 0) {
+                                n += r;
+                            }
+                            in.close();
+                            StringBuilder sig = new StringBuilder();
+                            for (int i = 4; i < n && i < 12; i++) {
+                                char ch = (char) (first[i] & 0xff);
+                                sig.append(ch >= 32 && ch < 127 ? ch : '.');
+                            }
+                            b.append(", starts \"").append(sig).append('"');
+                        }
+                        out = b.toString();
+                    } catch (Exception e) {
+                        out = "could not ask archive.org: " + e;
+                    } finally {
+                        if (c != null) {
+                            c.disconnect();
+                        }
+                    }
+                    final String js = "window.__probe && window.__probe(" + id + "," + JSONObject.quote(out) + ")";
+                    main.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (web != null) {
+                                web.evaluateJavascript(js, null);
+                            }
+                        }
+                    });
+                }
+            });
         }
 
         @JavascriptInterface

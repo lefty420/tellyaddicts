@@ -30,6 +30,30 @@ final class MediaCache {
     private int port;
     private volatile Session live;
     private long token;
+    /** What the cache has been doing, newest last: kept for the debug log the user can send. */
+    private final java.util.ArrayDeque<String> notes = new java.util.ArrayDeque<>();
+
+    void note(String text) {
+        java.util.Calendar c = java.util.Calendar.getInstance();
+        String at = String.format(Locale.UK, "%02d:%02d:%02d", c.get(java.util.Calendar.HOUR_OF_DAY),
+                c.get(java.util.Calendar.MINUTE), c.get(java.util.Calendar.SECOND));
+        synchronized (notes) {
+            notes.addLast(at + " " + text);
+            while (notes.size() > 200) {
+                notes.removeFirst();
+            }
+        }
+    }
+
+    String log() {
+        StringBuilder b = new StringBuilder();
+        synchronized (notes) {
+            for (String n : notes) {
+                b.append(n).append('\n');
+            }
+        }
+        return b.toString();
+    }
 
     MediaCache(File cacheDir) {
         dir = new File(cacheDir, "media");
@@ -52,11 +76,13 @@ final class MediaCache {
                 accept.setDaemon(true);
                 accept.start();
             }
-            Session s = new Session(url, budget, new File(dir, "p" + (++token) + ".bin"));
+            Session s = new Session(this, url, budget, new File(dir, "p" + (++token) + ".bin"));
+            note("buffer " + (budget >> 20) + " MB for " + url);
             s.begin(0);
             live = s;
             return "http://127.0.0.1:" + port + "/" + token;
         } catch (Exception e) {
+            note("could not start: " + e);
             release();
             return null;                                    // play the original instead
         }
@@ -173,6 +199,10 @@ final class MediaCache {
     // ------------------------------------------------------------------ one programme
 
     private static final class Session {
+        /** A request this close beyond what is held is waited for; one further away restarts the download there. */
+        private static final long NEAR = 4L * 1024 * 1024;
+        private final MediaCache owner;
+        private volatile int gen;                           // goes up each time the download restarts somewhere else
         private final String url;
         private final long budget;
         final File file;
@@ -183,7 +213,8 @@ final class MediaCache {
         private volatile boolean dead;
         private Thread puller;
 
-        Session(String url, long budget, File file) {
+        Session(MediaCache owner, String url, long budget, File file) {
+            this.owner = owner;
             this.url = url;
             this.budget = budget;
             this.file = file;
@@ -194,6 +225,7 @@ final class MediaCache {
             stopPulling();
             //noinspection ResultOfMethodCallIgnored
             file.delete();
+            gen++;
             base = at;
             have = 0;
             reached = at;
@@ -222,6 +254,8 @@ final class MediaCache {
                     c.setRequestProperty("Range", "bytes=" + base + "-");
                 }
                 int status = c.getResponseCode();
+                owner.note("archive.org answered " + status + " from byte " + base
+                        + (c.getHeaderField("Content-Type") != null ? " (" + c.getHeaderField("Content-Type") + ")" : ""));
                 if (status != 200 && status != 206) {
                     return;
                 }
@@ -239,6 +273,9 @@ final class MediaCache {
                     out.write(buf, 0, n);
                     out.flush();
                     synchronized (this) {
+                        if (puller != me) {
+                            break;                          // replaced while reading: these bytes belong to the old file
+                        }
                         have += n;
                         notifyAll();
                     }
@@ -247,8 +284,11 @@ final class MediaCache {
                         Thread.sleep(120);
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
                 // the connection dropped, or this download was replaced: whatever is already kept still plays
+                if (puller == me && !dead) {
+                    owner.note("download stopped at byte " + (base + have) + ": " + e);
+                }
             } finally {
                 if (c != null) {
                     c.disconnect();
@@ -259,12 +299,31 @@ final class MediaCache {
             }
         }
 
-        /** Serve a byte range, waiting for the download to reach it. */
+        /**
+         * Serve a byte range, waiting for the download to reach it.
+         *
+         * The download only runs a set distance ahead of the picture, so a request far beyond what is held would
+         * wait for ever: joining a long programme part-way through, or a file whose index is at its end, both ask
+         * for exactly that. Such a request restarts the download where the player wants it instead.
+         */
         void send(Socket sock, long from, long to, boolean ranged) throws IOException {
-            if (from < base || (total >= 0 && from >= total)) {
-                begin(from);                                // a seek outside what we hold: fetch from there
+            int g;
+            synchronized (this) {
+                if (total >= 0 && from >= total) {
+                    write(sock, "HTTP/1.1 416 Range Not Satisfiable\r\nContent-Range: bytes */" + total
+                            + "\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+                    return;
+                }
+                if (from < base || from > base + have + NEAR) {
+                    owner.note("player asked for byte " + from + ", held " + base + "-" + (base + have) + ": restarting there");
+                    begin(from);
+                }
+                g = gen;
             }
-            if (!await(from)) {
+            if (!await(from, g)) {
+                if (gen == g) {
+                    owner.note("nothing to give the player at byte " + from + " (503)");
+                }
                 write(sock, "HTTP/1.1 503 Service Unavailable\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
                 return;
             }
@@ -287,30 +346,40 @@ final class MediaCache {
                 byte[] buf = new byte[64 * 1024];
                 long at = from;
                 while (!dead && at <= end) {
-                    if (!await(at)) {
-                        return;                             // nothing more is coming
+                    if (!await(at, g)) {
+                        return;                             // nothing more is coming, or the download moved elsewhere
                     }
-                    long ready = base + have - at;
-                    if (ready <= 0) {
-                        return;
+                    long pos;
+                    int want;
+                    synchronized (this) {
+                        if (gen != g) {
+                            return;
+                        }
+                        long ready = base + have - at;
+                        if (ready <= 0) {
+                            return;
+                        }
+                        want = (int) Math.min(buf.length, Math.min(ready, end - at + 1));
+                        pos = at - base;
                     }
-                    int want = (int) Math.min(buf.length, Math.min(ready, end - at + 1));
-                    raf.seek(at - base);
+                    raf.seek(pos);
                     int got = raf.read(buf, 0, want);
                     if (got <= 0) {
                         return;
                     }
                     os.write(buf, 0, got);
                     at += got;
-                    reached = Math.max(reached, at);
+                    if (gen == g) {
+                        reached = Math.max(reached, at);
+                    }
                 }
                 os.flush();
             }
         }
 
-        /** Wait until a byte has been downloaded. False if it never will be. */
-        private synchronized boolean await(long at) {
-            while (!dead && base + have <= at) {
+        /** Wait until a byte has been downloaded. False if it never will be, or the download has moved elsewhere. */
+        private synchronized boolean await(long at, int g) {
+            while (!dead && gen == g && base + have <= at) {
                 if (puller == null || !puller.isAlive()) {
                     return base + have > at;
                 }
@@ -321,7 +390,7 @@ final class MediaCache {
                     return false;
                 }
             }
-            return !dead;
+            return !dead && gen == g;
         }
 
         void close() {

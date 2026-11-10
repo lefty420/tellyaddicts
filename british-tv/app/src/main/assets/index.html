@@ -230,6 +230,9 @@
   #gart::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--g1) 0%, rgba(0,0,0,0) 55%), linear-gradient(0deg, var(--g2) 0%, rgba(0,0,0,0) 45%); }
   #ginfo { position: absolute; left: 42vw; right: 4vw; top: 4vh; height: 34vh; display: flex; flex-direction: column; }
   #gtop { display: flex; justify-content: space-between; align-items: baseline; font-size: 3vh; color: #b9d1ff; letter-spacing: .08em; text-transform: uppercase; }
+  #godbtn { margin-left: auto; margin-right: 2.4vw; padding: .5vh 1.4vw; border-radius: 3vh; font-size: 2.4vh; font-weight: 700; letter-spacing: .06em;
+    border: .25vh solid rgba(185,209,255,.55); color: #dbe7ff; }
+  #godbtn.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); border-color: transparent; box-shadow: 0 .4vh 1.4vh rgba(0,0,0,.45); }
   #gclock { font-size: 4.4vh; color: #fff; font-weight: 700; letter-spacing: .04em; }
   #ginfo { text-shadow: 0 .2vh .8vh rgba(0,0,0,.7); }
   #gtitle { font-size: 5.4vh; font-weight: 700; margin: 2.6vh 0 .8vh; line-height: 1.12; max-height: 12.5vh; overflow: hidden; }
@@ -429,6 +432,7 @@
     <div class="ob" id="ob-next"><span class="ic">&#9654;&#10072;</span><span>Play Next</span></div>
     <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
     <div class="ob" id="ob-info"><span>Info</span></div>
+    <div class="ob" id="ob-od"><span>On Demand</span></div>
     <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
   </div>
 </div>
@@ -520,7 +524,7 @@
 <div id="guide" class="hidden">
   <div id="gart"></div>
   <div id="ginfo">
-    <div id="gtop"><span>TV Guide</span><span id="gclock"></span></div>
+    <div id="gtop"><span>TV Guide</span><span id="godbtn">On Demand &#9654;</span><span id="gclock"></span></div>
     <div id="gtitle"></div>
     <div id="gchan"></div>
     <div id="gtime"></div>

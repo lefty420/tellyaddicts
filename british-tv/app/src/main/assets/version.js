@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.23.1",
-  "version": "0.23.1",
-  "code": 2301,
+  "name": "Alpha 0.23.2",
+  "version": "0.23.2",
+  "code": 2302,
   "date": "2026-11-10",
   "notes": [
-    "**The blue button opens On Demand**, in the guide (where its legend now says so; Blue used to repeat OK's \"Watch\") and while watching. Options > On Demand still works"
+    "**On Demand can be reached with the arrow keys and OK alone.** In the guide there is an **On Demand** button beside the clock: press Up from the first channel to reach it, then OK (Down goes back to the channels). While watching, the OK bar has an **On Demand** button beside Options. The coloured-button and Menu shortcuts still work for remotes that have them"
   ],
   "history": [
+    {
+      "name": "Alpha 0.23.1",
+      "date": "2026-11-10",
+      "notes": [
+        "**The blue button opens On Demand**, in the guide (where its legend now says so; Blue used to repeat OK's \"Watch\") and while watching. Options > On Demand still works"
+      ]
+    },
     {
       "name": "Alpha 0.23",
       "date": "2026-11-10",
@@ -59,14 +66,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**The debug log opens from a phone or computer.** The log page could only answer one connection at a time, and a browser opens spare ones that say nothing, so the real request waited and then failed with \"unexpectedly closed the connection\". Each connection is now answered separately. The Debug log screen also spells out that the address must be typed with `http://` at the front, because a browser left to guess tries a secure connection, which this page does not speak"
-      ]
-    },
-    {
-      "name": "Alpha 0.18",
-      "date": "2026-11-10",
-      "notes": [
-        "**Options has a new look.** It is a full-height sheet down the right of the screen, with the settings grouped under Picture, On screen, Playback & listings and About, and a line at the bottom saying what the highlighted setting does. Rows that open a screen show a small arrow instead of \"Press OK\"",
-        "\"Picture\" is now \"Aspect ratio\" and \"Extra metadata\" is now \"Artwork\", which is what they change"
       ]
     }
   ]

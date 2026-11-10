@@ -1910,6 +1910,7 @@
 
   function openGuide() {
     closeOsd();
+    gOdSet(false);
     var list = guideList();
     if (!list.length) return;
     guideOpen = true;
@@ -1939,6 +1940,8 @@
     clearInterval(guideTimer);
   }
 
+  var gOd = false;
+  function gOdSet(on) { gOd = on; $('godbtn').className = on ? 'sel' : ''; }
   function gMove(delta, wrap) {
     var list = guideList();
     var n = list.length;
@@ -2066,7 +2069,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'next', 'restart', 'info', 'options'];   // buttons on the bar, left to right
+  var OB = ['guide', 'rew', 'pp', 'ff', 'next', 'restart', 'info', 'od', 'options'];   // buttons on the bar, left to right
   var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
   (function () {
     var saved = store.get('ar');
@@ -2546,6 +2549,7 @@
     else if (id === 'next') { closeOsd(); playNext(); return; }
     else if (id === 'restart') { restartShow(); return; }
     else if (id === 'options') { openOpts(); return; }
+    else if (id === 'od') { closeOsd(); odOpenUi(); return; }
     else if (id === 'guide') { closeOsd(); openGuide(); }
     else if (id === 'info') { closeOsd(); openInfo(); return; }
     renderOsd();
@@ -2601,7 +2605,12 @@
     if (k === 'Menu' || k === 'ContextMenu') { odOpenUi(); e.preventDefault(); return; }
 
     if (guideOpen) {
-      if (k === 'ArrowUp') gMove(-1, true);
+      // On Demand is a button at the top of the guide: Up from the first channel reaches it, OK opens it
+      if (gOd && (k === 'Enter' || k === ' ')) { gOdSet(false); odOpenUi(); }
+      else if (gOd && k === 'ArrowDown') gOdSet(false);
+      else if (gOd && k === 'ArrowUp') { gOdSet(false); gMove(-1, true); }
+      else if (gOd && (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ChannelUp' || k === 'ChannelDown')) { /* nothing to move along */ }
+      else if (k === 'ArrowUp') { if (gRow === 0) gOdSet(true); else gMove(-1, true); }
       else if (k === 'ArrowDown') gMove(1, true);
       else if (k === 'ChannelUp') gMove(-(VISIBLE_ROWS - 1), false);
       else if (k === 'ChannelDown') gMove(VISIBLE_ROWS - 1, false);

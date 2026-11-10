@@ -1958,13 +1958,33 @@
   var exitArmed = false;
   var exitTimer = null;
 
-  /** First press asks, a second press within 2.5 s exits. */
-  function pressBackToExit() {
-    if (exitArmed) { exitApp(); return; }
-    exitArmed = true;
-    toast('Press Back again to exit', 2500);
-    clearTimeout(exitTimer);
-    exitTimer = setTimeout(function () { exitArmed = false; }, 2500);
+  /** With nothing playing a single Back has nowhere to go: say how to leave. */
+  function pressBackToExit() { toast('Press Back twice quickly to quit', 2500); }
+
+  // Two quick presses of Back, wherever you are, ask whether to quit. Yes and No are buttons: Left / Right and OK on
+  // the remote, or a click.
+  var quitOpen = false, quitSel = 1, lastBack = 0, DOUBLE_BACK_MS = 800;
+  function renderQuit() {
+    $('qyes').className = quitSel === 0 ? 'sel' : '';
+    $('qno').className = quitSel === 1 ? 'sel' : '';
+  }
+  function openQuit() {
+    quitOpen = true; quitSel = 1;                         // No is already chosen: an accidental OK does no harm
+    renderQuit();
+    $('quit').className = '';
+  }
+  function closeQuit() { quitOpen = false; $('quit').className = 'hidden'; }
+  $('qyes').addEventListener('click', function () { exitApp(); });
+  $('qno').addEventListener('click', closeQuit);
+  $('qyes').addEventListener('mouseenter', function () { quitSel = 0; renderQuit(); });
+  $('qno').addEventListener('mouseenter', function () { quitSel = 1; renderQuit(); });
+  function quitKey(k) {
+    if (k === 'ArrowLeft') quitSel = 0;
+    else if (k === 'ArrowRight') quitSel = 1;
+    else if (k === 'Enter' || k === ' ') { if (quitSel === 0) exitApp(); else closeQuit(); return true; }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { closeQuit(); return true; }
+    renderQuit();
+    return true;
   }
 
   function exitApp() {
@@ -2515,6 +2535,13 @@
     }
     var k = e.key;
     var handled = true;
+
+    if (quitOpen) { quitKey(k); e.preventDefault(); return; }
+    if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {
+      var nowT = Date.now();
+      if (!e.repeat && nowT - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); e.preventDefault(); return; }
+      if (!e.repeat) lastBack = nowT;
+    }
 
     if (relOpen) {                        // What's new sits above the options panel it was opened from
       if (relKey(k)) e.preventDefault();

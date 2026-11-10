@@ -304,6 +304,18 @@
   .orow.sel.act span::before { content: ''; } .orow.sel.act span::after { content: '  \203A'; color: var(--ink); }
   #ohelp { margin-top: auto; padding-top: 1.6vh; min-height: 6.4vh; font-size: 2.15vh; line-height: 1.45; color: rgba(255,255,255,.88); }
   #opanel p { margin: 1.2vh 0 0; padding-top: 1.2vh; border-top: .12vh solid rgba(255,255,255,.14); font-size: 1.7vh; color: rgba(255,255,255,.5); }
+  /* Quit: two quick presses of Back, from the guide or while watching */
+  #quit { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.72); }
+  #quit.hidden { display: none; }
+  #qbox { width: 38vw; padding: 4.2vh 3vw 3vh; text-align: center; border-radius: 1.4vh; color: #fff;
+    background: linear-gradient(180deg, #0c2a86, #07184f); border: .25vh solid rgba(255,255,255,.35); box-shadow: 0 1vh 5vh rgba(0,0,0,.7); }
+  #qbox h2 { margin: 0 0 1vh; font-size: 4vh; font-weight: 800; }
+  #qbox p { margin: 0 0 3.2vh; font-size: 2.3vh; color: rgba(255,255,255,.72); }
+  #qbtns { display: flex; gap: 2vw; justify-content: center; }
+  #qbtns button { flex: 1; font: inherit; font-size: 3vh; font-weight: 700; padding: 1.7vh 0; border-radius: .9vh; cursor: pointer;
+    color: #fff; background: rgba(255,255,255,.12); border: .25vh solid rgba(255,255,255,.25); }
+  #qbtns button.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); border-color: #fff; box-shadow: 0 .4vh 1.6vh rgba(0,0,0,.4); }
+  #qbox small { display: block; margin-top: 2.6vh; font-size: 1.8vh; color: rgba(255,255,255,.5); }
   /* What's new: this release's notes, and the ones before it */
   #rel { position: fixed; inset: 0; z-index: 61; color: #fff; background: linear-gradient(180deg, #0c2a86, #07184f 55%, #030d36); overflow: hidden; }
   #rel.hidden { display: none; }
@@ -419,6 +431,14 @@
   </div>
 </div>
 <div id="spin" class="hidden"></div>
+<div id="quit" class="hidden">
+  <div id="qbox">
+    <h2>Quit Telly Addicts?</h2>
+    <p>You will go back to the Google TV home screen.</p>
+    <div id="qbtns"><button id="qyes" type="button">Yes</button><button id="qno" type="button">No</button></div>
+    <small>Left / Right to choose &nbsp;&middot;&nbsp; OK to select</small>
+  </div>
+</div>
 <div id="toast" class="off"></div>
 
 <div id="guide" class="hidden">

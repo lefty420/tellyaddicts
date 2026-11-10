@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.20.1",
-  "version": "0.20.1",
-  "code": 2001,
+  "name": "Alpha 0.21",
+  "version": "0.21",
+  "code": 2100,
   "date": "2026-11-10",
   "notes": [
-    "The debug log no longer records a missing `art.json` or `routes.json` as a failed request. They are optional until the scraper publishes them, and the entries were burying real problems"
+    "**Press Back twice quickly to quit, from the guide or while watching.** A box asks \"Quit Telly Addicts?\" with Yes and No as buttons: Left and Right then OK on the remote, or a click. No is already chosen, so an accidental OK does nothing. A single Back does what it always did (the guide while watching, back to the picture from the guide), and Back on the box answers No"
   ],
   "history": [
+    {
+      "name": "Alpha 0.20.1",
+      "date": "2026-11-10",
+      "notes": [
+        "The debug log no longer records a missing `art.json` or `routes.json` as a failed request. They are optional until the scraper publishes them, and the entries were burying real problems"
+      ]
+    },
     {
       "name": "Alpha 0.20",
       "date": "2026-11-10",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**New channel 25, Soaps**: EastEnders, Coronation Street, Emmerdale, Crossroads, Neighbours, Home and Away, Brookside, Hollyoaks, Eldorado, Howards' Way, Albion Market, Prisoner Cell Block H and the rest. Crossroads alone is 1,269 episodes, which is why the soaps moved off the BBC and ITV channels, where they were crowding out everything else those broadcasters made. Neighbours and Home and Away also stay in the daytime listing"
-      ]
-    },
-    {
-      "name": "Alpha 0.13",
-      "date": "2026-11-10",
-      "notes": [
-        "**Artwork can come ready-made from the scraper.** The scraper looks each show up once and publishes the posters, backdrops and summaries in `data/art.json` (described in `tools/art-contract.md`); the TV reads that first, so a listed show has its picture the first time you reach it, with no searching and nothing to be refused. A show that isn't listed is still looked up on TVmaze as before, so this only adds. Until the scraper publishes the file, nothing changes"
       ]
     }
   ]

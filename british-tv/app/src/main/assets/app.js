@@ -45,7 +45,7 @@
   // ------------------------------------------------------------------ debug log
   //
   // What was played, how it went, and why it failed, kept on the TV so it can be sent when something will not
-  // play. Options > About & debug log puts it on the home network for a phone or computer to open and copy.
+  // play. Options > Debug log puts it on the home network for a phone or computer to open and copy.
   var DLOG = store.get('dbglog1') || [], dlogTimer = null, httpFails = 0;
   if (!(DLOG instanceof Array)) DLOG = [];
   function two(n) { return (n < 10 ? '0' : '') + n; }
@@ -2091,18 +2091,6 @@
     $('rkick').textContent = 'About';
     $('rver').textContent = 'Telly Addicts';
     $('rdate').textContent = relName() + (relDate((release() || {}).date) ? '   ·   ' + relDate(release().date) : '');
-    var lh = document.createElement('h3');
-    lh.textContent = 'Debug log';
-    body.appendChild(lh);
-    var where = '';
-    try { where = window.NativeHttp && NativeHttp.shareLog ? NativeHttp.shareLog(logText()) : ''; } catch (e) { where = ''; }
-    var fails = DLOG.filter(function (l) { return /  (FAILED|GAVE UP|STALLED)/.test(l); });
-    var lines = [where
-      ? 'To send it: on a phone or computer on the same Wi-Fi, open  ' + where + '  then copy everything on the page.'
-      : 'It can be opened from a phone or computer when the TV is on the home network.',
-      DLOG.length + ' entries kept, ' + fails.length + ' of them programmes that failed or stalled.'];
-    fails.slice(-4).forEach(function (l) { lines.push(l); });
-    body.appendChild(relList(lines));
     CREDITS.forEach(function (c) {
       var head = document.createElement('h3');
       head.textContent = c.who;
@@ -2117,6 +2105,28 @@
       body.appendChild(head);
       body.appendChild(relList([c.what]));
     });
+  }
+
+  /** The debug log: where to open it from another device, and the latest things that went wrong. */
+  function buildLog() {
+    var body = $('rbody');
+    body.textContent = '';
+    $('rkick').textContent = 'Debug log';
+    $('rver').textContent = 'What went wrong';
+    var fails = DLOG.filter(function (l) { return /  (FAILED|GAVE UP|STALLED)/.test(l); });
+    $('rdate').textContent = DLOG.length + ' entries kept   ·   ' + fails.length + ' programmes failed or stalled';
+    var where = '';
+    try { where = window.NativeHttp && NativeHttp.shareLog ? NativeHttp.shareLog(logText()) : ''; } catch (e) { where = ''; }
+    var h1 = document.createElement('h3');
+    h1.textContent = 'Send the whole log';
+    body.appendChild(h1);
+    body.appendChild(relList(where
+      ? ['On a phone or computer on the same Wi-Fi, open  ' + where, 'Copy everything on that page and send it.']
+      : ['The log can be opened from a phone or computer when the TV is on the home network.']));
+    var h2 = document.createElement('h3');
+    h2.textContent = 'Latest failures';
+    body.appendChild(h2);
+    body.appendChild(relList(fails.length ? fails.slice(-8).reverse() : ['Nothing has failed since the log began.']));
   }
 
   function buildRel() {
@@ -2145,8 +2155,8 @@
   var relRow = 'rel';
   function openRel(which) {
     closeOpts();
-    relRow = which === 'about' ? 'about' : 'rel';
-    if (relRow === 'about') buildAbout(); else buildRel();
+    relRow = which === 'about' || which === 'log' ? which : 'rel';
+    if (relRow === 'about') buildAbout(); else if (relRow === 'log') buildLog(); else buildRel();
     relOpen = true;
     $('rel').className = '';
     $('rbody').scrollTop = 0;
@@ -2184,7 +2194,7 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['ar', 'fx', 'gart', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel', 'about'];
+  var OPTS = ['ar', 'fx', 'gart', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel', 'about', 'log'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -2195,7 +2205,7 @@
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again' : 'Press OK';
     if (id === 'rel') return relName();
-    if (id === 'about') return 'Press OK';
+    if (id === 'about' || id === 'log') return 'Press OK';
     return autoEpg ? 'On' : 'Off';
   }
 
@@ -2207,7 +2217,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { refresh: 1, rel: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
   function renderOpts() {
     OPTS.forEach(function (id, i) {
       $('ov-' + id).textContent = optValue(id);
@@ -2259,6 +2269,7 @@
     else if (id === 'keep') changeKeep(d);
     else if (id === 'refresh') refreshEpg();
     else if (id === 'rel') openRel('rel');
+    else if (id === 'log') openRel('log');
     else if (id === 'about') openRel('about');
     else toggleAuto();
   }

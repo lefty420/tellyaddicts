@@ -98,10 +98,30 @@
     }
   }
   /** The whole log as text, with the buffer's own notes on the end. */
+  /** What this TV's built-in player says it can play. canPlayType answers "probably", "maybe" or "" (no). */
+  var PLAYER_TESTS = [
+    ['MP4, H.264 + AAC', 'video/mp4; codecs="avc1.64001F, mp4a.40.2"'],
+    ['MKV, H.264 + AAC', 'video/x-matroska; codecs="avc1.64001F, mp4a.40.2"'],
+    ['MKV (any contents)', 'video/x-matroska'],
+    ['MKV, H.264 + AC3 audio', 'video/x-matroska; codecs="avc1.64001F, ac-3"'],
+    ['MKV, HEVC + AAC', 'video/x-matroska; codecs="hvc1.1.6.L93.B0, mp4a.40.2"'],
+    ['WebM, VP9 + Opus', 'video/webm; codecs="vp9, opus"'],
+    ['AVI', 'video/x-msvideo'],
+    ['MP4, HEVC + AAC', 'video/mp4; codecs="hvc1.1.6.L93.B0, mp4a.40.2"']
+  ];
+  function playerSupport() {
+    var out = [];
+    PLAYER_TESTS.forEach(function (t) {
+      var r = '';
+      try { r = v.canPlayType(t[1]); } catch (e) { r = ''; }
+      out.push(t[0] + ': ' + (r === 'probably' ? 'yes' : r === 'maybe' ? 'maybe' : 'no'));
+    });
+    return out;
+  }
   function logText() {
     var head = ['Telly Addicts debug log', 'Version: ' + ((window.RELEASE && RELEASE.name) || 'unnumbered'),
       'Device: ' + (window.NativeHttp && NativeHttp.device ? NativeHttp.device() : 'not the TV app'),
-      'Browser: ' + navigator.userAgent, 'Written: ' + new Date().toString(), ''];
+      'Browser: ' + navigator.userAgent, 'Player can play: ' + playerSupport().join('; '), 'Written: ' + new Date().toString(), ''];
     var notes = '';
     try { notes = window.NativeHttp && NativeHttp.cacheLog ? NativeHttp.cacheLog() : ''; } catch (e) { notes = ''; }
     return head.concat(DLOG).join('\n') + '\n\n--- buffer notes (this run of the app) ---\n' + (notes || '(none)\n');
@@ -2234,6 +2254,10 @@
     body.appendChild(relList(where
       ? ['On a phone or computer on the same Wi-Fi, type this into the browser exactly as shown, starting with http://', where, 'Copy everything on that page and send it.']
       : ['The log can be opened from a phone or computer when the TV is on the home network.']));
+    var hp = document.createElement('h3');
+    hp.textContent = 'What this TV\u2019s player can play';
+    body.appendChild(hp);
+    body.appendChild(relList(playerSupport()));
     var h2 = document.createElement('h3');
     h2.textContent = 'Something not right?';
     body.appendChild(h2);

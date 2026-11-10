@@ -119,7 +119,8 @@
     delete pending[id];
     if (status >= 200 && status < 300) p.res(body);
     else {
-      if (++httpFails <= 40) dlog('REQUEST FAILED ' + (status || 'no answer') + '  ' + p.url);
+      // files that are optional until the scraper publishes them (art.json, routes.json) are not faults
+      if (!/\/data\/(art|routes)\.json$/.test(p.url || '') && ++httpFails <= 40) dlog('REQUEST FAILED ' + (status || 'no answer') + '  ' + p.url);
       p.rej(new Error('HTTP ' + status));
     }
   };

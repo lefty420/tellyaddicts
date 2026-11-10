@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.20",
-  "version": "0.20",
-  "code": 2000,
+  "name": "Alpha 0.20.1",
+  "version": "0.20.1",
+  "code": 2001,
   "date": "2026-11-10",
   "notes": [
-    "**The debug log can now say why a programme is wrong, not only why one failed.** Pressing Info on anything that is playing writes a record of it: the show it was listed as, the archive.org item and file it came from, how long the listing says it should be and how long the file really is, and the picture size. The app also asks archive.org what that upload actually is (its title, who uploaded it, language, collections, the start of its description) and records the answer, which is what shows a programme to be a different show with the same name",
-    "A file much shorter than its listing is logged as a mismatch the moment it loads, with the same details, without anyone having to press anything",
-    "The Debug log screen says how to use this and lists the latest programmes you checked"
+    "The debug log no longer records a missing `art.json` or `routes.json` as a failed request. They are optional until the scraper publishes them, and the entries were burying real problems"
   ],
   "history": [
+    {
+      "name": "Alpha 0.20",
+      "date": "2026-11-10",
+      "notes": [
+        "**The debug log can now say why a programme is wrong, not only why one failed.** Pressing Info on anything that is playing writes a record of it: the show it was listed as, the archive.org item and file it came from, how long the listing says it should be and how long the file really is, and the picture size. The app also asks archive.org what that upload actually is (its title, who uploaded it, language, collections, the start of its description) and records the answer, which is what shows a programme to be a different show with the same name",
+        "A file much shorter than its listing is logged as a mismatch the moment it loads, with the same details, without anyone having to press anything",
+        "The Debug log screen says how to use this and lists the latest programmes you checked"
+      ]
+    },
     {
       "name": "Alpha 0.19",
       "date": "2026-11-10",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**Artwork can come ready-made from the scraper.** The scraper looks each show up once and publishes the posters, backdrops and summaries in `data/art.json` (described in `tools/art-contract.md`); the TV reads that first, so a listed show has its picture the first time you reach it, with no searching and nothing to be refused. A show that isn't listed is still looked up on TVmaze as before, so this only adds. Until the scraper publishes the file, nothing changes"
-      ]
-    },
-    {
-      "name": "Alpha 0.12",
-      "date": "2026-11-10",
-      "notes": [
-        "**Artwork that failed to load is looked for again soon, not remembered as \"none\" for a month.** When the guide moved quickly TVmaze turned some requests away, and the app took the refusal as \"this show has no picture\" and kept that answer for 30 days, so those shows stayed bare. A refused request is now retried within the hour, and a show TVmaze genuinely does not know is re-checked after five days. Blank answers saved by earlier versions are cleared, so the shows that missed out get another go"
       ]
     }
   ]

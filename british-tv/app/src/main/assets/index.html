@@ -312,6 +312,34 @@
     font-size: 2.5vh; font-weight: 600; background: rgba(255,255,255,.1); border-radius: .7vh; white-space: nowrap; }
   .ob .ic { font-size: 2.6vh; }
   .ob.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
+  /* On Demand: channels, shows, then series and episodes */
+  #od { position: fixed; inset: 0; z-index: 55; display: flex; flex-direction: column; padding: 4vh 4vw 3vh;
+    background: linear-gradient(180deg, #0c2a86, #07184f 60%, #030d36); }
+  #od.hidden { display: none; }
+  #odtop { display: flex; align-items: baseline; gap: 2vw; margin-bottom: 2vh; }
+  #odtop h2 { margin: 0; font-size: 5vh; font-weight: 800; }
+  #odsub { font-size: 2.6vh; letter-spacing: .25em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
+  #odcols { flex: 1; display: flex; gap: 1.6vw; min-height: 0; }
+  .odcol { flex: 1 1 0; min-width: 0; background: rgba(0,0,0,.22); border-radius: 1vh; padding: 1.2vh .8vw; }
+  #odecol { flex: 1.5 1 0; display: flex; flex-direction: column; }
+  #odtitle { display: flex; align-items: center; gap: 1.2vw; min-height: 6vh; padding: 0 .6vw 1vh; }
+  #odart { height: 12vh; width: 8vh; object-fit: cover; border-radius: .6vh; box-shadow: 0 .6vh 2vh rgba(0,0,0,.6); }
+  #odhead { font-size: 3.2vh; font-weight: 700; color: var(--hi2); }
+  .odr { display: flex; justify-content: space-between; align-items: center; gap: 1vw; height: 6.2vh; padding: 0 .8vw; border-radius: .7vh;
+    font-size: 2.6vh; white-space: nowrap; }
+  .odr b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .odr span { color: rgba(190,208,255,.85); font-size: 2.2vh; }
+  .odr.head { font-size: 2vh; letter-spacing: .25em; text-transform: uppercase; color: var(--hi1); height: 5vh; }
+  .odr.note { color: rgba(255,255,255,.55); }
+  .odr.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); box-shadow: 0 .4vh 1.4vh rgba(0,0,0,.35); }
+  .odr.sel span { color: var(--ink); }
+  .odr.dim { background: rgba(255,255,255,.14); }
+  #oddet { display: flex; gap: 1.2vw; margin-top: auto; padding: 1.2vh .6vw 0; border-top: .12vh solid rgba(255,255,255,.14); }
+  #oddet.hidden { display: none; }
+  #oddimg { height: 14vh; aspect-ratio: 16 / 9; object-fit: cover; border-radius: .6vh; flex: none; }
+  #oddt { font-size: 2.1vh; color: var(--hi1); font-weight: 600; margin-bottom: .5vh; }
+  #oddb { font-size: 2vh; line-height: 1.4; color: rgba(255,255,255,.82); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  #odfoot { margin-top: 1.6vh; font-size: 2.2vh; color: rgba(255,255,255,.6); }
   /* Options: a sheet down the right-hand side, grouped, with a line explaining the highlighted row */
   #opts { position: fixed; right: 0; top: 0; bottom: 0; z-index: 60; }
   #opts.hidden { display: none; }
@@ -404,9 +432,21 @@
     <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
   </div>
 </div>
+<div id="od" class="hidden">
+  <div id="odtop"><h2>On Demand</h2><span id="odsub">TV</span></div>
+  <div id="odcols">
+    <div class="odcol" id="odc"></div>
+    <div class="odcol" id="ods"></div>
+    <div class="odcol" id="odecol"><div id="odtitle"><img id="odart" class="hidden" alt=""><div id="odhead"></div></div><div id="ode"></div>
+      <div id="oddet" class="hidden"><img id="oddimg" class="hidden" alt=""><div><div id="oddt"></div><div id="oddb"></div></div></div></div>
+  </div>
+  <div id="odfoot">&#9664; &#9654; move &nbsp;&middot;&nbsp; &#9650; &#9660; choose &nbsp;&middot;&nbsp; OK play &nbsp;&middot;&nbsp; Back</div>
+</div>
 <div id="opts" class="hidden">
   <div id="opanel">
     <div id="ohead"><h2>Options</h2><span id="over"></span></div>
+    <h3>Watch</h3>
+    <div class="orow act" id="or-od"><b>On Demand</b><span id="ov-od"></span></div>
     <h3>Picture</h3>
     <div class="orow" id="or-ar"><b>Aspect ratio</b><span id="ov-ar"></span></div>
     <div class="orow" id="or-fx"><b>Enhancements</b><span id="ov-fx"></span></div>

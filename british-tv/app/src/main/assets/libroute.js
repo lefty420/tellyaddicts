@@ -100,7 +100,9 @@
         var forKids = genre.some(function (c) { return KIDS[c]; });
         var also = [];
         // the broadcaster's own channel, as well as wherever the genre lists put it
-        if (net && !forKids) also.push(net);
+        // (a soap has its own channel; on the broadcaster's it would swamp everything else the BBC or ITV made)
+        var soap = genre.indexOf('soaps') >= 0;
+        if (net && !forKids && !soap) also.push(net);
         // and a Christmas episode goes to the Christmas channel of the right sort
         if (ep.xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
         var chs = also.length ? uniqSorted(genre.concat(also)) : genre;

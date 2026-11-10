@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.13",
-  "version": "0.13",
-  "code": 1300,
+  "name": "Alpha 0.14",
+  "version": "0.14",
+  "code": 1400,
   "date": "2026-11-10",
   "notes": [
-    "**Artwork can come ready-made from the scraper.** The scraper looks each show up once and publishes the posters, backdrops and summaries in `data/art.json` (described in `tools/art-contract.md`); the TV reads that first, so a listed show has its picture the first time you reach it, with no searching and nothing to be refused. A show that isn't listed is still looked up on TVmaze as before, so this only adds. Until the scraper publishes the file, nothing changes"
+    "**New channel 25, Soaps**: EastEnders, Coronation Street, Emmerdale, Crossroads, Neighbours, Home and Away, Brookside, Hollyoaks, Eldorado, Howards' Way, Albion Market, Prisoner Cell Block H and the rest. Crossroads alone is 1,269 episodes, which is why the soaps moved off the BBC and ITV channels, where they were crowding out everything else those broadcasters made. Neighbours and Home and Away also stay in the daytime listing"
   ],
   "history": [
+    {
+      "name": "Alpha 0.13",
+      "date": "2026-11-10",
+      "notes": [
+        "**Artwork can come ready-made from the scraper.** The scraper looks each show up once and publishes the posters, backdrops and summaries in `data/art.json` (described in `tools/art-contract.md`); the TV reads that first, so a listed show has its picture the first time you reach it, with no searching and nothing to be refused. A show that isn't listed is still looked up on TVmaze as before, so this only adds. Until the scraper publishes the file, nothing changes"
+      ]
+    },
     {
       "name": "Alpha 0.12",
       "date": "2026-11-10",
@@ -63,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-09",
       "notes": [
         "The TMDB credit and logo live in Options > About & credits, and a film's Info screen just says where its details came from, the way the TVmaze screens do"
-      ]
-    },
-    {
-      "name": "Alpha 0.6.1",
-      "date": "2026-11-09",
-      "notes": [
-        "The TMDB logo now sits beside their credit on a film's Info screen and in About & credits, which is what their terms ask for"
       ]
     }
   ]

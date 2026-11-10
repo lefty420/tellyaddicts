@@ -24,8 +24,7 @@ var SHOWS = {  // written by tools/make_shows.py from tools/shows.json (the cont
   disney: ['Mickey Mouse', 'Donald Duck', 'Goofy', 'Pluto', 'Chip \'n\' Dale', 'Chip n Dale', 'Silly Symphonies', 'Minnie Mouse', 'Daisy Duck', 'Huey Dewey and Louie', 'Humphrey the Bear', 'Figaro', 'Scrooge McDuck', 'The Three Caballeros', 'Ludwig Von Drake'],
   saturday: ['Noels House Party', 'The Generation Game', 'Blind Date', 'Gladiators', 'Beadles About', 'Stars in Their Eyes', 'The Paul Daniels Magic Show', 'The Two Ronnies', 'Casualty', 'You Bet', 'Game for a Laugh', 'Surprise Surprise', 'The Price is Right', 'Big Break', 'Catchphrase', 'Jim\'ll Fix It', 'The Russ Abbot Show', 'Cannon and Ball', 'Jasper Carrott', 'Tales of the Unexpected', 'Match of the Day', 'Parkinson', 'Aspel and Company', 'Bob Monkhouse', 'Hale and Pace', '3-2-1', 'Strike It Lucky', 'Bullseye', 'The Krypton Factor', 'Blankety Blank', 'Punchlines', 'Play Your Cards Right'],
   tvarchive: ['News at Ten', 'The One O\'Clock News', 'The Six O\'Clock News', 'The Nine O\'Clock News', 'The Ten O\'Clock News', 'BBC News', 'ITN News', 'ITV News', 'Channel 4 News', 'Newsnight', 'Newsround', 'John Craven\'s Newsround', 'Breakfast News', 'Look North', 'Look East', 'Look West', 'Points West', 'South Today', 'Midlands Today', 'North West Tonight', 'Reporting Scotland', 'Wales Today', 'Scotland Today', 'Thames News', 'Granada Reports', 'Calendar', 'Central News', 'Anglia News', 'Tyne Tees News', 'Border News', 'London Tonight', 'BBC Archive'],
-  bbc: ['EastEnders', 'Eldorado', 'Howards\' Way', 'Angels', 'The Brothers', 'Triangle', 'Pobol y Cwm'],
-  itv: ['Coronation Street', 'Emmerdale', 'Emmerdale Farm', 'Crossroads', 'Albion Market', 'Families', 'Take the High Road', 'Prisoner Cell Block H', 'The Sullivans']
+  soaps: ['EastEnders', 'Coronation Street', 'Emmerdale', 'Emmerdale Farm', 'Crossroads', 'Neighbours', 'Home and Away', 'Sons and Daughters', 'Brookside', 'Hollyoaks', 'Eldorado', 'Howards\' Way', 'Albion Market', 'Families', 'Take the High Road', 'Prisoner Cell Block H', 'The Sullivans', 'Angels', 'The Brothers', 'Triangle', 'Pobol y Cwm']
 };
 var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM_LEN = [3000, 9000];
   var THEMES = {
@@ -50,6 +49,7 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
     // so the genre guard is deliberately left off this channel (ALLOWED has no entry): a film's own title says
     // nothing about the category it belongs to, and matching one would only throw good films away.
     videoshop: { t: ['video rental', 'vhs rental', 'action film', 'thriller film'], alt: ['robocop', 'die hard', 'lethal weapon', 'predator', 'the terminator', 'alien', 'rambo'], len: FILM_LEN },
+    soaps: { t: ['soap opera', 'soaps', 'television soap'], alt: ['eastenders', 'coronation street', 'emmerdale', 'crossroads', 'neighbours', 'home and away', 'brookside', 'albion market', 'eldorado', 'howards way'], len: [600, 4200] },
     saturday: { t: ['saturday night tv', 'light entertainment', 'saturday evening'], alt: ['noels house party', 'gladiators', 'blind date', 'the generation game', 'beadles about', 'stars in their eyes', 'you bet'], len: [900, 5400] },
     // news and programmes from today's date, whatever the year; app.js keeps only what went out on this day
     tvarchive: { t: ['news at ten', 'bbc news', 'itn news', 'newsnight', 'newsround'], alt: ['the nine o clock news', 'channel 4 news', 'breakfast news', 'bbc archive', 'thames news', 'granada reports'], len: [60, 5400] },
@@ -123,6 +123,7 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
     sitcoms: ['sitcoms'], comedy: ['comedy', 'sitcoms'], gameshows: ['gameshows'], noel: ['gameshows'],
     thebill: ['thebill'], tv70s: ['tv70s'], music: ['music'], mtv: ['music', 'mtv'], xmasmusic: ['music'],
     citv: KIDS, childrens: KIDS, kidsxmas: KIDS, disney: KIDS.concat('disney'),
+    soaps: ['soaps', 'offschool'],     // Neighbours and Home and Away are daytime soaps too
     offschool: ['offschool'],          // daytime soaps and talk shows, not kids TV
     // Saturday night drew on several genres, which is the point of the evening
     saturday: ['saturday', 'gameshows', 'comedy'],

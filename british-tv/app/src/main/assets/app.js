@@ -273,7 +273,7 @@
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
   // Channels whose programmes carry no episode number: songs, films, Disney shorts ("How to Sleep"), MTV's
   // untitled and dated blocks, and news bulletins. Insisting on one empties them.
-  var NO_EPISODES = { xmasmusic: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, saturday: 0 };
+  var NO_EPISODES = { xmasmusic: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, soaps: 1, saturday: 0 };
   /** A row of songs or films: nothing in it will carry SxxExx, so insisting on one empties the channel. */
   function wantsEpisodes(channelId, it) {
     if (NO_EPISODES[channelId]) return false;

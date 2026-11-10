@@ -408,5 +408,13 @@ window.CHANNELS = [
     // when a film can play (dayparts.js): nothing above a 12 before eight, and the 18s after the watershed.
     maxItems: 80,
     sources: [{ data: 'videoshop' }]
+  },
+  {
+    n: 25,
+    id: 'soaps',
+    name: 'Soaps',
+    // EastEnders, Coronation Street, Crossroads, Neighbours and the rest, from the scraper's library
+    maxItems: 120,
+    sources: [{ data: 'soaps' }]
   }
 ];

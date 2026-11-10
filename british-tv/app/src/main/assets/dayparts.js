@@ -102,7 +102,8 @@
    */
   function certOf(p) { return String(p.cert || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); }
   var DAYTIME = { U: 1, UC: 1, PG: 1, '12': 1, '12A': 1, G: 1, TVY: 1, TVG: 1, TVPG: 1 };
-  var EVENING = { '15': 1, PG13: 1, R: 1, TV14: 1 };
+  // R is the American 15-to-18; it waits for the watershed with them, rather than going out at eight
+  var EVENING = { '15': 1, PG13: 1, TV14: 1 };
   function familyFilm(p) { return !!DAYTIME[certOf(p)]; }
   function eveningFilm(p) { return !!EVENING[certOf(p)]; }
   function lateFilm(p) { var c = certOf(p); return !DAYTIME[c] && !EVENING[c]; }   // 18, NC17, X, and the unknown

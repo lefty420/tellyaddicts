@@ -116,7 +116,19 @@
           if (ep.a) d.a = ep.a;
           if (ep.l) d.l = ep.l;
           if (sh.song) d.song = 1;
-          if (sh.film) d.film = 1;                   // a film: its own title, and no episode number to expect
+          if (ep.xmas) d.xmas = 1;
+          if (sh.film) {
+            // a film: its own title, no episode number to expect, and everything TMDb told the scraper about it.
+            // The per-channel files carry no details at all, so if these are not passed through here the app
+            // never sees a certificate and refuses to schedule the film.
+            d.film = 1;
+            if (ep.cert) d.cert = ep.cert;
+            if (ep.ov) d.ov = ep.ov;
+            if (ep.p) d.p = ep.p;
+            if (ep.g) d.g = ep.g;
+            if (ep.rt) d.rt = ep.rt;
+            if (ep.tm) d.tm = ep.tm;
+          }
           it.m[ep.f] = d;
         });
       });

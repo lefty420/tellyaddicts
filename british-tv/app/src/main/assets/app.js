@@ -316,17 +316,18 @@
   // daytime further down. The certificate the scraper is adding is the real answer.
   var BLOCKED = new RegExp([
     'adult footage', 'adult film', 'adult movie', 'adult version',
-    '\\bporn\\b', '\\bporno\\b', '\\bxxx\\b', 'hardcore', 'softcore', '\\berotica?\\b',
-    'sexual techniques', '\\bplayboy\\b', '\\bpenthouse\\b', '\\bemanuelle\\b', '\\bemmanuelle\\b'
+    '\\bxxx\\b', 'hardcore', 'softcore', 'sexual techniques',
+    '\\bemanuelle\\b', '\\bemmanuelle\\b'
   ].join('|'), 'i');
+  // Single words that mean one thing in a film's title and quite another in a programme's: "Porn Yesterday" is a
+  // Steptoe and Son episode from 1974, and this list was throwing it away.
+  var BLOCKED_FILM = /\bporn\b|\bporno\b|\berotica?\b|\badults?\b|\bplayboy\b|\bpenthouse\b/i;
   /** Keep adult material off every channel, whichever list it came in on. */
   function blocked(p) {
     if (!p) return false;
     var t = (p.show || p.group || '') + ' ' + (p.title || '') + ' ' + (p.sub || '') + ' ' +
             String(p.id || '').replace(/[-_]/g, ' ');
-    if (BLOCKED.test(t)) return true;
-    // "adult" on its own is ambiguous in a programme title but not in a film's
-    return !!p.filmKey && /\badults?\b/i.test(t);
+    return BLOCKED.test(t) || (!!p.filmKey && BLOCKED_FILM.test(t));
   }
 
   // A film's details come from TMDb with the scraper's library: the plot and poster are far too big to repeat on

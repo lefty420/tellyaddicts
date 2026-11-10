@@ -2121,7 +2121,7 @@
     h1.textContent = 'Send the whole log';
     body.appendChild(h1);
     body.appendChild(relList(where
-      ? ['On a phone or computer on the same Wi-Fi, open  ' + where, 'Copy everything on that page and send it.']
+      ? ['On a phone or computer on the same Wi-Fi, type this into the browser exactly as shown, starting with http://', where, 'Copy everything on that page and send it.']
       : ['The log can be opened from a phone or computer when the TV is on the home network.']));
     var h2 = document.createElement('h3');
     h2.textContent = 'Latest failures';

@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.18",
-  "version": "0.18",
-  "code": 1800,
+  "name": "Alpha 0.19",
+  "version": "0.19",
+  "code": 1900,
   "date": "2026-11-10",
   "notes": [
-    "**Options has a new look.** It is a full-height sheet down the right of the screen, with the settings grouped under Picture, On screen, Playback & listings and About, and a line at the bottom saying what the highlighted setting does. Rows that open a screen show a small arrow instead of \"Press OK\"",
-    "\"Picture\" is now \"Aspect ratio\" and \"Extra metadata\" is now \"Artwork\", which is what they change"
+    "**The debug log opens from a phone or computer.** The log page could only answer one connection at a time, and a browser opens spare ones that say nothing, so the real request waited and then failed with \"unexpectedly closed the connection\". Each connection is now answered separately. The Debug log screen also spells out that the address must be typed with `http://` at the front, because a browser left to guess tries a secure connection, which this page does not speak"
   ],
   "history": [
+    {
+      "name": "Alpha 0.18",
+      "date": "2026-11-10",
+      "notes": [
+        "**Options has a new look.** It is a full-height sheet down the right of the screen, with the settings grouped under Picture, On screen, Playback & listings and About, and a line at the bottom saying what the highlighted setting does. Rows that open a screen show a small arrow instead of \"Press OK\"",
+        "\"Picture\" is now \"Aspect ratio\" and \"Extra metadata\" is now \"Artwork\", which is what they change"
+      ]
+    },
     {
       "name": "Alpha 0.17",
       "date": "2026-11-10",
@@ -59,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**The Bill is limited to three episodes a day** on Drama. It makes up about half of what the channel has, so it was crowding everything else out. Now there is one at half past six, then the eight o'clock slot, and the rest of the day belongs to the other dramas. The three change every day, so the week shows twenty-one different episodes, and Drama's schedule now repeats weekly instead of daily"
-      ]
-    },
-    {
-      "name": "Alpha 0.10",
-      "date": "2026-11-10",
-      "notes": [
-        "**Drama (channel 7) now follows the clock.** The Bill was three-quarters of the channel and played back to back all day. Now the gentler dramas fill the day (Lovejoy, Heartbeat, Ballykissangel, Upstairs Downstairs, Poirot, Hetty Wainthropp and the like), The Bill starts at 8pm on the dot as it did on ITV, and the heavier crime comes after the 9pm watershed: The Professionals, Minder, Bergerac, Spooks, Morse, Prime Suspect and I, Claudius. A thin library falls back to the ordinary loop rather than leaving the channel empty"
       ]
     }
   ]

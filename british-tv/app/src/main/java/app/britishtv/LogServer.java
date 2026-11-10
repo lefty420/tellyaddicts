@@ -61,24 +61,57 @@ final class LogServer {
             if (ss == null || ss.isClosed()) {
                 return;
             }
-            try (Socket sock = ss.accept()) {
-                sock.setSoTimeout(5000);
-                InputStream in = sock.getInputStream();
-                int c, run = 0, read = 0;
-                while (run < 4 && read < 8192 && (c = in.read()) >= 0) {      // the request itself is not needed
-                    read++;
-                    run = (c == '\r' || c == '\n') ? run + 1 : 0;
-                }
-                byte[] body = text.getBytes("UTF-8");
-                OutputStream out = sock.getOutputStream();
-                out.write(("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " + body.length
-                        + "\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n").getBytes("UTF-8"));
-                out.write(body);
-                out.flush();
+            try {
+                final Socket sock = ss.accept();
+                // each connection on its own thread: a browser opens spare connections that send nothing, and
+                // one of those must not hold up the one that is actually asking for the page
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        serve(sock);
+                    }
+                }, "tv-log-serve");
+                t.setDaemon(true);
+                t.start();
             } catch (IOException e) {
                 if (server == null) {
                     return;                                 // stopped
                 }
+            }
+        }
+    }
+
+    private void serve(Socket sock) {
+        try {
+            sock.setSoTimeout(4000);
+            InputStream in = sock.getInputStream();
+            int c, run = 0, read = 0, first = -2;
+            while (run < 4 && read < 8192 && (c = in.read()) >= 0) {      // the request itself is not needed
+                if (first == -2) {
+                    first = c;
+                    if (c == 0x16) {
+                        return;                             // a secure (https) attempt: this server only speaks plain http
+                    }
+                }
+                read++;
+                run = (c == '\r' || c == '\n') ? run + 1 : 0;
+            }
+            if (read == 0) {
+                return;                                     // a spare connection that never asked for anything
+            }
+            byte[] body = text.getBytes("UTF-8");
+            OutputStream out = sock.getOutputStream();
+            out.write(("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " + body.length
+                    + "\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n").getBytes("UTF-8"));
+            out.write(body);
+            out.flush();
+        } catch (IOException ignored) {
+            // the browser went away
+        } finally {
+            try {
+                sock.close();
+            } catch (IOException ignored) {
+                // nothing to do
             }
         }
     }

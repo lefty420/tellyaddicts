@@ -88,11 +88,18 @@
     return !(y > 1999);
   }
 
-  /** library.json + shows.json -> {channel: rows}. A row is {id, t, f, s?, m}: one archive.org item, its file names
+  /** library.json + shows.json (minus the removed shows) -> {channel: rows}. A row is {id, t, f, s?, m}: one archive.org item, its file names
    *  (or [name, show] pairs when the item holds more than one show), and m = {file name: episode details}. */
-  function route(lib, showsJson) {
-    var smap = showMap(showsJson), keys = Object.keys(smap), per = {}, order = {};
+  function route(lib, showsJson, removed) {
+    var smap = showMap(showsJson), keys = Object.keys(smap), per = {}, order = {}, gone = {};
+    // shows the scraper has removed for good (data/removed-shows.json): [{name, slug}] or plain names
+    (removed || []).forEach(function (r) {
+      var name = typeof r === 'string' ? r : (r && r.name) || '', slug = r && r.slug ? String(r.slug).replace(/-/g, ' ') : '';
+      if (name) gone[norm(name)] = 1;
+      if (slug) gone[norm(slug)] = 1;
+    });
     ((lib && lib.shows) || []).forEach(function (sh) {
+      if (gone[norm(sh.n)]) return;
       var net = NET[String(sh.net || '').toLowerCase()];
       (sh.e || []).forEach(function (ep) {
         if (!inEra(ep)) return;

@@ -140,7 +140,7 @@
     if (status >= 200 && status < 300) p.res(body);
     else {
       // files that are optional until the scraper publishes them (art.json, routes.json) are not faults
-      if (!/\/data\/(art|routes)\.json$|\/data\/eps\//.test(p.url || '') && ++httpFails <= 40) dlog('REQUEST FAILED ' + (status || 'no answer') + '  ' + p.url);
+      if (!/\/data\/(art|routes|removed-shows)\.json$|\/data\/eps\//.test(p.url || '') && ++httpFails <= 40) dlog('REQUEST FAILED ' + (status || 'no answer') + '  ' + p.url);
       p.rej(new Error('HTTP ' + status));
     }
   };
@@ -297,15 +297,18 @@
   }
 
   /** {channel: rows} from the whole library; null if it or shows.json can't be had. */
+  var removedRev = '';     // index.json "removed": revision of data/removed-shows.json
   function loadLibraryRoutes(libRev, showsText) {
     if (libP) return libP;
     var showsP = showsText ? Promise.resolve(JSON.parse(showsText)) : getJSON(SHOWS_URL);
     // routes.json is optional: when it is not published the lists in shows.json are used on their own
     var routesP = getJSON(DATA_BASE + 'routes.json').then(null, function () { return null; });
-    libP = Promise.all([getJSON(DATA_BASE + 'library.json'), showsP, routesP]).then(function (r) {
+    // shows the scraper has removed for good: only asked for when the index says there are some
+    var removedP = removedRev ? getJSON(DATA_BASE + 'removed-shows.json').then(function (x) { return (x && x.shows) || []; }, function () { return []; }) : Promise.resolve([]);
+    libP = Promise.all([getJSON(DATA_BASE + 'library.json'), showsP, routesP, removedP]).then(function (r) {
       var lib = r[0], shows = r[1];
       if (!lib || !lib.shows || !shows || !window.LIBROUTE || (libRev && lib.rev && lib.rev !== libRev)) return null;
-      return LIBROUTE.route(lib, mergeRoutes(shows, r[2]));
+      return LIBROUTE.route(lib, mergeRoutes(shows, r[2]), r[3]);
     }).catch(function () { return null; });
     return libP;
   }
@@ -316,6 +319,7 @@
     indexP = getJSON(DATA_BASE + 'index.json').then(function (j) {
       artRev = (j && j.art) || '';
       epsMap = (j && j.eps && typeof j.eps === 'object') ? j.eps : null;
+      removedRev = (j && j.removed) ? String(j.removed) : '';
       var chans = (j && j.channels) || {};
       if (!j || !j.library || !window.LIBROUTE) return chans;
       // Which channels changed only shows once the library is routed, so remember the answer per library and
@@ -323,7 +327,7 @@
       return http(SHOWS_URL).then(function (showsText) {
         // the routes revision is part of the key: a new routes.json moves shows between channels just as
         // an edit to shows.json does, so the answer stored for the old one must not be reused
-        var key = 'librevs:' + j.library + ':' + (j.routes || '-') + ':' + E.hash(showsText);
+        var key = 'librevs:' + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText);
         var known = store.get(key);
         if (known && known.revs) { libRevs = known.revs; return known.revs; }
         return loadLibraryRoutes(j.library, showsText).then(function (routed) {

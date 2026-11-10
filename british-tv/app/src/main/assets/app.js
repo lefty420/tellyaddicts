@@ -1238,33 +1238,9 @@
 
   // ------------------------------------------------------------------ tuning static
 
-  var staticEl = $('static');
-  var sctx = staticEl.getContext('2d');
-  var SW = 256, SH = 144;
-  var sImage = sctx.createImageData(SW, SH);
-  var sTimer = null, sToken = 0, sSince = 0, sOn = false;
+  var sToken = 0, sbHoldUntil = 0, sbHoldTimer = null;
   var audioCtx = null, noiseNode = null, noiseGain = null;
-  var MIN_STATIC_MS = 1500;
-  function drawStatic() {
-    var d = sImage.data;
-    for (var i = 0; i < d.length; i += 4) {
-      var v = (Math.random() * 255) | 0;
-      d[i] = v; d[i + 1] = v; d[i + 2] = v; d[i + 3] = 255;
-    }
-    // a few horizontal tear bands, like a badly tuned set
-    for (var b = 0; b < 3; b++) {
-      var y = (Math.random() * SH) | 0, h = 1 + ((Math.random() * 3) | 0), shift = (Math.random() * 40) | 0;
-      for (var yy = y; yy < Math.min(SH, y + h); yy++) {
-        for (var x = 0; x < SW; x++) {
-          var p = (yy * SW + x) * 4, q = (yy * SW + ((x + shift) % SW)) * 4;
-          var vv = d[q] > 128 ? 255 : 30;
-          d[p] = vv; d[p + 1] = vv; d[p + 2] = vv;
-        }
-      }
-    }
-    sctx.putImageData(sImage, 0, 0);
-  }
-
+  var MIN_STATIC_MS = 1500;     // when tuning, the little TV stays up at least this long, so it is seen and not a flash
   function startHiss() {
     try {
       if (!audioCtx) {
@@ -1293,32 +1269,17 @@
     try { if (noiseGain) noiseGain.gain.value = 0; } catch (e) { /* ignore */ }
   }
 
+  /** Changing channel: the "Please stand by" TV comes up at once (the programme's art on its screen, or static if
+   *  there is none) with a short hiss, instead of a full-screen burst of static. */
   function showStatic() {
-    sToken++;
+    var tok = ++sToken;
     startHiss();
-    if (sOn) return;
-    sOn = true;
-    sSince = Date.now();
-    staticEl.className = '';
-    drawStatic();
-    clearInterval(sTimer);
-    sTimer = setInterval(drawStatic, 60);
-    var tok = sToken;
-    setTimeout(function () { if (tok === sToken && sOn) hideStatic(); }, 2000);   // never longer than about 2 seconds
+    sbHoldUntil = Date.now() + MIN_STATIC_MS;
+    renderStandby(true);
+    setTimeout(function () { if (tok === sToken) stopHiss(); }, 2000);     // the hiss never lasts more than about 2 seconds
   }
 
-  function hideStatic() {
-    stopHiss();
-    if (!sOn) return;
-    var token = sToken;
-    var wait = Math.max(0, MIN_STATIC_MS - (Date.now() - sSince));
-    setTimeout(function () {
-      if (token !== sToken) return; // another tune started meanwhile
-      sOn = false;
-      staticEl.className = 'hidden';
-      clearInterval(sTimer);
-    }, wait);
-  }
+  function hideStatic() { stopHiss(); }
 
   // ------------------------------------------------------------------ playback
 
@@ -1701,28 +1662,54 @@
     for (var xx = 0; xx < c.width; xx++) { var q = (y * c.width + xx) * 4; d[q] = d[q + 1] = d[q + 2] = 255; }
     x.putImageData(sbNoiseImg, 0, 0);
   }
-  function standbyOff() { clearTimeout(sbTimer); clearInterval(sbNoiseTimer); $('standby').className = 'hidden'; }
+  function standbyOff() {
+    clearTimeout(sbTimer);
+    var wait = sbHoldUntil - Date.now();
+    if (wait > 0) {                                  // just tuned: let the TV be seen for a moment
+      clearTimeout(sbHoldTimer);
+      sbHoldTimer = setTimeout(standbyOff, wait + 20);
+      return;
+    }
+    clearInterval(sbNoiseTimer); $('standby').className = 'hidden';
+  }
   function standbyOn() {
     clearTimeout(sbTimer);
-    sbTimer = setTimeout(function () {
-      if (!cur || cur.ad || v.readyState >= 3 || v.currentTime > 0.2) return;   // adverts and mid-show waits use the small spinner
+    sbTimer = setTimeout(function () { renderStandby(false); }, 1000);
+  }
+  function renderStandby(force) {
+    {
+      if (!cur || cur.ad) return;                                                  // adverts use the small spinner
+      if (!force && (v.readyState >= 3 || v.currentTime > 0.2)) return;           // mid-show waits only if still loading
       var next = cur.prog && cur.prog.title;
       $('sbnum').textContent = cur.ch.n;
       $('sbname').textContent = cur.ch.name;
       $('sbp').textContent = String(100 + cur.ch.n);
-      var art = knownArt(cur.prog), sb = $('standby');
+      var art = knownArt(cur.prog), sb = $('standby'), me = cur;
       var style = store.get('sbstyle') === 'card' ? 'card' : 'tv';
-      var cls = art ? 'withart ' + style : (style === 'tv' ? 'withart tv noart' : '');   // no art: the set stays, tuned to static
-      sb.className = cls;
-      // the little TV: a backdrop fills its screen; with only a poster, a blurred copy fills it and the poster sits on top
-      $('sbpic').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
-      $('sbpic').className = art && !art.back ? 'blurred' : '';
-      if (art && !art.back) { $('sbpicposter').src = art.poster; $('sbpicposter').className = 'on'; } else $('sbpicposter').className = '';
-      clearInterval(sbNoiseTimer);
-      if (style === 'tv') { sbNoise(); sbNoiseTimer = setInterval(sbNoise, 110); }
-      $('sbart').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
-      if (art && art.poster) { $('sbposter').src = art.poster; $('sbposter').className = ''; }
-      else $('sbposter').className = 'hidden';
+      /** Put a picture (or none: static) on the set. */
+      function paint(art) {
+        var cls = art ? 'withart ' + style : (style === 'tv' ? 'withart tv noart' : '');   // no art: the set stays, tuned to static
+        sb.className = cls;
+        // the little TV: a backdrop fills its screen; with only a poster, a blurred copy fills it and the poster sits on top
+        $('sbpic').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
+        $('sbpic').className = art && !art.back ? 'blurred' : '';
+        if (art && !art.back) { $('sbpicposter').src = art.poster; $('sbpicposter').className = 'on'; } else $('sbpicposter').className = '';
+        clearInterval(sbNoiseTimer);
+        if (style === 'tv') { sbNoise(); sbNoiseTimer = setInterval(sbNoise, 110); }
+        $('sbart').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
+        if (art && art.poster) { $('sbposter').src = art.poster; $('sbposter').className = ''; }
+        else $('sbposter').className = 'hidden';
+      }
+      paint(art);
+      if (!art && gartOn && !cur.prog.ad && !filmFor(cur.prog)) {
+        // not known yet: look it up now and swap it onto the screen when it arrives (if we are still waiting for this programme)
+        var p = parseTitle(cur.prog.title || ''); if (cur.prog.show) p.show = cur.prog.show;
+        if (p.show) tvmInfo(p).then(function (d) {
+          if (!d || cur !== me || sb.className === 'hidden') return;
+          var got = knownArt(me.prog);
+          if (got) paint(got);
+        }, function () { /* no artwork: stays on static */ });
+      }
       $('sbprog').textContent = '';
       if (next) {
         $('sbprog').appendChild(document.createTextNode('Coming up: '));
@@ -1730,8 +1717,7 @@
         sp.textContent = next;
         $('sbprog').appendChild(sp);
       }
-      sb.className = cls;
-    }, 1000);
+    }
   }
   v.addEventListener('loadstart', standbyOn);
   v.addEventListener('playing', standbyOff);

@@ -94,11 +94,6 @@
     border: .5vh solid #d7e6ff; box-shadow: 0 .8vh 3vh rgba(0,0,0,.6);
   }
   body.guide-open #spinner, body.guide-open #banner { display: none; }
-  #static { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 12; image-rendering: pixelated; background: #000; }
-  body.guide-open #static {
-    inset: auto; left: 4vw; top: 4vh; width: 34vw; height: auto; aspect-ratio: 16 / 9; z-index: 46;
-    border: .5vh solid #d7e6ff;
-  }
 
   #splash, #nosignal {
     position: fixed; inset: 0; background: #151b3d; display: flex; flex-direction: column;
@@ -382,7 +377,6 @@
 <div id="crt"><i></i></div>
 <div id="ovl"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="f-crt" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/><feOffset in="r" dx="-1.2" result="ro"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/><feOffset in="b" dx="1.2" result="bo"/><feBlend in="ro" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="bo" mode="screen" result="rgb"/><feGaussianBlur in="rgb" stdDeviation="0.9 0.5"/></filter><filter id="f-vhs" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="1.4 0.4"/></filter><filter id="f-sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -0.55 0 -0.55 3.2 -0.55 0 -0.55 0" divisor="1" bias="0" preserveAlpha="true"/></filter></svg>
-<canvas id="static" class="hidden" width="256" height="144"></canvas>
 <div id="spinner" class="hidden"></div>
 
 <div id="banner" class="off">

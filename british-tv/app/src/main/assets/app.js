@@ -295,6 +295,7 @@
     if (indexP) return indexP;
     indexP = getJSON(DATA_BASE + 'index.json').then(function (j) {
       artRev = (j && j.art) || '';
+      epsMap = (j && j.eps && typeof j.eps === 'object') ? j.eps : null;
       var chans = (j && j.channels) || {};
       if (!j || !j.library || !window.LIBROUTE) return chans;
       // Which channels changed only shows once the library is routed, so remember the answer per library and
@@ -2760,6 +2761,7 @@
   }
   /** A show's episode details (titles, summaries, stills) from the scraper's data/eps/<slug>.json, kept for a week. */
   function odSlug(name) { return LIBROUTE.norm(name).replace(/ /g, '-'); }
+  var epsMap = null;      // index.json "eps": {slug: revision} of the episode guides the scraper has published
   function odMeta(g) {
     if (g.metaP) return g.metaP;
     var slug = odSlug(g.name), key = 'eps1:' + slug, c = store.get(key);
@@ -2767,31 +2769,41 @@
       g.meta = null;
       if (m && m.eps) { g.meta = {}; m.eps.forEach(function (e) { g.meta[e.s + 'x' + e.e] = e; }); g.seasons = m.seasons || {}; }
     };
-    if (metaFresh(c)) { done(c.m); return (g.metaP = Promise.resolve()); }
-    // the scraper's file first; until it publishes one, TVmaze's own episode list (one request for the whole show)
-    g.metaP = getJSON(DATA_BASE + 'eps/' + encodeURIComponent(slug) + '.json').then(function (m) { return m && m.eps ? m : null; }, function () { return null; })
-      .then(function (m) {
-        if (m) return { m: m, x: 0 };
-        return artShow(g.name).then(function (art) {
-          if (!art || !art.i) return { m: null, x: Date.now() + 24 * 3600 * 1000 };
-          return getJSON('https://api.tvmaze.com/shows/' + art.i + '/episodes').then(function (list) {
-            var eps = (Array.isArray(list) ? list : []).filter(function (e) { return e && e.season && e.number; }).map(function (e) {
-              var o = { s: e.season, e: e.number };
-              if (e.name) o.t = e.name;
-              if (e.airdate) o.a = e.airdate;
-              if (e.runtime) o.l = e.runtime;
-              var d = plain(e.summary); if (d) o.d = d.length > 400 ? d.slice(0, 397) + '...' : d;
-              var img = https(e.image && (e.image.medium || e.image.original)); if (img) o.img = img;
-              return o;
-            });
-            // looked at again in a week, so the scraper's own files take over once they are published
-            return { m: eps.length ? { eps: eps } : null, x: Date.now() + (eps.length ? 7 * 24 * 3600 * 1000 : 3600 * 1000) };
-          }, function () { return { m: null, x: Date.now() + 3600 * 1000 }; });
-        });
-      }).then(function (r) {
-        store.set(key, { t: Date.now(), x: r.x, m: r.m });
-        done(r.m);
+    /** TVmaze's own episode list, one request for the whole show, for a show the scraper has no guide for. */
+    var fromTvmaze = function () {
+      return artShow(g.name).then(function (art) {
+        if (!art || !art.i) return { m: null, x: Date.now() + 24 * 3600 * 1000 };
+        return getJSON('https://api.tvmaze.com/shows/' + art.i + '/episodes').then(function (list) {
+          var eps = (Array.isArray(list) ? list : []).filter(function (e) { return e && e.season && e.number; }).map(function (e) {
+            var o = { s: e.season, e: e.number };
+            if (e.name) o.t = e.name;
+            if (e.airdate) o.a = e.airdate;
+            if (e.runtime) o.l = e.runtime;
+            var d = plain(e.summary); if (d) o.d = d.length > 400 ? d.slice(0, 397) + '...' : d;
+            var img = https(e.image && (e.image.medium || e.image.original)); if (img) o.img = img;
+            return o;
+          });
+          // looked at again in a week, so the scraper's own guide takes over once it is published
+          return { m: eps.length ? { eps: eps } : null, x: Date.now() + (eps.length ? 7 * 24 * 3600 * 1000 : 3600 * 1000) };
+        }, function () { return { m: null, x: Date.now() + 3600 * 1000 }; });
       });
+    };
+    var save = function (r) { store.set(key, { t: Date.now(), x: r.x, rev: r.rev || '', m: r.m }); done(r.m); };
+    g.metaP = loadDataIndex().then(function () {
+      var rev = epsMap && epsMap[slug];
+      if (rev) {                                       // the scraper has a guide: kept for as long as its revision stays the same
+        if (c && c.rev === rev && c.m) { done(c.m); return; }
+        return getJSON(DATA_BASE + 'eps/' + encodeURIComponent(slug) + '.json').then(function (m) {
+          if (m && m.eps) return save({ m: m, x: 0, rev: rev });
+          return fromTvmaze().then(save);
+        }, function () { return c && c.m ? done(c.m) : fromTvmaze().then(save); });
+      }
+      if (metaFresh(c)) { done(c.m); return; }
+      if (epsMap) return fromTvmaze().then(save);      // the scraper publishes guides and has none for this show
+      // an older index that does not list guides: try the scraper's file, then TVmaze
+      return getJSON(DATA_BASE + 'eps/' + encodeURIComponent(slug) + '.json').then(function (m) { return m && m.eps ? m : null; }, function () { return null; })
+        .then(function (m) { return m ? { m: m, x: 0 } : fromTvmaze(); }).then(save);
+    });
     return g.metaP;
   }
   function odShows() { var c = odChannels()[odCi], r = c && odData[c.id]; return r && r.shows; }

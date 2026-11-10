@@ -112,7 +112,7 @@
 
   /** Turns "Top of the Pops (1976 08 26) Song.mp4" into {title, sub:'26 Aug 1976'}. */
   function describe(name, fallback) {
-    var base = String(name).replace(/^.*\//, '').replace(/\.(ia\.)?(mp4|m4v)$/i, '');
+    var base = String(name).replace(/^.*\//, '').replace(/\.(ia\.)?(mp4|m4v|mkv)$/i, '');
     base = base.replace(/[.\s_]*(\[[^\]\s]+\])+$/, '');       // trailing encoder tags: ".[SR-Enc][bombus]"
     base = base.replace(/^\d{1,3}(?:[.)]\s*|\s+-\s+)(?=[A-Za-z])/, '');   // "01.Are You Being Served" -> words
     base = base.replace(/^(?:BBC\s?DVD|ITV\s?DVD|2\s?Entertain)\s?\d+\s+/i, '');       // "BBCDVD1860 One Foot..."
@@ -258,6 +258,7 @@
    */
   function pickPrograms(id, meta, opts) {
     if (!meta || meta.is_dark) return [];
+    var allowMkv = !!(opts && opts.mkv);     // only for the scraper's library lists, never for live archive.org searches
     var include = opts && opts.include ? new RegExp(opts.include, 'i') : null;
     var exclude = opts && opts.exclude ? new RegExp(opts.exclude, 'i') : null;
     var maxSize = opts && opts.maxSize ? +opts.maxSize : 0;
@@ -317,7 +318,7 @@
     for (var i = 0; i < files.length; i++) {
       var f = files[i];
       var name = f.name || '';
-      if (!/\.mp4$/i.test(name)) continue;
+      if (!(allowMkv ? /\.(mp4|mkv)$/i : /\.mp4$/i).test(name)) continue;
       if (/sample|trailer/i.test(name)) continue;
       if (include && !include.test(name)) continue;
       if (exclude && exclude.test(name)) continue;
@@ -327,12 +328,12 @@
       if (size && size < 200000) continue;
       if (maxSize && size > maxSize) continue;                                         // a whole season stitched into one file
       if (needEp && !needEp.test(name + ' ' + (md.title || ''))) continue;             // no episode / season number anywhere: not an EPG-ready episode
-      var key = name.toLowerCase().replace(/\.ia\.mp4$|\.mp4$/, '');
+      var key = name.toLowerCase().replace(/\.ia\.mp4$|\.mp4$|\.mkv$/, '');
       if (seen[key] !== undefined) {
         // Same programme listed twice. archive.org's ".ia.mp4" is the small, TV-friendly H.264 copy.
         var prev = out[seen[key]];
         var cand = make(name, f);
-        if (cand._ia && !prev._ia) {
+        if ((cand._ia && !prev._ia) || (/\.mkv$/i.test(prev.id) && /\.mp4$/i.test(name))) {     // the small .ia.mp4 copy, or any mp4 over an mkv
           if (!cand._len && prev._len) { cand._len = prev._len; cand.dur = prev._len; }
           out[seen[key]] = cand;
         } else if (!prev._len && cand._len) {

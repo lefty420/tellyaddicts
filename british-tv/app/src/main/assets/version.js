@@ -1,17 +1,26 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.24",
-  "version": "0.24",
-  "code": 2400,
+  "name": "Alpha 0.24.1",
+  "version": "0.24.1",
+  "code": 2401,
   "date": "2026-11-10",
   "notes": [
-    "**Artwork and episode details are kept as long as you choose.** Options > **Keep artwork & details**: 1 week, 4 weeks or **Permanent** (the default). Before, they were looked up again every month. A failed lookup is still retried within the hour, and a show with nothing published is checked again in a few days, whatever this is set to",
-    "**Options > Clear saved artwork** forgets all the saved artwork and episode details and the downloaded pictures so they are fetched fresh, and shows how much is stored. This needs the new app, since the picture cache is cleared on the device itself",
-    "**On Demand now has episode titles, stills and summaries before the scraper publishes its episode files.** It asks TVmaze once for the whole show (using the id in `art.json`) when you open it, and keeps the answer; the scraper's `data/eps/` files take over as soon as they exist",
-    "The Options panel is a little tighter so the new rows fit"
+    "**On Demand now lists every show and every episode in a category.** It was borrowing the channels' rules, which drop any file whose name has no season and episode code (Dogtanian's \"1x01\" style, most cartoons and a lot of drama) and sample a limited number of programmes, so CITV showed 8 shows instead of 93 and Drama 8 instead of 24. It now takes the whole library list for the channel",
+    "Each channel in On Demand shows how many shows it has, filled in as it loads, and episodes with no number are put in natural order by name (Episode 2 before Episode 10)",
+    "A TVmaze reply that is not an episode list can no longer cause an error"
   ],
   "history": [
+    {
+      "name": "Alpha 0.24",
+      "date": "2026-11-10",
+      "notes": [
+        "**Artwork and episode details are kept as long as you choose.** Options > **Keep artwork & details**: 1 week, 4 weeks or **Permanent** (the default). Before, they were looked up again every month. A failed lookup is still retried within the hour, and a show with nothing published is checked again in a few days, whatever this is set to",
+        "**Options > Clear saved artwork** forgets all the saved artwork and episode details and the downloaded pictures so they are fetched fresh, and shows how much is stored. This needs the new app, since the picture cache is cleared on the device itself",
+        "**On Demand now has episode titles, stills and summaries before the scraper publishes its episode files.** It asks TVmaze once for the whole show (using the id in `art.json`) when you open it, and keeps the answer; the scraper's `data/eps/` files take over as soon as they exist",
+        "The Options panel is a little tighter so the new rows fit"
+      ]
+    },
     {
       "name": "Alpha 0.23.3",
       "date": "2026-11-10",
@@ -60,13 +69,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**Press Back twice quickly to quit, from the guide or while watching.** A box asks \"Quit Telly Addicts?\" with Yes and No as buttons: Left and Right then OK on the remote, or a click. No is already chosen, so an accidental OK does nothing. A single Back does what it always did (the guide while watching, back to the picture from the guide), and Back on the box answers No"
-      ]
-    },
-    {
-      "name": "Alpha 0.20.1",
-      "date": "2026-11-10",
-      "notes": [
-        "The debug log no longer records a missing `art.json` or `routes.json` as a failed request. They are optional until the scraper publishes them, and the entries were burying real problems"
       ]
     }
   ]

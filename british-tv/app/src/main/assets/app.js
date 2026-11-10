@@ -354,7 +354,7 @@
     if (m) for (var k in m) if (m.hasOwnProperty(k) && (m[k].song || m[k].film)) return false;
     return true;
   }
-  function progsFromData(items, channelId) {
+  function progsFromData(items, channelId, everything) {   // everything: On Demand lists files whether or not their names carry an episode code
     var out = [];
     items.forEach(function (it) {
       var shows = {}, files = (it.f || []).map(function (f) {
@@ -364,7 +364,7 @@
       });
       // the same naming rules as live results (episode codes, tidy titles, .ia.mp4 duplicates)
       E.pickPrograms(it.id, { metadata: { title: it.t }, files: files },
-                     { requireEp: wantsEpisodes(channelId, it), skipFile: AUTO && AUTO.NOT_EPISODE }).forEach(function (p) {
+                     { requireEp: everything ? false : wantsEpisodes(channelId, it), skipFile: AUTO && AUTO.NOT_EPISODE }).forEach(function (p) {
         var nm = p.id.slice(it.id.length + 1), show = shows[nm] || '';
         p.group = show;
         p.show = show;        // used for the artwork and Info lookups, which beat guessing from the file name
@@ -2734,7 +2734,7 @@
     shows.forEach(function (g) {
       g.eps.sort(function (a, b) {
         return (a.s - b.s) || (a.e - b.e) || (String(a.p.aired || '') < String(b.p.aired || '') ? -1 : String(a.p.aired || '') > String(b.p.aired || '') ? 1 : 0) ||
-               (a.label < b.label ? -1 : a.label > b.label ? 1 : 0);
+               String(a.label).localeCompare(String(b.label), undefined, { numeric: true, sensitivity: 'base' });
       });
       var rows = [], last = null;
       g.eps.forEach(function (ep) {
@@ -2752,7 +2752,7 @@
     if (rec) return rec.p;
     rec = odData[ch.id] = { shows: null };
     rec.p = loadDataIndex().then(function (idx) { return loadChannelData(ch.id, idx[ch.id] || ''); }).then(function (rows) {
-      var progs = rows && rows.length ? progsFromData(rows, ch.id).filter(function (p) { return !p.filmKey && genreFits(ch, p) && !blocked(p); }) : [];
+      var progs = rows && rows.length ? progsFromData(rows, ch.id, true).filter(function (p) { return !p.filmKey && !blocked(p); }) : [];
       rec.shows = odGroup(certified({ report: [] }, progs));
       return rec;
     }, function () { rec.shows = []; return rec; });
@@ -2775,7 +2775,7 @@
         return artShow(g.name).then(function (art) {
           if (!art || !art.i) return { m: null, x: Date.now() + 24 * 3600 * 1000 };
           return getJSON('https://api.tvmaze.com/shows/' + art.i + '/episodes').then(function (list) {
-            var eps = (list || []).filter(function (e) { return e.season && e.number; }).map(function (e) {
+            var eps = (Array.isArray(list) ? list : []).filter(function (e) { return e && e.season && e.number; }).map(function (e) {
               var o = { s: e.season, e: e.number };
               if (e.name) o.t = e.name;
               if (e.airdate) o.a = e.airdate;
@@ -2816,7 +2816,7 @@
   }
   function odRender() {
     var chs = odChannels(), shows = odShows(), g = odShow();
-    odPaint('odc', chs.map(function (c) { return { text: c.n + '   ' + c.name }; }), odCi, odCol === 0);
+    odPaint('odc', chs.map(function (c) { var r = odData[c.id]; return { text: c.n + '   ' + c.name, sub: r && r.shows ? String(r.shows.length) : '' }; }), odCi, odCol === 0);
     odPaint('ods', shows && shows.map(function (x) { return { text: x.name, sub: String(x.eps.length) }; }), odSi, odCol === 1,
             'No shows on this channel yet');
     odPaint('ode', g ? g.rows.map(function (r) {
@@ -2864,12 +2864,23 @@
     $('od').className = '';
     v.muted = true;
     odEnter();
+    odPreload(chs);
   }
   function odClose(restore) {
     odOpen = false;
     $('od').className = 'hidden';
     v.muted = false;
     if (restore && odFrom === 'guide') openGuide();
+  }
+  /** Load every channel's list in the background, one after another, so the counts fill in and browsing is instant. */
+  var odPre = 0;
+  function odPreload(chs) {
+    var tok = ++odPre, i = 0;
+    (function next() {
+      if (tok !== odPre || !odOpen || i >= chs.length) return;
+      var c = chs[i++];
+      odLoadChannel(c).then(function () { if (odOpen) odRender(); setTimeout(next, 30); });
+    })();
   }
   /** Load the focused channel's shows, then show them. */
   function odEnter() {

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.25.1",
-  "version": "0.25.1",
-  "code": 2501,
+  "name": "Alpha 0.25.2",
+  "version": "0.25.2",
+  "code": 2502,
   "date": "2026-11-10",
   "notes": [
-    "**The Debug log now says what this TV’s own player can play**: MP4, MKV (with H.264, AC3 audio or HEVC inside), WebM and AVI, each as yes, maybe or no. It is also written at the top of the log you send. This is the player’s own answer on this device, so it settles whether MKV is worth sending before any MKV is tried"
+    "**A video file is a video file.** The library lists may carry mp4, m4v or mkv and the app no longer treats the formats differently: the special \"prefer an mp4 over an mkv\" rule is gone (the scraper already sends the best copy of each episode, and the usual duplicate check still prefers archive.org's small `.ia.mp4` copy), and the on-device buffer hands the player the type archive.org reports for the file instead of working it out from the name"
   ],
   "history": [
+    {
+      "name": "Alpha 0.25.1",
+      "date": "2026-11-10",
+      "notes": [
+        "**The Debug log now says what this TV’s own player can play**: MP4, MKV (with H.264, AC3 audio or HEVC inside), WebM and AVI, each as yes, maybe or no. It is also written at the top of the log you send. This is the player’s own answer on this device, so it settles whether MKV is worth sending before any MKV is tried"
+      ]
+    },
     {
       "name": "Alpha 0.25",
       "date": "2026-11-10",
@@ -61,14 +68,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**The blue button opens On Demand**, in the guide (where its legend now says so; Blue used to repeat OK's \"Watch\") and while watching. Options > On Demand still works"
-      ]
-    },
-    {
-      "name": "Alpha 0.23",
-      "date": "2026-11-10",
-      "notes": [
-        "**On Demand (TV).** Options > On Demand (or the remote's Menu key, if it has one) opens a browser: channels on the left, that channel's shows A to Z in the middle, and its series and episodes in order on the right. OK on an episode plays it from the start, like a recording, with the usual bar to pause and skip; when it ends the next episode of that show starts, and at the end of the show you are back in the browser. Back steps back a column. Films, songs and dated clips are not listed as shows",
-        "Under the episode list: the highlighted episode's still, title, year, running time and summary, or the show's own summary, network, years and genres when there is no episode detail. Episode details come from the scraper's new `data/eps/<show>.json` files (see `tools/meta-contract.md`); until they are published the list shows the library's own titles"
       ]
     }
   ]

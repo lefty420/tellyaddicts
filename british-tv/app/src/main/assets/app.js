@@ -385,7 +385,7 @@
       });
       // the same naming rules as live results (episode codes, tidy titles, .ia.mp4 duplicates)
       E.pickPrograms(it.id, { metadata: { title: it.t }, files: files },
-                     { mkv: true, requireEp: everything ? false : wantsEpisodes(channelId, it), skipFile: AUTO && AUTO.NOT_EPISODE }).forEach(function (p) {
+                     { video: true, requireEp: everything ? false : wantsEpisodes(channelId, it), skipFile: AUTO && AUTO.NOT_EPISODE }).forEach(function (p) {
         var nm = p.id.slice(it.id.length + 1), show = shows[nm] || '';
         p.group = show;
         p.show = show;        // used for the artwork and Info lookups, which beat guessing from the file name

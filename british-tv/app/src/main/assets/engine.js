@@ -258,7 +258,7 @@
    */
   function pickPrograms(id, meta, opts) {
     if (!meta || meta.is_dark) return [];
-    var allowMkv = !!(opts && opts.mkv);     // only for the scraper's library lists, never for live archive.org searches
+    var anyVideo = !!(opts && opts.video);    // the scraper's library lists: a video file is a video file, whatever its extension. Live archive.org searches stay mp4
     var include = opts && opts.include ? new RegExp(opts.include, 'i') : null;
     var exclude = opts && opts.exclude ? new RegExp(opts.exclude, 'i') : null;
     var maxSize = opts && opts.maxSize ? +opts.maxSize : 0;
@@ -318,7 +318,7 @@
     for (var i = 0; i < files.length; i++) {
       var f = files[i];
       var name = f.name || '';
-      if (!(allowMkv ? /\.(mp4|mkv)$/i : /\.mp4$/i).test(name)) continue;
+      if (!(anyVideo ? /\.(mp4|m4v|mkv)$/i : /\.mp4$/i).test(name)) continue;
       if (/sample|trailer/i.test(name)) continue;
       if (include && !include.test(name)) continue;
       if (exclude && exclude.test(name)) continue;
@@ -328,12 +328,12 @@
       if (size && size < 200000) continue;
       if (maxSize && size > maxSize) continue;                                         // a whole season stitched into one file
       if (needEp && !needEp.test(name + ' ' + (md.title || ''))) continue;             // no episode / season number anywhere: not an EPG-ready episode
-      var key = name.toLowerCase().replace(/\.ia\.mp4$|\.mp4$|\.mkv$/, '');
+      var key = name.toLowerCase().replace(/\.ia\.mp4$|\.(mp4|m4v|mkv)$/, '');
       if (seen[key] !== undefined) {
         // Same programme listed twice. archive.org's ".ia.mp4" is the small, TV-friendly H.264 copy.
         var prev = out[seen[key]];
         var cand = make(name, f);
-        if ((cand._ia && !prev._ia) || (/\.mkv$/i.test(prev.id) && /\.mp4$/i.test(name))) {     // the small .ia.mp4 copy, or any mp4 over an mkv
+        if (cand._ia && !prev._ia) {
           if (!cand._len && prev._len) { cand._len = prev._len; cand.dur = prev._len; }
           out[seen[key]] = cand;
         } else if (!prev._len && cand._len) {

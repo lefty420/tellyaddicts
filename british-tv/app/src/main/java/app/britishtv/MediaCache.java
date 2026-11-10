@@ -211,6 +211,7 @@ final class MediaCache {
         private volatile long reached;                      // furthest byte handed to the player
         private volatile long total = -1;                   // the whole file, once the server says
         private volatile boolean dead;
+        private volatile String type;                       // what archive.org says the file is, handed on to the player as it is
         private Thread puller;
 
         Session(MediaCache owner, String url, long budget, File file) {
@@ -254,6 +255,10 @@ final class MediaCache {
                     c.setRequestProperty("Range", "bytes=" + base + "-");
                 }
                 int status = c.getResponseCode();
+                String ct = c.getHeaderField("Content-Type");
+                if (ct != null) {
+                    type = ct.split(";")[0].trim().toLowerCase();
+                }
                 owner.note("archive.org answered " + status + " from byte " + base
                         + (c.getHeaderField("Content-Type") != null ? " (" + c.getHeaderField("Content-Type") + ")" : ""));
                 if (status != 200 && status != 206) {
@@ -330,7 +335,7 @@ final class MediaCache {
             long end = (to >= 0 && (total < 0 || to < total)) ? to : (total >= 0 ? total - 1 : Long.MAX_VALUE);
             StringBuilder h = new StringBuilder();
             h.append(ranged ? "HTTP/1.1 206 Partial Content\r\n" : "HTTP/1.1 200 OK\r\n");
-            h.append("Content-Type: ").append(url.toLowerCase().split("\\?")[0].endsWith(".mkv") ? "video/x-matroska" : "video/mp4")
+            h.append("Content-Type: ").append(type != null && type.startsWith("video/") ? type : "video/mp4")
                     .append("\r\nAccept-Ranges: bytes\r\nConnection: close\r\n");
             if (total >= 0) {
                 h.append("Content-Length: ").append(end - from + 1).append("\r\n");

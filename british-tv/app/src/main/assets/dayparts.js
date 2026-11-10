@@ -120,7 +120,38 @@
     ]
   };
 
-  var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP };
+  // ---------------------------------------------------------------- Drama
+
+  // The Bill is most of what the channel has, so it gets its own slot rather than swamping the day. It was an
+  // eight o'clock programme; the rest of the evening is the heavier crime and the serials.
+  var BILL = mentions(['the bill']);
+  // Gentle and period drama: the daytime and early-evening end of the schedule
+  var GENTLE = mentions([
+    'heartbeat', 'ballykissangel', 'hamish macbeth', 'hetty wainthropp', 'pie in the sky', 'lovejoy',
+    'peak practice', 'where the heart is', 'juliet bravo', 'upstairs downstairs', 'miss marple',
+    'agatha christies poirot', 'agatha christie hour', 'casualty', 'jonathan creek', 'londons burning',
+    'auf wiedersehen pet', 'a touch of frost', 'midsomer murders'
+  ]);
+  // The grown-up end: after the watershed
+  var DARK = mentions([
+    'inspector morse', 'prime suspect', 'cracker', 'the professionals', 'the sweeney', 'bergerac', 'minder',
+    'spooks', 'silent witness', 'rebus', 'taggart', 'dalziel and pascoe', 'wycliffe', 'dangerfield',
+    'city central', 'the cops', 'shoestring', 'i claudius'
+  ]);
+
+  var DRAMA = {
+    cycle: 'day',
+    filler: function (progs) { return progs.filter(shorter(900)); },
+    blocks: [
+      { at: '06:00', want: GENTLE },                                   // morning and afternoon: the gentler shows
+      { at: '17:00', want: function (p) { return !DARK(p); } },        // teatime: The Bill and the gentler shows
+      { at: '20:00', exact: true, want: BILL },                        // The Bill at eight, on the dot
+      { at: '21:00', exact: true, want: DARK },                        // after the watershed: the heavier crime
+      { at: '23:00', want: function (p) { return DARK(p) || BILL(p); } }
+    ]
+  };
+
+  var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, thebill: DRAMA };
 
   /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. */
   function schedule(channelId, progs, seed) {

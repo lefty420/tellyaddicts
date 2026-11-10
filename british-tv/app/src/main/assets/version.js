@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.9",
-  "version": "0.9",
-  "code": 90,
+  "name": "Alpha 0.10",
+  "version": "0.10",
+  "code": 1000,
   "date": "2026-11-10",
   "notes": [
-    "**The film channels work.** Kids Films and The Video Shop were coming up empty: the certificate the scraper attaches to each film was lost on its way from the library to the channel, so the safety check refused every film. Certificates, plots, posters, genres and running times now arrive intact — Kids Films has 52 films and The Video Shop 132, each placed by its certificate",
-    "**R-rated films wait for the watershed** with the 18s instead of going out at eight in the evening. Only 15, PG-13 and TV-14 do",
-    "**The adult-word filter no longer throws out a genuine programme.** \"Porn Yesterday\", a 1974 Steptoe and Son episode, was being blocked by a word meant for films. The strictest words still apply to films, and the plainly adult ones apply everywhere"
+    "**Drama (channel 7) now follows the clock.** The Bill was three-quarters of the channel and played back to back all day. Now the gentler dramas fill the day (Lovejoy, Heartbeat, Ballykissangel, Upstairs Downstairs, Poirot, Hetty Wainthropp and the like), The Bill starts at 8pm on the dot as it did on ITV, and the heavier crime comes after the 9pm watershed: The Professionals, Minder, Bergerac, Spooks, Morse, Prime Suspect and I, Claudius. A thin library falls back to the ordinary loop rather than leaving the channel empty"
   ],
   "history": [
+    {
+      "name": "Alpha 0.9",
+      "date": "2026-11-10",
+      "notes": [
+        "**The film channels work.** Kids Films and The Video Shop were coming up empty: the certificate the scraper attaches to each film was lost on its way from the library to the channel, so the safety check refused every film. Certificates, plots, posters, genres and running times now arrive intact — Kids Films has 52 films and The Video Shop 132, each placed by its certificate",
+        "**R-rated films wait for the watershed** with the 18s instead of going out at eight in the evening. Only 15, PG-13 and TV-14 do",
+        "**The adult-word filter no longer throws out a genuine programme.** \"Porn Yesterday\", a 1974 Steptoe and Son episode, was being blocked by a word meant for films. The strictest words still apply to films, and the plainly adult ones apply everywhere"
+      ]
+    },
     {
       "name": "Alpha 0.8",
       "date": "2026-11-09",
@@ -71,18 +78,6 @@ window.RELEASE = {
         "Film posters show on the on-screen bar and behind the guide",
         "New **About & credits** in Options, listing where everything comes from: archive.org, TVmaze, TMDB and the scraper",
         "Film details are stored once each rather than repeated on every listing, so posters and plots cost almost nothing to keep"
-      ]
-    },
-    {
-      "name": "Alpha 0.3",
-      "date": "2026-11-09",
-      "notes": [
-        "**The guide can follow the clock.** A channel can now be laid out against the time of day instead of as one endless loop, so the same programme is on at the same time every day, and a programme can be made to start on the dot. Short items before it are cut to fit, the way continuity fills the run-up to the news, so there is never dead air",
-        "**TV Archive replaces On This Day on channel 22**: television from today's date, whatever the year, with news bulletins at 1pm, 6pm and 10pm, and the BBC Archive clips still playing between them. Programmes dated to another day are left out; if nothing at all is dated today the channel plays everything rather than going dark",
-        "**New channel 24, Saturday Night TV**: lighter shows at teatime, the shows the night was built around from seven to nine, and what followed them after that",
-        "MTV and Disney take the scraper's own listings, with the shorts and the untitled blocks no longer thrown away for having no episode number (\"Mickey Mouse — How to Sleep\", \"Yo! MTV Raps\")",
-        "Genre lists for MTV, Disney, Saturday Night and TV Archive, and the guard widened so MTV-only and Disney-only shows are no longer turned away from their own channels",
-        "Stored listings for a channel that no longer exists are cleared out instead of sitting in storage for ever"
       ]
     }
   ]

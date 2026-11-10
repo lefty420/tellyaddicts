@@ -46,9 +46,10 @@ def version_code(version: str) -> int:
     while len(parts) < 3:
         parts.append(0)
     major, minor, patch = parts[:3]
-    if minor > 9 or patch > 9:
-        raise Problem(f"version {version}: minor and patch must stay under 10 for the version code")
-    return major * 100 + minor * 10 + patch
+    if minor > 99 or patch > 99:
+        raise Problem(f"version {version}: minor and patch must stay under 100 for the version code")
+    # 0.9 -> 900, 0.10 -> 1000, 0.10.1 -> 1001: always rises with the version, and above the earlier 0.1-0.9 codes
+    return major * 10000 + minor * 100 + patch
 
 
 def read_releases(text: str) -> list[dict]:

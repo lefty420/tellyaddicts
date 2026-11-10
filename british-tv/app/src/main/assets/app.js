@@ -941,14 +941,14 @@
   // a time. A show it does not list falls back to the live TVmaze lookup below, so this only ever adds.
   //   { format:"telly-addicts-art", v:1, rev, shows:{ "Bergerac": { p:poster, b:backdrop, s:summary, y:year,
   //     e:ended, n:network, g:"Crime, Drama", r:rating, i:tvmazeId } } }
-  var artRev = '', artP = null;
+  var artRev = '', artP = null, artIdx = null;
 
   function loadArt() {
     if (artP) return artP;
     artP = loadDataIndex().then(function () {
       var key = 'artdb1:' + (artRev || 'latest'), c = store.get(key);
       var fresh = c && c.idx && (artRev || Date.now() - c.t < 6 * 3600 * 1000);
-      if (fresh) return c.idx;
+      if (fresh) { artIdx = c.idx; return c.idx; }
       return getJSON(DATA_BASE + 'art.json').then(function (j) {
         var idx = {};
         Object.keys((j && j.shows) || {}).forEach(function (n) { idx[normShow(n)] = j.shows[n]; });
@@ -959,8 +959,9 @@
           }
         } catch (e) { /* ignore */ }
         store.set(key, { t: Date.now(), idx: idx });
+        artIdx = idx;
         return idx;
-      }).then(null, function () { return (c && c.idx) || null; });      // not published yet, or offline
+      }).then(null, function () { artIdx = (c && c.idx) || null; return artIdx; });      // not published yet, or offline
     }).then(null, function () { return null; });
     return artP;
   }
@@ -984,6 +985,35 @@
       name: a.name || name, year: a.y ? String(a.y) : '', ended: a.e ? String(a.e) : '', network: a.n || '',
       genres: a.g || '', rating: +a.r || 0, summary: a.s || '', poster: https(a.p), background: https(a.b)
     };
+  }
+
+  /**
+   * The artwork already on hand for a programme, found without any request, so it can be on screen the instant a
+   * channel is chosen: a film's poster, the scraper's art.json, or what was looked up the last time this show was on.
+   * null when there is none yet (the show is looked up in the background, so next time there is).
+   */
+  function knownArt(prog) {
+    if (!gartOn || !prog || prog.ad) return null;
+    var film = filmFor(prog);
+    if (film) return film.poster ? { poster: film.poster, back: '' } : null;
+    var p = parseTitle(prog.title || '');
+    if (prog.show) p.show = prog.show;
+    if (!p.show) return null;
+    if (!artP) loadArt();
+    var out = { poster: '', back: '' };
+    var a = artIdx && (function () {
+      var w = p.show.split(/\s+/);
+      for (var n = w.length; n >= 1; n--) { var h = artIdx[normShow(w.slice(0, n).join(' '))]; if (h && (n > 1 || w.length === 1)) return h; }
+      return null;
+    })();
+    if (a) { out.poster = https(a.p); out.back = https(a.b); }
+    if (!out.poster || !out.back) {
+      var i = store.get('info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0));
+      if (i && i.d && i.d.show) { out.poster = out.poster || i.d.show.poster || ''; out.back = out.back || i.d.show.background || ''; }
+      var g = store.get('art2:' + normShow(p.show));
+      if (g && g.d && g.d.background) out.back = out.back || g.d.background;
+    }
+    return out.poster || out.back ? out : null;
   }
 
   function tvmFindShow(name, year) {
@@ -1215,7 +1245,6 @@
   var sTimer = null, sToken = 0, sSince = 0, sOn = false;
   var audioCtx = null, noiseNode = null, noiseGain = null;
   var MIN_STATIC_MS = 1500;
-
   function drawStatic() {
     var d = sImage.data;
     for (var i = 0; i < d.length; i += 4) {
@@ -1661,7 +1690,18 @@
   v.addEventListener('playing', function () { clearTimeout(stuckTimer); if (!nextBusy) spinOff(); });
   v.addEventListener('seeking', spinOn);
   var sbTimer = null;
-  function standbyOff() { clearTimeout(sbTimer); $('standby').className = 'hidden'; }
+  var sbNoiseTimer = null, sbNoiseImg = null;
+  /** The slow flicker of static over the little TV's picture. */
+  function sbNoise() {
+    var c = $('sbnoise'), x = c.getContext('2d');
+    if (!sbNoiseImg) sbNoiseImg = x.createImageData(c.width, c.height);
+    var d = sbNoiseImg.data;
+    for (var i = 0; i < d.length; i += 4) { var n = (Math.random() * 255) | 0; d[i] = n; d[i + 1] = n; d[i + 2] = n; d[i + 3] = 255; }
+    var y = (Math.random() * c.height) | 0;                       // and the odd bright tear
+    for (var xx = 0; xx < c.width; xx++) { var q = (y * c.width + xx) * 4; d[q] = d[q + 1] = d[q + 2] = 255; }
+    x.putImageData(sbNoiseImg, 0, 0);
+  }
+  function standbyOff() { clearTimeout(sbTimer); clearInterval(sbNoiseTimer); $('standby').className = 'hidden'; }
   function standbyOn() {
     clearTimeout(sbTimer);
     sbTimer = setTimeout(function () {
@@ -1670,6 +1710,19 @@
       $('sbnum').textContent = cur.ch.n;
       $('sbname').textContent = cur.ch.name;
       $('sbp').textContent = String(100 + cur.ch.n);
+      var art = knownArt(cur.prog), sb = $('standby');
+      var style = store.get('sbstyle') === 'card' ? 'card' : 'tv';
+      var cls = art ? 'withart ' + style : (style === 'tv' ? 'withart tv noart' : '');   // no art: the set stays, tuned to static
+      sb.className = cls;
+      // the little TV: a backdrop fills its screen; with only a poster, a blurred copy fills it and the poster sits on top
+      $('sbpic').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
+      $('sbpic').className = art && !art.back ? 'blurred' : '';
+      if (art && !art.back) { $('sbpicposter').src = art.poster; $('sbpicposter').className = 'on'; } else $('sbpicposter').className = '';
+      clearInterval(sbNoiseTimer);
+      if (style === 'tv') { sbNoise(); sbNoiseTimer = setInterval(sbNoise, 110); }
+      $('sbart').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
+      if (art && art.poster) { $('sbposter').src = art.poster; $('sbposter').className = ''; }
+      else $('sbposter').className = 'hidden';
       $('sbprog').textContent = '';
       if (next) {
         $('sbprog').appendChild(document.createTextNode('Coming up: '));
@@ -1677,7 +1730,7 @@
         sp.textContent = next;
         $('sbprog').appendChild(sp);
       }
-      $('standby').className = '';
+      sb.className = cls;
     }, 1000);
   }
   v.addEventListener('loadstart', standbyOn);

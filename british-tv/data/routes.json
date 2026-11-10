@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "393aa67720",
+ "rev": "965eff5a84",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "disney": {
@@ -27,6 +27,12 @@
    "shows": [
     "Barrymore",
     "Little and Large"
+   ]
+  },
+  "thebill": {
+   "name": "Drama & Police Procedurals",
+   "shows": [
+    "Poirot"
    ]
   }
  }

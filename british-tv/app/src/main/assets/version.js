@@ -1,14 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.23.3",
-  "version": "0.23.3",
-  "code": 2303,
+  "name": "Alpha 0.24",
+  "version": "0.24",
+  "code": 2400,
   "date": "2026-11-10",
   "notes": [
-    "**A much quicker way to the guide's On Demand button: press Left.** When the guide is on what is on now (as it is when it opens), one Left reaches the button, then OK. Right or Down goes back to the channels. Up from the first channel still works, but with many channels that was too far to climb. The guide's bottom line says so"
+    "**Artwork and episode details are kept as long as you choose.** Options > **Keep artwork & details**: 1 week, 4 weeks or **Permanent** (the default). Before, they were looked up again every month. A failed lookup is still retried within the hour, and a show with nothing published is checked again in a few days, whatever this is set to",
+    "**Options > Clear saved artwork** forgets all the saved artwork and episode details and the downloaded pictures so they are fetched fresh, and shows how much is stored. This needs the new app, since the picture cache is cleared on the device itself",
+    "**On Demand now has episode titles, stills and summaries before the scraper publishes its episode files.** It asks TVmaze once for the whole show (using the id in `art.json`) when you open it, and keeps the answer; the scraper's `data/eps/` files take over as soon as they exist",
+    "The Options panel is a little tighter so the new rows fit"
   ],
   "history": [
+    {
+      "name": "Alpha 0.23.3",
+      "date": "2026-11-10",
+      "notes": [
+        "**A much quicker way to the guide's On Demand button: press Left.** When the guide is on what is on now (as it is when it opens), one Left reaches the button, then OK. Right or Down goes back to the channels. Up from the first channel still works, but with many channels that was too far to climb. The guide's bottom line says so"
+      ]
+    },
     {
       "name": "Alpha 0.23.2",
       "date": "2026-11-10",
@@ -57,15 +67,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "The debug log no longer records a missing `art.json` or `routes.json` as a failed request. They are optional until the scraper publishes them, and the entries were burying real problems"
-      ]
-    },
-    {
-      "name": "Alpha 0.20",
-      "date": "2026-11-10",
-      "notes": [
-        "**The debug log can now say why a programme is wrong, not only why one failed.** Pressing Info on anything that is playing writes a record of it: the show it was listed as, the archive.org item and file it came from, how long the listing says it should be and how long the file really is, and the picture size. The app also asks archive.org what that upload actually is (its title, who uploaded it, language, collections, the start of its description) and records the answer, which is what shows a programme to be a different show with the same name",
-        "A file much shorter than its listing is logged as a mismatch the moment it loads, with the same details, without anyone having to press anything",
-        "The Debug log screen says how to use this and lists the latest programmes you checked"
       ]
     }
   ]

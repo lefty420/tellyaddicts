@@ -288,6 +288,17 @@ public class MainActivity extends Activity {
 
     /** window.NativeHttp, used by the page. */
     private class Bridge {
+        /** Throws away the pictures the page has downloaded (posters, backdrops, stills). They come back when needed. */
+        @JavascriptInterface
+        public void clearImages() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try { web.clearCache(true); } catch (Exception e) { /* nothing to clear */ }
+                }
+            });
+        }
+
         @JavascriptInterface
         public void get(final int id, final String url) {
             http.execute(new Runnable() {

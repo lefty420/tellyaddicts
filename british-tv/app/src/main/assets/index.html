@@ -346,14 +346,14 @@
   /* Options: a sheet down the right-hand side, grouped, with a line explaining the highlighted row */
   #opts { position: fixed; right: 0; top: 0; bottom: 0; z-index: 60; }
   #opts.hidden { display: none; }
-  #opanel { box-sizing: border-box; height: 100%; width: 40vw; padding: 4.4vh 2.6vw 4.6vh; display: flex; flex-direction: column;
+  #opanel { box-sizing: border-box; height: 100%; width: 40vw; padding: 3vh 2.6vw 2.6vh; display: flex; flex-direction: column;
     background: linear-gradient(180deg, rgba(12,42,134,.97), rgba(7,24,79,.98) 60%, rgba(3,13,54,.99));
     border-left: .3vh solid var(--hi1); box-shadow: -2vw 0 6vw rgba(0,0,0,.55); }
   #ohead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2vh; }
-  #opanel h2 { margin: 0; font-size: 4.4vh; font-weight: 800; letter-spacing: -.01em; color: #fff; }
+  #opanel h2 { margin: 0; font-size: 4vh; font-weight: 800; letter-spacing: -.01em; color: #fff; }
   #over { font-size: 1.9vh; color: rgba(255,255,255,.55); font-weight: 600; }
-  #opanel h3 { margin: 1.9vh 0 .4vh; font-size: 1.65vh; letter-spacing: .28em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
-  .orow { display: flex; justify-content: space-between; align-items: center; gap: 2vw; padding: .9vh 1vw; margin: 0 -1vw;
+  #opanel h3 { margin: 1.2vh 0 .2vh; font-size: 1.65vh; letter-spacing: .28em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
+  .orow { display: flex; justify-content: space-between; align-items: center; gap: 2vw; padding: .55vh 1vw; margin: 0 -1vw;
     border-radius: .7vh; font-size: 2.5vh; border-bottom: .12vh solid rgba(255,255,255,.08); }
   .orow b { font-weight: 600; }
   .orow span { font-weight: 600; color: rgba(190,208,255,.92); text-align: right; }
@@ -364,7 +364,7 @@
   .orow.sel span::before { content: '\25C0  '; } .orow.sel span::after { content: '  \25B6'; }
   /* rows that do something on OK rather than cycling through values: no left/right arrows */
   .orow.sel.act span::before { content: ''; } .orow.sel.act span::after { content: '  \203A'; color: var(--ink); }
-  #ohelp { margin-top: auto; padding-top: 1.6vh; min-height: 6.4vh; font-size: 2.15vh; line-height: 1.45; color: rgba(255,255,255,.88); }
+  #ohelp { margin-top: auto; padding-top: 1vh; min-height: 6vh; font-size: 2.15vh; line-height: 1.45; color: rgba(255,255,255,.88); }
   #opanel p { margin: 1.2vh 0 0; padding-top: 1.2vh; border-top: .12vh solid rgba(255,255,255,.14); font-size: 1.7vh; color: rgba(255,255,255,.5); }
   /* Quit: two quick presses of Back, from the guide or while watching */
   #quit { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.72); }
@@ -456,6 +456,8 @@
     <div class="orow" id="or-fx"><b>Enhancements</b><span id="ov-fx"></span></div>
     <h3>On screen</h3>
     <div class="orow" id="or-gart"><b>Artwork</b><span id="ov-gart"></span></div>
+    <div class="orow" id="or-mkeep"><b>Keep artwork &amp; details</b><span id="ov-mkeep"></span></div>
+    <div class="orow act" id="or-mclear"><b>Clear saved artwork</b><span id="ov-mclear"></span></div>
     <div class="orow" id="or-ads"><b>Adverts</b><span id="ov-ads"></span></div>
     <h3>Playback &amp; listings</h3>
     <div class="orow" id="or-buf"><b>Buffer</b><span id="ov-buf"></span></div>

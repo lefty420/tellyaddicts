@@ -782,7 +782,17 @@
 
   // ------------------------------------------------------------------ real episode names (TVmaze, free, no key)
 
-  var TVM_DAY = 30 * 24 * 3600 * 1000;
+  // How long artwork and episode details are kept before they are looked up again (Options > Keep artwork).
+  var META_KEEP = [
+    { id: '1w', label: '1 week', ms: 7 * 24 * 3600 * 1000 },
+    { id: '4w', label: '4 weeks', ms: 28 * 24 * 3600 * 1000 },
+    { id: 'perm', label: 'Permanent', ms: Infinity }
+  ];
+  var metaIdx = 2;
+  (function () { var id = store.get('metakeep1'); for (var i = 0; i < META_KEEP.length; i++) if (META_KEEP[i].id === id) metaIdx = i; })();
+  function metaTtl() { return META_KEEP[metaIdx].ms; }
+  /** An entry has its own expiry (x) when it records a failure or a miss that should be tried again soon. */
+  function metaFresh(c) { return !!c && (c.x ? Date.now() < c.x : Date.now() - c.t < metaTtl()); }
   var TVM_MISS = 5 * 24 * 3600 * 1000;   // a show TVmaze does not have: remember that too, but re-check sooner
   var tvmChain = Promise.resolve();
   var GENERIC_EP = /^(episode|ep|series|season|part|chapter)?\s*#?\d+(\s*[-:,]\s*\d+)?$|^episode\b|^series\b|^season\b/i;
@@ -816,7 +826,7 @@
   function tvmEpisodes(name) {
     var key = 'tvm4:' + normShow(name);
     var c = store.get(key);
-    if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.eps);
+    if (metaFresh(c)) return Promise.resolve(c.eps);
     var job = tvmChain.then(function () {
       return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(name)).then(function (list) {
         var best = pickShow(list, name);
@@ -1031,7 +1041,7 @@
     var d = { show: showFromArt(a, p.show), ep: null };
     if (!p.e || !a.i) return Promise.resolve(d);
     var key = 'info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0), c = store.get(key);
-    if (c && c.d && c.d.ep && Date.now() - c.t < TVM_DAY) return Promise.resolve(Object.assign({}, d, { ep: c.d.ep }));
+    if (c && c.d && c.d.ep && metaFresh(c)) return Promise.resolve(Object.assign({}, d, { ep: c.d.ep }));
     var job = tvmChain.then(function () { return getJSON('https://api.tvmaze.com/shows/' + a.i + '/episodes'); }).then(function (eps) {
       var hit = (eps || []).filter(function (e) { return e.season === p.s && e.number === p.e; })[0];
       if (hit) d.ep = { name: hit.name, season: hit.season, number: hit.number, airdate: hit.airdate || '', runtime: hit.runtime || 0, summary: plain(hit.summary), image: https(hit.image && (hit.image.original || hit.image.medium)) };
@@ -1045,7 +1055,7 @@
   function tvmInfoLive(p) {
     var key = 'info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
     var c = store.get(key);
-    if (c && Date.now() - c.t < (c.d ? TVM_DAY : TVM_MISS)) return Promise.resolve(c.d);
+    if (c && (c.d ? metaFresh(c) : Date.now() - c.t < TVM_MISS)) return Promise.resolve(c.d);
     var words = p.show.split(/\s+/), tries = [p.show];
     if (words.length > 3) tries.push(words.slice(0, 3).join(' '));
     if (words.length > 2) tries.push(words.slice(0, 2).join(' '));
@@ -1080,9 +1090,9 @@
     tvmChain = job.then(function () { return wait(400); }, function () { return wait(400); });
     return job.then(function (d) {
       // a show with no pictures only because that request failed is looked at again in an hour, not in a month
-      var age = d && d.picsFailed ? TVM_DAY - 3600 * 1000 : 0;
+      var retry = d && d.picsFailed;
       if (d) delete d.picsFailed;
-      store.set(key, { t: Date.now() - age, d: d || null });
+      store.set(key, { t: Date.now(), x: retry ? Date.now() + 3600 * 1000 : 0, d: d || null });
       return d;
     });
   }
@@ -1095,7 +1105,7 @@
   function tvmArtLive(p) {
     var key = 'art2:' + normShow(p.show);
     var c = store.get(key);
-    if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.d);
+    if (metaFresh(c)) return Promise.resolve(c.d);
     var words = p.show.split(/\s+/), tries = [p.show];
     if (words.length > 3) tries.push(words.slice(0, 3).join(' '));
     if (words.length > 2) tries.push(words.slice(0, 2).join(' '));
@@ -1117,8 +1127,8 @@
     return job.then(function (d) {
       // A show TVmaze does not have is re-checked in days, and a request that merely failed in an hour; only a real
       // answer is kept for a month. Remembering a failure for a month is how shows went without artwork for good.
-      var age = d.failed ? TVM_DAY - 3600 * 1000 : d.miss ? TVM_DAY - TVM_MISS : 0;
-      store.set(key, { t: Date.now() - age, d: { background: d.background } });
+      var until = d.failed ? Date.now() + 3600 * 1000 : d.miss ? Date.now() + TVM_MISS : 0;
+      store.set(key, { t: Date.now(), x: until, d: { background: d.background } });
       return d;
     });
   }
@@ -2302,7 +2312,7 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['od', 'ar', 'fx', 'gart', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel', 'about', 'log'];
+  var OPTS = ['od', 'ar', 'fx', 'gart', 'mkeep', 'mclear', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel', 'about', 'log'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -2313,11 +2323,45 @@
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'rel') return relName();
+    if (id === 'mkeep') return META_KEEP[metaIdx].label;
+    if (id === 'mclear') return metaSize();
     if (id === 'about' || id === 'log' || id === 'od') return '';
     return autoEpg ? 'On' : 'Off';
   }
 
   /** Picking longer keeps the lists already stored; picking shorter lets them run out. Links are never thrown away. */
+  var META_KEYS = /^(info3|art2|tvm4|eps1|artdb1):/;
+  /** How much saved artwork and episode detail there is, as text for the Options row. */
+  function metaSize() {
+    var bytes = 0, n = 0;
+    try {
+      for (var k = 0; k < localStorage.length; k++) {
+        var kn = localStorage.key(k);
+        if (kn && META_KEYS.test(kn)) { bytes += kn.length + (localStorage.getItem(kn) || '').length; n++; }
+      }
+    } catch (e) { /* unavailable */ }
+    return n ? (bytes / 1048576 < 0.1 ? Math.max(1, Math.round(bytes / 1024)) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB') : 'Nothing saved';
+  }
+  function changeMetaKeep(d) {
+    metaIdx = (metaIdx + (d < 0 ? META_KEEP.length - 1 : 1)) % META_KEEP.length;
+    store.set('metakeep1', META_KEEP[metaIdx].id);
+    renderOpts();
+    toast('Artwork and episode details kept: ' + META_KEEP[metaIdx].label.toLowerCase(), 2600);
+  }
+  function clearMeta() {
+    var gone = 0;
+    try {
+      for (var k = localStorage.length - 1; k >= 0; k--) {
+        var kn = localStorage.key(k);
+        if (kn && META_KEYS.test(kn)) { localStorage.removeItem(kn); gone++; }
+      }
+    } catch (e) { /* ignore */ }
+    try { if (window.NativeHttp && NativeHttp.clearImages) NativeHttp.clearImages(); } catch (e) { /* older app */ }
+    artIdx = null; artP = null; artRev = ''; gartFor = '\u0000'; artFor = '';
+    odData = {};
+    renderOpts();
+    toast('Cleared ' + gone + ' saved items and the picture cache', 3500);
+  }
   function changeKeep(d) {
     keepIdx = (keepIdx + (d < 0 ? KEEP.length - 1 : 1)) % KEEP.length;
     store.set('keep1', KEEP[keepIdx].id);
@@ -2325,9 +2369,11 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { od: 1, refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
+    mkeep: 'How long artwork and episode details are remembered before they are looked up again. Permanent keeps them until you clear them.',
+    mclear: 'Forgets the saved artwork, episode details and downloaded pictures, so they are fetched again fresh. Shows what is stored now.',
     od: 'Browse every channel\u2019s shows, series and episodes, and play any of them from the start.',
     ar: 'Auto, 4:3, 16:9, Zoom or Stretch. Auto shows each programme in the ratio it was made in.',
     fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness.',
@@ -2393,6 +2439,8 @@
     else if (id === 'ads') changeAds(d);
     else if (id === 'buf') changeBuf(d);
     else if (id === 'keep') changeKeep(d);
+    else if (id === 'mkeep') changeMetaKeep(d);
+    else if (id === 'mclear') clearMeta();
     else if (id === 'refresh') refreshEpg();
     else if (id === 'rel') openRel('rel');
     else if (id === 'log') openRel('log');
@@ -2711,7 +2759,6 @@
     return rec.p;
   }
   /** A show's episode details (titles, summaries, stills) from the scraper's data/eps/<slug>.json, kept for a week. */
-  var OD_WEEK = 7 * 24 * 3600 * 1000;
   function odSlug(name) { return LIBROUTE.norm(name).replace(/ /g, '-'); }
   function odMeta(g) {
     if (g.metaP) return g.metaP;
@@ -2720,11 +2767,31 @@
       g.meta = null;
       if (m && m.eps) { g.meta = {}; m.eps.forEach(function (e) { g.meta[e.s + 'x' + e.e] = e; }); g.seasons = m.seasons || {}; }
     };
-    if (c && Date.now() - c.t < OD_WEEK) { done(c.m); return (g.metaP = Promise.resolve()); }
-    g.metaP = getJSON(DATA_BASE + 'eps/' + encodeURIComponent(slug) + '.json').then(function (m) {
-      store.set(key, { t: Date.now(), m: m && m.eps ? m : null });
-      done(m);
-    }, function () { store.set(key, { t: Date.now(), m: null }); done(null); });      // not published for this show: fine
+    if (metaFresh(c)) { done(c.m); return (g.metaP = Promise.resolve()); }
+    // the scraper's file first; until it publishes one, TVmaze's own episode list (one request for the whole show)
+    g.metaP = getJSON(DATA_BASE + 'eps/' + encodeURIComponent(slug) + '.json').then(function (m) { return m && m.eps ? m : null; }, function () { return null; })
+      .then(function (m) {
+        if (m) return { m: m, x: 0 };
+        return artShow(g.name).then(function (art) {
+          if (!art || !art.i) return { m: null, x: Date.now() + 24 * 3600 * 1000 };
+          return getJSON('https://api.tvmaze.com/shows/' + art.i + '/episodes').then(function (list) {
+            var eps = (list || []).filter(function (e) { return e.season && e.number; }).map(function (e) {
+              var o = { s: e.season, e: e.number };
+              if (e.name) o.t = e.name;
+              if (e.airdate) o.a = e.airdate;
+              if (e.runtime) o.l = e.runtime;
+              var d = plain(e.summary); if (d) o.d = d.length > 400 ? d.slice(0, 397) + '...' : d;
+              var img = https(e.image && (e.image.medium || e.image.original)); if (img) o.img = img;
+              return o;
+            });
+            // looked at again in a week, so the scraper's own files take over once they are published
+            return { m: eps.length ? { eps: eps } : null, x: Date.now() + (eps.length ? 7 * 24 * 3600 * 1000 : 3600 * 1000) };
+          }, function () { return { m: null, x: Date.now() + 3600 * 1000 }; });
+        });
+      }).then(function (r) {
+        store.set(key, { t: Date.now(), x: r.x, m: r.m });
+        done(r.m);
+      });
     return g.metaP;
   }
   function odShows() { var c = odChannels()[odCi], r = c && odData[c.id]; return r && r.shows; }

@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.19",
-  "version": "0.19",
-  "code": 1900,
+  "name": "Alpha 0.20",
+  "version": "0.20",
+  "code": 2000,
   "date": "2026-11-10",
   "notes": [
-    "**The debug log opens from a phone or computer.** The log page could only answer one connection at a time, and a browser opens spare ones that say nothing, so the real request waited and then failed with \"unexpectedly closed the connection\". Each connection is now answered separately. The Debug log screen also spells out that the address must be typed with `http://` at the front, because a browser left to guess tries a secure connection, which this page does not speak"
+    "**The debug log can now say why a programme is wrong, not only why one failed.** Pressing Info on anything that is playing writes a record of it: the show it was listed as, the archive.org item and file it came from, how long the listing says it should be and how long the file really is, and the picture size. The app also asks archive.org what that upload actually is (its title, who uploaded it, language, collections, the start of its description) and records the answer, which is what shows a programme to be a different show with the same name",
+    "A file much shorter than its listing is logged as a mismatch the moment it loads, with the same details, without anyone having to press anything",
+    "The Debug log screen says how to use this and lists the latest programmes you checked"
   ],
   "history": [
+    {
+      "name": "Alpha 0.19",
+      "date": "2026-11-10",
+      "notes": [
+        "**The debug log opens from a phone or computer.** The log page could only answer one connection at a time, and a browser opens spare ones that say nothing, so the real request waited and then failed with \"unexpectedly closed the connection\". Each connection is now answered separately. The Debug log screen also spells out that the address must be typed with `http://` at the front, because a browser left to guess tries a secure connection, which this page does not speak"
+      ]
+    },
     {
       "name": "Alpha 0.18",
       "date": "2026-11-10",
@@ -59,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**Artwork that failed to load is looked for again soon, not remembered as \"none\" for a month.** When the guide moved quickly TVmaze turned some requests away, and the app took the refusal as \"this show has no picture\" and kept that answer for 30 days, so those shows stayed bare. A refused request is now retried within the hour, and a show TVmaze genuinely does not know is re-checked after five days. Blank answers saved by earlier versions are cleared, so the shows that missed out get another go"
-      ]
-    },
-    {
-      "name": "Alpha 0.11",
-      "date": "2026-11-10",
-      "notes": [
-        "**The Bill is limited to three episodes a day** on Drama. It makes up about half of what the channel has, so it was crowding everything else out. Now there is one at half past six, then the eight o'clock slot, and the rest of the day belongs to the other dramas. The three change every day, so the week shows twenty-one different episodes, and Drama's schedule now repeats weekly instead of daily"
       ]
     }
   ]

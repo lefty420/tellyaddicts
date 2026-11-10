@@ -447,6 +447,49 @@ public class MainActivity extends Activity {
             });
         }
 
+        /**
+         * Say what archive.org knows about an item and one file in it: its title, who uploaded it, its language and
+         * collections, the start of its description, and the file's length and picture size. This is what shows whether
+         * a programme is the one it is called, or an upload with the same name that is something else entirely.
+         * Answers window.__probe(id, text).
+         */
+        @JavascriptInterface
+        public void probeItem(final int id, final String item, final String file) {
+            http.execute(new Runnable() {
+                @Override
+                public void run() {
+                    String out;
+                    HttpURLConnection c = null;
+                    try {
+                        if (item == null || item.indexOf('/') >= 0) {
+                            throw new SecurityException("bad item");
+                        }
+                        c = (HttpURLConnection) new URL("https://archive.org/metadata/" + java.net.URLEncoder.encode(item, "UTF-8")).openConnection();
+                        c.setConnectTimeout(15000);
+                        c.setReadTimeout(30000);
+                        c.setRequestProperty("User-Agent", "BritishTV/1.0 (Android TV)");
+                        int status = c.getResponseCode();
+                        out = status == 200 ? describeItem(c.getInputStream(), file) : "archive.org says " + status + " for the item";
+                    } catch (Exception e) {
+                        out = "could not ask archive.org about the item: " + e;
+                    } finally {
+                        if (c != null) {
+                            c.disconnect();
+                        }
+                    }
+                    final String js = "window.__probe && window.__probe(" + id + "," + JSONObject.quote(out) + ")";
+                    main.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (web != null) {
+                                web.evaluateJavascript(js, null);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
         @JavascriptInterface
         public void exit() {
             main.post(new Runnable() {
@@ -561,6 +604,127 @@ public class MainActivity extends Activity {
     }
 
     /** Any scalar as a string (archive.org writes numbers and booleans both ways). */
+    private static String megabytes(String size) {
+        try {
+            return (Long.parseLong(size.trim()) / 1048576) + " MB";
+        } catch (Exception e) {
+            return "size ?";
+        }
+    }
+
+    /** A JSON value as short text: a string or number as it is, a list joined, anything else nothing. */
+    private static String flat(JsonReader r, int max) throws java.io.IOException {
+        JsonToken t = r.peek();
+        if (t == JsonToken.BEGIN_ARRAY) {
+            StringBuilder b = new StringBuilder();
+            r.beginArray();
+            int n = 0;
+            while (r.hasNext()) {
+                String s = str(r);
+                if (s != null && n++ < 8) {
+                    b.append(b.length() > 0 ? ", " : "").append(s);
+                }
+            }
+            r.endArray();
+            return clip(b.toString(), max);
+        }
+        return clip(str(r), max);
+    }
+
+    private static String clip(String s, int max) {
+        if (s == null) {
+            return null;
+        }
+        s = s.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();
+        return s.length() > max ? s.substring(0, max) + "..." : s;
+    }
+
+    /** What an item's metadata says about it, and about one file in it, in a line for the debug log. */
+    private static String describeItem(InputStream in, String file) throws java.io.IOException {
+        JsonReader r = new JsonReader(new InputStreamReader(in, "UTF-8"));
+        StringBuilder b = new StringBuilder();
+        String fileInfo = "that file is not listed";
+        int files = 0;
+        r.beginObject();
+        while (r.hasNext()) {
+            String top = r.nextName();
+            if ("metadata".equals(top) && r.peek() == JsonToken.BEGIN_OBJECT) {
+                r.beginObject();
+                while (r.hasNext()) {
+                    String k = r.nextName();
+                    String label = null;
+                    int max = 120;
+                    if ("title".equals(k)) {
+                        label = "title";
+                    } else if ("creator".equals(k)) {
+                        label = "creator";
+                    } else if ("uploader".equals(k)) {
+                        label = "uploader";
+                    } else if ("language".equals(k)) {
+                        label = "language";
+                    } else if ("country".equals(k)) {
+                        label = "country";
+                    } else if ("collection".equals(k)) {
+                        label = "collections";
+                    } else if ("subject".equals(k)) {
+                        label = "subjects";
+                    } else if ("date".equals(k)) {
+                        label = "date";
+                    } else if ("addeddate".equals(k)) {
+                        label = "uploaded";
+                    } else if ("description".equals(k)) {
+                        label = "description";
+                        max = 260;
+                    }
+                    if (label == null) {
+                        r.skipValue();
+                    } else {
+                        String v = flat(r, max);
+                        if (v != null && v.length() > 0) {
+                            b.append(b.length() > 0 ? " | " : "").append(label).append(": ").append(v);
+                        }
+                    }
+                }
+                r.endObject();
+            } else if ("files".equals(top) && r.peek() == JsonToken.BEGIN_ARRAY) {
+                r.beginArray();
+                while (r.hasNext()) {
+                    r.beginObject();
+                    String name = null, format = null, size = null, len = null, w = null, h = null;
+                    while (r.hasNext()) {
+                        String k = r.nextName();
+                        if ("name".equals(k)) {
+                            name = str(r);
+                        } else if ("format".equals(k)) {
+                            format = str(r);
+                        } else if ("size".equals(k)) {
+                            size = str(r);
+                        } else if ("length".equals(k)) {
+                            len = str(r);
+                        } else if ("width".equals(k)) {
+                            w = str(r);
+                        } else if ("height".equals(k)) {
+                            h = str(r);
+                        } else {
+                            r.skipValue();
+                        }
+                    }
+                    r.endObject();
+                    files++;
+                    if (name != null && name.equals(file)) {
+                        fileInfo = "FILE " + format + ", " + megabytes(size)
+                                + (len != null ? ", length " + len + "s" : "") + (w != null ? ", " + w + "x" + h : "");
+                    }
+                }
+                r.endArray();
+            } else {
+                r.skipValue();
+            }
+        }
+        r.endObject();
+        return b + " | " + fileInfo + " | " + files + " files in the item";
+    }
+
     private static String str(JsonReader r) throws java.io.IOException {
         JsonToken t = r.peek();
         if (t == JsonToken.NULL) {

@@ -65,13 +65,37 @@
   window.__probe = function (id, json) {
     var url = probes[id];
     delete probes[id];
-    dlog('  CHECK ' + json + (url ? '  ' + url : ''));
+    dlog('  ARCHIVE.ORG ' + json + (url ? '  ' + url : ''));
   };
   function diagnose(url) {
     if (!url || !window.NativeHttp || !NativeHttp.probe) return;
     var id = ++probeId;
     probes[id] = url;
     try { NativeHttp.probe(id, url); } catch (e) { delete probes[id]; }
+  }
+  function urlParts(u) {
+    var m = /archive\.org\/download\/([^\/]+)\/(.+)$/.exec(String(u || ''));
+    if (!m) return null;
+    try { return { item: decodeURIComponent(m[1]), file: decodeURIComponent(m[2]) }; } catch (e) { return { item: m[1], file: m[2] }; }
+  }
+  function mins(sec) { return sec > 0 ? Math.round(sec / 60) + ' min' : '?'; }
+  /**
+   * Put everything known about the programme on screen into the log: what the app thinks it is, where it came from,
+   * how long it should be and is, and what archive.org says the upload actually is. This is how a programme that is
+   * not what it claims to be gets tracked down.
+   */
+  function reportProgramme(why) {
+    if (!cur || !cur.prog || cur.ad) return;
+    var p = cur.prog, u = urlParts(p.url);
+    dlog('REPORT (' + why + ') ch ' + cur.ch.n + ' ' + cur.ch.name + ' | ' + (p.title || '?') + (p.sub ? ' - ' + p.sub : '') +
+      ' | listed as show: ' + (p.show || p.group || '-') + ' | item: ' + (u ? u.item : '?') + ' | file: ' + (u ? u.file : '?') +
+      ' | expected ' + mins(p.dur) + (isFinite(v.duration) && v.duration > 0 ? ', file is ' + mins(v.duration) : '') +
+      (v.videoWidth ? ' | picture ' + v.videoWidth + 'x' + v.videoHeight : ''));
+    if (u && window.NativeHttp && NativeHttp.probeItem) {
+      var id = ++probeId;
+      probes[id] = '';
+      try { NativeHttp.probeItem(id, u.item, u.file); } catch (e) { delete probes[id]; }
+    }
   }
   /** The whole log as text, with the buffer's own notes on the end. */
   function logText() {
@@ -350,7 +374,7 @@
           var t = window.LIBROUTE && LIBROUTE.titleFor(show, d);
           if (t) p.title = t;
           if (d.a) p.aired = d.a;
-          if (d.l > 60) p.dur = d.l;
+          if (d.l > 60) { p.dur = d.l; p.lenKnown = 1; }
           if (d.film) { p.filmKey = keepFilm(d); p.cert = d.cert || ''; }   // TMDb details, and the certificate
         }
         out.push(p);
@@ -1096,6 +1120,7 @@
 
   function openInfo() {
     if (!cur) return;
+    reportProgramme('Info opened');
     infoOpen = true;
     var token = ++infoToken;
     var title = cur.prog.title || '';
@@ -1320,6 +1345,15 @@
     var err = v.error ? 'error ' + v.error.code + (v.error.message ? ' "' + v.error.message + '"' : '') + ', ' : '';
     return err + 'ready ' + v.readyState + ', network ' + v.networkState + ', at ' + Math.round(v.currentTime || 0) + 's, events: ' + (pb.ev.join(', ') || 'none');
   }
+  v.addEventListener('loadedmetadata', function () {
+    // a file much shorter than the listing says is usually not the programme it was filed as
+    if (!cur || cur.ad || !cur.prog || !(cur.prog.dur > 0) || !(v.duration > 0) || cur.mism === cur.prog.url) return;
+    if (v.duration < cur.prog.dur * 0.7 || (cur.prog.lenKnown && v.duration > cur.prog.dur * 1.4)) {
+      cur.mism = cur.prog.url;
+      dlog('MISMATCH the listing expects ' + mins(cur.prog.dur) + ' but the file is ' + mins(v.duration));
+      reportProgramme('length does not match');
+    }
+  });
   v.addEventListener('playing', function () {
     if (pb.said) return;
     pb.said = true;
@@ -2113,7 +2147,8 @@
     body.textContent = '';
     $('rkick').textContent = 'Debug log';
     $('rver').textContent = 'What went wrong';
-    var fails = DLOG.filter(function (l) { return /  (FAILED|GAVE UP|STALLED)/.test(l); });
+    var fails = DLOG.filter(function (l) { return /  (FAILED|GAVE UP|STALLED|MISMATCH)/.test(l); });
+    var reports = DLOG.filter(function (l) { return /  REPORT /.test(l) || /  ARCHIVE\.ORG /.test(l); });
     $('rdate').textContent = DLOG.length + ' entries kept   ·   ' + fails.length + ' programmes failed or stalled';
     var where = '';
     try { where = window.NativeHttp && NativeHttp.shareLog ? NativeHttp.shareLog(logText()) : ''; } catch (e) { where = ''; }
@@ -2124,9 +2159,17 @@
       ? ['On a phone or computer on the same Wi-Fi, type this into the browser exactly as shown, starting with http://', where, 'Copy everything on that page and send it.']
       : ['The log can be opened from a phone or computer when the TV is on the home network.']));
     var h2 = document.createElement('h3');
-    h2.textContent = 'Latest failures';
+    h2.textContent = 'Something not right?';
     body.appendChild(h2);
-    body.appendChild(relList(fails.length ? fails.slice(-8).reverse() : ['Nothing has failed since the log began.']));
+    body.appendChild(relList(['If a programme is not what it says it is, press Info while it is playing (hold OK), then send the log. It records where the programme came from and what archive.org says the upload really is.']));
+    var h3 = document.createElement('h3');
+    h3.textContent = 'Latest programmes you checked';
+    body.appendChild(h3);
+    body.appendChild(relList(reports.length ? reports.slice(-4).reverse() : ['None yet.']));
+    var h4 = document.createElement('h3');
+    h4.textContent = 'Latest failures';
+    body.appendChild(h4);
+    body.appendChild(relList(fails.length ? fails.slice(-6).reverse() : ['Nothing has failed since the log began.']));
   }
 
   function buildRel() {

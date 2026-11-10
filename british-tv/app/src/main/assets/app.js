@@ -221,6 +221,7 @@
   function loadDataIndex() {
     if (indexP) return indexP;
     indexP = getJSON(DATA_BASE + 'index.json').then(function (j) {
+      artRev = (j && j.art) || '';
       var chans = (j && j.channels) || {};
       if (!j || !j.library || !window.LIBROUTE) return chans;
       // Which channels changed only shows once the library is routed, so remember the answer per library and
@@ -860,6 +861,58 @@
     return res;
   }
 
+  // ------------------------------------------------------------------ artwork the scraper already found (data/art.json)
+  //
+  // The scraper looks each show up once and publishes the answers: poster, backdrop, summary and so on, keyed by
+  // the show's name. Every TV then has its artwork from the first visit, with no searching TVmaze one request at
+  // a time. A show it does not list falls back to the live TVmaze lookup below, so this only ever adds.
+  //   { format:"telly-addicts-art", v:1, rev, shows:{ "Bergerac": { p:poster, b:backdrop, s:summary, y:year,
+  //     e:ended, n:network, g:"Crime, Drama", r:rating, i:tvmazeId } } }
+  var artRev = '', artP = null;
+
+  function loadArt() {
+    if (artP) return artP;
+    artP = loadDataIndex().then(function () {
+      var key = 'artdb1:' + (artRev || 'latest'), c = store.get(key);
+      var fresh = c && c.idx && (artRev || Date.now() - c.t < 6 * 3600 * 1000);
+      if (fresh) return c.idx;
+      return getJSON(DATA_BASE + 'art.json').then(function (j) {
+        var idx = {};
+        Object.keys((j && j.shows) || {}).forEach(function (n) { idx[normShow(n)] = j.shows[n]; });
+        try {                                          // only the newest copy is kept
+          for (var k = localStorage.length - 1; k >= 0; k--) {
+            var kn = localStorage.key(k);
+            if (kn && kn !== key && kn.indexOf('artdb1:') === 0) localStorage.removeItem(kn);
+          }
+        } catch (e) { /* ignore */ }
+        store.set(key, { t: Date.now(), idx: idx });
+        return idx;
+      }).then(null, function () { return (c && c.idx) || null; });      // not published yet, or offline
+    }).then(null, function () { return null; });
+    return artP;
+  }
+
+  /** The scraper's artwork entry for a show, or null. A longer title ("Bergerac Christmas Special") also finds its show. */
+  function artShow(name) {
+    return loadArt().then(function (idx) {
+      if (!idx || !name) return null;
+      var words = String(name).split(/\s+/);
+      for (var n = words.length; n >= 1; n--) {
+        var hit = idx[normShow(words.slice(0, n).join(' '))];
+        if (hit && (n > 1 || words.length === 1)) return hit;
+      }
+      return null;
+    });
+  }
+
+  /** TVmaze-shaped details for the Info screen from an art.json entry. */
+  function showFromArt(a, name) {
+    return {
+      name: a.name || name, year: a.y ? String(a.y) : '', ended: a.e ? String(a.e) : '', network: a.n || '',
+      genres: a.g || '', rating: +a.r || 0, summary: a.s || '', poster: https(a.p), background: https(a.b)
+    };
+  }
+
   function tvmFindShow(name, year) {
     return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(name)).then(function (list) {
       return pickShow(list, name, year);
@@ -867,6 +920,26 @@
   }
 
   function tvmInfo(p) {
+    return artShow(p.show).then(function (a) { return a ? infoFromArt(a, p) : tvmInfoLive(p); });
+  }
+
+  /** From the scraper's entry: no search at all, and at most one request (this episode's details, when the id is known). */
+  function infoFromArt(a, p) {
+    var d = { show: showFromArt(a, p.show), ep: null };
+    if (!p.e || !a.i) return Promise.resolve(d);
+    var key = 'info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0), c = store.get(key);
+    if (c && c.d && c.d.ep && Date.now() - c.t < TVM_DAY) return Promise.resolve(Object.assign({}, d, { ep: c.d.ep }));
+    var job = tvmChain.then(function () { return getJSON('https://api.tvmaze.com/shows/' + a.i + '/episodes'); }).then(function (eps) {
+      var hit = (eps || []).filter(function (e) { return e.season === p.s && e.number === p.e; })[0];
+      if (hit) d.ep = { name: hit.name, season: hit.season, number: hit.number, airdate: hit.airdate || '', runtime: hit.runtime || 0, summary: plain(hit.summary), image: https(hit.image && (hit.image.original || hit.image.medium)) };
+      if (d.ep) store.set(key, { t: Date.now(), d: d });
+      return d;
+    }, function () { return d; });
+    tvmChain = job.then(function () { return wait(400); }, function () { return wait(400); });
+    return job;
+  }
+
+  function tvmInfoLive(p) {
     var key = 'info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
     var c = store.get(key);
     if (c && Date.now() - c.t < (c.d ? TVM_DAY : TVM_MISS)) return Promise.resolve(c.d);
@@ -913,6 +986,10 @@
 
   // fanart for the TV guide: just the show's backdrop (search + images), cached for a month
   function tvmArt(p) {
+    return artShow(p.show).then(function (a) { return a && a.b ? { background: https(a.b) } : tvmArtLive(p); });
+  }
+
+  function tvmArtLive(p) {
     var key = 'art2:' + normShow(p.show);
     var c = store.get(key);
     if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.d);

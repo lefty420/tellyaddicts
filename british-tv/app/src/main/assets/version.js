@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.12",
-  "version": "0.12",
-  "code": 1200,
+  "name": "Alpha 0.13",
+  "version": "0.13",
+  "code": 1300,
   "date": "2026-11-10",
   "notes": [
-    "**Artwork that failed to load is looked for again soon, not remembered as \"none\" for a month.** When the guide moved quickly TVmaze turned some requests away, and the app took the refusal as \"this show has no picture\" and kept that answer for 30 days, so those shows stayed bare. A refused request is now retried within the hour, and a show TVmaze genuinely does not know is re-checked after five days. Blank answers saved by earlier versions are cleared, so the shows that missed out get another go"
+    "**Artwork can come ready-made from the scraper.** The scraper looks each show up once and publishes the posters, backdrops and summaries in `data/art.json` (described in `tools/art-contract.md`); the TV reads that first, so a listed show has its picture the first time you reach it, with no searching and nothing to be refused. A show that isn't listed is still looked up on TVmaze as before, so this only adds. Until the scraper publishes the file, nothing changes"
   ],
   "history": [
+    {
+      "name": "Alpha 0.12",
+      "date": "2026-11-10",
+      "notes": [
+        "**Artwork that failed to load is looked for again soon, not remembered as \"none\" for a month.** When the guide moved quickly TVmaze turned some requests away, and the app took the refusal as \"this show has no picture\" and kept that answer for 30 days, so those shows stayed bare. A refused request is now retried within the hour, and a show TVmaze genuinely does not know is re-checked after five days. Blank answers saved by earlier versions are cleared, so the shows that missed out get another go"
+      ]
+    },
     {
       "name": "Alpha 0.11",
       "date": "2026-11-10",
@@ -63,14 +70,6 @@ window.RELEASE = {
       "date": "2026-11-09",
       "notes": [
         "The TMDB logo now sits beside their credit on a film's Info screen and in About & credits, which is what their terms ask for"
-      ]
-    },
-    {
-      "name": "Alpha 0.6",
-      "date": "2026-11-09",
-      "notes": [
-        "**You can see the buffer working.** The on-screen bar now shows how far ahead the programme is loaded, behind the played part, and turns amber with \"on this device\" when the picture is genuinely coming off the box rather than straight from archive.org. Info spells it out in words",
-        "The Movies channel is gone, its films having been split into Kids Films and The Video Shop. Saturday Night TV is channel 23 and The Video Shop is 24"
       ]
     }
   ]

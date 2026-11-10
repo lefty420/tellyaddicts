@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.11",
-  "version": "0.11",
-  "code": 1100,
+  "name": "Alpha 0.12",
+  "version": "0.12",
+  "code": 1200,
   "date": "2026-11-10",
   "notes": [
-    "**The Bill is limited to three episodes a day** on Drama. It makes up about half of what the channel has, so it was crowding everything else out. Now there is one at half past six, then the eight o'clock slot, and the rest of the day belongs to the other dramas. The three change every day, so the week shows twenty-one different episodes, and Drama's schedule now repeats weekly instead of daily"
+    "**Artwork that failed to load is looked for again soon, not remembered as \"none\" for a month.** When the guide moved quickly TVmaze turned some requests away, and the app took the refusal as \"this show has no picture\" and kept that answer for 30 days, so those shows stayed bare. A refused request is now retried within the hour, and a show TVmaze genuinely does not know is re-checked after five days. Blank answers saved by earlier versions are cleared, so the shows that missed out get another go"
   ],
   "history": [
+    {
+      "name": "Alpha 0.11",
+      "date": "2026-11-10",
+      "notes": [
+        "**The Bill is limited to three episodes a day** on Drama. It makes up about half of what the channel has, so it was crowding everything else out. Now there is one at half past six, then the eight o'clock slot, and the rest of the day belongs to the other dramas. The three change every day, so the week shows twenty-one different episodes, and Drama's schedule now repeats weekly instead of daily"
+      ]
+    },
     {
       "name": "Alpha 0.10",
       "date": "2026-11-10",
@@ -64,17 +71,6 @@ window.RELEASE = {
       "notes": [
         "**You can see the buffer working.** The on-screen bar now shows how far ahead the programme is loaded, behind the played part, and turns amber with \"on this device\" when the picture is genuinely coming off the box rather than straight from archive.org. Info spells it out in words",
         "The Movies channel is gone, its films having been split into Kids Films and The Video Shop. Saturday Night TV is channel 23 and The Video Shop is 24"
-      ]
-    },
-    {
-      "name": "Alpha 0.5",
-      "date": "2026-11-09",
-      "notes": [
-        "**A film now plays only if it carries a certificate.** The scraped film list turned out to include pornography sitting next to the children's films, and nothing in the data told them apart, so a film with no certificate is not scheduled at all. Until certificates arrive the film channels find nothing and hide themselves",
-        "Adult material is kept off every channel, whichever list it arrives on",
-        "**New channel 25, The Video Shop**: the rental shelf, scheduled by certificate — family films through the day, 15s from eight, and the 18s only after nine, as they were on television. Checked minute by minute across a full day",
-        "Kids Films and The Video Shop added to the genre lists, with no episode numbers demanded of either",
-        "A film's certificate shows on its Info screen"
       ]
     }
   ]

@@ -28,6 +28,17 @@
     set: function (k, x) { try { localStorage.setItem(k, JSON.stringify(x)); } catch (e) { /* storage full or blocked */ } }
   };
 
+  // Artwork answers remembered by older versions include blank ones from failed requests, kept for a month.
+  // They are thrown away once so those shows get looked up again.
+  try {
+    var gone = [];
+    for (var ki = 0; ki < localStorage.length; ki++) {
+      var kk = localStorage.key(ki);
+      if (kk && (kk.indexOf('art1:') === 0 || kk.indexOf('info2:') === 0)) gone.push(kk);
+    }
+    gone.forEach(function (k2) { localStorage.removeItem(k2); });
+  } catch (e) { /* storage blocked */ }
+
   // ------------------------------------------------------------------ network
 
   var reqId = 0;
@@ -856,7 +867,7 @@
   }
 
   function tvmInfo(p) {
-    var key = 'info2:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
+    var key = 'info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
     var c = store.get(key);
     if (c && Date.now() - c.t < (c.d ? TVM_DAY : TVM_MISS)) return Promise.resolve(c.d);
     var words = p.show.split(/\s+/), tries = [p.show];
@@ -881,7 +892,7 @@
         var bg = (imgs || []).filter(function (x) { return x.type === 'background'; })[0];
         if (bg && bg.resolutions && bg.resolutions.original) d.show.background = https(bg.resolutions.original.url);
         if (!d.show.poster) { var pp = (imgs || []).filter(function (x) { return x.type === 'poster'; })[0]; if (pp) d.show.poster = https(pp.resolutions.original.url); }
-      }, function () { /* no extra pictures */ }).then(function () {
+      }, function () { d.picsFailed = true; /* no extra pictures: try again soon */ }).then(function () {
         if (!p.e) return d;
         return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + sh.id + '/episodes'); }).then(function (eps) {
           var hit = (eps || []).filter(function (e) { return e.season === p.s && e.number === p.e; })[0];
@@ -891,12 +902,18 @@
       });
     });
     tvmChain = job.then(function () { return wait(400); }, function () { return wait(400); });
-    return job.then(function (d) { store.set(key, { t: Date.now(), d: d || null }); return d; });
+    return job.then(function (d) {
+      // a show with no pictures only because that request failed is looked at again in an hour, not in a month
+      var age = d && d.picsFailed ? TVM_DAY - 3600 * 1000 : 0;
+      if (d) delete d.picsFailed;
+      store.set(key, { t: Date.now() - age, d: d || null });
+      return d;
+    });
   }
 
   // fanart for the TV guide: just the show's backdrop (search + images), cached for a month
   function tvmArt(p) {
-    var key = 'art1:' + normShow(p.show);
+    var key = 'art2:' + normShow(p.show);
     var c = store.get(key);
     if (c && Date.now() - c.t < TVM_DAY) return Promise.resolve(c.d);
     var words = p.show.split(/\s+/), tries = [p.show];
@@ -910,14 +927,20 @@
       }
       return next();
     }).then(function (sh) {
-      if (!sh) return { background: '' };
+      if (!sh) return { background: '', miss: true };
       return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + sh.id + '/images'); }).then(function (imgs) {
         var bg = (imgs || []).filter(function (x) { return x.type === 'background'; })[0];
         return { background: bg && bg.resolutions && bg.resolutions.original ? https(bg.resolutions.original.url) : '' };
-      }, function () { return { background: '' }; });
+      }, function () { return { background: '', failed: true }; });     // rate-limited or offline: not that the show has none
     });
     tvmChain = job.then(function () { return wait(400); }, function () { return wait(400); });
-    return job.then(function (d) { store.set(key, { t: Date.now(), d: d }); return d; });
+    return job.then(function (d) {
+      // A show TVmaze does not have is re-checked in days, and a request that merely failed in an hour; only a real
+      // answer is kept for a month. Remembering a failure for a month is how shows went without artwork for good.
+      var age = d.failed ? TVM_DAY - 3600 * 1000 : d.miss ? TVM_DAY - TVM_MISS : 0;
+      store.set(key, { t: Date.now() - age, d: { background: d.background } });
+      return d;
+    });
   }
 
   function guideArt(prog) {

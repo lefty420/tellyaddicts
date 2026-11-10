@@ -2203,9 +2203,9 @@
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
     if (id === 'keep') return KEEP[keepIdx].label;
-    if (id === 'refresh') return refreshArmed ? 'Press OK again' : 'Press OK';
+    if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'rel') return relName();
-    if (id === 'about' || id === 'log') return 'Press OK';
+    if (id === 'about' || id === 'log') return '';
     return autoEpg ? 'On' : 'Off';
   }
 
@@ -2218,11 +2218,27 @@
   }
 
   var ACTION = { refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
+  // one line under the list saying what the highlighted row is for
+  var OPT_HELP = {
+    ar: 'Auto, 4:3, 16:9, Zoom or Stretch. Auto shows each programme in the ratio it was made in.',
+    fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness.',
+    gart: 'Posters and backdrops in the guide and on the bar. Off keeps things plain.',
+    ads: 'Adverts between programmes, from the decade you choose. UK first, and never on the BBC.',
+    buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
+    auto: 'Builds every channel from the scraper\u2019s whole library instead of the hand-picked lists.',
+    keep: 'How long a channel\u2019s line-up stays as it is before it is built afresh.',
+    refresh: 'Throws away every line-up and builds them all again in a new running order.',
+    rel: 'What changed in this version and the ones before it.',
+    about: 'Where the programmes, artwork and details come from.',
+    log: 'What failed to play and why, ready to send when something goes wrong.'
+  };
   function renderOpts() {
     OPTS.forEach(function (id, i) {
       $('ov-' + id).textContent = optValue(id);
       $('or-' + id).className = 'orow' + (ACTION[id] ? ' act' : '') + (i === optsSel ? ' sel' : '');
     });
+    $('ohelp').textContent = OPT_HELP[OPTS[optsSel]] || '';
+    $('over').textContent = relName();
   }
   function openOpts() {
     closeOsd();

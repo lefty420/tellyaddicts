@@ -281,18 +281,29 @@
     font-size: 2.5vh; font-weight: 600; background: rgba(255,255,255,.1); border-radius: .7vh; white-space: nowrap; }
   .ob .ic { font-size: 2.6vh; }
   .ob.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
-  #opts { position: fixed; right: 4vw; bottom: 5vh; z-index: 60; }
+  /* Options: a sheet down the right-hand side, grouped, with a line explaining the highlighted row */
+  #opts { position: fixed; right: 0; top: 0; bottom: 0; z-index: 60; }
   #opts.hidden { display: none; }
-  #opanel { width: 46vw; padding: 2.6vh 2vw 2vh; border-radius: 1.2vh; background: linear-gradient(180deg, #0c2a86, #07184f); border: .25vh solid rgba(255,255,255,.35); box-shadow: 0 1vh 4vh rgba(0,0,0,.6); }
-  #opanel h2 { margin: 0 0 1.6vh; font-size: 2.2vh; letter-spacing: .25em; text-transform: uppercase; color: rgba(255,255,255,.7); font-weight: 600; }
-  .orow { display: flex; justify-content: space-between; align-items: center; gap: 2vw; padding: 1.25vh 1.2vw; margin-bottom: .7vh; border-radius: .7vh; font-size: 2.6vh; background: rgba(255,255,255,.1); }
+  #opanel { box-sizing: border-box; height: 100%; width: 40vw; padding: 4.4vh 2.6vw 4.6vh; display: flex; flex-direction: column;
+    background: linear-gradient(180deg, rgba(12,42,134,.97), rgba(7,24,79,.98) 60%, rgba(3,13,54,.99));
+    border-left: .3vh solid var(--hi1); box-shadow: -2vw 0 6vw rgba(0,0,0,.55); }
+  #ohead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2vh; }
+  #opanel h2 { margin: 0; font-size: 4.4vh; font-weight: 800; letter-spacing: -.01em; color: #fff; }
+  #over { font-size: 1.9vh; color: rgba(255,255,255,.55); font-weight: 600; }
+  #opanel h3 { margin: 1.9vh 0 .4vh; font-size: 1.65vh; letter-spacing: .28em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
+  .orow { display: flex; justify-content: space-between; align-items: center; gap: 2vw; padding: .9vh 1vw; margin: 0 -1vw;
+    border-radius: .7vh; font-size: 2.5vh; border-bottom: .12vh solid rgba(255,255,255,.08); }
   .orow b { font-weight: 600; }
-  .orow span { font-weight: 700; }
-  .orow.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
+  .orow span { font-weight: 600; color: rgba(190,208,255,.92); text-align: right; }
+  .orow.act span::after { content: '  \203A'; color: rgba(255,255,255,.5); }
+  .orow.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); border-bottom-color: transparent;
+    box-shadow: 0 .4vh 1.4vh rgba(0,0,0,.35); }
+  .orow.sel span { color: var(--ink); font-weight: 800; }
   .orow.sel span::before { content: '\25C0  '; } .orow.sel span::after { content: '  \25B6'; }
-  #opanel p { margin: 1.4vh 0 0; font-size: 1.9vh; color: rgba(255,255,255,.6); }
   /* rows that do something on OK rather than cycling through values: no left/right arrows */
-  .orow.sel.act span::before, .orow.sel.act span::after { content: ''; }
+  .orow.sel.act span::before { content: ''; } .orow.sel.act span::after { content: '  \203A'; color: var(--ink); }
+  #ohelp { margin-top: auto; padding-top: 1.6vh; min-height: 6.4vh; font-size: 2.15vh; line-height: 1.45; color: rgba(255,255,255,.88); }
+  #opanel p { margin: 1.2vh 0 0; padding-top: 1.2vh; border-top: .12vh solid rgba(255,255,255,.14); font-size: 1.7vh; color: rgba(255,255,255,.5); }
   /* What's new: this release's notes, and the ones before it */
   #rel { position: fixed; inset: 0; z-index: 61; color: #fff; background: linear-gradient(180deg, #0c2a86, #07184f 55%, #030d36); overflow: hidden; }
   #rel.hidden { display: none; }
@@ -353,18 +364,23 @@
 </div>
 <div id="opts" class="hidden">
   <div id="opanel">
-    <h2>Options</h2>
-    <div class="orow" id="or-ar"><b>Picture</b><span id="ov-ar"></span></div>
+    <div id="ohead"><h2>Options</h2><span id="over"></span></div>
+    <h3>Picture</h3>
+    <div class="orow" id="or-ar"><b>Aspect ratio</b><span id="ov-ar"></span></div>
     <div class="orow" id="or-fx"><b>Enhancements</b><span id="ov-fx"></span></div>
-    <div class="orow" id="or-gart"><b>Extra metadata</b><span id="ov-gart"></span></div>
+    <h3>On screen</h3>
+    <div class="orow" id="or-gart"><b>Artwork</b><span id="ov-gart"></span></div>
     <div class="orow" id="or-ads"><b>Adverts</b><span id="ov-ads"></span></div>
+    <h3>Playback &amp; listings</h3>
     <div class="orow" id="or-buf"><b>Buffer</b><span id="ov-buf"></span></div>
     <div class="orow" id="or-auto"><b>Auto EPG (experimental)</b><span id="ov-auto"></span></div>
     <div class="orow" id="or-keep"><b>Keep listings for</b><span id="ov-keep"></span></div>
     <div class="orow act" id="or-refresh"><b>Refresh listings</b><span id="ov-refresh"></span></div>
+    <h3>About</h3>
     <div class="orow act" id="or-rel"><b>What&rsquo;s new</b><span id="ov-rel"></span></div>
     <div class="orow act" id="or-about"><b>About &amp; credits</b><span id="ov-about"></span></div>
     <div class="orow act" id="or-log"><b>Debug log</b><span id="ov-log"></span></div>
+    <div id="ohelp"></div>
     <p>Up / Down to choose &nbsp;&middot;&nbsp; Left / Right or OK to change &nbsp;&middot;&nbsp; Back to close</p>
   </div>
 </div>

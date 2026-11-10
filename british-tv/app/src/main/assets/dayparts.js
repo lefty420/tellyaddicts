@@ -191,7 +191,48 @@
     }
   };
 
-  var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, thebill: DRAMA };
+  // ---------------------------------------------------------------- Soaps
+
+  var NEIGHBOURS = mentions(['neighbours']);
+  var HOMEAWAY = mentions(['home and away']);
+  var CROSSROADS = mentions(['crossroads']);
+  var EASTENDERS = mentions(['eastenders']);
+  var EMMERDALE = mentions(['emmerdale']);
+  var CORRIE = mentions(['coronation street', 'brookside', 'hollyoaks', 'albion market']);
+  function named(p) { return NEIGHBOURS(p) || HOMEAWAY(p) || CROSSROADS(p) || EASTENDERS(p) || EMMERDALE(p) || CORRIE(p); }
+
+  /** Each soap at about the time it went out: Neighbours at lunch and teatime, Crossroads and Home and Away early
+   *  evening, Emmerdale at seven, EastEnders at half past, and the rest of the evening's serials after them. A
+   *  soap the library has only a few episodes of is topped up from the others rather than repeating itself. */
+  var SOAPS = {
+    cycle: 'day',
+    filler: function (progs) { return progs.filter(shorter(900)); },
+    make: function (progs) {
+      var rest = progs.filter(function (p) { return !named(p); });
+      function pool(want, min) {
+        var items = progs.filter(want);
+        return items.length >= (min || 1) ? (items.length >= 6 || !rest.length ? items : items.concat(rest)) : [];
+      }
+      // the daytime and late-night serials: the smaller soaps, with Crossroads (by far the biggest) to stop them repeating
+      var all = rest.concat(progs.filter(CROSSROADS));
+      if (!all.length) all = progs;
+      var plan = [
+        [secs(6, 0), false, all],                               // daytime: the soaps that had no fixed slot
+        [secs(13, 45), true, pool(NEIGHBOURS)],                 // lunchtime Neighbours
+        [secs(14, 15), false, all],
+        [secs(17, 0), false, pool(CROSSROADS)],                 // the early-evening ITV serial
+        [secs(17, 35), true, pool(NEIGHBOURS)],                 // teatime Neighbours
+        [secs(18, 5), false, pool(HOMEAWAY)],
+        [secs(19, 0), true, pool(EMMERDALE)],
+        [secs(19, 30), true, pool(EASTENDERS)],
+        [secs(20, 0), true, pool(CORRIE)],
+        [secs(20, 30), false, all]                              // the rest of the night, until six
+      ];
+      return plan.filter(function (b) { return b[2].length; }).map(function (b) { return { at: b[0], exact: b[1], items: b[2] }; });
+    }
+  };
+
+  var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, thebill: DRAMA, soaps: SOAPS };
 
   /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. */
   function schedule(channelId, progs, seed) {

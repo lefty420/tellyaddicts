@@ -99,10 +99,10 @@
         var genre = channelsFor(sh.n, ep.t, smap, keys);
         var forKids = genre.some(function (c) { return KIDS[c]; });
         var also = [];
-        // the broadcaster's own channel, as well as wherever the genre lists put it
-        // (a soap has its own channel; on the broadcaster's it would swamp everything else the BBC or ITV made)
-        var soap = genre.indexOf('soaps') >= 0;
-        if (net && !forKids && !soap) also.push(net);
+        // the broadcaster's own channel, as well as wherever the genre lists put it. A soap is on the Soaps channel
+        // and on its broadcaster's too (EastEnders is on BBC and on Soaps); the 25% cap per show keeps one long
+        // soap from filling the broadcaster's channel
+        if (net && !forKids) also.push(net);
         // and a Christmas episode goes to the Christmas channel of the right sort
         if (ep.xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
         var chs = also.length ? uniqSorted(genre.concat(also)) : genre;

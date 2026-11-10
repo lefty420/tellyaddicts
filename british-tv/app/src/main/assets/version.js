@@ -1,14 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.25.2",
-  "version": "0.25.2",
-  "code": 2502,
+  "name": "Alpha 0.25.3",
+  "version": "0.25.3",
+  "code": 2503,
   "date": "2026-11-10",
   "notes": [
-    "**A video file is a video file.** The library lists may carry mp4, m4v or mkv and the app no longer treats the formats differently: the special \"prefer an mp4 over an mkv\" rule is gone (the scraper already sends the best copy of each episode, and the usual duplicate check still prefers archive.org's small `.ia.mp4` copy), and the on-device buffer hands the player the type archive.org reports for the file instead of working it out from the name"
+    "**Soaps are on the Soaps channel and on their broadcaster's channel.** EastEnders is on BBC and on Soaps, Emmerdale and Crossroads on ITV and on Soaps, and so on; every soap the library has goes to Soaps. (They had been kept off BBC and ITV.) The 25% cap per show still stops one long soap from filling BBC or ITV",
+    "**A brief server error from archive.org is no longer the end of a programme.** The debug log showed Bananaman, News 24 and others all failing in the same few minutes with archive.org answering 500 or 502 and then playing normally a moment later. The on-device buffer now asks again, twice, before giving up",
+    "**A programme that had started playing is no longer given up on** if it paused to buffer: the 25 second check applies only to one that never got going (The Witches was skipped after playing for 20 seconds, and marked slow for two weeks)",
+    "Missing On Demand episode guides are no longer listed as failures in the debug log, and scrolling quickly down the shows asks for a guide only when the highlight rests"
   ],
   "history": [
+    {
+      "name": "Alpha 0.25.2",
+      "date": "2026-11-10",
+      "notes": [
+        "**A video file is a video file.** The library lists may carry mp4, m4v or mkv and the app no longer treats the formats differently: the special \"prefer an mp4 over an mkv\" rule is gone (the scraper already sends the best copy of each episode, and the usual duplicate check still prefers archive.org's small `.ia.mp4` copy), and the on-device buffer hands the player the type archive.org reports for the file instead of working it out from the name"
+      ]
+    },
     {
       "name": "Alpha 0.25.1",
       "date": "2026-11-10",
@@ -61,13 +71,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**On Demand can be reached with the arrow keys and OK alone.** In the guide there is an **On Demand** button beside the clock: press Up from the first channel to reach it, then OK (Down goes back to the channels). While watching, the OK bar has an **On Demand** button beside Options. The coloured-button and Menu shortcuts still work for remotes that have them"
-      ]
-    },
-    {
-      "name": "Alpha 0.23.1",
-      "date": "2026-11-10",
-      "notes": [
-        "**The blue button opens On Demand**, in the guide (where its legend now says so; Blue used to repeat OK's \"Watch\") and while watching. Options > On Demand still works"
       ]
     }
   ]

@@ -140,7 +140,7 @@
     if (status >= 200 && status < 300) p.res(body);
     else {
       // files that are optional until the scraper publishes them (art.json, routes.json) are not faults
-      if (!/\/data\/(art|routes)\.json$/.test(p.url || '') && ++httpFails <= 40) dlog('REQUEST FAILED ' + (status || 'no answer') + '  ' + p.url);
+      if (!/\/data\/(art|routes)\.json$|\/data\/eps\//.test(p.url || '') && ++httpFails <= 40) dlog('REQUEST FAILED ' + (status || 'no answer') + '  ' + p.url);
       p.rej(new Error('HTTP ' + status));
     }
   };
@@ -1421,7 +1421,7 @@
     }, 30000);
     setTimeout(function () {
       // header arrived but it still can't play 25 s in (slow index/seek on a mid-programme join): move on, and remember it
-      if (cur === meOne && !meOne.ad && v.readyState < 3) {
+      if (cur === meOne && !meOne.ad && !meOne.played && v.readyState < 3) {    // not one that did start and then paused to buffer
         dlog('GAVE UP after 25s: it never got going (' + playState() + ')');
         diagnose(prog.url); markSlow(prog.id); nextInChannel();
       }
@@ -1761,6 +1761,7 @@
   v.addEventListener('playing', function () {
     spinOff();
     hideStatic();
+    if (cur) cur.played = true;
     if (cur) { cur.errors = 0; cur.trial = null; }   // it started fine: no going back
   });
   v.addEventListener('ended', onEnded);
@@ -2872,10 +2873,12 @@
     }
   }
   /** Under the episode list: the highlighted episode's still and summary, or else the show's own. */
+  var odMetaTimer = null;
   function odDetail(g) {
     var row = g && g.rows[odEi], m = row && row.p && g.meta && g.meta[row.s + 'x' + row.e];
     var img = $('oddimg'), t = '', body = '';
-    if (g && !g.metaP) odMeta(g).then(function () { if (odOpen && odShow() === g) odRender(); });
+    clearTimeout(odMetaTimer);           // only once the highlight has rested: scrolling past 50 shows should not ask for 50 guides
+    if (g && !g.metaP) odMetaTimer = setTimeout(function () { if (odOpen && odShow() === g) odMeta(g).then(function () { if (odOpen && odShow() === g) odRender(); }); }, 350);
     if (g && g.art === undefined) { g.art = null; artShow(g.name).then(function (a) { g.art = a || null; if (odOpen && odShow() === g) odRender(); }); }
     var pic = (m && m.img) || '';
     if (m) {

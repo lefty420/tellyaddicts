@@ -247,14 +247,30 @@ final class MediaCache {
             Thread me = Thread.currentThread();
             HttpURLConnection c = null;
             try (FileOutputStream out = new FileOutputStream(file)) {
-                c = (HttpURLConnection) new URL(url).openConnection();
-                c.setConnectTimeout(15000);
-                c.setReadTimeout(30000);
-                c.setRequestProperty("User-Agent", "BritishTV/1.0 (Android TV)");
-                if (base > 0) {
-                    c.setRequestProperty("Range", "bytes=" + base + "-");
+                int status;
+                // archive.org's servers answer 500, 502 or 503 now and then, and the same file is fine a moment later
+                // (seen in the debug log: Bananaman, News 24 and others all failed in the same minutes and then
+                // answered normally). Ask again a couple of times before giving up on it.
+                for (int attempt = 0; ; attempt++) {
+                    c = (HttpURLConnection) new URL(url).openConnection();
+                    c.setConnectTimeout(15000);
+                    c.setReadTimeout(30000);
+                    c.setRequestProperty("User-Agent", "BritishTV/1.0 (Android TV)");
+                    if (base > 0) {
+                        c.setRequestProperty("Range", "bytes=" + base + "-");
+                    }
+                    status = c.getResponseCode();
+                    if (status < 500 || attempt >= 2 || dead || puller != me) {
+                        break;
+                    }
+                    owner.note("archive.org answered " + status + ", trying again (" + (attempt + 1) + " of 2)");
+                    c.disconnect();
+                    try {
+                        Thread.sleep(1500L * (attempt + 1));
+                    } catch (InterruptedException e) {
+                        return;
+                    }
                 }
-                int status = c.getResponseCode();
                 String ct = c.getHeaderField("Content-Type");
                 if (ct != null) {
                     type = ct.split(";")[0].trim().toLowerCase();

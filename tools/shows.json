@@ -711,11 +711,11 @@
     ]
   },
   "bbc": {
-    "name": "BBC: everything else the BBC made (soaps have their own channel)",
+    "name": "BBC: everything the BBC made, soaps included (they are on the Soaps channel too)",
     "shows": []
   },
   "itv": {
-    "name": "ITV: everything else ITV made (soaps have their own channel)",
+    "name": "ITV: everything ITV made, soaps included (they are on the Soaps channel too)",
     "shows": []
   }
 }

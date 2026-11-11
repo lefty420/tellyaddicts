@@ -2712,14 +2712,6 @@
     return true;
   }
 
-  window.addEventListener('keyup', function (e) {
-    if ((e.key === 'Enter' || e.key === ' ') && odDownAt) {
-      clearTimeout(odLong);
-      var held = odHeld;
-      odDownAt = 0; odHeld = false;
-      if (!held && odOpen && !odm) odKey('Enter');
-    }
-  });
   window.addEventListener('keydown', function (e) {
     if (!started) {
       if (e.key === 'GoBack' || e.key === 'Escape' || e.key === 'Backspace') { exitApp(); e.preventDefault(); }
@@ -2746,14 +2738,7 @@
       return;
     }
 
-    if (odOpen) {
-      if (k === 'Enter' || k === ' ') {
-        // a tap acts when the button comes up; holding it opens the artwork menu instead
-        if (!odm) { if (!e.repeat) odPress(); e.preventDefault(); return; }
-        if (e.repeat) { e.preventDefault(); return; }      // the rest of the hold that opened the menu
-      }
-      odKey(k); e.preventDefault(); return;
-    }
+    if (odOpen) { odKey(k); e.preventDefault(); return; }
     if (k === 'Menu' || k === 'ContextMenu') { odOpenUi(); e.preventDefault(); return; }
 
     if (guideOpen) {
@@ -3102,8 +3087,8 @@
     odLoadChannel(c).then(function () { if (odOpen && odSel().c === c) odRender(); });
   }
   function odKey(k) {
-    if (odm) return odmKey(k);
-    if (k === 'Menu' || k === 'ContextMenu') { odmOpen(); return true; }
+    if (odm) return k === 'Info' ? true : odmKey(k);
+    if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') { odmOpen(); return true; }   // a held OK arrives as Info (see MainActivity)
     if (k === 'Guide' || k === 'Red') { odClose(false); openGuide(); return true; }
     if (odView === 'show') return odKeyShow(k);
     var s = odSel(), c = s.c, sh = s.sh, pos = c ? (odPos[c.id] || 0) : 0;
@@ -3144,12 +3129,7 @@
   }
   // ---- artwork menu: hold OK (or Menu) on a show. Scrape it again, choose the right show, or pick a poster or background
   // from what TVmaze has, like the scrapers in Kodi. What is picked is kept on this TV and used from then on.
-  var odm = null, odDownAt = 0, odHeld = false, odLong = null;
-  function odPress() {
-    odDownAt = Date.now(); odHeld = false;
-    clearTimeout(odLong);
-    odLong = setTimeout(function () { odHeld = true; if (odOpen && !odm) odmOpen(); }, 550);
-  }
+  var odm = null;
   function tvmEntry(s) {
     var net = (s.network && s.network.name) || (s.webChannel && s.webChannel.name) || '';
     var o = { name: s.name, i: s.id, p: https(s.image && (s.image.original || s.image.medium)), b: '', n: net,

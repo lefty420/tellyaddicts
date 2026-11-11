@@ -2907,7 +2907,7 @@
       else if (gOd && k === 'ArrowUp') { gOdSet(false); gMove(-1, true); }
       else if (gOd && k === 'ArrowRight') gOdSet(false);
       else if (gOd && (k === 'ArrowLeft' || k === 'ChannelUp' || k === 'ChannelDown')) { /* nothing to move along */ }
-      else if (k === 'ArrowUp') { if (gRow === 0) gOdSet(true); else gMove(-1, true); }
+      else if (k === 'ArrowUp') gMove(-1, true);                      // from the first channel it wraps round to the last (the On Demand button is reached with Left)
       else if (k === 'ArrowDown') gMove(1, true);
       else if (k === 'ChannelUp') gMove(-(VISIBLE_ROWS - 1), false);
       else if (k === 'ChannelDown') gMove(VISIBLE_ROWS - 1, false);

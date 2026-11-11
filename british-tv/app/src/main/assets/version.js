@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.35.1",
-  "version": "0.35.1",
-  "code": 3501,
+  "name": "Alpha 0.36",
+  "version": "0.36",
+  "code": 3600,
   "date": "2026-11-11",
   "notes": [
-    "**Episode pictures load faster.** The scraper's episode guides (now published for 431 shows) point at TVmaze's full-size stills, which a TV is slow to decode. The app asks for the medium size, which is plenty for the thumbnail next to each episode."
+    "**The guide goes round.** Pressing Up on the first channel now takes you to the last one, and Down on the last goes back to the first. The On Demand button is still reached with Left from what is on now."
   ],
   "history": [
+    {
+      "name": "Alpha 0.35.1",
+      "date": "2026-11-11",
+      "notes": [
+        "**Episode pictures load faster.** The scraper's episode guides (now published for 431 shows) point at TVmaze's full-size stills, which a TV is slow to decode. The app asks for the medium size, which is plenty for the thumbnail next to each episode."
+      ]
+    },
     {
       "name": "Alpha 0.35",
       "date": "2026-11-11",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**Food & Cooking now has programmes.** The channel came up empty: the TV only looked at the library routing and never at the channel's own list, and most cookery files have no episode numbers in their names. Both fixed, so Two Fat Ladies, Floyd, Delia, Ready Steady Cook and the rest play."
-      ]
-    },
-    {
-      "name": "Alpha 0.31",
-      "date": "2026-11-11",
-      "notes": [
-        "**New channel: Food & Cooking (26).** Delia, Keith Floyd, Rick Stein, Ready Steady Cook, Two Fat Ladies, Masterchef, Ken Hom, Madhur Jaffrey and the other classic cookery shows, built from the scraper's new cooking library. Adverts are UK prime-time style, and it shows in On Demand like every other channel."
       ]
     }
   ]

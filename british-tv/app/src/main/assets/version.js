@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.28",
-  "version": "0.28",
-  "code": 2800,
+  "name": "Alpha 0.29",
+  "version": "0.29",
+  "code": 2900,
   "date": "2026-11-11",
   "notes": [
-    "**A new On Demand.** A banner for the show you are on, then a row of posters for each channel (Left and Right along a row, Up and Down between channels, OK to open). A show opens on its own page with its poster, details, a Play button, season chips and the episode list. Real seasons come first in order; anything that does not fit a season (specials, unnumbered files) is under \"Other videos\" at the end, and a show with no seasons is one list. Flat colours and an outline for focus keep it light on older boxes."
+    "**Fix the artwork from On Demand.** Hold OK on a show (or press Menu) for a menu: Scrape artwork (looks the show up on TVmaze again and takes a clear match), Choose the right show (a list of TVmaze matches with year, network and genre), Choose a poster, Choose a background (pick from what TVmaze has), and Back to automatic. What you pick is kept on this TV and used everywhere, and the choice is written to the debug log. A short press on OK still opens or plays as before.",
+    "**Episode pictures.** An episode with no still of its own now shows archive.org's picture for its file when that file holds just that episode."
   ],
   "history": [
+    {
+      "name": "Alpha 0.28",
+      "date": "2026-11-11",
+      "notes": [
+        "**A new On Demand.** A banner for the show you are on, then a row of posters for each channel (Left and Right along a row, Up and Down between channels, OK to open). A show opens on its own page with its poster, details, a Play button, season chips and the episode list. Real seasons come first in order; anything that does not fit a season (specials, unnumbered files) is under \"Other videos\" at the end, and a show with no seasons is one list. Flat colours and an outline for focus keep it light on older boxes."
+      ]
+    },
     {
       "name": "Alpha 0.27",
       "date": "2026-11-11",
@@ -57,16 +65,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**Shows the scraper has removed for good stay off the TV.** When the scraper publishes `data/removed-shows.json` (and `removed` in `index.json`), those shows are left out of every channel and out of On Demand, whatever the lists say. C.O.P.S. is the first; it is also gone from `tools/shows.json`"
-      ]
-    },
-    {
-      "name": "Alpha 0.25.3",
-      "date": "2026-11-10",
-      "notes": [
-        "**Soaps are on the Soaps channel and on their broadcaster's channel.** EastEnders is on BBC and on Soaps, Emmerdale and Crossroads on ITV and on Soaps, and so on; every soap the library has goes to Soaps. (They had been kept off BBC and ITV.) The 25% cap per show still stops one long soap from filling BBC or ITV",
-        "**A brief server error from archive.org is no longer the end of a programme.** The debug log showed Bananaman, News 24 and others all failing in the same few minutes with archive.org answering 500 or 502 and then playing normally a moment later. The on-device buffer now asks again, twice, before giving up",
-        "**A programme that had started playing is no longer given up on** if it paused to buffer: the 25 second check applies only to one that never got going (The Witches was skipped after playing for 20 seconds, and marked slow for two weeks)",
-        "Missing On Demand episode guides are no longer listed as failures in the debug log, and scrolling quickly down the shows asks for a guide only when the highlight rests"
       ]
     }
   ]

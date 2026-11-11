@@ -1017,6 +1017,8 @@
 
   /** The scraper's artwork entry for a show, or null. A longer title ("Bergerac Christmas Special") also finds its show. */
   function artShow(name) {
+    var fx = name ? store.get('artfix:' + normShow(name)) : null;
+    if (fx && fx.a) return Promise.resolve(fx.a);        // picked by hand on this TV
     return loadArt().then(function (idx) {
       if (!idx || !name) return null;
       var words = String(name).split(/\s+/);
@@ -1050,7 +1052,8 @@
     if (!p.show) return null;
     if (!artP) loadArt();
     var out = { poster: '', back: '' };
-    var a = artIdx && (function () {
+    var fxa = store.get('artfix:' + normShow(p.show));
+    var a = (fxa && fxa.a) || artIdx && (function () {
       var w = p.show.split(/\s+/);
       for (var n = w.length; n >= 1; n--) { var h = artIdx[normShow(w.slice(0, n).join(' '))]; if (h && (n > 1 || w.length === 1)) return h; }
       return null;
@@ -2709,6 +2712,14 @@
     return true;
   }
 
+  window.addEventListener('keyup', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && odDownAt) {
+      clearTimeout(odLong);
+      var held = odHeld;
+      odDownAt = 0; odHeld = false;
+      if (!held && odOpen && !odm) odKey('Enter');
+    }
+  });
   window.addEventListener('keydown', function (e) {
     if (!started) {
       if (e.key === 'GoBack' || e.key === 'Escape' || e.key === 'Backspace') { exitApp(); e.preventDefault(); }
@@ -2735,7 +2746,14 @@
       return;
     }
 
-    if (odOpen) { odKey(k); e.preventDefault(); return; }
+    if (odOpen) {
+      if (k === 'Enter' || k === ' ') {
+        // a tap acts when the button comes up; holding it opens the artwork menu instead
+        if (!odm) { if (!e.repeat) odPress(); e.preventDefault(); return; }
+        if (e.repeat) { e.preventDefault(); return; }      // the rest of the hold that opened the menu
+      }
+      odKey(k); e.preventDefault(); return;
+    }
     if (k === 'Menu' || k === 'ContextMenu') { odOpenUi(); e.preventDefault(); return; }
 
     if (guideOpen) {
@@ -2818,6 +2836,9 @@
     g.eps.forEach(function (ep) { if (ep.s > 0) (by[ep.s] = by[ep.s] || []).push(ep); else other.push(ep); });
     Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (n) { list.push({ name: 'Season ' + n, eps: by[n] }); });
     if (other.length) list.push({ name: list.length ? 'Other videos' : 'Videos', eps: other });
+    var per = {};
+    g.eps.forEach(function (ep) { var m = /\/download\/([^/]+)\//.exec(ep.p.url || ''); ep.item = m ? m[1] : ''; if (ep.item) per[ep.item] = (per[ep.item] || 0) + 1; });
+    g.eps.forEach(function (ep) { ep.thumb = ep.item && per[ep.item] === 1 ? 'https://archive.org/services/img/' + ep.item : ''; });   // a shared item would repeat one picture
     g.sea = list;
     g.flat = [];
     list.forEach(function (sn) { g.flat = g.flat.concat(sn.eps); });
@@ -3015,8 +3036,12 @@
     for (var j = top; j < Math.min(list.length, top + OD_EPS); j++) {
       var ep = list[j], m = g.meta && g.meta[ep.s + 'x' + ep.e], row = odEl('div', 'ode' + (j === odEi && odZone === 2 ? ' sel' : ''));
       row.appendChild(odEl('i', '', ep.s > 0 ? String(ep.e) : '•'));
-      if (m && m.img) { var im = document.createElement('img'); im.alt = ''; im.src = m.img; row.appendChild(im); }
-      else { var th = odEl('div', 'odth'); th.style.backgroundImage = odTone(g.name); row.appendChild(th); }
+      var still = (m && m.img) || ep.thumb;
+      if (still) {
+        var im = document.createElement('img'); im.alt = '';
+        im.onerror = function () { var t = odEl('div', 'odth'); t.style.backgroundImage = odTone(g.name); if (this.parentNode) this.parentNode.replaceChild(t, this); };
+        im.src = still; row.appendChild(im);
+      } else { var th = odEl('div', 'odth'); th.style.backgroundImage = odTone(g.name); row.appendChild(th); }
       var tx = odEl('div'); tx.appendChild(odEl('b', '', odEpTitle(ep, m)));
       if (m && m.d) tx.appendChild(odEl('small', '', m.d));
       row.appendChild(tx);
@@ -3077,6 +3102,8 @@
     odLoadChannel(c).then(function () { if (odOpen && odSel().c === c) odRender(); });
   }
   function odKey(k) {
+    if (odm) return odmKey(k);
+    if (k === 'Menu' || k === 'ContextMenu') { odmOpen(); return true; }
     if (k === 'Guide' || k === 'Red') { odClose(false); openGuide(); return true; }
     if (odView === 'show') return odKeyShow(k);
     var s = odSel(), c = s.c, sh = s.sh, pos = c ? (odPos[c.id] || 0) : 0;
@@ -3113,6 +3140,152 @@
       else if (list[odEi]) { odPlay(list[odEi]); return true; }
     } else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odShowView(false); }
     odRender();
+    return true;
+  }
+  // ---- artwork menu: hold OK (or Menu) on a show. Scrape it again, choose the right show, or pick a poster or background
+  // from what TVmaze has, like the scrapers in Kodi. What is picked is kept on this TV and used from then on.
+  var odm = null, odDownAt = 0, odHeld = false, odLong = null;
+  function odPress() {
+    odDownAt = Date.now(); odHeld = false;
+    clearTimeout(odLong);
+    odLong = setTimeout(function () { odHeld = true; if (odOpen && !odm) odmOpen(); }, 550);
+  }
+  function tvmEntry(s) {
+    var net = (s.network && s.network.name) || (s.webChannel && s.webChannel.name) || '';
+    var o = { name: s.name, i: s.id, p: https(s.image && (s.image.original || s.image.medium)), b: '', n: net,
+              y: s.premiered ? String(s.premiered).slice(0, 4) : '', e: s.ended ? String(s.ended).slice(0, 4) : '',
+              g: (s.genres || []).join(', '), s: plain(s.summary) };
+    if (s.rating && s.rating.average) o.r = s.rating.average;
+    return o;
+  }
+  function tvmImages(id) {
+    return getJSON('https://api.tvmaze.com/shows/' + id + '/images').then(function (l) { return Array.isArray(l) ? l : []; }, function () { return []; });
+  }
+  function odImgUrl(x, full) {
+    var r = x && x.resolutions || {};
+    return https(((full ? r.original : (r.medium || r.original)) || { url: x && x.main || '' }).url);
+  }
+  function odFixDone(g, entry, msg) {
+    store.set('artfix:' + normShow(g.name), { a: entry });
+    try { localStorage.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
+    g.art = entry; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = '';
+    dlog('ARTWORK picked for ' + g.name + ': ' + (entry.name || '') + ' (TVmaze ' + (entry.i || '?') + ')' + (entry.p ? ' poster ' + entry.p : '') + (entry.b ? ' background ' + entry.b : ''));
+    odmClose(); toast(msg, 3500);
+    if (odView === 'show') odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });
+    odRender();
+  }
+  function odmOpen() {
+    var g = odSel().g;
+    if (!g) return;
+    odm = { mode: 'menu', g: g, i: 0, items: [
+      { t: 'Scrape artwork', f: function () { odmScrape(g); } },
+      { t: 'Choose the right show', f: function () { odmShows(g); } },
+      { t: 'Choose a poster', f: function () { odmPics(g, 'poster'); } },
+      { t: 'Choose a background', f: function () { odmPics(g, 'background'); } },
+      { t: 'Back to automatic', f: function () {
+        try { localStorage.removeItem('artfix:' + normShow(g.name)); localStorage.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
+        g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } }
+    ], title: g.name };
+    odmRender();
+  }
+  function odmClose() { odm = null; $('odmenu').className = 'hidden'; }
+  function odmWait(text) { if (odm) { odm.mode = 'wait'; odm.items = []; odm.note = text; odmRender(); } }
+  function odmSearch(g) {
+    return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(g.name)).then(function (l) { return Array.isArray(l) ? l : []; }, function () { return null; });
+  }
+  /** Look the show up again; take the match if it is clearly the one, otherwise let the person choose. */
+  function odmScrape(g) {
+    odmWait('Looking for ' + g.name + '…');
+    odmSearch(g).then(function (list) {
+      if (!odm) return;
+      if (list === null) { odm.mode = 'wait'; odm.note = 'Could not reach TVmaze'; odmRender(); return; }
+      var sh = pickShow(list, g.name, 0);
+      if (!sh) { odmShowList(g, list, 'No clear match. Choose the right show'); return; }
+      tvmImages(sh.id).then(function (imgs) {
+        var e = tvmEntry(sh), bg = imgs.filter(function (x) { return x.type === 'background'; })[0];
+        if (bg) e.b = odImgUrl(bg, true);
+        if (!e.p) { var po = imgs.filter(function (x) { return x.type === 'poster'; })[0]; if (po) e.p = odImgUrl(po, true); }
+        odFixDone(g, e, 'Found ' + e.name + (e.y ? ' (' + e.y + ')' : ''));
+      });
+    });
+  }
+  function odmShows(g) { odmWait('Searching TVmaze…'); odmSearch(g).then(function (list) { if (odm) { if (list === null) { odm.note = 'Could not reach TVmaze'; odmRender(); } else odmShowList(g, list, 'Choose the right show'); } }); }
+  function odmShowList(g, list, title) {
+    if (!odm) return;
+    var items = list.slice(0, 8).map(function (r) {
+      var s = r.show || {}, e = tvmEntry(s);
+      return { t: s.name || '', sub: [e.y, e.n, e.g].filter(Boolean).join('  ·  '), img: https(s.image && s.image.medium), f: function () {
+        odmWait('Getting pictures…');
+        tvmImages(s.id).then(function (imgs) {
+          var bg = imgs.filter(function (x) { return x.type === 'background'; })[0];
+          if (bg) e.b = odImgUrl(bg, true);
+          if (!e.p) { var po = imgs.filter(function (x) { return x.type === 'poster'; })[0]; if (po) e.p = odImgUrl(po, true); }
+          odFixDone(g, e, 'Using ' + e.name + (e.y ? ' (' + e.y + ')' : ''));
+        });
+      } };
+    });
+    odm.mode = items.length ? 'shows' : 'wait'; odm.note = items.length ? '' : 'TVmaze has nothing for “' + g.name + '”'; odm.items = items; odm.i = 0; odm.title = title || 'Choose the right show';
+    odmRender();
+  }
+  function odmPics(g, kind) {
+    odmWait('Getting pictures…');
+    artShow(g.name).then(function (base) {
+      if (!base || !base.i) { odmShows(g); toast('Choose the right show first', 3000); return; }
+      tvmImages(base.i).then(function (imgs) {
+        if (!odm) return;
+        var items = imgs.filter(function (x) { return x.type === kind; }).slice(0, 12).map(function (x) {
+          return { img: odImgUrl(x, false), f: function () {
+            var e = {}; Object.keys(base).forEach(function (k) { e[k] = base[k]; });
+            e[kind === 'poster' ? 'p' : 'b'] = odImgUrl(x, true);
+            odFixDone(g, e, kind === 'poster' ? 'Poster changed' : 'Background changed');
+          } };
+        });
+        odm.mode = items.length ? (kind === 'poster' ? 'posters' : 'backs') : 'wait'; odm.note = items.length ? '' : 'No ' + kind + 's on TVmaze for this show';
+        odm.items = items; odm.i = 0; odm.title = kind === 'poster' ? 'Choose a poster' : 'Choose a background';
+        odmRender();
+      });
+    });
+  }
+  function odmRender() {
+    var m = odm, box = $('odml'), el = $('odmenu');
+    if (!m) return;
+    el.className = '';
+    $('odmt').textContent = m.title || '';
+    box.textContent = '';
+    box.className = m.mode === 'posters' || m.mode === 'backs' ? 'strip' : '';
+    if (m.mode === 'wait') { box.appendChild(odEl('div', 'odnone', m.note || '')); return; }
+    if (m.mode === 'posters' || m.mode === 'backs') {
+      var per = m.mode === 'posters' ? 6 : 3, st = Math.max(0, Math.min(m.i - Math.floor(per / 2), m.items.length - per));
+      for (var k = st; k < Math.min(m.items.length, st + per); k++) {
+        var c = odEl('div', 'odmc ' + (m.mode === 'posters' ? 'po' : 'bk') + (k === m.i ? ' sel' : ''));
+        c.style.backgroundImage = 'url("' + m.items[k].img + '")';
+        box.appendChild(c);
+      }
+      box.appendChild(odEl('div', 'odmn', (m.i + 1) + ' of ' + m.items.length));
+      return;
+    }
+    var top = Math.max(0, Math.min(m.i - 2, m.items.length - 6));
+    for (var i = top; i < Math.min(m.items.length, top + 6); i++) {
+      var it = m.items[i], r = odEl('div', 'odmr' + (i === m.i ? ' sel' : ''));
+      if (m.mode === 'shows') { var th = odEl('div', 'odmth'); if (it.img) th.style.backgroundImage = 'url("' + it.img + '")'; r.appendChild(th); }
+      var tx = odEl('div'); tx.appendChild(odEl('b', '', it.t));
+      if (it.sub) tx.appendChild(odEl('small', '', it.sub));
+      r.appendChild(tx); box.appendChild(r);
+    }
+  }
+  function odmKey(k) {
+    var m = odm;
+    if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {
+      if (m.mode === 'menu' || m.mode === 'wait') odmClose(); else odmOpen();
+      return true;
+    }
+    if (m.mode === 'wait') return true;
+    var strip = m.mode === 'posters' || m.mode === 'backs';
+    var back = strip ? 'ArrowLeft' : 'ArrowUp', fwd = strip ? 'ArrowRight' : 'ArrowDown';
+    if (k === back) m.i = Math.max(0, m.i - 1);
+    else if (k === fwd) m.i = Math.min(m.items.length - 1, m.i + 1);
+    else if (k === 'Enter' || k === ' ') { var it = m.items[m.i]; if (it) it.f(); return true; }
+    odmRender();
     return true;
   }
   function odPlay(ep) {

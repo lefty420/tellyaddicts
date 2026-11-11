@@ -369,6 +369,21 @@
   .ode b { display: block; font-size: 2.6vh; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ode small { display: block; margin-top: .3vh; font-size: 2vh; color: #9aa3ba; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ode em { flex: none; font-style: normal; font-size: 2.1vh; color: #aab3cc; }
+  #odmenu { position: absolute; inset: 0; z-index: 6; background: rgba(5,7,12,.86); display: flex; align-items: center; justify-content: center; }
+  #odmenu.hidden { display: none; }
+  #odmbox { width: 66vw; background: #141926; border-radius: 1.6vh; padding: 3vh 2.4vw 2.4vh; }
+  #odmt { margin: 0 0 2vh; font-size: 3.4vh; font-weight: 800; }
+  .odmr { display: flex; align-items: center; gap: 1.4vw; height: 8.4vh; padding: 0 1.2vw; border-radius: 1vh; margin-bottom: .6vh; font-size: 2.8vh; }
+  .odmr.sel { background: #fff; color: #000; }
+  .odmr b { display: block; font-weight: 700; }
+  .odmr small { display: block; font-size: 2vh; color: #8f98b0; margin-top: .3vh; }
+  .odmr.sel small { color: #444; }
+  .odmth { flex: none; width: 5.4vh; height: 7.4vh; border-radius: .6vh; background: #1d2433 center / cover no-repeat; }
+  #odml.strip { display: flex; flex-wrap: wrap; gap: 1.2vw; align-items: flex-start; }
+  .odmc { flex: none; border-radius: 1vh; background: #1d2433 center / cover no-repeat; }
+  .odmc.po { width: 15vh; height: 22.5vh; } .odmc.bk { width: 19vw; height: 10.7vw; }
+  .odmc.sel { outline: .45vh solid #fff; transform: scale(1.05); }
+  .odmn { width: 100%; margin-top: 1vh; font-size: 2.2vh; color: #aab3cc; }
   #odfoot { position: absolute; right: 4vw; top: 4vh; font-size: 2.1vh; color: #aab3cc; }
   /* Options: a sheet down the right-hand side, grouped, with a line explaining the highlighted row */
   #opts { position: fixed; right: 0; top: 0; bottom: 0; z-index: 60; }
@@ -477,6 +492,7 @@
     <div id="odeps"></div>
   </div>
   <div id="odfoot"></div>
+  <div id="odmenu" class="hidden"><div id="odmbox"><h2 id="odmt"></h2><div id="odml"></div></div></div>
 </div>
 <div id="opts" class="hidden">
   <div id="opanel">

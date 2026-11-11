@@ -272,28 +272,42 @@
   var SHOWS_URL = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/tools/shows.json';
   var libP = null, libRevs = null;
 
-  /** Shows the scraper has listed that tools/shows.json has not caught up with yet (data/routes.json). Merged in
-   *  so a newly scraped show reaches its channel straight away; shows.json wins wherever both name a show. */
+  /** data/routes.json is the scraper's current word on where its shows go, and the latest copy wins: a show it lists
+   *  is on the channel(s) it lists it under and nowhere else, even if tools/shows.json still puts it elsewhere (a show
+   *  moved by hand from sitcoms to soaps). Shows it does not list keep the channels tools/shows.json gives them. */
   function mergeRoutes(shows, routes) {
     var chans = routes && routes.channels;
     if (!shows || !chans) return shows;
-    var known = {};
-    Object.keys(shows).forEach(function (ch) {
-      ((shows[ch] || {}).shows || []).forEach(function (n) { known[LIBROUTE.norm(n)] = 1; });
-    });
-    var out = {}, added = 0;
-    Object.keys(shows).forEach(function (ch) { out[ch] = shows[ch]; });
+    var where = {}, any = false;
     Object.keys(chans).forEach(function (ch) {
-      var extra = ((chans[ch] || {}).shows || []).filter(function (n) { return !known[LIBROUTE.norm(n)]; });
-      if (!extra.length) return;
-      var had = out[ch] || { name: (chans[ch] || {}).name || ch, shows: [] };
-      var merged = {};
-      Object.keys(had).forEach(function (k) { merged[k] = had[k]; });
-      merged.shows = (had.shows || []).concat(extra);
-      out[ch] = merged;
-      added += extra.length;
+      ((chans[ch] || {}).shows || []).forEach(function (n) {
+        var k = LIBROUTE.norm(n);
+        (where[k] = where[k] || {})[ch] = 1;
+        any = true;
+      });
     });
-    return added ? out : shows;
+    if (!any) return shows;
+    var out = {};
+    Object.keys(shows).forEach(function (ch) {
+      var had = shows[ch] || {}, merged = {};
+      Object.keys(had).forEach(function (k) { merged[k] = had[k]; });
+      merged.shows = (had.shows || []).filter(function (n) {
+        var w = where[LIBROUTE.norm(n)];
+        return !w || w[ch];                      // listed by the scraper: only under the channel(s) it names
+      });
+      out[ch] = merged;
+    });
+    Object.keys(chans).forEach(function (ch) {
+      var have = {};
+      ((out[ch] || {}).shows || []).forEach(function (n) { have[LIBROUTE.norm(n)] = 1; });
+      var extra = ((chans[ch] || {}).shows || []).filter(function (n) { return !have[LIBROUTE.norm(n)]; });
+      if (!extra.length) return;
+      var base = out[ch] || { name: (chans[ch] || {}).name || ch, shows: [] }, merged = {};
+      Object.keys(base).forEach(function (k) { merged[k] = base[k]; });
+      merged.shows = (base.shows || []).concat(extra);
+      out[ch] = merged;
+    });
+    return out;
   }
 
   /** {channel: rows} from the whole library; null if it or shows.json can't be had. */
@@ -527,7 +541,7 @@
       ch.report = (ch.report || []).concat((progs.length - keep.length) +
         ' films left out: without a certificate there is no way to know what they are or when they may play');
     }
-    var era = keep.filter(inEra);
+    var era = ch && ch.id === 'disney' ? keep : keep.filter(inEra);      // the Disney channel runs shorts from the 1930s on, mostly undated
     if (era.length !== keep.length) {
       ch.report = (ch.report || []).concat((keep.length - era.length) + ' episodes left out: made after ' + ERA_END);
     }
@@ -2783,7 +2797,7 @@
     rec = odData[ch.id] = { shows: null };
     rec.p = loadDataIndex().then(function (idx) { return loadChannelData(ch.id, idx[ch.id] || ''); }).then(function (rows) {
       var progs = rows && rows.length ? progsFromData(rows, ch.id, true).filter(function (p) { return !p.filmKey && !blocked(p); }) : [];
-      rec.shows = odGroup(certified({ report: [] }, progs));
+      rec.shows = odGroup(certified({ id: ch.id, report: [] }, progs));
       return rec;
     }, function () { rec.shows = []; return rec; });
     return rec.p;

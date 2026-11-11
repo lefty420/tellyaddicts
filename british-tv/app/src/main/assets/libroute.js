@@ -102,8 +102,11 @@
       if (gone[norm(sh.n)]) return;
       var net = NET[String(sh.net || '').toLowerCase()];
       (sh.e || []).forEach(function (ep) {
-        if (!inEra(ep)) return;
         var genre = channelsFor(sh.n, ep.t, smap, keys);
+        // the 1970 to 1999 limit does not apply to the Disney channel: its shorts go back to the 1930s and are mostly undated
+        var late = !inEra(ep);
+        if (late && genre.indexOf('disney') < 0) return;
+        if (late) genre = ['disney'];
         var forKids = genre.some(function (c) { return KIDS[c]; });
         var also = [];
         // the broadcaster's own channel, as well as wherever the genre lists put it. A soap is on the Soaps channel
@@ -112,7 +115,7 @@
         if (net && !forKids) also.push(net);
         // and a Christmas episode goes to the Christmas channel of the right sort
         if (ep.xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
-        var chs = also.length ? uniqSorted(genre.concat(also)) : genre;
+        var chs = late ? ['disney'] : (also.length ? uniqSorted(genre.concat(also)) : genre);
         chs.forEach(function (ch) {
           var items = per[ch] = per[ch] || {};
           order[ch] = order[ch] || [];

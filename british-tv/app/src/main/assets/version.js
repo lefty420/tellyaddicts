@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.25.4",
-  "version": "0.25.4",
-  "code": 2504,
-  "date": "2026-11-10",
+  "name": "Alpha 0.25.5",
+  "version": "0.25.5",
+  "code": 2505,
+  "date": "2026-11-11",
   "notes": [
-    "**Shows the scraper has removed for good stay off the TV.** When the scraper publishes `data/removed-shows.json` (and `removed` in `index.json`), those shows are left out of every channel and out of On Demand, whatever the lists say. C.O.P.S. is the first; it is also gone from `tools/shows.json`"
+    "**`routes.json` is now the source of truth for where shows go.** A show it lists appears only on the channel(s) it names and is dropped from any other channel's list, so moving a show by hand in the scraper moves it on the TV too. Shows it doesn't list keep their channels from `tools/shows.json`.",
+    "**The Disney channel has no era limit and needs no air dates or TVmaze id.** Undated and pre-1970 cartoon shorts (Donald Duck, Mickey Mouse, Goofy, Pluto, Silly Symphonies, Disney Cartoons) play on Disney; every other channel still keeps 1970 to 1999."
   ],
   "history": [
+    {
+      "name": "Alpha 0.25.4",
+      "date": "2026-11-10",
+      "notes": [
+        "**Shows the scraper has removed for good stay off the TV.** When the scraper publishes `data/removed-shows.json` (and `removed` in `index.json`), those shows are left out of every channel and out of On Demand, whatever the lists say. C.O.P.S. is the first; it is also gone from `tools/shows.json`"
+      ]
+    },
     {
       "name": "Alpha 0.25.3",
       "date": "2026-11-10",
@@ -64,13 +72,6 @@ window.RELEASE = {
         "**Options > Clear saved artwork** forgets all the saved artwork and episode details and the downloaded pictures so they are fetched fresh, and shows how much is stored. This needs the new app, since the picture cache is cleared on the device itself",
         "**On Demand now has episode titles, stills and summaries before the scraper publishes its episode files.** It asks TVmaze once for the whole show (using the id in `art.json`) when you open it, and keeps the answer; the scraper's `data/eps/` files take over as soon as they exist",
         "The Options panel is a little tighter so the new rows fit"
-      ]
-    },
-    {
-      "name": "Alpha 0.23.3",
-      "date": "2026-11-10",
-      "notes": [
-        "**A much quicker way to the guide's On Demand button: press Left.** When the guide is on what is on now (as it is when it opens), one Left reaches the button, then OK. Right or Down goes back to the channels. Up from the first channel still works, but with many channels that was too far to climb. The guide's bottom line says so"
       ]
     }
   ]

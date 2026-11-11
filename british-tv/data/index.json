@@ -1,14 +1,15 @@
 {
- "updated": "2026-11-11T01:43:05Z",
+ "updated": "2026-11-11T12:53:45Z",
  "channels": {
   "bbc": "a096ec4883",
   "childrens": "43f3c8efcc",
   "christmas": "7766b680fc",
   "citv": "f987203ce1",
-  "comedy": "5b465e7b11",
+  "comedy": "759657af30",
+  "cooking": "e79449d0d6",
   "disney": "0f69276dee",
   "drama": "7baeeafde6",
-  "games": "8f0f201dc4",
+  "games": "1e071f0b17",
   "gameshows": "815860da67",
   "itv": "dfb6619bb1",
   "kidsmovies": "da96cf87eb",
@@ -21,16 +22,17 @@
   "sitcoms": "7827495e7c",
   "soaps": "1503f569ae",
   "tv70s": "4b9b9e0f59",
-  "tvarchive": "43c38586a8",
+  "tvarchive": "23945fea11",
   "videoshop": "0c20b1f37e",
-  "xmasmusic": "d926246d01"
+  "xmasmusic": "ace70083f3"
  },
  "counts": {
   "bbc": 442,
   "childrens": 247,
   "christmas": 249,
   "citv": 312,
-  "comedy": 68,
+  "comedy": 67,
+  "cooking": 10,
   "disney": 181,
   "drama": 99,
   "games": 64,
@@ -48,7 +50,7 @@
   "tv70s": 119,
   "tvarchive": 36,
   "videoshop": 276,
-  "xmasmusic": 94
+  "xmasmusic": 55
  },
  "library": "d777837c47",
  "library_counts": {
@@ -56,6 +58,6 @@
   "episodes": 24702,
   "copies": 58864
  },
- "routes": "7583eea65e",
- "art": "7c7d36cb90"
+ "routes": "a344dacd43",
+ "art": "cb33c6f759"
 }

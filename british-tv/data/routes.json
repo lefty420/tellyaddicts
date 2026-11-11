@@ -1,13 +1,21 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "7583eea65e",
+ "rev": "a344dacd43",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
-  "citv": {
-   "name": "80s & 90s Kids Cartoons (CBBC & CITV)",
+  "cooking": {
+   "name": "Food & Cooking",
    "shows": [
-    "C.O.P.S."
+    "Delia Smith's Cookery Course",
+    "Delia Smith's How to Cook",
+    "Escape to River Cottage",
+    "Fanny Cradock Cooks for Christmas",
+    "Floyd on Britain and Ireland",
+    "Floyd on Italy",
+    "Floyd on Spain",
+    "Ready Steady Cook",
+    "Two Fat Ladies"
    ]
   },
   "disney": {
@@ -44,6 +52,7 @@
   "xmasmusic": {
    "name": "Christmas Songs (70s-90s)",
    "shows": [
+    "mtv christmas",
     "mtv xmas"
    ]
   }

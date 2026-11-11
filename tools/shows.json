@@ -763,5 +763,45 @@
       "The French Chef",
       "Yan Can Cook"
     ]
+  },
+  "entertainment": {
+    "name": "Entertainment",
+    "shows": [
+      "The Generation Game",
+      "Surprise Surprise",
+      "Barrymore",
+      "Little and Large",
+      "Cannon and Ball",
+      "Mike Yarwood",
+      "Morecambe and Wise",
+      "The Benny Hill Show",
+      "The Paul Daniels Magic Show",
+      "Mr. Bean",
+      "TFI Friday",
+      "The Word",
+      "The Tube",
+      "Whose Line Is It Anyway",
+      "Shooting Stars",
+      "Have I Got News for You",
+      "Alas Smith and Jones",
+      "Harry Enfield",
+      "The Fast Show",
+      "Spitting Image",
+      "Not the Nine O'Clock News",
+      "A Bit of Fry and Laurie",
+      "Big Train",
+      "The Comic Strip Presents",
+      "Robin of Sherwood",
+      "Tales of the Unexpected",
+      "Blake's 7",
+      "The Goodies",
+      "Father Ted",
+      "Men Behaving Badly",
+      "Absolutely Fabulous",
+      "Goodnight Sweetheart",
+      "Bottom",
+      "Are You Being Served"
+    ],
+    "extra": true
   }
 }

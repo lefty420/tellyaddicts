@@ -425,5 +425,13 @@ window.CHANNELS = [
     // Delia, Floyd, Rick Stein, Ready Steady Cook and the rest, from the scraper's library (1970 to 1999)
     maxItems: 80,
     sources: [{ data: 'cooking' }]
+  },
+  {
+    n: 27,
+    id: 'entertainment',
+    name: 'Entertainment',
+    // a mix of the best of everything: light entertainment, sketch and panel shows, cult drama and sitcoms
+    maxItems: 120,
+    sources: [{ data: 'entertainment' }]
   }
 ];

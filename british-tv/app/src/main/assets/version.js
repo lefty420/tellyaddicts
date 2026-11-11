@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.32.1",
-  "version": "0.32.1",
-  "code": 3201,
+  "name": "Alpha 0.33",
+  "version": "0.33",
+  "code": 3300,
   "date": "2026-11-11",
   "notes": [
-    "**Episodes with no picture of their own show the show's artwork** instead of a flat coloured box. A real still still wins when there is one (from the scraper's episode guide or TVmaze); one upload holding many episodes, like Ready Steady Cook, used to have none."
+    "**New channel: Entertainment (27).** A mix of the best of everything from any network: light entertainment (Generation Game, Little and Large, Benny Hill), panel and Friday-night shows (Whose Line, TFI Friday, The Word), sketch and satire (Spitting Image, Harry Enfield, Not the Nine O'Clock News), sitcoms (Father Ted, Men Behaving Badly, Ab Fab) and cult drama (Robin of Sherwood, Tales of the Unexpected, Blake's 7). Its shows stay on their own channels too."
   ],
   "history": [
+    {
+      "name": "Alpha 0.32.1",
+      "date": "2026-11-11",
+      "notes": [
+        "**Episodes with no picture of their own show the show's artwork** instead of a flat coloured box. A real still still wins when there is one (from the scraper's episode guide or TVmaze); one upload holding many episodes, like Ready Steady Cook, used to have none."
+      ]
+    },
     {
       "name": "Alpha 0.32",
       "date": "2026-11-11",
@@ -59,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**OK works normally again in On Demand.** A short press of OK opens a show or plays an episode, as before. The artwork menu now opens only when you hold OK (the same hold that shows Info elsewhere), or press Menu. In 0.29 and 0.29.1 a plain press could open the menu instead."
-      ]
-    },
-    {
-      "name": "Alpha 0.29.1",
-      "date": "2026-11-11",
-      "notes": [
-        "**Soaps all day.** EastEnders, Neighbours and the other big soaps are now in the Soaps channel's daytime and late-night mix as well as their evening slots, so they turn up whenever you tune in. They will fill most of the hours between the fixed slots, because they have far more episodes than the small soaps. The note on this is in `tools/schedule-notes.md` for when the schedule engine is reworked."
       ]
     }
   ]

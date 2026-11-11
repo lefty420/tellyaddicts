@@ -2184,6 +2184,26 @@
     if (FXMODES.indexOf(saved) >= 0) fxMode = saved;
   })();
 
+  // VHS and VHS 2 filter the video itself, which a TV cannot always do for heavy live-action files. If frames are
+  // being dropped, only the blur is taken off (the rest of the look stays); the next programme starts with it on again.
+  var fxTimer = null, fxLast = null;
+  function fxGuardStart() {
+    clearInterval(fxTimer); fxLast = null;
+    document.body.classList.remove('fx-lite');
+    if ((fxMode !== 'vhs' && fxMode !== 'vhs2') || !v.getVideoPlaybackQuality) return;
+    fxTimer = setInterval(function () {
+      if (v.paused || document.body.classList.contains('guide-open')) { fxLast = null; return; }
+      var q = v.getVideoPlaybackQuality(), p = fxLast;
+      fxLast = { t: q.totalVideoFrames, d: q.droppedVideoFrames };
+      if (!p || document.body.classList.contains('fx-lite')) return;
+      var total = fxLast.t - p.t, dropped = fxLast.d - p.d;
+      if (total >= 60 && dropped / total > 0.2) {
+        document.body.classList.add('fx-lite');
+        dlog('VIDEO EFFECT lightened: ' + dropped + ' of ' + total + ' frames dropped with ' + FXLABEL[fxMode] + ' on  ' + String(v.currentSrc || '').split('/').slice(-2).join('/'));
+      }
+    }, 4000);
+  }
+  v.addEventListener('loadstart', function () { fxLast = null; document.body.classList.remove('fx-lite'); });
   function applyFx() {
     FXMODES.forEach(function (m) { document.body.classList.remove('fx-' + m); });
     document.body.classList.add('fx-' + fxMode);
@@ -2195,6 +2215,7 @@
       document.body.style.setProperty('--ld', (d / dpr) + 'px');
     }
     store.set('fx2', fxMode);
+    fxGuardStart();
     clearTimeout(fxWatch);
     if (fxMode === 'sharp') {
       // if the TV cannot keep up (many dropped frames), back off to the cheap look

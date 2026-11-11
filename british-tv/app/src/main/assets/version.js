@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.29.4",
-  "version": "0.29.4",
-  "code": 2904,
+  "name": "Alpha 0.30",
+  "version": "0.30",
+  "code": 3000,
   "date": "2026-11-11",
   "notes": [
-    "**Picking a poster now shows up.** The poster you chose was TVmaze's untouched original, which can be many megabytes, so the TV was slow to show it or could not and the card looked unchanged. Posters now use TVmaze's normal poster size. A pick is only applied once its picture has actually loaded; if it will not load, a message says so and nothing changes."
+    "**On Demand opens on the show you are watching.** Press the On Demand button on the bar (or Blue or Menu) while something is playing and it opens that show's page, on the season and the episode that is on, ready to pick another. From the guide it still opens on the channel rows.",
+    "**Films are in On Demand.** Kids Movies and The Video Shop are back as rows, each film a title of its own with its poster, year, genres, running time and certificate, and Play. Films keep the watershed: family films all day, 15s from 8 pm, and the rest (including films with no certificate) from 9 pm until half past five in the morning."
   ],
   "history": [
+    {
+      "name": "Alpha 0.29.4",
+      "date": "2026-11-11",
+      "notes": [
+        "**Picking a poster now shows up.** The poster you chose was TVmaze's untouched original, which can be many megabytes, so the TV was slow to show it or could not and the card looked unchanged. Posters now use TVmaze's normal poster size. A pick is only applied once its picture has actually loaded; if it will not load, a message says so and nothing changes."
+      ]
+    },
     {
       "name": "Alpha 0.29.3",
       "date": "2026-11-11",
@@ -57,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**Black screen with sound is caught.** If a programme plays sound but shows no picture (an audio-only file, or video this TV cannot decode), the app now notes it in the debug log with the file's name, marks it slow so it is skipped for a while, and moves on to the next programme."
-      ]
-    },
-    {
-      "name": "Alpha 0.26.1",
-      "date": "2026-11-11",
-      "notes": [
-        "**VHS 2 lines are now even.** The lines were drawn at fractions of a pixel, so some came out thick and some gaps wide. They are now drawn in whole screen pixels, so every line and every gap is the same size."
       ]
     }
   ]

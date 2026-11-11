@@ -2361,11 +2361,145 @@
       body.appendChild(relList(h.notes));
     });
   }
+
+  // ------------------------------------------------------------------ missing episodes
+  // What On Demand has for every show, set against the episode guide (the scraper's, else TVmaze's), so the gaps can be
+  // handed to the scraper. The scan runs in the background, one show at a time, and the guides it fetches are kept
+  // (eps1:) so a second scan is quick. Only episodes aired by ERA_END count: Casualty is not missing its 2020s.
+  var gapState = { running: false, done: 0, total: 0, report: null, note: '' };
+  try { var _g = store.get('gaps1'); if (_g && _g.report) gapState.report = _g.report; } catch (e) { /* none yet */ }
+  function gapRanges(nums) {
+    nums = nums.slice().sort(function (a, b) { return a - b; });
+    var out = [], i = 0;
+    while (i < nums.length) {
+      var j = i;
+      while (j + 1 < nums.length && nums[j + 1] === nums[j] + 1) j++;
+      out.push(j > i ? nums[i] + '-' + nums[j] : String(nums[i]));
+      i = j + 1;
+    }
+    return out.join(',');
+  }
+  function gapAnalyse(name, chans, have, others, g) {
+    var rec = { show: name, channels: chans, files: 0, other: others };
+    var hs = Object.keys(have);
+    hs.forEach(function (sn) { rec.files += have[sn].length; });
+    rec.have = {};
+    hs.forEach(function (sn) { rec.have[sn] = gapRanges(have[sn]); });
+    if (!g.meta) { rec.guide = false; return rec; }
+    rec.guide = true;
+    var bySeason = {};
+    Object.keys(g.meta).forEach(function (k) {
+      var e = g.meta[k], yr = e.a ? parseInt(String(e.a).slice(0, 4), 10) : 0;
+      if (yr && yr > ERA_END) return;
+      (bySeason[e.s] = bySeason[e.s] || []).push(e.e);
+    });
+    rec.missing = {}; rec.missingSeasons = []; var miss = 0, total = 0;
+    Object.keys(bySeason).map(Number).sort(function (a, b) { return a - b; }).forEach(function (sn) {
+      var all = bySeason[sn], got = {};
+      (have[sn] || []).forEach(function (n) { got[n] = 1; });
+      var lack = all.filter(function (n) { return !got[n]; });
+      total += all.length; miss += lack.length;
+      if (!lack.length) return;
+      if (lack.length === all.length) rec.missingSeasons.push(sn);
+      else rec.missing[sn] = gapRanges(lack);
+    });
+    rec.guideEpisodes = total; rec.missingCount = miss;
+    return rec;
+  }
+  function gapStart(force) {
+    if (gapState.running) return;
+    var r = gapState.report;
+    if (!force && r && Date.now() - r.t < 24 * 3600 * 1000) return;
+    gapState.running = true; gapState.done = 0; gapState.total = 0; gapState.note = 'Reading the library…';
+    var byName = {};
+    var chans = odChannels().filter(function (c) { return !OD_FILMS[c.id]; });
+    var chain = Promise.resolve();
+    chans.forEach(function (c) {
+      chain = chain.then(function () { return odLoadChannel(c); }).then(function (rec) {
+        (rec.shows || []).forEach(function (g) {
+          if (g.film) return;
+          var k = LIBROUTE.norm(g.name), x = byName[k] = byName[k] || { name: g.name, chans: [], have: {}, others: 0, g: g };
+          if (x.chans.indexOf(c.id) < 0) x.chans.push(c.id);
+          g.eps.forEach(function (ep) {
+            if (ep.s > 0 && ep.e > 0) { var a = x.have[ep.s] = x.have[ep.s] || []; if (a.indexOf(ep.e) < 0) a.push(ep.e); }
+            else x.others++;
+          });
+        });
+      });
+    });
+    chain.then(function () {
+      var list = Object.keys(byName).map(function (k) { return byName[k]; }), out = [], i = 0;
+      gapState.total = list.length; gapState.note = '';
+      function next() {
+        if (i >= list.length) return finish();
+        var x = list[i++];
+        return Promise.race([odMeta(x.g), new Promise(function (r) { setTimeout(r, 15000); })]).then(null, function () { /* no guide */ })
+          .then(function () {
+            out.push(gapAnalyse(x.name, x.chans, x.have, x.others, x.g));
+            gapState.done = i;
+            if (relOpen && relRow === 'gaps') buildGaps();
+            return new Promise(function (r) { setTimeout(r, 120); });
+          }).then(next);
+      }
+      function finish() {
+        out.sort(function (a, b) { return (b.missingCount || 0) - (a.missingCount || 0); });
+        var gaps = out.filter(function (r) { return r.guide && (r.missingCount || 0) > 0; }).length;
+        var report = {
+          t: Date.now(), app: (window.RELEASE && RELEASE.name) || '', era: '1970-' + ERA_END, shows: out,
+          summary: { shows: out.length, withGuide: out.filter(function (r) { return r.guide; }).length, gaps: gaps,
+                     noGuide: out.filter(function (r) { return !r.guide; }).length }
+        };
+        gapState.report = report; gapState.running = false;
+        try { store.set('gaps1', { report: report }); } catch (e) { /* too big to keep: rebuilt on the next scan */ }
+        if (relOpen && relRow === 'gaps') buildGaps();
+      }
+      return next();
+    }, function () { gapState.running = false; gapState.note = 'Could not read the library.'; });
+  }
+  /** The report as the plain text a phone opens: JSON for the scraper, only the shows that have something missing. */
+  function gapText() {
+    var r = gapState.report;
+    var shows = r.shows.filter(function (x) { return x.guide ? (x.missingCount || 0) > 0 : true; }).map(function (x) {
+      var o = { show: x.show, channels: x.channels, have_files: x.files, other_videos: x.other, have: x.have };
+      if (x.guide) { o.missing_seasons = x.missingSeasons; o.missing_episodes = x.missing; o.guide_episodes = x.guideEpisodes; o.missing_count = x.missingCount; }
+      else o.no_episode_guide = true;
+      return o;
+    });
+    return JSON.stringify({ generated: new Date(r.t).toISOString(), app: r.app, era: r.era, summary: r.summary,
+      note: 'have/missing are season -> episode ranges. missing_seasons are seasons with nothing on the TV; missing_episodes are gaps inside a season we do have. Counts only episodes aired 1999 or earlier.',
+      shows: shows }, null, 1);
+  }
+  function buildGaps() {
+    var body = $('rbody'), top = body.scrollTop;
+    body.textContent = '';
+    $('rkick').textContent = 'Missing episodes';
+    var r = gapState.report;
+    $('rver').textContent = 'What the scraper still needs to find';
+    $('rdate').textContent = gapState.running ? 'Checking ' + gapState.done + ' of ' + (gapState.total || '…') + ' shows  ' + gapState.note : (r ? r.summary.shows + ' shows checked' : '');
+    var h1 = document.createElement('h3'); h1.textContent = 'Send this to the scraper';
+    body.appendChild(h1);
+    if (!r) { body.appendChild(relList([gapState.running ? 'Working out which episodes are missing. This takes a few minutes the first time; you can leave this open.' : 'Nothing yet.'])); return; }
+    var where = '';
+    try { where = window.NativeHttp && NativeHttp.shareLog ? NativeHttp.shareLog(gapText()) : ''; } catch (e) { where = ''; }
+    body.appendChild(relList(where
+      ? ['On a phone or computer on the same Wi-Fi, open this exactly as shown, starting with http://', where, 'Copy everything on that page and send it to the scraper. (It replaces the debug log on that address until you open the debug log again.)']
+      : ['This can be opened from a phone or computer when the TV is on the home network.']));
+    var h2 = document.createElement('h3'); h2.textContent = 'Summary';
+    body.appendChild(h2);
+    body.appendChild(relList([r.summary.shows + ' shows on the TV', r.summary.withGuide + ' have an episode guide to compare against', r.summary.gaps + ' have episodes or seasons missing',
+      r.summary.noGuide + ' have no guide (listed with what the TV has)', gapState.running ? 'Still checking: this list grows as it goes.' : 'Checked ' + new Date(r.t).toLocaleString()]));
+    var h3 = document.createElement('h3'); h3.textContent = 'Biggest gaps';
+    body.appendChild(h3);
+    body.appendChild(relList(r.shows.filter(function (x) { return x.guide && x.missingCount; }).slice(0, 12).map(function (x) {
+      return x.show + ':  ' + x.missingCount + ' of ' + x.guideEpisodes + ' missing' + (x.missingSeasons.length ? '  (no season ' + x.missingSeasons.join(', ') + ')' : '');
+    })));
+    body.scrollTop = top;
+  }
   var relRow = 'rel';
   function openRel(which) {
     closeOpts();
-    relRow = which === 'about' || which === 'log' ? which : 'rel';
-    if (relRow === 'about') buildAbout(); else if (relRow === 'log') buildLog(); else buildRel();
+    relRow = which === 'about' || which === 'log' || which === 'gaps' ? which : 'rel';
+    if (relRow === 'about') buildAbout(); else if (relRow === 'log') buildLog(); else if (relRow === 'gaps') { buildGaps(); gapStart(false); } else buildRel();
     relOpen = true;
     $('rel').className = '';
     $('rbody').scrollTop = 0;
@@ -2403,7 +2537,7 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['od', 'ar', 'fx', 'gart', 'mkeep', 'mclear', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel', 'about', 'log'];
+  var OPTS = ['od', 'ar', 'fx', 'gart', 'mkeep', 'mclear', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel', 'about', 'gaps', 'log'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -2416,6 +2550,7 @@
     if (id === 'rel') return relName();
     if (id === 'mkeep') return META_KEEP[metaIdx].label;
     if (id === 'mclear') return metaSize();
+    if (id === 'gaps') return gapState.report ? gapState.report.summary.gaps + ' shows with gaps' : '';
     if (id === 'about' || id === 'log' || id === 'od') return '';
     return autoEpg ? 'On' : 'Off';
   }
@@ -2535,6 +2670,7 @@
     else if (id === 'refresh') refreshEpg();
     else if (id === 'rel') openRel('rel');
     else if (id === 'log') openRel('log');
+    else if (id === 'gaps') openRel('gaps');
     else if (id === 'about') openRel('about');
     else toggleAuto();
   }
@@ -2946,17 +3082,27 @@
     return d;
   }
   /** The artwork already on hand for a show; a film's is its own poster. */
-  function odKnown(g) { return g ? knownArt(g.film ? g.eps[0].p : { title: g.name, show: g.name }) : null; }
+  var odKGen = 0;       // bumped whenever artwork is chosen, so remembered pictures are looked up again
+  function odKnown(g) {
+    if (!g) return null;
+    if (g._k && g._kg === odKGen) return g._k;
+    var k = knownArt(g.film ? g.eps[0].p : { title: g.name, show: g.name });
+    if (k && (k.poster || k.back)) { g._k = k; g._kg = odKGen; }     // only a found picture is remembered; a missing one is asked again
+    return k;
+  }
   function odDesc(g) {
     if (g.film) { var f = filmFor(g.eps[0].p); return f && f.plot || ''; }
     return (g.art && g.art.s) || '';
   }
+  var odBgTimer = null;
   function odSetBg(g) {
     var k = odKnown(g);
     var want = g ? g.name + '|' + (k && k.back || '') : '';
     if (want === odBgFor) return;
     odBgFor = want;
-    $('odbg').style.backgroundImage = k && k.back ? 'url("' + k.back + '")' : (g ? odTone(g.name) : 'none');
+    var img = k && k.back ? 'url("' + k.back + '")' : (g ? odTone(g.name) : 'none');
+    clearTimeout(odBgTimer);                      // a big picture takes a moment to decode: wait until the highlight rests
+    odBgTimer = setTimeout(function () { $('odbg').style.backgroundImage = img; }, 140);
   }
   /** The show's own details (network, years, summary) and artwork, looked up once the highlight has rested on it. */
   var odMetaTimer = null;
@@ -2965,11 +3111,11 @@
     if (!g || g.film) return;                     // a film's details came with the library
     odMetaTimer = setTimeout(function () {
       if (!odOpen) return;
-      if (g.art === undefined) { g.art = null; artShow(g.name).then(function (x) { g.art = x || null; if (odOpen && odSel().g === g) odRender(); }); }
+      if (g.art === undefined) { g.art = null; artShow(g.name).then(function (x) { g.art = x || null; odKGen++; if (odOpen && odSel().g === g) odRender(); }); }
       if (gartOn && !odKnown(g) && odArtFor !== g.name) {
         odArtFor = g.name;
         var p = parseTitle(g.name + ' S01E01'); p.show = g.name;
-        tvmInfo(p).then(function () { if (odOpen && odSel().g === g) odRender(); }, function () { /* no artwork */ });
+        tvmInfo(p).then(function () { odKGen++; if (odOpen && odSel().g === g) odRender(); }, function () { /* no artwork */ });
       }
     }, 350);
   }
@@ -2990,22 +3136,43 @@
     else { d.style.backgroundImage = odTone(g.name); d.appendChild(odEl('b', '', g.name)); }
     return d;
   }
+  var odDom = [];       // what the home rows on screen were built from: a key press that stays inside them only moves the highlight
   function odRenderHome() {
     var s = odSel(), rows = s.rows, box = $('odrows');
     if (odRi < odTop) odTop = odRi;
     if (odRi > odTop + 1) odTop = odRi - 1;
-    box.textContent = '';
+    var want = [];
     for (var ri = odTop; ri < Math.min(rows.length, odTop + 2); ri++) {
-      var c = rows[ri], sh = odShowsOf(c), row = odEl('div', 'odrow'), h = odEl('h3', '', c.n + '   ' + c.name);
-      if (sh) h.appendChild(odEl('span', '', sh.length + (sh.length === 1 ? ' show' : ' shows')));
-      row.appendChild(h);
-      var cards = odEl('div', 'odcards');
-      if (!sh) cards.appendChild(odEl('div', 'odnone', 'Loading…'));
-      else {
-        var pos = Math.min(odPos[c.id] || 0, sh.length - 1), start = Math.max(0, Math.min(pos - 3, sh.length - OD_VIS));
-        for (var i = start; i < Math.min(sh.length, start + OD_VIS); i++) cards.appendChild(odCard(sh[i], ri === odRi && i === pos));
-      }
-      row.appendChild(cards); box.appendChild(row);
+      var c = rows[ri], sh = odShowsOf(c), n = sh ? sh.length : 0;
+      var pos = n ? Math.min(odPos[c.id] || 0, n - 1) : 0, start = n ? Math.max(0, Math.min(pos - 3, n - OD_VIS)) : 0;
+      want.push({ ri: ri, c: c, sh: sh, pos: pos, start: start, n: n });
+    }
+    var same = odDom.length === want.length && box.children.length === want.length;
+    for (var w = 0; same && w < want.length; w++) same = odDom[w].c === want[w].c && odDom[w].sh === want[w].sh && odDom[w].start === want[w].start && odDom[w].n === want[w].n && odDom[w].gen === odKGen;
+    if (same) {                                   // cheap path: move the highlight, touch nothing else
+      want.forEach(function (x, wi) {
+        var cards = box.children[wi].lastChild.children, old = odDom[wi].sel, now = x.ri === odRi && x.n ? x.pos - x.start : -1;
+        if (old !== now) {
+          if (cards[old]) cards[old].classList.remove('sel');
+          if (cards[now]) cards[now].classList.add('sel');
+          odDom[wi].sel = now;
+        }
+      });
+    } else {
+      box.textContent = '';
+      odDom = [];
+      var frag = document.createDocumentFragment();
+      want.forEach(function (x) {
+        var row = odEl('div', 'odrow'), h = odEl('h3', '', x.c.n + '   ' + x.c.name);
+        if (x.sh) h.appendChild(odEl('span', '', x.n + (x.n === 1 ? ' show' : ' shows')));
+        row.appendChild(h);
+        var cards = odEl('div', 'odcards');
+        if (!x.sh) cards.appendChild(odEl('div', 'odnone', 'Loading\u2026'));
+        else for (var i = x.start; i < Math.min(x.n, x.start + OD_VIS); i++) cards.appendChild(odCard(x.sh[i], x.ri === odRi && i === x.pos));
+        row.appendChild(cards); frag.appendChild(row);
+        odDom.push({ c: x.c, sh: x.sh, start: x.start, n: x.n, gen: odKGen, sel: x.ri === odRi && x.n ? x.pos - x.start : -1 });
+      });
+      box.appendChild(frag);
     }
     var g = s.g;
     odSetBg(g);
@@ -3212,7 +3379,7 @@
   function odFixApply(g, entry, msg) {
     store.set('artfix:' + normShow(g.name), { a: entry });
     try { localStorage.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
-    g.art = entry; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = '';
+    g.art = entry; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odKGen++;
     dlog('ARTWORK picked for ' + g.name + ': ' + (entry.name || '') + ' (TVmaze ' + (entry.i || '?') + ')' + (entry.p ? ' poster ' + entry.p : '') + (entry.b ? ' background ' + entry.b : ''));
     odmClose(); toast(msg, 3500);
     if (odView === 'show') odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });

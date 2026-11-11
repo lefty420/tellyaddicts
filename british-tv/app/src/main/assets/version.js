@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.31.1",
-  "version": "0.31.1",
-  "code": 3101,
+  "name": "Alpha 0.32",
+  "version": "0.32",
+  "code": 3200,
   "date": "2026-11-11",
   "notes": [
-    "**Food & Cooking now has programmes.** The channel came up empty: the TV only looked at the library routing and never at the channel's own list, and most cookery files have no episode numbers in their names. Both fixed, so Two Fat Ladies, Floyd, Delia, Ready Steady Cook and the rest play."
+    "**On Demand fits the screen.** The posters are smaller and the title block is tighter, so both rows show in full with nothing cut off at the bottom and the OK Open button no longer sits on a row title.",
+    "**On Demand is quicker.** Moving left and right along a row now only moves the highlight instead of rebuilding every poster, a picture that has been found is remembered, and the big background waits until you stop moving before it loads.",
+    "**Missing episodes report** (Options > Missing episodes report). Checks every show on the TV against its episode guide (the scraper's, else TVmaze's), counting only episodes aired by 1999. It lists the seasons with nothing on the TV and the episodes missing inside seasons that are there, and puts the whole report on the home network as text to copy and send to the scraper. The guides it reads are kept, so the second check is quick."
   ],
   "history": [
+    {
+      "name": "Alpha 0.31.1",
+      "date": "2026-11-11",
+      "notes": [
+        "**Food & Cooking now has programmes.** The channel came up empty: the TV only looked at the library routing and never at the channel's own list, and most cookery files have no episode numbers in their names. Both fixed, so Two Fat Ladies, Floyd, Delia, Ready Steady Cook and the rest play."
+      ]
+    },
     {
       "name": "Alpha 0.31",
       "date": "2026-11-11",
@@ -58,13 +67,6 @@ window.RELEASE = {
       "notes": [
         "**Fix the artwork from On Demand.** Hold OK on a show (or press Menu) for a menu: Scrape artwork (looks the show up on TVmaze again and takes a clear match), Choose the right show (a list of TVmaze matches with year, network and genre), Choose a poster, Choose a background (pick from what TVmaze has), and Back to automatic. What you pick is kept on this TV and used everywhere, and the choice is written to the debug log. A short press on OK still opens or plays as before.",
         "**Episode pictures.** An episode with no still of its own now shows archive.org's picture for its file when that file holds just that episode."
-      ]
-    },
-    {
-      "name": "Alpha 0.28",
-      "date": "2026-11-11",
-      "notes": [
-        "**A new On Demand.** A banner for the show you are on, then a row of posters for each channel (Left and Right along a row, Up and Down between channels, OK to open). A show opens on its own page with its poster, details, a Play button, season chips and the episode list. Real seasons come first in order; anything that does not fit a season (specials, unnumbered files) is under \"Other videos\" at the end, and a show with no seasons is one list. Flat colours and an outline for focus keep it light on older boxes."
       ]
     }
   ]

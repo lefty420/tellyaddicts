@@ -325,34 +325,51 @@
     font-size: 2.5vh; font-weight: 600; background: rgba(255,255,255,.1); border-radius: .7vh; white-space: nowrap; }
   .ob .ic { font-size: 2.6vh; }
   .ob.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
-  /* On Demand: channels, shows, then series and episodes */
-  #od { position: fixed; inset: 0; z-index: 55; display: flex; flex-direction: column; padding: 4vh 4vw 3vh;
-    background: linear-gradient(180deg, #0c2a86, #07184f 60%, #030d36); }
+  /* On Demand: a hero and a poster row per channel, then a page for the show with its seasons. Flat colours and
+     plain outlines only (no blur or shadows on moving parts), so even an old box keeps up. */
+  #od { position: fixed; inset: 0; z-index: 55; background: #0b0d12; color: #fff; overflow: hidden; }
   #od.hidden { display: none; }
-  #odtop { display: flex; align-items: baseline; gap: 2vw; margin-bottom: 2vh; }
-  #odtop h2 { margin: 0; font-size: 5vh; font-weight: 800; }
-  #odsub { font-size: 2.6vh; letter-spacing: .25em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
-  #odcols { flex: 1; display: flex; gap: 1.6vw; min-height: 0; }
-  .odcol { flex: 1 1 0; min-width: 0; background: rgba(0,0,0,.22); border-radius: 1vh; padding: 1.2vh .8vw; }
-  #odecol { flex: 1.5 1 0; display: flex; flex-direction: column; }
-  #odtitle { display: flex; align-items: center; gap: 1.2vw; min-height: 6vh; padding: 0 .6vw 1vh; }
-  #odart { height: 12vh; width: 8vh; object-fit: cover; border-radius: .6vh; box-shadow: 0 .6vh 2vh rgba(0,0,0,.6); }
-  #odhead { font-size: 3.2vh; font-weight: 700; color: var(--hi2); }
-  .odr { display: flex; justify-content: space-between; align-items: center; gap: 1vw; height: 6.2vh; padding: 0 .8vw; border-radius: .7vh;
-    font-size: 2.6vh; white-space: nowrap; }
-  .odr b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
-  .odr span { color: rgba(190,208,255,.85); font-size: 2.2vh; }
-  .odr.head { font-size: 2vh; letter-spacing: .25em; text-transform: uppercase; color: var(--hi1); height: 5vh; }
-  .odr.note { color: rgba(255,255,255,.55); }
-  .odr.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); box-shadow: 0 .4vh 1.4vh rgba(0,0,0,.35); }
-  .odr.sel span { color: var(--ink); }
-  .odr.dim { background: rgba(255,255,255,.14); }
-  #oddet { display: flex; gap: 1.2vw; margin-top: auto; padding: 1.2vh .6vw 0; border-top: .12vh solid rgba(255,255,255,.14); }
-  #oddet.hidden { display: none; }
-  #oddimg { height: 14vh; aspect-ratio: 16 / 9; object-fit: cover; border-radius: .6vh; flex: none; }
-  #oddt { font-size: 2.1vh; color: var(--hi1); font-weight: 600; margin-bottom: .5vh; }
-  #oddb { font-size: 2vh; line-height: 1.4; color: rgba(255,255,255,.82); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-  #odfoot { margin-top: 1.6vh; font-size: 2.2vh; color: rgba(255,255,255,.6); }
+  #odbg { position: absolute; left: 0; top: 0; width: 100%; height: 72vh; background: #1d2b4a center top / cover no-repeat; }
+  #odbg::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(0deg, #0b0d12 3%, rgba(11,13,18,0) 62%), linear-gradient(90deg, #0b0d12 24%, rgba(11,13,18,.55) 55%, rgba(11,13,18,.15) 90%); }
+  #odtag { position: absolute; left: 4vw; top: 3.6vh; font-size: 2.6vh; font-weight: 800; letter-spacing: .12em; }
+  #odtag span { font-weight: 500; letter-spacing: .02em; color: #aab3cc; margin-left: 1.2vw; }
+  #odhero { position: absolute; left: 4vw; top: 13vh; width: 46vw; }
+  #odm, #odsm { font-size: 2.3vh; color: #c3cadb; margin-bottom: 1.2vh; }
+  #odh1, #odst { font-size: 7.4vh; font-weight: 800; line-height: 1.02; margin: 0; }
+  #odp, #odsp { font-size: 2.5vh; line-height: 1.4; color: #c3cadb; margin-top: 1.8vh; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  #odhint { display: inline-block; margin-top: 2.4vh; font-size: 2.3vh; font-weight: 700; background: #fff; color: #000; padding: 1.1vh 2.2vw; border-radius: 1vh; }
+  #odrows { position: absolute; left: 0; right: 0; top: 50vh; }
+  .odrow { padding: 0 4vw; margin-bottom: 2.4vh; }
+  .odrow h3 { margin: 0 0 1.4vh; font-size: 2.8vh; font-weight: 700; }
+  .odrow h3 span { font-weight: 400; color: #8f98b0; margin-left: 1vw; font-size: 2.2vh; }
+  .odcards { display: flex; gap: 1.1vw; overflow: hidden; padding: .8vh .8vh 1.4vh; margin-left: -.8vh; }
+  .odc { position: relative; flex: none; width: 15vh; height: 22.5vh; border-radius: 1vh; overflow: hidden; background: #1d2433 center / cover no-repeat; }
+  .odc b { position: absolute; left: .9vh; right: .9vh; bottom: .9vh; font-size: 2vh; line-height: 1.1; }
+  .odc::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.6), rgba(0,0,0,0) 55%); }
+  .odc.sel { outline: .45vh solid #fff; transform: scale(1.06); z-index: 2; }
+  .odnone { color: #8f98b0; font-size: 2.4vh; padding: 3vh 0; }
+  #odshow { position: absolute; inset: 0; }
+  #odsh { position: absolute; left: 4vw; top: 7vh; display: flex; gap: 2.6vw; width: 92vw; }
+  #odpost { flex: none; width: 19vh; height: 28.5vh; border-radius: 1.2vh; background: #1d2433 center / cover no-repeat; }
+  #odsh > div:last-child { flex: 1; min-width: 0; padding-top: 1vh; }
+  #odbtn { display: flex; gap: 1.2vw; margin-top: 2.6vh; }
+  .odb { font-size: 2.5vh; font-weight: 700; padding: 1.3vh 2.4vw; border-radius: 1vh; background: rgba(255,255,255,.18); }
+  .odb.sel { background: #fff; color: #000; outline: .4vh solid #fff; }
+  #odchips { position: absolute; left: 4vw; top: 47vh; right: 4vw; display: flex; gap: .8vw; overflow: hidden; padding: .6vh; }
+  .odchip { flex: none; font-size: 2.3vh; padding: .9vh 1.6vw; border-radius: 4vh; background: #1b2030; color: #cdd3e4; }
+  .odchip.on { background: #3a4260; color: #fff; }
+  .odchip.sel { background: #fff; color: #000; font-weight: 700; }
+  #odeps { position: absolute; left: 4vw; right: 4vw; top: 56vh; }
+  .ode { display: flex; align-items: center; gap: 1.6vw; height: 8.6vh; margin-bottom: .6vh; padding: 0 1vw; border-radius: 1vh; }
+  .ode.sel { background: #2a3048; outline: .35vh solid #fff; }
+  .ode i { font-style: normal; flex: none; width: 3vw; text-align: center; font-size: 2.8vh; color: #8f98b0; }
+  .ode img, .ode .odth { flex: none; width: 12.4vh; height: 7vh; border-radius: .7vh; object-fit: cover; background: #1d2433; }
+  .ode div { flex: 1; min-width: 0; }
+  .ode b { display: block; font-size: 2.6vh; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ode small { display: block; margin-top: .3vh; font-size: 2vh; color: #9aa3ba; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ode em { flex: none; font-style: normal; font-size: 2.1vh; color: #aab3cc; }
+  #odfoot { position: absolute; right: 4vw; top: 4vh; font-size: 2.1vh; color: #aab3cc; }
   /* Options: a sheet down the right-hand side, grouped, with a line explaining the highlighted row */
   #opts { position: fixed; right: 0; top: 0; bottom: 0; z-index: 60; }
   #opts.hidden { display: none; }
@@ -448,14 +465,18 @@
   </div>
 </div>
 <div id="od" class="hidden">
-  <div id="odtop"><h2>On Demand</h2><span id="odsub">TV</span></div>
-  <div id="odcols">
-    <div class="odcol" id="odc"></div>
-    <div class="odcol" id="ods"></div>
-    <div class="odcol" id="odecol"><div id="odtitle"><img id="odart" class="hidden" alt=""><div id="odhead"></div></div><div id="ode"></div>
-      <div id="oddet" class="hidden"><img id="oddimg" class="hidden" alt=""><div><div id="oddt"></div><div id="oddb"></div></div></div></div>
+  <div id="odbg"></div>
+  <div id="odtag">ON DEMAND<span id="odsub"></span></div>
+  <div id="odhome">
+    <div id="odhero"><div id="odm"></div><h1 id="odh1"></h1><div id="odp"></div><div id="odhint">OK  Open</div></div>
+    <div id="odrows"></div>
   </div>
-  <div id="odfoot">&#9664; &#9654; move &nbsp;&middot;&nbsp; &#9650; &#9660; choose &nbsp;&middot;&nbsp; OK play &nbsp;&middot;&nbsp; Back</div>
+  <div id="odshow" class="hidden">
+    <div id="odsh"><div id="odpost"></div><div><div id="odsm"></div><h1 id="odst"></h1><div id="odsp"></div><div id="odbtn"></div></div></div>
+    <div id="odchips"></div>
+    <div id="odeps"></div>
+  </div>
+  <div id="odfoot"></div>
 </div>
 <div id="opts" class="hidden">
   <div id="opanel">

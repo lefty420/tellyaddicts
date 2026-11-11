@@ -2791,8 +2791,10 @@
   // ------------------------------------------------------------------ On Demand
   // Browse by channel, then show, then series and episode, and play any of it from the start. Not clock-synced:
   // it plays like a recording, with the usual bar to pause and skip, and carries on to the next episode.
-  var odOpen = false, odFrom = '', odCol = 0, odCi = 0, odSi = 0, odEi = 0, odData = {}, odArtFor = '';
-  var OD_ROWS = 8;
+  var odOpen = false, odFrom = '', odData = {}, odArtFor = '', odBgFor = '';
+  var odView = 'home', odRi = 0, odTop = 0, odPos = {}, odZone = 0, odSea = 0, odEi = 0;
+  var OD_VIS = 9;           // posters across a row
+  var OD_EPS = 4;           // episodes on screen at once
   var OD_SKIP = { xmasmusic: 1, kidsmovies: 1, videoshop: 1, tvarchive: 1 };   // songs, films and dated clips are not shows
   function odChannels() {
     return guideList().filter(function (c) { return c.status === 'ready' && !OD_SKIP[c.id]; });
@@ -2803,7 +2805,24 @@
     if (ref && m) return 'E' + odPad(ref.e) + (m[2] ? '   ' + m[2] : '');
     return p.title || '';
   }
-  /** A channel's programmes grouped into shows, each with its series and episodes in order. */
+  /** A flat card colour for a show with no picture: the same name always gets the same colour. */
+  function odTone(name) {
+    var h = 0, s = String(name || '');
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 360;
+    return 'linear-gradient(160deg,hsl(' + h + ',42%,30%),hsl(' + h + ',46%,11%))';
+  }
+  /** A show's episodes in seasons: every real season in order, then everything that does not fit one
+   *  (specials, unnumbered files, odd names) in "Other videos" at the end. A show with no seasons at all is one list. */
+  function odSeasons(g) {
+    var by = {}, other = [], list = [];
+    g.eps.forEach(function (ep) { if (ep.s > 0) (by[ep.s] = by[ep.s] || []).push(ep); else other.push(ep); });
+    Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (n) { list.push({ name: 'Season ' + n, eps: by[n] }); });
+    if (other.length) list.push({ name: list.length ? 'Other videos' : 'Videos', eps: other });
+    g.sea = list;
+    g.flat = [];
+    list.forEach(function (sn) { g.flat = g.flat.concat(sn.eps); });
+  }
+  /** A channel's programmes grouped into shows, each with its seasons and episodes in order. */
   function odGroup(progs) {
     var by = {}, shows = [];
     progs.forEach(function (p) {
@@ -2822,14 +2841,7 @@
         return (a.s - b.s) || (a.e - b.e) || (String(a.p.aired || '') < String(b.p.aired || '') ? -1 : String(a.p.aired || '') > String(b.p.aired || '') ? 1 : 0) ||
                String(a.label).localeCompare(String(b.label), undefined, { numeric: true, sensitivity: 'base' });
       });
-      var rows = [], last = null;
-      g.eps.forEach(function (ep) {
-        var head = ep.s ? 'Series ' + ep.s : (g.eps.some(function (x) { return x.s; }) ? 'Other episodes' : '');
-        if (head !== last) { if (head) rows.push({ head: head }); last = head; }
-        rows.push(ep);
-      });
-      g.rows = rows;
-      g.first = rows.map(function (r) { return !!r.p; }).indexOf(true);
+      odSeasons(g);
     });
     return shows;
   }
@@ -2891,66 +2903,139 @@
     });
     return g.metaP;
   }
-  function odShows() { var c = odChannels()[odCi], r = c && odData[c.id]; return r && r.shows; }
-  function odShow() { var l = odShows(); return l && l[odSi]; }
-
-  function odRow(box, i, text, sub, cls) {
-    var d = document.createElement('div');
-    d.className = 'odr' + (cls ? ' ' + cls : '');
-    var a = document.createElement('b'); a.textContent = text; d.appendChild(a);
-    if (sub) { var b = document.createElement('span'); b.textContent = sub; d.appendChild(b); }
-    box.appendChild(d);
+  function odRowList() {
+    return odChannels().filter(function (c) { var r = odData[c.id]; return !(r && r.shows && !r.shows.length); });
   }
-  function odPaint(boxId, rows, sel, active, note) {
-    var box = $(boxId); box.textContent = '';
-    if (!rows) { odRow(box, 0, 'Loading…', '', 'note'); return; }
-    if (!rows.length) { odRow(box, 0, note || 'Nothing here yet', '', 'note'); return; }
-    var top = Math.max(0, Math.min(sel - 4, rows.length - OD_ROWS));
-    for (var i = top; i < Math.min(rows.length, top + OD_ROWS); i++) {
-      var r = rows[i];
-      odRow(box, i, r.text, r.sub, (r.head ? 'head' : '') + (i === sel ? (active ? ' sel' : ' dim') : ''));
-    }
+  function odShowsOf(c) { var r = c && odData[c.id]; return r && r.shows; }
+  /** Where the highlight is: the channel row, and the show in it. */
+  function odSel() {
+    var rows = odRowList();
+    odRi = Math.max(0, Math.min(odRi, rows.length - 1));
+    var c = rows[odRi], sh = odShowsOf(c), i = c ? (odPos[c.id] || 0) : 0;
+    return { c: c, rows: rows, sh: sh, g: sh && sh.length ? sh[Math.min(i, sh.length - 1)] : null };
+  }
+  function odEl(tag, cls, text) {
+    var d = document.createElement(tag);
+    if (cls) d.className = cls;
+    if (text != null) d.textContent = text;
+    return d;
+  }
+  function odSetBg(g) {
+    var k = g ? knownArt({ title: g.name, show: g.name }) : null;
+    var want = g ? g.name + '|' + (k && k.back || '') : '';
+    if (want === odBgFor) return;
+    odBgFor = want;
+    $('odbg').style.backgroundImage = k && k.back ? 'url("' + k.back + '")' : (g ? odTone(g.name) : 'none');
+  }
+  /** The show's own details (network, years, summary) and artwork, looked up once the highlight has rested on it. */
+  var odMetaTimer = null;
+  function odLookups(g) {
+    clearTimeout(odMetaTimer);
+    if (!g) return;
+    odMetaTimer = setTimeout(function () {
+      if (!odOpen) return;
+      if (g.art === undefined) { g.art = null; artShow(g.name).then(function (x) { g.art = x || null; if (odOpen && odSel().g === g) odRender(); }); }
+      if (gartOn && !knownArt({ title: g.name, show: g.name }) && odArtFor !== g.name) {
+        odArtFor = g.name;
+        var p = parseTitle(g.name + ' S01E01'); p.show = g.name;
+        tvmInfo(p).then(function () { if (odOpen && odSel().g === g) odRender(); }, function () { /* no artwork */ });
+      }
+    }, 350);
+  }
+  function odInfoLine(g) {
+    var x = g.art;
+    return x ? [x.n || '', x.y ? x.y + (x.e && x.e !== x.y ? '–' + x.e : '') : '', x.g || ''].filter(Boolean).join('  ·  ') : '';
   }
   function odRender() {
-    var chs = odChannels(), shows = odShows(), g = odShow();
-    odPaint('odc', chs.map(function (c) { var r = odData[c.id]; return { text: c.n + '   ' + c.name, sub: r && r.shows ? String(r.shows.length) : '' }; }), odCi, odCol === 0);
-    odPaint('ods', shows && shows.map(function (x) { return { text: x.name, sub: String(x.eps.length) }; }), odSi, odCol === 1,
-            'No shows on this channel yet');
-    odPaint('ode', g ? g.rows.map(function (r) {
-      if (r.head) return { text: r.head, head: 1 };
-      var m = g.meta && g.meta[r.s + 'x' + r.e], label = r.label;
-      if (m && m.t && /^E\d+$/.test(label)) label += '   ' + m.t;                 // the library has no title: use the scraper's
-      return { text: label, sub: r.year || (m && m.a ? String(m.a).slice(0, 4) : '') };
-    }) : (shows ? [] : null), odEi, odCol === 2);
-    odDetail(g);
-    $('odhead').textContent = g ? g.name : (chs[odCi] ? chs[odCi].name : '');
-    var art = $('odart'), k = g ? knownArt({ title: g.name, show: g.name }) : null;
-    if (k && (k.poster || k.back)) { art.src = k.poster || k.back; art.className = ''; } else art.className = 'hidden';
-    if (g && gartOn && !k && odArtFor !== g.name) {                     // not known yet: look it up, then repaint
-      odArtFor = g.name;
-      var p = parseTitle(g.name + ' S01E01'); p.show = g.name;
-      tvmInfo(p).then(function () { if (odOpen && odShow() === g) odRender(); }, function () { /* no artwork */ });
+    if (odView === 'show') odRenderShow(); else odRenderHome();
+    $('odfoot').textContent = odView === 'show'
+      ? '▲ ▼ move   ◀ ▶ season   OK play   Back'
+      : '◀ ▶ browse   ▲ ▼ channels   OK open   Back';
+  }
+  function odCard(g, sel) {
+    var k = knownArt({ title: g.name, show: g.name }), d = odEl('div', 'odc' + (sel ? ' sel' : ''));
+    if (k && (k.poster || k.back)) d.style.backgroundImage = 'url("' + (k.poster || k.back) + '")';
+    else { d.style.backgroundImage = odTone(g.name); d.appendChild(odEl('b', '', g.name)); }
+    return d;
+  }
+  function odRenderHome() {
+    var s = odSel(), rows = s.rows, box = $('odrows');
+    if (odRi < odTop) odTop = odRi;
+    if (odRi > odTop + 1) odTop = odRi - 1;
+    box.textContent = '';
+    for (var ri = odTop; ri < Math.min(rows.length, odTop + 2); ri++) {
+      var c = rows[ri], sh = odShowsOf(c), row = odEl('div', 'odrow'), h = odEl('h3', '', c.n + '   ' + c.name);
+      if (sh) h.appendChild(odEl('span', '', sh.length + (sh.length === 1 ? ' show' : ' shows')));
+      row.appendChild(h);
+      var cards = odEl('div', 'odcards');
+      if (!sh) cards.appendChild(odEl('div', 'odnone', 'Loading…'));
+      else {
+        var pos = Math.min(odPos[c.id] || 0, sh.length - 1), start = Math.max(0, Math.min(pos - 3, sh.length - OD_VIS));
+        for (var i = start; i < Math.min(sh.length, start + OD_VIS); i++) cards.appendChild(odCard(sh[i], ri === odRi && i === pos));
+      }
+      row.appendChild(cards); box.appendChild(row);
+    }
+    var g = s.g;
+    odSetBg(g);
+    $('odh1').textContent = g ? g.name : (s.c ? s.c.name : '');
+    $('odm').textContent = g ? (odInfoLine(g) || s.c.name) : '';
+    $('odp').textContent = g ? ((g.art && g.art.s) || (g.eps.length + (g.eps.length === 1 ? ' video' : ' videos'))) : '';
+    $('odhint').className = g ? '' : 'hidden';
+    odLookups(g);
+  }
+  /** Episode title for the list: the library's own, else the scraper's guide, else just the number. */
+  function odEpTitle(ep, m) {
+    var lab = String(ep.label || '');
+    if (ep.s > 0) {
+      if (/^E\d+$/.test(lab)) return (m && m.t) || 'Episode ' + ep.e;
+      if (/^E\d+\s+/.test(lab)) return lab.replace(/^E\d+\s+/, '');
+    }
+    return lab;
+  }
+  function odRenderShow() {
+    var s = odSel(), g = s.g;
+    if (!g) { odView = 'home'; $('odhome').className = ''; $('odshow').className = 'hidden'; odRenderHome(); return; }
+    odSetBg(g);
+    var k = knownArt({ title: g.name, show: g.name }), post = $('odpost');
+    post.style.backgroundImage = k && (k.poster || k.back) ? 'url("' + (k.poster || k.back) + '")' : odTone(g.name);
+    $('odst').textContent = g.name;
+    var seasons = g.sea.filter(function (x) { return /^Season/.test(x.name); }).length;
+    $('odsm').textContent = [odInfoLine(g), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : '', g.eps.length + (g.eps.length === 1 ? ' video' : ' videos')].filter(Boolean).join('  ·  ');
+    $('odsp').textContent = (g.art && g.art.s) || '';
+    var first = g.flat[0], btn = $('odbtn'); btn.textContent = '';
+    btn.appendChild(odEl('div', 'odb' + (odZone === 0 ? ' sel' : ''), '▶  Play' + (first && first.s ? ' S' + odPad(first.s) + 'E' + odPad(first.e) : '')));
+    var chips = $('odchips'); chips.textContent = '';
+    if (g.sea.length > 1) {
+      var cs = Math.max(0, Math.min(odSea - 4, g.sea.length - 10));
+      for (var i = cs; i < Math.min(g.sea.length, cs + 10); i++) chips.appendChild(odEl('div', 'odchip' + (i === odSea ? ' on' : '') + (i === odSea && odZone === 1 ? ' sel' : ''), g.sea[i].name));
+    }
+    var list = (g.sea[odSea] || { eps: [] }).eps, box = $('odeps'); box.textContent = '';
+    odEi = Math.max(0, Math.min(odEi, list.length - 1));
+    var top = Math.max(0, Math.min(odEi - 2, list.length - OD_EPS));
+    for (var j = top; j < Math.min(list.length, top + OD_EPS); j++) {
+      var ep = list[j], m = g.meta && g.meta[ep.s + 'x' + ep.e], row = odEl('div', 'ode' + (j === odEi && odZone === 2 ? ' sel' : ''));
+      row.appendChild(odEl('i', '', ep.s > 0 ? String(ep.e) : '•'));
+      if (m && m.img) { var im = document.createElement('img'); im.alt = ''; im.src = m.img; row.appendChild(im); }
+      else { var th = odEl('div', 'odth'); th.style.backgroundImage = odTone(g.name); row.appendChild(th); }
+      var tx = odEl('div'); tx.appendChild(odEl('b', '', odEpTitle(ep, m)));
+      if (m && m.d) tx.appendChild(odEl('small', '', m.d));
+      row.appendChild(tx);
+      row.appendChild(odEl('em', '', m && m.l ? m.l + ' min' : (ep.year || (m && m.a ? String(m.a).slice(0, 4) : ''))));
+      box.appendChild(row);
     }
   }
-  /** Under the episode list: the highlighted episode's still and summary, or else the show's own. */
-  var odMetaTimer = null;
-  function odDetail(g) {
-    var row = g && g.rows[odEi], m = row && row.p && g.meta && g.meta[row.s + 'x' + row.e];
-    var img = $('oddimg'), t = '', body = '';
-    clearTimeout(odMetaTimer);           // only once the highlight has rested: scrolling past 50 shows should not ask for 50 guides
-    if (g && !g.metaP) odMetaTimer = setTimeout(function () { if (odOpen && odShow() === g) odMeta(g).then(function () { if (odOpen && odShow() === g) odRender(); }); }, 350);
-    if (g && g.art === undefined) { g.art = null; artShow(g.name).then(function (a) { g.art = a || null; if (odOpen && odShow() === g) odRender(); }); }
-    var pic = (m && m.img) || '';
-    if (m) {
-      t = [row.s ? 'Series ' + row.s + ', episode ' + row.e : '', m.t || '', m.a ? String(m.a).slice(0, 4) : '', m.l ? m.l + ' min' : ''].filter(Boolean).join('  \u00b7  ');
-      body = m.d || '';
-    } else if (g && g.art) {
-      t = [g.art.n || '', g.art.y ? g.art.y + (g.art.e && g.art.e !== g.art.y ? '\u2013' + g.art.e : '') : '', g.art.g || ''].filter(Boolean).join('  \u00b7  ');
-      body = g.art.s || '';
-    }
-    $('oddt').textContent = t; $('oddb').textContent = body;
-    if (pic) { img.src = pic; img.className = ''; } else img.className = 'hidden';
-    $('oddet').className = t || body || pic ? '' : 'hidden';
+  function odShowView(on) {
+    odView = on ? 'show' : 'home';
+    $('odhome').className = on ? 'hidden' : '';
+    $('odshow').className = on ? '' : 'hidden';
+  }
+  function odOpenShow() {
+    var g = odSel().g;
+    if (!g) return;
+    odZone = 0; odSea = 0; odEi = 0;
+    odShowView(true);
+    if (!g.metaP) odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });
+    odRender();
   }
   function odOpenUi() {
     var chs = odChannels();
@@ -2958,8 +3043,10 @@
     odFrom = guideOpen ? 'guide' : (cur ? 'watch' : '');
     closeOsd(); closeOpts();
     if (guideOpen) closeGuide();
-    odOpen = true; odCol = 0; odSi = 0; odEi = 0; odArtFor = '';
-    odCi = Math.max(0, cur ? chs.indexOf(cur.ch) : 0);
+    odOpen = true; odArtFor = ''; odBgFor = ''; odTop = 0;
+    odShowView(false);
+    var rows = odRowList(), at = cur ? rows.indexOf(cur.ch) : 0;
+    odRi = Math.max(0, at);
     $('od').className = '';
     v.muted = true;
     odEnter();
@@ -2967,6 +3054,7 @@
   }
   function odClose(restore) {
     odOpen = false;
+    clearTimeout(odMetaTimer);
     $('od').className = 'hidden';
     v.muted = false;
     if (restore && odFrom === 'guide') openGuide();
@@ -2978,43 +3066,61 @@
     (function next() {
       if (tok !== odPre || !odOpen || i >= chs.length) return;
       var c = chs[i++];
-      odLoadChannel(c).then(function () { if (odOpen) odRender(); setTimeout(next, 30); });
+      odLoadChannel(c).then(function () { if (odOpen && odView === 'home') odRender(); setTimeout(next, 30); });
     })();
   }
-  /** Load the focused channel's shows, then show them. */
+  /** Load the focused channel's shows first, then show them. */
   function odEnter() {
-    var c = odChannels()[odCi];
+    var c = odSel().c;
     odRender();
     if (!c) return;
-    odLoadChannel(c).then(function () { if (odOpen && odChannels()[odCi] === c) { odSi = Math.min(odSi, Math.max(0, (odShows() || []).length - 1)); odRender(); } });
+    odLoadChannel(c).then(function () { if (odOpen && odSel().c === c) odRender(); });
   }
   function odKey(k) {
-    var chs = odChannels();
+    if (k === 'Guide' || k === 'Red') { odClose(false); openGuide(); return true; }
+    if (odView === 'show') return odKeyShow(k);
+    var s = odSel(), c = s.c, sh = s.sh, pos = c ? (odPos[c.id] || 0) : 0;
     if (k === 'ArrowUp' || k === 'ArrowDown') {
-      var d = k === 'ArrowUp' ? -1 : 1;
-      if (odCol === 0) { odCi = (odCi + d + chs.length) % chs.length; odSi = 0; odEi = 0; odEnter(); return true; }
-      if (odCol === 1) { var sh = odShows(); if (sh && sh.length) { odSi = (odSi + d + sh.length) % sh.length; var g = sh[odSi]; odEi = g.first < 0 ? 0 : g.first; } }
-      else { var g2 = odShow(); if (g2) { var i = odEi; do { i += d; } while (i >= 0 && i < g2.rows.length && g2.rows[i].head); if (i >= 0 && i < g2.rows.length) odEi = i; } }
+      var ni = odRi + (k === 'ArrowUp' ? -1 : 1);
+      if (ni >= 0 && ni < s.rows.length) { odRi = ni; odEnter(); return true; }
+    } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
+      if (sh && sh.length) odPos[c.id] = Math.max(0, Math.min(sh.length - 1, pos + (k === 'ArrowLeft' ? -1 : 1)));
     } else if (k === 'ChannelUp' || k === 'ChannelDown') {
-      var pg = k === 'ChannelUp' ? -OD_ROWS + 1 : OD_ROWS - 1;
-      if (odCol === 1) { var l = odShows(); if (l && l.length) { odSi = Math.max(0, Math.min(l.length - 1, odSi + pg)); var g3 = l[odSi]; odEi = g3.first < 0 ? 0 : g3.first; } }
-      else if (odCol === 2) { var g4 = odShow(); if (g4) { var j = Math.max(0, Math.min(g4.rows.length - 1, odEi + pg)); while (j < g4.rows.length - 1 && g4.rows[j].head) j++; odEi = j; } }
-    } else if (k === 'ArrowRight' || k === 'Enter' || k === ' ') {
-      if (odCol === 0) { if ((odShows() || []).length) { odCol = 1; var g5 = odShow(); odEi = g5 && g5.first >= 0 ? g5.first : 0; } }
-      else if (odCol === 1) { var g6 = odShow(); if (g6) { odCol = 2; if (odEi < 0 || !g6.rows[odEi] || g6.rows[odEi].head) odEi = Math.max(0, g6.first); } }
-      else if (k === 'Enter' || k === ' ') { odPlay(); return true; }
-    } else if (k === 'ArrowLeft') { if (odCol > 0) odCol--; }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { if (odCol > 0) odCol--; else odClose(true); }
-    else if (k === 'Guide' || k === 'Red') { odClose(false); openGuide(); return true; }
+      if (sh && sh.length) odPos[c.id] = Math.max(0, Math.min(sh.length - 1, pos + (k === 'ChannelUp' ? -OD_VIS + 1 : OD_VIS - 1)));
+    } else if (k === 'Enter' || k === ' ') { odOpenShow(); return true; }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odClose(true); return true; }
     odRender();
     return true;
   }
-  function odPlay() {
-    var c = odChannels()[odCi], g = odShow(), r = g && g.rows[odEi];
-    if (!c || !r || !r.p) return;
-    var list = g.rows.filter(function (x) { return x.p; });
+  function odKeyShow(k) {
+    var g = odSel().g;
+    if (!g) { odShowView(false); odRender(); return true; }
+    var chips = g.sea.length > 1, list = (g.sea[odSea] || { eps: [] }).eps;
+    if (k === 'ArrowUp') {
+      if (odZone === 2) { if (odEi > 0) odEi--; else odZone = chips ? 1 : 0; }
+      else if (odZone === 1) odZone = 0;
+    } else if (k === 'ArrowDown') {
+      if (odZone === 0) odZone = chips ? 1 : 2;
+      else if (odZone === 1) { odZone = 2; odEi = 0; }
+      else odEi = Math.min(list.length - 1, odEi + 1);
+    } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
+      if (odZone === 1) { odSea = Math.max(0, Math.min(g.sea.length - 1, odSea + (k === 'ArrowLeft' ? -1 : 1))); odEi = 0; }
+    } else if (k === 'ChannelUp' || k === 'ChannelDown') {
+      if (odZone === 2) odEi = Math.max(0, Math.min(list.length - 1, odEi + (k === 'ChannelUp' ? -OD_EPS + 1 : OD_EPS - 1)));
+    } else if (k === 'Enter' || k === ' ') {
+      if (odZone === 0) { if (g.flat[0]) odPlay(g.flat[0]); return true; }
+      if (odZone === 1) { odZone = 2; odEi = 0; }
+      else if (list[odEi]) { odPlay(list[odEi]); return true; }
+    } else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odShowView(false); }
+    odRender();
+    return true;
+  }
+  function odPlay(ep) {
+    var s = odSel(), g = s.g;
+    if (!s.c || !g || !ep || !ep.p) return;
+    var i = g.flat.indexOf(ep);
     odClose(false);
-    odStart(c, list, list.indexOf(r));
+    odStart(s.c, g.flat, i);
   }
   function odStart(c, list, i) {
     var info = { list: list, i: i };

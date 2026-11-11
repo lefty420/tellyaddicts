@@ -23,24 +23,62 @@
   // Picture looks (CRT / Vivid / Sharp) are CSS only: the browser may not read archive.org video pixels, so no shader.
   var guideOpen = false;
 
+  // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
+  // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
+  // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:)/;
+  var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
+  var kv = {
+    big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
+    getItem: function (k) {
+      if (kv.big(k)) { try { return NativeHttp.kvGet(k); } catch (e) { return null; } }
+      return localStorage.getItem(k);
+    },
+    setItem: function (k, v) {                        // throws when it will not fit, like localStorage
+      if (kv.big(k)) { var ok = false; try { ok = NativeHttp.kvSet(k, v); } catch (e) { ok = false; } if (!ok) throw new Error('not saved'); return; }
+      localStorage.setItem(k, v);
+    },
+    removeItem: function (k) {
+      if (kv.big(k)) { try { NativeHttp.kvRemove(k); } catch (e) { /* nothing to remove */ } return; }
+      localStorage.removeItem(k);
+    },
+    /** Every key, in the page's storage and in the files. */
+    keys: function () {
+      var out = [], i;
+      try { for (i = 0; i < localStorage.length; i++) out.push(localStorage.key(i)); } catch (e) { /* blocked */ }
+      if (KV_NATIVE) { try { String(NativeHttp.kvKeys() || '').split('\n').forEach(function (k) { if (k) out.push(k); }); } catch (e) { /* none */ } }
+      return out;
+    }
+  };
+  // lists and guides kept in the page's storage by earlier versions are cleared once: they are built or fetched again
+  // into files, and would only keep taking up the room the page's storage has
+  if (KV_NATIVE) {
+    try {
+      if (!localStorage.getItem('kvmig1')) {
+        var olds = [];
+        for (var oi = 0; oi < localStorage.length; oi++) { var ok0 = localStorage.key(oi); if (ok0 && KV_BIG.test(ok0)) olds.push(ok0); }
+        olds.forEach(function (k0) { localStorage.removeItem(k0); });
+        localStorage.setItem('kvmig1', '1');
+      }
+    } catch (e) { /* storage blocked */ }
+  }
   var store = {
-    get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+    get: function (k) { try { return JSON.parse(kv.getItem(k)); } catch (e) { return null; } },
     set: function (k, x) {
       var text = JSON.stringify(x);
-      try { localStorage.setItem(k, text); return true; } catch (e) { /* storage full or blocked */ }
-      // A channel's list matters more than the artwork and episode guides kept beside it, and those are fetched
-      // again when wanted: when a list will not fit, the oldest of them make room.
-      if (/^plan7/.test(k)) {
+      try { kv.setItem(k, text); return true; } catch (e) { /* storage full or blocked */ }
+      // Only the page's own storage can fill up. A channel's list matters more than the artwork and episode guides
+      // beside it, and those are fetched again when wanted: when a list will not fit, the oldest of them make room.
+      if (!KV_NATIVE && /^plan7/.test(k)) {
         try {
           var old = [];
-          for (var i = 0; i < localStorage.length; i++) {
-            var kn = localStorage.key(i);
-            if (kn && /^(eps1|info3|art2|tvm4|artdb1):/.test(kn)) { var o = null; try { o = JSON.parse(localStorage.getItem(kn)); } catch (e2) { /* unreadable: goes first */ } old.push({ k: kn, t: (o && o.t) || 0 }); }
-          }
+          kv.keys().forEach(function (kn) {
+            if (/^(eps1|info3|art2|tvm4|artdb1):/.test(kn)) { var o = null; try { o = JSON.parse(kv.getItem(kn)); } catch (e2) { /* unreadable: goes first */ } old.push({ k: kn, t: (o && o.t) || 0 }); }
+          });
           old.sort(function (p, q) { return p.t - q.t; });
           for (var j = 0; j < old.length; j++) {
-            localStorage.removeItem(old[j].k);
-            try { localStorage.setItem(k, text); return true; } catch (e3) { /* still full: remove the next */ }
+            kv.removeItem(old[j].k);
+            try { kv.setItem(k, text); return true; } catch (e3) { /* still full: remove the next */ }
           }
         } catch (e4) { /* storage blocked */ }
       }
@@ -52,15 +90,15 @@
   // They are thrown away once so those shows get looked up again.
   try {
     var gone = [];
-    for (var ki = 0; ki < localStorage.length; ki++) {
-      var kk = localStorage.key(ki);
+    var _ks = kv.keys(); for (var ki = 0; ki < _ks.length; ki++) {
+      var kk = _ks[ki];
       if (kk && (kk.indexOf('art1:') === 0 || kk.indexOf('info2:') === 0)) gone.push(kk);
     }
-    gone.forEach(function (k2) { localStorage.removeItem(k2); });
+    gone.forEach(function (k2) { kv.removeItem(k2); });
   } catch (e) { /* storage blocked */ }
   // Programmes marked "slow to start" by versions whose buffer could not join a long programme part-way through:
   // the fault was the buffer's, not theirs, so they get a clean slate once.
-  try { if (!localStorage.getItem('slowfix1')) { localStorage.removeItem('slow1'); localStorage.setItem('slowfix1', '1'); } } catch (e) { /* storage blocked */ }
+  try { if (!kv.getItem('slowfix1')) { kv.removeItem('slow1'); kv.setItem('slowfix1', '1'); } } catch (e) { /* storage blocked */ }
 
   // ------------------------------------------------------------------ debug log
   //
@@ -371,9 +409,9 @@
           Object.keys(chans).forEach(function (ch) { if (!routed[ch] || !routed[ch].length) revs[ch] = chans[ch]; });
           Object.keys(routed).forEach(function (ch) { revs[ch] = 'L' + E.hash(JSON.stringify(routed[ch])).toString(36); });
           try {                                 // forget answers for older libraries
-            for (var k = localStorage.length - 1; k >= 0; k--) {
-              var kn = localStorage.key(k);
-              if (kn && kn !== key && kn.indexOf('librevs') === 0) localStorage.removeItem(kn);
+            var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
+              var kn = _ks[k];
+              if (kn && kn !== key && kn.indexOf('librevs') === 0) kv.removeItem(kn);
             }
           } catch (e) { /* ignore */ }
           store.set(key, { revs: revs });
@@ -632,9 +670,9 @@
       ch.plan = E.sample(progs, MAX_STORED);
       if (ch.plan.length) {
         try {                                   // drop this channel's lists from earlier revisions
-          for (var k = localStorage.length - 1; k >= 0; k--) {
-            var kn = localStorage.key(k);
-            if (kn && kn !== dkey && kn.indexOf('plan7d:' + ch.id + ':') === 0) localStorage.removeItem(kn);
+          var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
+            var kn = _ks[k];
+            if (kn && kn !== dkey && kn.indexOf('plan7d:' + ch.id + ':') === 0) kv.removeItem(kn);
           }
         } catch (e) { /* ignore */ }
         ch.cacheT = Date.now();
@@ -758,9 +796,9 @@
         if (progs.length && !ch.noCache) {
           // forget older cached lists for this channel (earlier versions of the sources, or the old cache format)
           try {
-            for (var k = localStorage.length - 1; k >= 0; k--) {
-              var kn = localStorage.key(k);
-              if (kn && kn !== key && (kn.indexOf(prefix + ch.id + ':') === 0 || kn.indexOf('lib2:' + ch.id + ':') === 0)) localStorage.removeItem(kn);
+            var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
+              var kn = _ks[k];
+              if (kn && kn !== key && (kn.indexOf(prefix + ch.id + ':') === 0 || kn.indexOf('lib2:' + ch.id + ':') === 0)) kv.removeItem(kn);
             }
           } catch (e) { /* ignore */ }
           ch.cacheT = Date.now();
@@ -1024,9 +1062,9 @@
         var idx = {};
         Object.keys((j && j.shows) || {}).forEach(function (n) { idx[normShow(n)] = j.shows[n]; });
         try {                                          // only the newest copy is kept
-          for (var k = localStorage.length - 1; k >= 0; k--) {
-            var kn = localStorage.key(k);
-            if (kn && kn !== key && kn.indexOf('artdb1:') === 0) localStorage.removeItem(kn);
+          var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
+            var kn = _ks[k];
+            if (kn && kn !== key && kn.indexOf('artdb1:') === 0) kv.removeItem(kn);
           }
         } catch (e) { /* ignore */ }
         store.set(key, { t: Date.now(), idx: idx });
@@ -2602,9 +2640,9 @@
   function metaSize() {
     var bytes = 0, n = 0;
     try {
-      for (var k = 0; k < localStorage.length; k++) {
-        var kn = localStorage.key(k);
-        if (kn && META_KEYS.test(kn)) { bytes += kn.length + (localStorage.getItem(kn) || '').length; n++; }
+      var _ks = kv.keys(); for (var k = 0; k < _ks.length; k++) {
+        var kn = _ks[k];
+        if (kn && META_KEYS.test(kn)) { bytes += kn.length + (kv.getItem(kn) || '').length; n++; }
       }
     } catch (e) { /* unavailable */ }
     return n ? (bytes / 1048576 < 0.1 ? Math.max(1, Math.round(bytes / 1024)) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB') : 'Nothing saved';
@@ -2618,9 +2656,9 @@
   function clearMeta() {
     var gone = 0;
     try {
-      for (var k = localStorage.length - 1; k >= 0; k--) {
-        var kn = localStorage.key(k);
-        if (kn && META_KEYS.test(kn)) { localStorage.removeItem(kn); gone++; }
+      var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
+        var kn = _ks[k];
+        if (kn && META_KEYS.test(kn)) { kv.removeItem(kn); gone++; }
       }
     } catch (e) { /* ignore */ }
     try { if (window.NativeHttp && NativeHttp.clearImages) NativeHttp.clearImages(); } catch (e) { /* older app */ }
@@ -2687,9 +2725,9 @@
     epgGen = (epgGen + 1) % 100000;
     store.set('epggen', epgGen);
     try {
-      for (var k = localStorage.length - 1; k >= 0; k--) {
-        var kn = localStorage.key(k);
-        if (kn && /^plan7[ad]?:/.test(kn)) localStorage.removeItem(kn);
+      var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
+        var kn = _ks[k];
+        if (kn && /^plan7[ad]?:/.test(kn)) kv.removeItem(kn);
       }
     } catch (e) { /* ignore */ }
     toast('Building every channel afresh\u2026', 4000);
@@ -3427,7 +3465,7 @@
   }
   function odFixApply(g, entry, msg) {
     store.set('artfix:' + normShow(g.name), { a: entry });
-    try { localStorage.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
+    try { kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
     g.art = entry; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odKGen++;
     dlog('ARTWORK picked for ' + g.name + ': ' + (entry.name || '') + ' (TVmaze ' + (entry.i || '?') + ')' + (entry.p ? ' poster ' + entry.p : '') + (entry.b ? ' background ' + entry.b : ''));
     odmClose(); toast(msg, 3500);
@@ -3444,7 +3482,7 @@
       { t: 'Choose a poster', f: function () { odmPics(g, 'poster'); } },
       { t: 'Choose a background', f: function () { odmPics(g, 'background'); } },
       { t: 'Back to automatic', f: function () {
-        try { localStorage.removeItem('artfix:' + normShow(g.name)); localStorage.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
+        try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
         g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } }
     ], title: g.name };
     odmRender();
@@ -3606,9 +3644,9 @@
     var live = {};
     channels.forEach(function (c) { live[c.id] = 1; });
     try {
-      for (var k = localStorage.length - 1; k >= 0; k--) {
-        var kn = localStorage.key(k), m = /^plan7[ad]?:([^:]+):/.exec(kn || '');
-        if (m && !live[m[1]]) localStorage.removeItem(kn);
+      var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
+        var kn = _ks[k], m = /^plan7[ad]?:([^:]+):/.exec(kn || '');
+        if (m && !live[m[1]]) kv.removeItem(kn);
       }
     } catch (e) { /* storage unavailable: nothing to tidy */ }
   }

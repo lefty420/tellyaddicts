@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
     private final Handler main = new Handler(Looper.getMainLooper());
     private MediaCache cache;
     private final LogServer logs = new LogServer();
+    private KvStore kv;
     /** All requests share a small pool: one thread per request used to leave 50+ threads competing during start-up. */
     private final ExecutorService http = Executors.newFixedThreadPool(HTTP_THREADS, new ThreadFactory() {
         @Override
@@ -288,6 +289,44 @@ public class MainActivity extends Activity {
 
     /** window.NativeHttp, used by the page. */
     private class Bridge {
+        // ---- bulk saving as files (see KvStore): the page's own storage is far too small for 28 channels
+        @JavascriptInterface
+        public String kvGet(String key) {
+            KvStore k = store();
+            return k == null ? null : k.get(key);
+        }
+
+        @JavascriptInterface
+        public boolean kvSet(String key, String value) {
+            KvStore k = store();
+            return k != null && k.set(key, value);
+        }
+
+        @JavascriptInterface
+        public void kvRemove(String key) {
+            KvStore k = store();
+            if (k != null) {
+                k.remove(key);
+            }
+        }
+
+        @JavascriptInterface
+        public String kvKeys() {
+            KvStore k = store();
+            return k == null ? "" : k.keys();
+        }
+
+        private synchronized KvStore store() {
+            if (kv == null) {
+                try {
+                    kv = new KvStore(getFilesDir());
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+            return kv;
+        }
+
         /** Throws away the pictures the page has downloaded (posters, backdrops, stills). They come back when needed. */
         @JavascriptInterface
         public void clearImages() {

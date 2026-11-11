@@ -3031,7 +3031,15 @@
     var slug = odSlug(g.name), key = 'eps1:' + slug, c = store.get(key);
     var done = function (m) {
       g.meta = null;
-      if (m && m.eps) { g.meta = {}; m.eps.forEach(function (e) { g.meta[e.s + 'x' + e.e] = e; }); g.seasons = m.seasons || {}; }
+      if (m && m.eps) {
+        g.meta = {};
+        m.eps.forEach(function (e) {
+          // the guide's stills are TVmaze's full-size originals: a TV decodes the medium size far faster and it is plenty for a thumbnail
+          if (e.img) e.img = String(e.img).replace('/original_untouched/', '/medium_landscape/');
+          g.meta[e.s + 'x' + e.e] = e;
+        });
+        g.seasons = m.seasons || {};
+      }
     };
     /** TVmaze's own episode list, one request for the whole show, for a show the scraper has no guide for. */
     var fromTvmaze = function () {

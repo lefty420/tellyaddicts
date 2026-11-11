@@ -213,9 +213,10 @@
         var items = progs.filter(want);
         return items.length >= (min || 1) ? (items.length >= 6 || !rest.length ? items : items.concat(rest)) : [];
       }
-      // the daytime and late-night serials: the smaller soaps, with Crossroads (by far the biggest) to stop them repeating
-      var all = rest.concat(progs.filter(CROSSROADS));
-      if (!all.length) all = progs;
+      // the daytime and late-night mix: every soap on the channel, so EastEnders, Neighbours and the rest can be found at
+      // any time of day as well as in their own evening slots. The big soaps have far more episodes than the small ones
+      // and will fill most of it; see tools/schedule-notes.md
+      var all = progs;
       var plan = [
         [secs(6, 0), false, all],                               // daytime: the soaps that had no fixed slot
         [secs(13, 45), true, pool(NEIGHBOURS)],                 // lunchtime Neighbours

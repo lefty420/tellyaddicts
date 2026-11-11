@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.29",
-  "version": "0.29",
-  "code": 2900,
+  "name": "Alpha 0.29.1",
+  "version": "0.29.1",
+  "code": 2901,
   "date": "2026-11-11",
   "notes": [
-    "**Fix the artwork from On Demand.** Hold OK on a show (or press Menu) for a menu: Scrape artwork (looks the show up on TVmaze again and takes a clear match), Choose the right show (a list of TVmaze matches with year, network and genre), Choose a poster, Choose a background (pick from what TVmaze has), and Back to automatic. What you pick is kept on this TV and used everywhere, and the choice is written to the debug log. A short press on OK still opens or plays as before.",
-    "**Episode pictures.** An episode with no still of its own now shows archive.org's picture for its file when that file holds just that episode."
+    "**Soaps all day.** EastEnders, Neighbours and the other big soaps are now in the Soaps channel's daytime and late-night mix as well as their evening slots, so they turn up whenever you tune in. They will fill most of the hours between the fixed slots, because they have far more episodes than the small soaps. The note on this is in `tools/schedule-notes.md` for when the schedule engine is reworked."
   ],
   "history": [
+    {
+      "name": "Alpha 0.29",
+      "date": "2026-11-11",
+      "notes": [
+        "**Fix the artwork from On Demand.** Hold OK on a show (or press Menu) for a menu: Scrape artwork (looks the show up on TVmaze again and takes a clear match), Choose the right show (a list of TVmaze matches with year, network and genre), Choose a poster, Choose a background (pick from what TVmaze has), and Back to automatic. What you pick is kept on this TV and used everywhere, and the choice is written to the debug log. A short press on OK still opens or plays as before.",
+        "**Episode pictures.** An episode with no still of its own now shows archive.org's picture for its file when that file holds just that episode."
+      ]
+    },
     {
       "name": "Alpha 0.28",
       "date": "2026-11-11",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "notes": [
         "**`routes.json` is now the source of truth for where shows go.** A show it lists appears only on the channel(s) it names and is dropped from any other channel's list, so moving a show by hand in the scraper moves it on the TV too. Shows it doesn't list keep their channels from `tools/shows.json`.",
         "**The Disney channel has no era limit and needs no air dates or TVmaze id.** Undated and pre-1970 cartoon shorts (Donald Duck, Mickey Mouse, Goofy, Pluto, Silly Symphonies, Disney Cartoons) play on Disney; every other channel still keeps 1970 to 1999."
-      ]
-    },
-    {
-      "name": "Alpha 0.25.4",
-      "date": "2026-11-10",
-      "notes": [
-        "**Shows the scraper has removed for good stay off the TV.** When the scraper publishes `data/removed-shows.json` (and `removed` in `index.json`), those shows are left out of every channel and out of On Demand, whatever the lists say. C.O.P.S. is the first; it is also gone from `tools/shows.json`"
       ]
     }
   ]

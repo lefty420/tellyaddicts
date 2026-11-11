@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.26",
-  "version": "0.26",
-  "code": 2600,
+  "name": "Alpha 0.26.1",
+  "version": "0.26.1",
+  "code": 2601,
   "date": "2026-11-11",
   "notes": [
-    "**New enhancement: VHS 2.** Under Options > Enhancements, after VHS: a flat, saturated picture with fine dark lines right across it, like a tape on a cheap set."
+    "**VHS 2 lines are now even.** The lines were drawn at fractions of a pixel, so some came out thick and some gaps wide. They are now drawn in whole screen pixels, so every line and every gap is the same size."
   ],
   "history": [
+    {
+      "name": "Alpha 0.26",
+      "date": "2026-11-11",
+      "notes": [
+        "**New enhancement: VHS 2.** Under Options > Enhancements, after VHS: a flat, saturated picture with fine dark lines right across it, like a tape on a cheap set."
+      ]
+    },
     {
       "name": "Alpha 0.25.6",
       "date": "2026-11-11",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**The scraper's library lists may now include `.mkv` files**, for shows archive.org only has in that form. They are used only when there is no mp4 of the same episode (an mp4 always wins), and only from the library lists, never from live archive.org searches. The on-device buffer now tells the player it is Matroska. Whether a given MKV plays depends on the codecs inside it and on this TV's built-in player, which has not been tried yet: if one fails, the debug log records it as any other failure and the channel moves on. `.avi` is not supported"
-      ]
-    },
-    {
-      "name": "Alpha 0.24.2",
-      "date": "2026-11-10",
-      "notes": [
-        "**On Demand uses the scraper's episode guides the moment they are published.** `index.json` now lists which shows have a guide and its revision: a show with one gets it from the scraper (kept until the scraper publishes a newer one, whatever the keep setting), and a show without one still falls back to TVmaze. No request is wasted guessing at a guide that does not exist"
       ]
     }
   ]

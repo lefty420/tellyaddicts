@@ -65,7 +65,8 @@
 
   /* VHS 2: a flat, saturated picture with fine dark lines right across it, like a tape on a cheap set */
   body.fx-vhs2:not(.guide-open) #v { filter: contrast(1.08) saturate(1.45) brightness(1.06) blur(.35px); }
-  body.fx-vhs2 #ovl { background: repeating-linear-gradient(0deg, rgba(0,0,0,.42) 0 .13vh, rgba(0,0,0,0) .13vh .46vh); }
+  /* --lp / --ld are set in app.js in whole device pixels, so every line is the same thickness and every gap the same size */
+  body.fx-vhs2 #ovl { background: linear-gradient(0deg, rgba(0,0,0,.5) 0 var(--ld, 1px), rgba(0,0,0,0) var(--ld, 1px) 100%); background-size: 100% var(--lp, 5px); }
   body.fx-vhs2 #ovl::after { background: linear-gradient(90deg, rgba(255,0,60,.04), rgba(0,0,0,0) 6%, rgba(0,0,0,0) 94%, rgba(0,120,255,.04)); }
   /* 1 scanlines */
   body.fx-lines #ovl { background: repeating-linear-gradient(0deg, rgba(0,0,0,.30) 0 .14vh, rgba(0,0,0,0) .14vh .38vh); }

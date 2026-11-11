@@ -2147,6 +2147,13 @@
   function applyFx() {
     FXMODES.forEach(function (m) { document.body.classList.remove('fx-' + m); });
     document.body.classList.add('fx-' + fxMode);
+    if (fxMode === 'vhs2') {
+      // lines and gaps in whole device pixels, so they do not drift into thick and thin bands
+      var dpr = window.devicePixelRatio || 1, N = Math.max(3, Math.round(window.innerHeight * dpr / 216));
+      var d = Math.max(1, Math.round(N * 0.28));
+      document.body.style.setProperty('--lp', (N / dpr) + 'px');
+      document.body.style.setProperty('--ld', (d / dpr) + 'px');
+    }
     store.set('fx2', fxMode);
     clearTimeout(fxWatch);
     if (fxMode === 'sharp') {

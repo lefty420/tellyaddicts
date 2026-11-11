@@ -282,6 +282,11 @@
   #glegend i { width: 3.2vh; height: 3.2vh; border-radius: .5vh; flex: none; border: .25vh solid rgba(255,255,255,.7); }
   .kr { background: #e02b2b; } .kg { background: #2bb24c; } .ky { background: #f2c200; } .kb { background: #2f7bff; }
   /* picture size (not applied to the guide's mini TV) */
+  /* Smart: a 4:3 picture keeps its own shape in the middle, and the sides are filled with a soft, dimmed, enlarged copy of the picture */
+  #amb { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: none; background: #000; }
+  body.ar-smart.smartfill:not(.guide-open) #amb { display: block; }
+  body.ar-smart:not(.guide-open) #v { object-fit: contain; }
+  body.ar-smart.smartfill:not(.guide-open) #v { background: transparent; }
   body:not(.guide-open).ar-stretch #v { object-fit: fill; }
   body:not(.guide-open).ar-zoom #v { object-fit: cover; }
   body:not(.guide-open).ar-43 #v { object-fit: fill; inset: 0; margin: auto; height: 100vh; width: 133.333vh; max-width: 100vw; }
@@ -409,6 +414,7 @@
 </style>
 </head>
 <body>
+<canvas id="amb" width="48" height="27"></canvas>
 <video id="v" autoplay playsinline poster="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="></video>
 <div id="crt"><i></i></div>
 <div id="ovl"></div>

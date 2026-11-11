@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.26.2",
-  "version": "0.26.2",
-  "code": 2602,
+  "name": "Alpha 0.27",
+  "version": "0.27",
+  "code": 2700,
   "date": "2026-11-11",
   "notes": [
-    "**Black screen with sound is caught.** If a programme plays sound but shows no picture (an audio-only file, or video this TV cannot decode), the app now notes it in the debug log with the file's name, marks it slow so it is skipped for a while, and moves on to the next programme."
+    "**New aspect ratio: Smart.** Under Options > Aspect ratio, after Auto. A 4:3 programme keeps its true shape, with no stretching or squashing, and the empty bars at the sides are filled with a soft, dimmed, enlarged copy of the picture, so it looks at home on a modern 16:9 TV. Widescreen programmes are left alone. It costs next to nothing to run, because the copy is only 48 by 27 pixels."
   ],
   "history": [
+    {
+      "name": "Alpha 0.26.2",
+      "date": "2026-11-11",
+      "notes": [
+        "**Black screen with sound is caught.** If a programme plays sound but shows no picture (an audio-only file, or video this TV cannot decode), the app now notes it in the debug log with the file's name, marks it slow so it is skipped for a while, and moves on to the next programme."
+      ]
+    },
     {
       "name": "Alpha 0.26.1",
       "date": "2026-11-11",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**A video file is a video file.** The library lists may carry mp4, m4v or mkv and the app no longer treats the formats differently: the special \"prefer an mp4 over an mkv\" rule is gone (the scraper already sends the best copy of each episode, and the usual duplicate check still prefers archive.org's small `.ia.mp4` copy), and the on-device buffer hands the player the type archive.org reports for the file instead of working it out from the name"
-      ]
-    },
-    {
-      "name": "Alpha 0.25.1",
-      "date": "2026-11-10",
-      "notes": [
-        "**The Debug log now says what this TV’s own player can play**: MP4, MKV (with H.264, AC3 audio or HEVC inside), WebM and AVI, each as yes, maybe or no. It is also written at the top of the log you send. This is the player’s own answer on this device, so it settles whether MKV is worth sending before any MKV is tried"
       ]
     }
   ]

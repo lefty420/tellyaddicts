@@ -2125,7 +2125,7 @@
   // ------------------------------------------------------------------ OSD bar (OK while watching)
 
   var AR = [
-    { id: 'auto', label: 'Auto' }, { id: '43', label: '4:3' }, { id: '169', label: '16:9' },
+    { id: 'auto', label: 'Auto' }, { id: 'smart', label: 'Smart' }, { id: '43', label: '4:3' }, { id: '169', label: '16:9' },
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
@@ -2140,6 +2140,31 @@
     AR.forEach(function (a) { document.body.classList.remove('ar-' + a.id); });
     document.body.classList.add('ar-' + AR[arIdx].id);
     store.set('ar', AR[arIdx].id);
+    clearInterval(ambTimer); ambTimer = null; setFill(false);
+    if (AR[arIdx].id === 'smart') ambTimer = setInterval(ambTick, 100);
+  }
+
+  // ---- Smart aspect ratio: a 4:3 programme keeps its true shape (no stretching) and the empty sides of a 16:9 screen
+  // are filled from a tiny 48x27 copy of the picture, enlarged and dimmed. That is a few thousand pixels a tick, so
+  // even the oldest box copes.
+  var ambTimer = null, ambFill = false, ambX = null;
+  function setFill(on) {
+    if (on === ambFill) return;
+    ambFill = on;
+    document.body.classList.toggle('smartfill', on);
+  }
+  function ambTick() {
+    if (document.body.classList.contains('guide-open')) { setFill(false); return; }
+    var w = v.videoWidth, h = v.videoHeight;
+    if (!w || !h || v.readyState < 2 || w / h >= 1.6) { setFill(false); return; }   // already wide: nothing to fill
+    try {
+      if (!ambX) ambX = document.getElementById('amb').getContext('2d');
+      var sh = w * 9 / 16;
+      ambX.drawImage(v, 0, (h - sh) / 2, w, sh, 0, 0, 48, 27);
+      ambX.fillStyle = 'rgba(0,0,0,.45)';
+      ambX.fillRect(0, 0, 48, 27);
+      setFill(true);
+    } catch (e) { setFill(false); }
   }
 
   // ---- picture looks: CSS only (filters on the video, plus an overlay for CRT)
@@ -2436,7 +2461,7 @@
     mkeep: 'How long artwork and episode details are remembered before they are looked up again. Permanent keeps them until you clear them.',
     mclear: 'Forgets the saved artwork, episode details and downloaded pictures, so they are fetched again fresh. Shows what is stored now.',
     od: 'Browse every channel\u2019s shows, series and episodes, and play any of them from the start.',
-    ar: 'Auto, 4:3, 16:9, Zoom or Stretch. Auto shows each programme in the ratio it was made in.',
+    ar: 'Auto, Smart, 4:3, 16:9, Zoom or Stretch. Auto shows each programme in the ratio it was made in. Smart keeps old 4:3 pictures the right shape and fills the sides with a soft copy of the picture.',
     fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness.',
     gart: 'Posters and backdrops in the guide and on the bar. Off keeps things plain.',
     ads: 'Adverts between programmes, from the decade you choose. UK first, and never on the BBC.',

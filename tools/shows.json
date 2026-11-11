@@ -803,5 +803,43 @@
       "Are You Being Served"
     ],
     "extra": true
+  },
+  "ussitcoms": {
+    "name": "US Sitcoms",
+    "shows": [
+      "Friends",
+      "Frasier",
+      "Everybody Loves Raymond",
+      "Seinfeld",
+      "Mad About You",
+      "Just Shoot Me",
+      "Spin City",
+      "Ellen",
+      "Wings",
+      "3rd Rock from the Sun",
+      "Dharma and Greg",
+      "The Drew Carey Show",
+      "NewsRadio",
+      "Home Improvement",
+      "The Fresh Prince of Bel-Air",
+      "Cheers",
+      "The Cosby Show",
+      "Roseanne",
+      "Married with Children",
+      "Murphy Brown",
+      "The Golden Girls",
+      "Perfect Strangers",
+      "Full House",
+      "Family Matters",
+      "Growing Pains",
+      "Taxi",
+      "Happy Days",
+      "M*A*S*H",
+      "Mork and Mindy",
+      "Threes Company",
+      "Saved by the Bell",
+      "Sabrina the Teenage Witch",
+      "Boy Meets World"
+    ]
   }
 }

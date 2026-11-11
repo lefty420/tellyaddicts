@@ -433,5 +433,13 @@ window.CHANNELS = [
     // a mix of the best of everything: light entertainment, sketch and panel shows, cult drama and sitcoms
     maxItems: 120,
     sources: [{ data: 'entertainment' }]
+  },
+  {
+    n: 28,
+    id: 'ussitcoms',
+    name: 'US Sitcoms',
+    // American sitcoms up to 1999 (Friends, Frasier, Cheers). Stays hidden until the scraper has found some.
+    maxItems: 120,
+    sources: [{ data: 'ussitcoms' }]
   }
 ];

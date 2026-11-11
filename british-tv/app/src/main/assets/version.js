@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.36",
-  "version": "0.36",
-  "code": 3600,
+  "name": "Alpha 0.36.1",
+  "version": "0.36.1",
+  "code": 3601,
   "date": "2026-11-11",
   "notes": [
-    "**The guide goes round.** Pressing Up on the first channel now takes you to the last one, and Down on the last goes back to the first. The On Demand button is still reached with Left from what is on now."
+    "**Bigger On Demand posters that fill the width.** Nine posters now span the whole row, about 40% larger than before, and both rows still fit with nothing cut off. The title block is more compact to make room."
   ],
   "history": [
+    {
+      "name": "Alpha 0.36",
+      "date": "2026-11-11",
+      "notes": [
+        "**The guide goes round.** Pressing Up on the first channel now takes you to the last one, and Down on the last goes back to the first. The On Demand button is still reached with Left from what is on now."
+      ]
+    },
     {
       "name": "Alpha 0.35.1",
       "date": "2026-11-11",
@@ -58,13 +65,6 @@ window.RELEASE = {
         "**On Demand fits the screen.** The posters are smaller and the title block is tighter, so both rows show in full with nothing cut off at the bottom and the OK Open button no longer sits on a row title.",
         "**On Demand is quicker.** Moving left and right along a row now only moves the highlight instead of rebuilding every poster, a picture that has been found is remembered, and the big background waits until you stop moving before it loads.",
         "**Missing episodes report** (Options > Missing episodes report). Checks every show on the TV against its episode guide (the scraper's, else TVmaze's), counting only episodes aired by 1999. It lists the seasons with nothing on the TV and the episodes missing inside seasons that are there, and puts the whole report on the home network as text to copy and send to the scraper. The guides it reads are kept, so the second check is quick."
-      ]
-    },
-    {
-      "name": "Alpha 0.31.1",
-      "date": "2026-11-11",
-      "notes": [
-        "**Food & Cooking now has programmes.** The channel came up empty: the TV only looked at the library routing and never at the channel's own list, and most cookery files have no episode numbers in their names. Both fixed, so Two Fat Ladies, Floyd, Delia, Ready Steady Cook and the rest play."
       ]
     }
   ]

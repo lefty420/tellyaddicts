@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.29.3",
-  "version": "0.29.3",
-  "code": 2903,
+  "name": "Alpha 0.29.4",
+  "version": "0.29.4",
+  "code": 2904,
   "date": "2026-11-11",
   "notes": [
-    "**Noel's House Party channel is switched off for now.** It is gone from the guide and On Demand. Its shows are still on other channels (such as Saturday Night TV). `off: true` on a channel in `channels.js` switches it off; removing that line brings it back."
+    "**Picking a poster now shows up.** The poster you chose was TVmaze's untouched original, which can be many megabytes, so the TV was slow to show it or could not and the card looked unchanged. Posters now use TVmaze's normal poster size. A pick is only applied once its picture has actually loaded; if it will not load, a message says so and nothing changes."
   ],
   "history": [
+    {
+      "name": "Alpha 0.29.3",
+      "date": "2026-11-11",
+      "notes": [
+        "**Noel's House Party channel is switched off for now.** It is gone from the guide and On Demand. Its shows are still on other channels (such as Saturday Night TV). `off: true` on a channel in `channels.js` switches it off; removing that line brings it back."
+      ]
+    },
     {
       "name": "Alpha 0.29.2",
       "date": "2026-11-11",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**VHS 2 lines are now even.** The lines were drawn at fractions of a pixel, so some came out thick and some gaps wide. They are now drawn in whole screen pixels, so every line and every gap is the same size."
-      ]
-    },
-    {
-      "name": "Alpha 0.26",
-      "date": "2026-11-11",
-      "notes": [
-        "**New enhancement: VHS 2.** Under Options > Enhancements, after VHS: a flat, saturated picture with fine dark lines right across it, like a tape on a cheap set."
       ]
     }
   ]

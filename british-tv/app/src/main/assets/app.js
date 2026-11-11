@@ -3132,7 +3132,7 @@
   var odm = null;
   function tvmEntry(s) {
     var net = (s.network && s.network.name) || (s.webChannel && s.webChannel.name) || '';
-    var o = { name: s.name, i: s.id, p: https(s.image && (s.image.original || s.image.medium)), b: '', n: net,
+    var o = { name: s.name, i: s.id, p: https(s.image && (s.image.medium || s.image.original)), b: '', n: net,
               y: s.premiered ? String(s.premiered).slice(0, 4) : '', e: s.ended ? String(s.ended).slice(0, 4) : '',
               g: (s.genres || []).join(', '), s: plain(s.summary) };
     if (s.rating && s.rating.average) o.r = s.rating.average;
@@ -3141,11 +3141,30 @@
   function tvmImages(id) {
     return getJSON('https://api.tvmaze.com/shows/' + id + '/images').then(function (l) { return Array.isArray(l) ? l : []; }, function () { return []; });
   }
-  function odImgUrl(x, full) {
+  /** A TVmaze picture's address. Posters use the medium size (plenty for a poster on a TV, and a few tens of KB): the
+   *  "original" is the untouched upload and can be many megabytes, which a TV is slow or unable to show. */
+  function odImgUrl(x, full, kind) {
     var r = x && x.resolutions || {};
-    return https(((full ? r.original : (r.medium || r.original)) || { url: x && x.main || '' }).url);
+    var pick = kind === 'poster' ? (r.medium || r.original) : (full ? r.original : (r.medium || r.original));
+    return https((pick || { url: x && x.main || '' }).url);
   }
-  function odFixDone(g, entry, msg) {
+  /** Apply a pick only once its picture has really loaded, so a choice never looks like nothing happened. */
+  function odFixDone(g, entry, msg, testUrl) {
+    var test = testUrl || entry.p, shown = false;
+    if (!entry.name) entry.name = g.name;
+    if (!test) { odFixApply(g, entry, msg); return; }
+    odmWait('Loading the picture\u2026');
+    var im = new Image(), timer = setTimeout(function () { fail(); }, 20000);
+    function fail() {
+      if (shown) return; shown = true; clearTimeout(timer);
+      dlog('ARTWORK picture would not load: ' + test);
+      odmClose(); toast('That picture would not load, so nothing was changed', 4500);
+    }
+    im.onload = function () { if (shown) return; shown = true; clearTimeout(timer); odFixApply(g, entry, msg); };
+    im.onerror = fail;
+    im.src = test;
+  }
+  function odFixApply(g, entry, msg) {
     store.set('artfix:' + normShow(g.name), { a: entry });
     try { localStorage.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
     g.art = entry; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = '';
@@ -3183,8 +3202,8 @@
       if (!sh) { odmShowList(g, list, 'No clear match. Choose the right show'); return; }
       tvmImages(sh.id).then(function (imgs) {
         var e = tvmEntry(sh), bg = imgs.filter(function (x) { return x.type === 'background'; })[0];
-        if (bg) e.b = odImgUrl(bg, true);
-        if (!e.p) { var po = imgs.filter(function (x) { return x.type === 'poster'; })[0]; if (po) e.p = odImgUrl(po, true); }
+        if (bg) e.b = odImgUrl(bg, true, 'background');
+        if (!e.p) { var po = imgs.filter(function (x) { return x.type === 'poster'; })[0]; if (po) e.p = odImgUrl(po, true, 'poster'); }
         odFixDone(g, e, 'Found ' + e.name + (e.y ? ' (' + e.y + ')' : ''));
       });
     });
@@ -3198,8 +3217,8 @@
         odmWait('Getting pictures…');
         tvmImages(s.id).then(function (imgs) {
           var bg = imgs.filter(function (x) { return x.type === 'background'; })[0];
-          if (bg) e.b = odImgUrl(bg, true);
-          if (!e.p) { var po = imgs.filter(function (x) { return x.type === 'poster'; })[0]; if (po) e.p = odImgUrl(po, true); }
+          if (bg) e.b = odImgUrl(bg, true, 'background');
+          if (!e.p) { var po = imgs.filter(function (x) { return x.type === 'poster'; })[0]; if (po) e.p = odImgUrl(po, true, 'poster'); }
           odFixDone(g, e, 'Using ' + e.name + (e.y ? ' (' + e.y + ')' : ''));
         });
       } };
@@ -3216,8 +3235,9 @@
         var items = imgs.filter(function (x) { return x.type === kind; }).slice(0, 12).map(function (x) {
           return { img: odImgUrl(x, false), f: function () {
             var e = {}; Object.keys(base).forEach(function (k) { e[k] = base[k]; });
-            e[kind === 'poster' ? 'p' : 'b'] = odImgUrl(x, true);
-            odFixDone(g, e, kind === 'poster' ? 'Poster changed' : 'Background changed');
+            var url = odImgUrl(x, true, kind);
+            e[kind === 'poster' ? 'p' : 'b'] = url;
+            odFixDone(g, e, kind === 'poster' ? 'Poster changed' : 'Background changed', url);
           } };
         });
         odm.mode = items.length ? (kind === 'poster' ? 'posters' : 'backs') : 'wait'; odm.note = items.length ? '' : 'No ' + kind + 's on TVmaze for this show';

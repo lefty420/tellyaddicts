@@ -232,7 +232,7 @@
     }
   };
 
-  var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, thebill: DRAMA, soaps: SOAPS };
+  var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, drama: DRAMA, soaps: SOAPS };
 
   /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. */
   function schedule(channelId, progs, seed) {

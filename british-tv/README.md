@@ -294,7 +294,7 @@ but it is left out of the genre guard, because a song title says nothing about w
 A channel's show list can run to well over a hundred names (CITV has 166), far too many to put in one archive.org
 search, so the live searches use an even spread of 16 of them. The published lists use the full list. Every show is routed by its `[Show]` tag
 to the channel of its own genre, using `tools/shows.json` (sitcoms, gameshows, childrens,
-Drama = `thebill`, music, comedy, tv70s, citv). A show listed in two categories (Doctor Who,
+Drama = `drama`, music, comedy, tv70s, citv). A show listed in two categories (Doctor Who,
 Upstairs Downstairs) goes to both channels. Only the channels that get programmes are replaced; the
 rest of `autodata.js` is kept. Then commit `autodata.js`.
 

@@ -31,7 +31,7 @@
     music: 'music', mtv: 'music', xmasmusic: 'music',
     itvam: 'daytime', offschool: 'daytime',
     comedy: 'prime', sitcoms: 'prime', drama: 'prime', gameshows: 'prime', tv70s: 'prime', noel: 'prime',
-    itv: 'prime', thebill: 'prime', christmas: 'prime'
+    itv: 'prime', christmas: 'prime'
   };
 
   function categoryFor(channelId) { return CHANNEL_CAT[channelId] || null; }

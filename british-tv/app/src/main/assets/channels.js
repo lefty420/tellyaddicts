@@ -232,7 +232,7 @@ window.CHANNELS = [
   },
   {
     n: 7,
-    id: 'thebill',
+    id: 'drama',
     name: 'Drama',
     sources: [
       { item: 'the-bill-complete-series-1-to-26' }

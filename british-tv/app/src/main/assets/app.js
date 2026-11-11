@@ -2133,8 +2133,8 @@
   }
 
   // ---- picture looks: CSS only (filters on the video, plus an overlay for CRT)
-  var FXMODES = ['off', 'vhs', 'vivid', 'sharp', 'lines', 'grille', 'glass', 'portable', 'dots'];
-  var FXLABEL = { off: 'Off', vhs: 'VHS', vivid: 'Vivid', sharp: 'Sharp',
+  var FXMODES = ['off', 'vhs', 'vhs2', 'vivid', 'sharp', 'lines', 'grille', 'glass', 'portable', 'dots'];
+  var FXLABEL = { off: 'Off', vhs: 'VHS', vhs2: 'VHS 2', vivid: 'Vivid', sharp: 'Sharp',
                   lines: 'Scanlines', grille: 'Aperture grille', glass: 'Curved glass',
                   portable: 'Portable set', dots: 'Shadow mask' };
   var fxMode = 'off';

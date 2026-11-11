@@ -60,9 +60,13 @@
      vh so the pattern keeps its pitch whatever the screen. */
   #ovl { position: fixed; inset: 0; z-index: 7; pointer-events: none; display: none; }
   body.fx-lines:not(.guide-open) #ovl, body.fx-grille:not(.guide-open) #ovl, body.fx-glass:not(.guide-open) #ovl,
-  body.fx-portable:not(.guide-open) #ovl, body.fx-dots:not(.guide-open) #ovl { display: block; }
+  body.fx-portable:not(.guide-open) #ovl, body.fx-dots:not(.guide-open) #ovl, body.fx-vhs2:not(.guide-open) #ovl { display: block; }
   #ovl::before, #ovl::after { content: ""; position: absolute; inset: 0; }
 
+  /* VHS 2: a flat, saturated picture with fine dark lines right across it, like a tape on a cheap set */
+  body.fx-vhs2:not(.guide-open) #v { filter: contrast(1.08) saturate(1.45) brightness(1.06) blur(.35px); }
+  body.fx-vhs2 #ovl { background: repeating-linear-gradient(0deg, rgba(0,0,0,.42) 0 .13vh, rgba(0,0,0,0) .13vh .46vh); }
+  body.fx-vhs2 #ovl::after { background: linear-gradient(90deg, rgba(255,0,60,.04), rgba(0,0,0,0) 6%, rgba(0,0,0,0) 94%, rgba(0,120,255,.04)); }
   /* 1 scanlines */
   body.fx-lines #ovl { background: repeating-linear-gradient(0deg, rgba(0,0,0,.30) 0 .14vh, rgba(0,0,0,0) .14vh .38vh); }
   /* 2 aperture grille */

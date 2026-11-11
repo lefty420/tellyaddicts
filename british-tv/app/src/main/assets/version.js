@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.25.6",
-  "version": "0.25.6",
-  "code": 2506,
+  "name": "Alpha 0.26",
+  "version": "0.26",
+  "code": 2600,
   "date": "2026-11-11",
   "notes": [
-    "**The Bill channel is now Drama.** The channel id `thebill` becomes `drama` in the app and in `tools/shows.json` (named just \"Drama\"), matching the scraper's new `drama.json`. The Bill stays on both Drama and ITV. Until the scraper publishes the new file, the app uses its built-in Drama list."
+    "**New enhancement: VHS 2.** Under Options > Enhancements, after VHS: a flat, saturated picture with fine dark lines right across it, like a tape on a cheap set."
   ],
   "history": [
+    {
+      "name": "Alpha 0.25.6",
+      "date": "2026-11-11",
+      "notes": [
+        "**The Bill channel is now Drama.** The channel id `thebill` becomes `drama` in the app and in `tools/shows.json` (named just \"Drama\"), matching the scraper's new `drama.json`. The Bill stays on both Drama and ITV. Until the scraper publishes the new file, the app uses its built-in Drama list."
+      ]
+    },
     {
       "name": "Alpha 0.25.5",
       "date": "2026-11-11",
@@ -60,15 +67,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**On Demand uses the scraper's episode guides the moment they are published.** `index.json` now lists which shows have a guide and its revision: a show with one gets it from the scraper (kept until the scraper publishes a newer one, whatever the keep setting), and a show without one still falls back to TVmaze. No request is wasted guessing at a guide that does not exist"
-      ]
-    },
-    {
-      "name": "Alpha 0.24.1",
-      "date": "2026-11-10",
-      "notes": [
-        "**On Demand now lists every show and every episode in a category.** It was borrowing the channels' rules, which drop any file whose name has no season and episode code (Dogtanian's \"1x01\" style, most cartoons and a lot of drama) and sample a limited number of programmes, so CITV showed 8 shows instead of 93 and Drama 8 instead of 24. It now takes the whole library list for the channel",
-        "Each channel in On Demand shows how many shows it has, filled in as it loads, and episodes with no number are put in natural order by name (Episode 2 before Episode 10)",
-        "A TVmaze reply that is not an episode list can no longer cause an error"
       ]
     }
   ]

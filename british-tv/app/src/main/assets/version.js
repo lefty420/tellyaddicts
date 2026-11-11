@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.34",
-  "version": "0.34",
-  "code": 3400,
+  "name": "Alpha 0.34.1",
+  "version": "0.34.1",
+  "code": 3401,
   "date": "2026-11-11",
   "notes": [
-    "**New channel: US Sitcoms (28).** Friends, Frasier, Everybody Loves Raymond, Seinfeld, Cheers, Roseanne, The Fresh Prince and the rest of the American sitcoms up to 1999. It stays out of the guide until the scraper has found some of them on archive.org."
+    "**Smart aspect ratio taken out of the options for now.** It wasn't working properly. Anyone who had it selected goes back to Auto."
   ],
   "history": [
+    {
+      "name": "Alpha 0.34",
+      "date": "2026-11-11",
+      "notes": [
+        "**New channel: US Sitcoms (28).** Friends, Frasier, Everybody Loves Raymond, Seinfeld, Cheers, Roseanne, The Fresh Prince and the rest of the American sitcoms up to 1999. It stays out of the guide until the scraper has found some of them on archive.org."
+      ]
+    },
     {
       "name": "Alpha 0.33",
       "date": "2026-11-11",
@@ -59,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**Picking a poster now shows up.** The poster you chose was TVmaze's untouched original, which can be many megabytes, so the TV was slow to show it or could not and the card looked unchanged. Posters now use TVmaze's normal poster size. A pick is only applied once its picture has actually loaded; if it will not load, a message says so and nothing changes."
-      ]
-    },
-    {
-      "name": "Alpha 0.29.3",
-      "date": "2026-11-11",
-      "notes": [
-        "**Noel's House Party channel is switched off for now.** It is gone from the guide and On Demand. Its shows are still on other channels (such as Saturday Night TV). `off: true` on a channel in `channels.js` switches it off; removing that line brings it back."
       ]
     }
   ]

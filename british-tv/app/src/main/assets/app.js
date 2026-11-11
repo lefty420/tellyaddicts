@@ -2130,7 +2130,7 @@
   // ------------------------------------------------------------------ OSD bar (OK while watching)
 
   var AR = [
-    { id: 'auto', label: 'Auto' }, { id: 'smart', label: 'Smart' }, { id: '43', label: '4:3' }, { id: '169', label: '16:9' },
+    { id: 'auto', label: 'Auto' }, { id: '43', label: '4:3' }, { id: '169', label: '16:9' },
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;

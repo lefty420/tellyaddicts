@@ -3214,7 +3214,7 @@
     for (var j = top; j < Math.min(list.length, top + OD_EPS); j++) {
       var ep = list[j], m = g.meta && g.meta[ep.s + 'x' + ep.e], row = odEl('div', 'ode' + (j === odEi && odZone === 2 ? ' sel' : ''));
       row.appendChild(odEl('i', '', ep.s > 0 ? String(ep.e) : '•'));
-      var still = (m && m.img) || ep.thumb;
+      var kn = odKnown(g), still = (m && m.img) || ep.thumb || (kn && (kn.back || kn.poster)) || '';   // no still of its own: the show's own picture beats a flat colour
       if (still) {
         var im = document.createElement('img'); im.alt = '';
         im.onerror = function () { var t = odEl('div', 'odth'); t.style.backgroundImage = odTone(g.name); if (this.parentNode) this.parentNode.replaceChild(t, this); };

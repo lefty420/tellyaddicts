@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.31",
-  "version": "0.31",
-  "code": 3100,
+  "name": "Alpha 0.31.1",
+  "version": "0.31.1",
+  "code": 3101,
   "date": "2026-11-11",
   "notes": [
-    "**New channel: Food & Cooking (26).** Delia, Keith Floyd, Rick Stein, Ready Steady Cook, Two Fat Ladies, Masterchef, Ken Hom, Madhur Jaffrey and the other classic cookery shows, built from the scraper's new cooking library. Adverts are UK prime-time style, and it shows in On Demand like every other channel."
+    "**Food & Cooking now has programmes.** The channel came up empty: the TV only looked at the library routing and never at the channel's own list, and most cookery files have no episode numbers in their names. Both fixed, so Two Fat Ladies, Floyd, Delia, Ready Steady Cook and the rest play."
   ],
   "history": [
+    {
+      "name": "Alpha 0.31",
+      "date": "2026-11-11",
+      "notes": [
+        "**New channel: Food & Cooking (26).** Delia, Keith Floyd, Rick Stein, Ready Steady Cook, Two Fat Ladies, Masterchef, Ken Hom, Madhur Jaffrey and the other classic cookery shows, built from the scraper's new cooking library. Adverts are UK prime-time style, and it shows in On Demand like every other channel."
+      ]
+    },
     {
       "name": "Alpha 0.30",
       "date": "2026-11-11",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**A new On Demand.** A banner for the show you are on, then a row of posters for each channel (Left and Right along a row, Up and Down between channels, OK to open). A show opens on its own page with its poster, details, a Play button, season chips and the episode list. Real seasons come first in order; anything that does not fit a season (specials, unnumbered files) is under \"Other videos\" at the end, and a show with no seasons is one list. Flat colours and an outline for focus keep it light on older boxes."
-      ]
-    },
-    {
-      "name": "Alpha 0.27",
-      "date": "2026-11-11",
-      "notes": [
-        "**New aspect ratio: Smart.** Under Options > Aspect ratio, after Auto. A 4:3 programme keeps its true shape, with no stretching or squashing, and the empty bars at the sides are filled with a soft, dimmed, enlarged copy of the picture, so it looks at home on a modern 16:9 TV. Widescreen programmes are left alone. It costs next to nothing to run, because the copy is only 48 by 27 pixels."
       ]
     }
   ]

@@ -341,17 +341,19 @@
       return http(SHOWS_URL).then(function (showsText) {
         // the routes revision is part of the key: a new routes.json moves shows between channels just as
         // an edit to shows.json does, so the answer stored for the old one must not be reused
-        var key = 'librevs:' + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText);
+        var key = 'librevs2:' + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText);
         var known = store.get(key);
         if (known && known.revs) { libRevs = known.revs; return known.revs; }
         return loadLibraryRoutes(j.library, showsText).then(function (routed) {
           if (!routed) return chans;
           var revs = {};
+          // a channel with its own published file that the library routes nothing to (Food & Cooking) keeps that file
+          Object.keys(chans).forEach(function (ch) { if (!routed[ch] || !routed[ch].length) revs[ch] = chans[ch]; });
           Object.keys(routed).forEach(function (ch) { revs[ch] = 'L' + E.hash(JSON.stringify(routed[ch])).toString(36); });
           try {                                 // forget answers for older libraries
             for (var k = localStorage.length - 1; k >= 0; k--) {
               var kn = localStorage.key(k);
-              if (kn && kn !== key && kn.indexOf('librevs:') === 0) localStorage.removeItem(kn);
+              if (kn && kn !== key && kn.indexOf('librevs') === 0) localStorage.removeItem(kn);
             }
           } catch (e) { /* ignore */ }
           store.set(key, { revs: revs });
@@ -385,7 +387,7 @@
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
   // Channels whose programmes carry no episode number: songs, films, Disney shorts ("How to Sleep"), MTV's
   // untitled and dated blocks, and news bulletins. Insisting on one empties them.
-  var NO_EPISODES = { xmasmusic: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, soaps: 1, saturday: 0 };
+  var NO_EPISODES = { xmasmusic: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, soaps: 1, cooking: 1, saturday: 0 };
   /** A row of songs or films: nothing in it will carry SxxExx, so insisting on one empties the channel. */
   function wantsEpisodes(channelId, it) {
     if (NO_EPISODES[channelId]) return false;

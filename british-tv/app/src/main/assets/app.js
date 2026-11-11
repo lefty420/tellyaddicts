@@ -13,7 +13,7 @@
   ];
   function keepIndex(id) { for (var i = 0; i < KEEP.length; i++) if (KEEP[i].id === id) return i; return 2; }
   function planTtl() { return KEEP[keepIdx].ms; }
-  var MAX_STORED = 1500;
+  var MAX_STORED = 800;      // each stored list is about 150 characters a programme, and the whole app has about 5 million to share between 28 channels
   var MAX_ERRORS = 6;
   var RETRY_MS = 15000;
 
@@ -25,7 +25,27 @@
 
   var store = {
     get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
-    set: function (k, x) { try { localStorage.setItem(k, JSON.stringify(x)); } catch (e) { /* storage full or blocked */ } }
+    set: function (k, x) {
+      var text = JSON.stringify(x);
+      try { localStorage.setItem(k, text); return true; } catch (e) { /* storage full or blocked */ }
+      // A channel's list matters more than the artwork and episode guides kept beside it, and those are fetched
+      // again when wanted: when a list will not fit, the oldest of them make room.
+      if (/^plan7/.test(k)) {
+        try {
+          var old = [];
+          for (var i = 0; i < localStorage.length; i++) {
+            var kn = localStorage.key(i);
+            if (kn && /^(eps1|info3|art2|tvm4|artdb1):/.test(kn)) { var o = null; try { o = JSON.parse(localStorage.getItem(kn)); } catch (e2) { /* unreadable: goes first */ } old.push({ k: kn, t: (o && o.t) || 0 }); }
+          }
+          old.sort(function (p, q) { return p.t - q.t; });
+          for (var j = 0; j < old.length; j++) {
+            localStorage.removeItem(old[j].k);
+            try { localStorage.setItem(k, text); return true; } catch (e3) { /* still full: remove the next */ }
+          }
+        } catch (e4) { /* storage blocked */ }
+      }
+      return false;
+    }
   };
 
   // Artwork answers remembered by older versions include blank ones from failed requests, kept for a month.

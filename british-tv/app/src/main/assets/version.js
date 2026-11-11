@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.26.1",
-  "version": "0.26.1",
-  "code": 2601,
+  "name": "Alpha 0.26.2",
+  "version": "0.26.2",
+  "code": 2602,
   "date": "2026-11-11",
   "notes": [
-    "**VHS 2 lines are now even.** The lines were drawn at fractions of a pixel, so some came out thick and some gaps wide. They are now drawn in whole screen pixels, so every line and every gap is the same size."
+    "**Black screen with sound is caught.** If a programme plays sound but shows no picture (an audio-only file, or video this TV cannot decode), the app now notes it in the debug log with the file's name, marks it slow so it is skipped for a while, and moves on to the next programme."
   ],
   "history": [
+    {
+      "name": "Alpha 0.26.1",
+      "date": "2026-11-11",
+      "notes": [
+        "**VHS 2 lines are now even.** The lines were drawn at fractions of a pixel, so some came out thick and some gaps wide. They are now drawn in whole screen pixels, so every line and every gap is the same size."
+      ]
+    },
     {
       "name": "Alpha 0.26",
       "date": "2026-11-11",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-10",
       "notes": [
         "**The Debug log now says what this TV’s own player can play**: MP4, MKV (with H.264, AC3 audio or HEVC inside), WebM and AVI, each as yes, maybe or no. It is also written at the top of the log you send. This is the player’s own answer on this device, so it settles whether MKV is worth sending before any MKV is tried"
-      ]
-    },
-    {
-      "name": "Alpha 0.25",
-      "date": "2026-11-10",
-      "notes": [
-        "**The scraper's library lists may now include `.mkv` files**, for shows archive.org only has in that form. They are used only when there is no mp4 of the same episode (an mp4 always wins), and only from the library lists, never from live archive.org searches. The on-device buffer now tells the player it is Matroska. Whether a given MKV plays depends on the codecs inside it and on this TV's built-in player, which has not been tried yet: if one fails, the debug log records it as any other failure and the channel moves on. `.avi` is not supported"
       ]
     }
   ]

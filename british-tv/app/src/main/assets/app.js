@@ -1398,6 +1398,16 @@
     if (pb.said) return;
     pb.said = true;
     dlog('  ok, playing after ' + ((Date.now() - pb.t0) / 1000).toFixed(1) + 's' + (cur && cur.ad ? ' (advert)' : ''));
+    // sound but no picture (an audio-only file, or a video track this TV cannot decode): log it and move on
+    var watched = cur;
+    setTimeout(function () {
+      if (cur !== watched || !cur || v.paused || !(v.currentTime > 2)) return;
+      var q = v.getVideoPlaybackQuality ? v.getVideoPlaybackQuality() : null;
+      if (v.videoWidth > 0 && !(q && q.totalVideoFrames === 0)) return;
+      dlog('NO PICTURE ' + (cur.prog ? (cur.prog.title || '') : '') + ': sound is playing but the video shows no frames (size ' + v.videoWidth + 'x' + v.videoHeight + ', frames ' + (q ? q.totalVideoFrames : '?') + ')');
+      if (cur.ad || !cur.prog) return;
+      markSlow(cur.prog.id); nextInChannel();
+    }, 5000);
   });
   v.addEventListener('error', function () {
     dlog('FAILED ' + (cur && cur.ad ? 'advert ' : '') + (cur && cur.prog ? (cur.prog.title || '') : '') + ' (' + playState() + ')');

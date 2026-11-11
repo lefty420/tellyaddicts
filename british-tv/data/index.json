@@ -1,15 +1,16 @@
 {
- "updated": "2026-11-11T00:44:53Z",
+ "updated": "2026-11-11T01:03:56Z",
  "channels": {
-  "bbc": "db0ac24e6c",
+  "bbc": "a096ec4883",
   "childrens": "43f3c8efcc",
-  "christmas": "12a2b6d6bf",
-  "citv": "c88a67ed0f",
+  "christmas": "cad8f7bcc9",
+  "citv": "f987203ce1",
   "comedy": "5b465e7b11",
   "disney": "0f69276dee",
+  "drama": "7baeeafde6",
   "games": "8f0f201dc4",
   "gameshows": "815860da67",
-  "itv": "7fa0bb9d20",
+  "itv": "dfb6619bb1",
   "kidsmovies": "da96cf87eb",
   "kidsxmas": "c305b142a7",
   "mtv": "b723be9e65",
@@ -19,19 +20,19 @@
   "saturday": "72634f2d84",
   "sitcoms": "7827495e7c",
   "soaps": "1503f569ae",
-  "thebill": "d98ff837f6",
   "tv70s": "4b9b9e0f59",
   "tvarchive": "43c38586a8",
   "videoshop": "0c20b1f37e",
   "xmasmusic": "90b6177c37"
  },
  "counts": {
-  "bbc": 443,
+  "bbc": 442,
   "childrens": 247,
-  "christmas": 237,
-  "citv": 313,
+  "christmas": 236,
+  "citv": 312,
   "comedy": 68,
   "disney": 181,
+  "drama": 99,
   "games": 64,
   "gameshows": 317,
   "itv": 323,
@@ -44,18 +45,17 @@
   "saturday": 49,
   "sitcoms": 72,
   "soaps": 87,
-  "thebill": 99,
   "tv70s": 119,
   "tvarchive": 36,
   "videoshop": 276,
   "xmasmusic": 51
  },
- "library": "ada23d2f7e",
+ "library": "77220c1e83",
  "library_counts": {
-  "shows": 420,
-  "episodes": 24540,
-  "copies": 58457
+  "shows": 418,
+  "episodes": 24659,
+  "copies": 58810
  },
- "routes": "636cb63c32",
- "art": "8752d5eb7a"
+ "routes": "3915559e87",
+ "art": "7c7d36cb90"
 }

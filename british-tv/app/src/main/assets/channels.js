@@ -417,5 +417,13 @@ window.CHANNELS = [
     // EastEnders, Coronation Street, Crossroads, Neighbours and the rest, from the scraper's library
     maxItems: 120,
     sources: [{ data: 'soaps' }]
+  },
+  {
+    n: 26,
+    id: 'cooking',
+    name: 'Food & Cooking',
+    // Delia, Floyd, Rick Stein, Ready Steady Cook and the rest, from the scraper's library (1970 to 1999)
+    maxItems: 80,
+    sources: [{ data: 'cooking' }]
   }
 ];

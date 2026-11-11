@@ -7,7 +7,7 @@
  *   exclude: "regex"                       on any source: skip items/files whose name matches
  *   { search: "query", rows: 25 }          an archive.org advanced search (Lucene syntax)
  *
- * Channels that find no playable video are hidden automatically.
+ * Channels that find no playable video are hidden automatically. `off: true` switches a channel off by hand.
  * Only "mp4" files are used (archive.org usually makes one next to each original upload).
  * Results are cached on the device for 24 hours.
  */
@@ -274,6 +274,7 @@ window.CHANNELS = [
   {
     n: 12,
     id: 'noel',
+    off: true,                       // switched off for now; remove this line to bring it back
     name: "Noel's House Party",
     sources: [
       { item: 'noel-s-house-party' }

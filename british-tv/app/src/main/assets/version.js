@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.29.2",
-  "version": "0.29.2",
-  "code": 2902,
+  "name": "Alpha 0.29.3",
+  "version": "0.29.3",
+  "code": 2903,
   "date": "2026-11-11",
   "notes": [
-    "**OK works normally again in On Demand.** A short press of OK opens a show or plays an episode, as before. The artwork menu now opens only when you hold OK (the same hold that shows Info elsewhere), or press Menu. In 0.29 and 0.29.1 a plain press could open the menu instead."
+    "**Noel's House Party channel is switched off for now.** It is gone from the guide and On Demand. Its shows are still on other channels (such as Saturday Night TV). `off: true` on a channel in `channels.js` switches it off; removing that line brings it back."
   ],
   "history": [
+    {
+      "name": "Alpha 0.29.2",
+      "date": "2026-11-11",
+      "notes": [
+        "**OK works normally again in On Demand.** A short press of OK opens a show or plays an episode, as before. The artwork menu now opens only when you hold OK (the same hold that shows Info elsewhere), or press Menu. In 0.29 and 0.29.1 a plain press could open the menu instead."
+      ]
+    },
     {
       "name": "Alpha 0.29.1",
       "date": "2026-11-11",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**New enhancement: VHS 2.** Under Options > Enhancements, after VHS: a flat, saturated picture with fine dark lines right across it, like a tape on a cheap set."
-      ]
-    },
-    {
-      "name": "Alpha 0.25.6",
-      "date": "2026-11-11",
-      "notes": [
-        "**The Bill channel is now Drama.** The channel id `thebill` becomes `drama` in the app and in `tools/shows.json` (named just \"Drama\"), matching the scraper's new `drama.json`. The Bill stays on both Drama and ITV. Until the scraper publishes the new file, the app uses its built-in Drama list."
       ]
     }
   ]

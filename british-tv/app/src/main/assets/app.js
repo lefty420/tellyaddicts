@@ -780,7 +780,7 @@
 
   // ------------------------------------------------------------------ channels
 
-  var channels = window.CHANNELS.map(function (c) {
+  var channels = window.CHANNELS.filter(function (c) { return !c.off; }).map(function (c) {
     return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, report: [], status: 'loading', sched: null };
   });
 

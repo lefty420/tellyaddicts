@@ -96,6 +96,10 @@
   var MODERN_RE = /\b(nintendo switch|switch|wii ?u|wii|3ds|dsi|nintendo ds|gamecube|game ?cube|xbox|ps[345]|playstation [345]|crunchyroll|e3 20\d\d|netflix|youtube)\b/i;
 
   function accept(prog, eraId) {
+    if (prog.year) {                                  // from the checked catalogue: the year is known
+      if (prog.year < 1970 || prog.year > 1999) return false;
+      return eraId === 'all' || String(Math.floor((prog.year - 1900) / 10) * 10) === eraId;
+    }
     var t = (prog.title || '') + ' ' + (prog.item || '');
     if (/\bBBC\b/i.test(t) || US_RE.test(t) || MODERN_RE.test(t)) return false;
     var e = eraOf(prog.title) || eraOf(prog.item);
@@ -107,6 +111,26 @@
   }
 
   function filterPool(progs, eraId) { return (progs || []).filter(function (p) { return accept(p, eraId); }); }
+
+  // which of the catalogue's categories suit which kind of channel (prime takes everything)
+  var CAT_FITS = {
+    kids: ['toys', 'sweets', 'food', 'games', 'tv-promo', 'film', 'music', 'charity'],
+    games: ['games', 'toys', 'tv-promo', 'film', 'music'],
+    music: ['music', 'film', 'tv-promo', 'telecoms', 'drink', 'retail'],
+    daytime: ['household', 'food', 'retail', 'health', 'finance', 'telecoms', 'charity', 'sweets', 'cars']
+  };
+  /** The checked catalogue (adverts.json) -> adverts for one kind of channel and the era chosen. */
+  function fromCatalogue(list, cat, eraId) {
+    var fits = CAT_FITS[cat], out = [];
+    (list || []).forEach(function (a) {
+      if (!a || !a.url || !a.year || !(a.dur > 0) || a.dur >= 300 || (a.region && a.region !== 'uk')) return;
+      if (fits && !(a.cat || []).some(function (c) { return fits.indexOf(c) >= 0; })) return;
+      var p = { id: a.url, item: a.brand || '', url: a.url, title: a.title, sub: '', dur: a.dur, year: a.year,
+                restricted: !!a.restricted, brand: a.brand || '', group: 'uk-c' };
+      if (accept(p, eraId)) out.push(p);
+    });
+    return out;
+  }
 
   /** Hand-picked adverts (adverts.js) for one channel, checked the same way as the ones found by searching. */
   function fixedFor(channelId, eraId) {
@@ -133,6 +157,8 @@
   // Drink, tobacco and gambling: kept out of children's and daytime breaks, and out of anything before the 9pm watershed
   var RESTRICTED = /\b(beer|lager|bitter|stout|cider|whisky|whiskey|vodka|gin|rum|wine|guinness|carling|heineken|stella|cigarette|cigarettes|silk cut|benson|embassy|marlboro|rothmans|lottery|bingo|casino|betting|bookmaker|ladbrokes|coral)\b/i;
   function allowedAt(prog, cat, hour) {
+    if (prog.restricted) return cat === 'prime' && hour >= 21;
+    if (prog.year) return true;                       // the catalogue says what is restricted; titles are not searched
     if (!RESTRICTED.test((prog.title || '') + ' ' + (prog.item || ''))) return true;
     return cat === 'prime' && hour >= 21;
   }
@@ -150,8 +176,8 @@
     if (fresh.length) ok = fresh;
     var y = opts.year || 0;
     if (y) {
-      var near = ok.filter(function (p) { var py = yearOf(p.title) || yearOf(p.item); return py && Math.abs(py - y) <= 3; });
-      var dec = ok.filter(function (p) { var py = yearOf(p.title) || yearOf(p.item); return py && Math.floor(py / 10) === Math.floor(y / 10); });
+      var near = ok.filter(function (p) { var py = p.year || yearOf(p.title) || yearOf(p.item); return py && Math.abs(py - y) <= 3; });
+      var dec = ok.filter(function (p) { var py = p.year || yearOf(p.title) || yearOf(p.item); return py && Math.floor(py / 10) === Math.floor(y / 10); });
       if (near.length && Math.random() < 0.85) ok = near;
       else if (dec.length) ok = dec;
     }
@@ -163,6 +189,6 @@
   }
 
   var Ads = { ERAS: ERAS, CATS: CATS, categoryFor: categoryFor, fixedFor: fixedFor, eraIndex: eraIndex, buildQuery: buildQuery,
-    sourcesFor: sourcesFor, eraOf: eraOf, yearOf: yearOf, allowedAt: allowedAt, accept: accept, filterPool: filterPool, pickNext: pickNext };
+    sourcesFor: sourcesFor, fromCatalogue: fromCatalogue, eraOf: eraOf, yearOf: yearOf, allowedAt: allowedAt, accept: accept, filterPool: filterPool, pickNext: pickNext };
   if (typeof module !== 'undefined' && module.exports) module.exports = Ads; else root.ADS = Ads;
 })(typeof window !== 'undefined' ? window : this);

@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:|adcat1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   var kv = {
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
@@ -425,6 +425,7 @@
       artRev = (j && j.art) || '';
       epsMap = (j && j.eps && typeof j.eps === 'object') ? j.eps : null;
       removedRev = (j && j.removed) ? String(j.removed) : '';
+      adsRev = (j && j.adverts) ? String(j.adverts) : '';
       var chans = (j && j.channels) || {};
       if (!j || !j.library || !window.LIBROUTE) return chans;
       // Which channels changed only shows once the library is routed, so remember the answer per library and
@@ -1821,6 +1822,7 @@
     var saved = store.get('adera');
     return ADS.ERAS.some(function (e) { return e.id === saved; }) ? saved : 'all';
   })();
+  var adsRev = '', adCatP = null;        // the scraper's checked advert catalogue, when it has published one
   var adPools = {};                     // 'genre:era' -> filtered adverts (shared by every channel of that genre)
   var AD_TTL = 7 * 24 * 3600 * 1000;
   /** Real television lists the breaks inside the programme's time, so do the same: a programme on a channel that has
@@ -1849,6 +1851,20 @@
     return ch.decade ? ch.decade + 5 : 0;      // a decade channel: the middle of the decade
   }
   function adKey(ch) { var cat = ADS.categoryFor(ch.id); return cat && adEra !== 'off' ? cat + ':' + adEra : null; }
+  function loadAdCatalogue() {
+    if (adCatP) return adCatP;
+    var ck = 'adcat1:' + adsRev, hit = store.get(ck);
+    if (hit && hit.length) return (adCatP = Promise.resolve(hit));
+    adCatP = getJSON(DATA_BASE + 'adverts.json').then(function (j) {
+      var list = (j && j.format === 'telly-addicts-adverts' && j.adverts) || [];
+      if (list.length) {
+        try { var ks = kv.keys(); for (var i = 0; i < ks.length; i++) if (/^adcat1:/.test(ks[i]) && ks[i] !== ck) kv.removeItem(ks[i]); } catch (e) { /* nothing to tidy */ }
+        store.set(ck, list);
+      }
+      return list;
+    });
+    return adCatP;
+  }
   function loadAds(ch, soon) {
     var key = adKey(ch);
     if (!key || adPools[key]) return;
@@ -1856,6 +1872,15 @@
     var cached = store.get('ads2:' + key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < AD_TTL) { adPools[key] = unpackPlan(cached.p); return; }
     adPools[key] = [];                  // being fetched (or nothing found): breaks are skipped, and it is not retried until the next launch
+    if (adsRev) {                       // the checked catalogue: one small file, no searching
+      loadAdCatalogue().then(function (list) {
+        var p = ADS.fromCatalogue(list, cat, era);
+        if (p.length) { adPools[key] = p; return; }
+        adsRev = '';                    // an empty or unreadable catalogue: fall back to searching, once
+        adPools[key] = null; loadAds(ch, soon);
+      }, function () { adsRev = ''; adPools[key] = null; loadAds(ch, soon); });
+      return;
+    }
     // wait a little so the lookups don't compete with the programme that is still starting up
     setTimeout(function fetchAds() {
       if (!quiet()) { setTimeout(fetchAds, 5000); return; }   // never while the channels are still loading

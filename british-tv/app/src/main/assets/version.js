@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.2",
-  "version": "0.45.2",
-  "code": 4502,
+  "name": "Alpha 0.45.3",
+  "version": "0.45.3",
+  "code": 4503,
   "date": "2026-11-12",
   "notes": [
-    "**On Demand ignores certificates.** Kids Movies and The Video Shop were showing almost nothing because On Demand hid films by certificate and time of day. It now lists every film that is stored, on both channels. The guide's schedule still follows the certificate rules."
+    "**On Demand from the guide menu goes straight to the show.** It could land on a different show because the highlighted channel was followed by row number, and the rows shift as each channel's list loads. It is now followed by channel.",
+    "**Leaving On Demand puts you back where you were in the guide.** The channel, the time and the programme you held OK on are still selected."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.2",
+      "date": "2026-11-12",
+      "notes": [
+        "**On Demand ignores certificates.** Kids Movies and The Video Shop were showing almost nothing because On Demand hid films by certificate and time of day. It now lists every film that is stored, on both channels. The guide's schedule still follows the certificate rules."
+      ]
+    },
     {
       "name": "Alpha 0.45.1",
       "date": "2026-11-12",
@@ -56,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Hold OK on a programme in the guide for a menu.** It offers On Demand (opens that show's page), Watch now, Watch from the start, Info (details for that programme without leaving the guide), Next showing (jumps the guide to the next time the same show is on that channel) and the stream link."
-      ]
-    },
-    {
-      "name": "Alpha 0.39.2",
-      "date": "2026-11-12",
-      "notes": [
-        "**The blue button no longer opens On Demand.** It is back to Watch in the guide and does nothing while watching. On Demand is still reached with the On Demand button, Menu, or Left from what is on now."
       ]
     }
   ]

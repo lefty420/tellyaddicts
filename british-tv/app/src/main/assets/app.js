@@ -3383,8 +3383,8 @@
   // ------------------------------------------------------------------ On Demand
   // Browse by channel, then show, then series and episode, and play any of it from the start. Not clock-synced:
   // it plays like a recording, with the usual bar to pause and skip, and carries on to the next episode.
-  var odOpen = false, odFrom = '', odData = {}, odArtFor = '', odBgFor = '';
-  var odView = 'home', odRi = 0, odTop = 0, odPos = {}, odZone = 0, odSea = 0, odEi = 0;
+  var odOpen = false, odFrom = '', odGuide = null, odData = {}, odArtFor = '', odBgFor = '';
+  var odView = 'home', odRi = 0, odRc = null, odTop = 0, odPos = {}, odZone = 0, odSea = 0, odEi = 0;
   var OD_VIS = 9;           // posters across a row
   var OD_EPS = 4;           // episodes on screen at once
   var OD_SKIP = { xmasmusic: 1, tvarchive: 1 };         // songs and dated clips are not shows
@@ -3523,7 +3523,11 @@
   /** Where the highlight is: the channel row, and the show in it. */
   function odSel() {
     var rows = odRowList();
+    // the channel row is followed by channel, not by number: rows with nothing in them drop out as lists load, which would slide the highlight onto a neighbour
+    var at = odRc ? rows.indexOf(odRc) : -1;
+    if (at >= 0) odRi = at;
     odRi = Math.max(0, Math.min(odRi, rows.length - 1));
+    odRc = rows[odRi] || null;
     var c = rows[odRi], sh = odShowsOf(c), i = c ? (odPos[c.id] || 0) : 0;
     return { c: c, rows: rows, sh: sh, g: sh && sh.length ? sh[Math.min(i, sh.length - 1)] : null };
   }
@@ -3696,12 +3700,13 @@
     var chs = odChannels();
     if (!chs.length) { toast('On Demand is not ready yet', 2500); return; }
     odFrom = guideOpen ? 'guide' : (cur ? 'watch' : '');
+    odGuide = guideOpen ? { chan: gChan, win: gWin, focus: gFocus } : null;     // so leaving On Demand lands back on the same programme
     closeOsd(); closeOpts();
     if (guideOpen) closeGuide();
     odOpen = true; odArtFor = ''; odBgFor = ''; odTop = 0;
     odShowView(false);
     var rows = odRowList(), at = cur ? rows.indexOf(cur.ch) : 0;
-    odRi = Math.max(0, at);
+    odRi = Math.max(0, at); odRc = rows[odRi] || null;
     $('od').className = '';
     v.muted = true;
     odEnter();
@@ -3716,7 +3721,7 @@
       var name = prog.show || prog.group || (parseTitle(prog.title || '').show) || '', key = LIBROUTE.norm(name), si = -1;
       sh.forEach(function (g, i) { if (si < 0 && (LIBROUTE.norm(g.name) === key || g.eps.some(function (ep) { return ep.p.url === prog.url; }))) si = i; });
       if (ri < 0 || si < 0) return;
-      odRi = ri; odPos[c.id] = si;
+      odRi = ri; odRc = c; odPos[c.id] = si;
       odOpenShow();
       var g = sh[si];
       for (var s = 0; s < g.sea.length; s++) {
@@ -3731,7 +3736,17 @@
     clearTimeout(odMetaTimer);
     $('od').className = 'hidden';
     v.muted = false;
-    if (restore && odFrom === 'guide') openGuide();
+    if (restore && odFrom === 'guide') {
+      openGuide();
+      if (odGuide && guideList().indexOf(odGuide.chan) >= 0) {
+        var now = Date.now();
+        gChan = odGuide.chan;
+        gWin = Math.max(odGuide.win, floorHalf(now));
+        gFocus = Math.max(odGuide.focus, now);
+        if (gFocus >= gWin + SPAN) gFocus = gWin;
+        renderGuide();
+      }
+    }
   }
   /** Load every channel's list in the background, one after another, so the counts fill in and browsing is instant. */
   var odPre = 0;
@@ -3758,7 +3773,7 @@
     var s = odSel(), c = s.c, sh = s.sh, pos = c ? (odPos[c.id] || 0) : 0;
     if (k === 'ArrowUp' || k === 'ArrowDown') {
       var ni = odRi + (k === 'ArrowUp' ? -1 : 1);
-      if (ni >= 0 && ni < s.rows.length) { odRi = ni; odEnter(); return true; }
+      if (ni >= 0 && ni < s.rows.length) { odRi = ni; odRc = s.rows[ni]; odEnter(); return true; }
     } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
       if (sh && sh.length) odPos[c.id] = Math.max(0, Math.min(sh.length - 1, pos + (k === 'ArrowLeft' ? -1 : 1)));
     } else if (k === 'ChannelUp' || k === 'ChannelDown') {

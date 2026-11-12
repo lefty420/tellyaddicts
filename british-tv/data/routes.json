@@ -1,13 +1,14 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "d828a145cd",
+ "rev": "111d13e512",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
    "name": "80s & 90s Kids Cartoons (CBBC & CITV)",
    "shows": [
-    "C.O.P.S."
+    "C.O.P.S.",
+    "super gran"
    ]
   },
   "disney": {

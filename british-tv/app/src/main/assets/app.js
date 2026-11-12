@@ -3002,19 +3002,9 @@
     epgDbgCh = list[(i + (d < 0 ? list.length - 1 : 1)) % list.length];
     buildEpgDebug(true);
   }
-  function buildEpgDebug(keepScroll) {
-    var body = $('rbody'), top = body.scrollTop;
-    body.textContent = '';
-    $('rkick').textContent = 'EPG debug';
-    var list = epgDbgChannels();
-    if (!epgDbgCh || list.indexOf(epgDbgCh) < 0) epgDbgCh = (gChan && list.indexOf(gChan) >= 0 ? gChan : (cur && list.indexOf(cur.ch) >= 0 ? cur.ch : list[0])) || null;
-    var c = epgDbgCh;
-    if (!c) { $('rver').textContent = ''; $('rdate').textContent = ''; body.appendChild(relList(['No channel is ready yet.'])); return; }
+  /** Everything the debug page says about one channel, as plain lines (the page and the copy for a browser both use it). */
+  function epgInfo(c) {
     var s = c.sched, now = Date.now();
-    $('rver').textContent = c.n + '  ' + c.name + '      ◀ ▶ change channel';
-    $('rdate').textContent = '\u25C0 \u25B6 change channel   \u00b7   what the guide is made of, and what it shows for the next 24 hours';
-    function h3(t) { var e = document.createElement('h3'); e.textContent = t; body.appendChild(e); }
-    // the blocks the guide will show from now for a day
     var rows = [], b = E.blockAt(s, now), n = 0;
     while (b && n < 600 && (!rows.length || b.startMs < rows[0].startMs + 24 * 3600 * 1000)) { rows.push(b); b = E.stepBlock(s, b, 1); n++; }     // exactly one day from the block on now, so a daily timetable does not count its own repeat
     var key = function (p) { return String(p.show || p.group || String(p.title || '').replace(/\s+S\d+E\d+.*$/i, '')).toLowerCase(); };
@@ -3022,7 +3012,7 @@
     var uniq = {};
     s.order.forEach(function (p) { var k = key(p); cnt[k] = (cnt[k] || 0) + 1; uniq[k] = p.show || p.group || p.title; if (!(p.lenKnown)) unknownLen++; if (!/S\d+E\d+/i.test(p.title || '') && !p.filmKey) uncoded++; });
     var run = 0, prev = '', runStart = 0;
-    rows.forEach(function (bl, i) {
+    rows.forEach(function (bl) {
       var k = key(bl.prog);
       if (k === prev) run++; else { if (run >= 3) runs.push({ show: uniq[prev] || prev, n: run, at: runStart }); run = 1; prev = k; runStart = bl.startMs; }
       if (urls[bl.prog.url]) dupes.push(bl.prog.title); urls[bl.prog.url] = 1;
@@ -3031,33 +3021,71 @@
     var kind = s.cycle === 'multi' ? 'a clock timetable, ' + s.n + ' ' + (s.unit === 604800 ? 'weeks' : 'days') + ' before it repeats'
       : s.cycle === 'week' ? 'a clock timetable that repeats every week' : s.cycle === 'day' ? 'a clock timetable that repeats every day'
       : 'one shuffled loop of ' + (s.total / 3600).toFixed(1) + ' hours';
-    h3('This channel');
-    body.appendChild(relList([
-      'Guide length setting: ' + SPANS[spanIdx].label,
-      'Built as ' + kind,
-      s.order.length + ' programmes in the schedule, ' + Object.keys(cnt).length + ' different shows, ' + (s.total / 3600).toFixed(1) + ' hours in all',
-      (c.plan ? c.plan.length : '?') + ' programmes stored for this channel before the guide length is applied',
-      'Where it comes from: ' + (c.decade ? 'the library, only ' + c.decade + 's (' + (c.decade + 9) + ')' : c.autoUsed ? 'the scraper’s whole library' : 'the channel’s own list'),
-      unknownLen + ' programmes have no confirmed running time; ' + uncoded + ' have no season and episode'
-    ]));
-    h3('Problems found in the next 24 hours');
     var probs = [];
     runs.forEach(function (r) { probs.push(r.show + ' is on ' + r.n + ' times in a row from ' + fmtTime(r.at)); });
     if (dupes.length) probs.push(dupes.length + ' programme' + (dupes.length > 1 ? 's repeat' : ' repeats') + ' within the day: ' + dupes.slice(0, 3).join('; '));
-    var topShow = Object.keys(cnt).sort(function (x, y) { return cnt[y] - cnt[x]; })[0];
-    if (topShow && cnt[topShow] / s.order.length > 0.4 && Object.keys(cnt).length > 1) probs.push(uniq[topShow] + ' fills ' + Math.round(100 * cnt[topShow] / s.order.length) + '% of the schedule');
-    body.appendChild(relList(probs.length ? probs : ['None: no show three times in a row, no repeats within the day.']));
-    h3('Most common shows');
-    body.appendChild(relList(Object.keys(cnt).sort(function (x, y) { return cnt[y] - cnt[x]; }).slice(0, 10).map(function (k) { return uniq[k] + ': ' + cnt[k]; })));
-    h3('Next 24 hours');
-    var ul = document.createElement('ul'), prevK = '', runN = 0;
-    rows.forEach(function (bl) {
-      var k = key(bl.prog); runN = k === prevK ? runN + 1 : 1; prevK = k;
-      var li = document.createElement('li');
-      li.textContent = fmtTime(bl.startMs) + '  ' + Math.round((bl.endMs - bl.startMs) / 60000) + ' min   ' + (bl.prog.title || '?') + (bl.count > 1 ? '  (+' + (bl.count - 1) + ' more)' : '') + (runN >= 3 ? '    ← ' + runN + ' in a row' : '');
-      ul.appendChild(li);
+    var byCount = Object.keys(cnt).sort(function (x, y) { return cnt[y] - cnt[x]; }), topShow = byCount[0];
+    if (topShow && cnt[topShow] / s.order.length > 0.4 && byCount.length > 1) probs.push(uniq[topShow] + ' fills ' + Math.round(100 * cnt[topShow] / s.order.length) + '% of the schedule');
+    var prevK = '', runN = 0;
+    return {
+      head: [
+        'Guide length setting: ' + SPANS[spanIdx].label,
+        'Built as ' + kind,
+        s.order.length + ' programmes in the schedule, ' + byCount.length + ' different shows, ' + (s.total / 3600).toFixed(1) + ' hours in all',
+        (c.plan ? c.plan.length : '?') + ' programmes stored for this channel before the guide length is applied',
+        'Where it comes from: ' + (c.decade ? 'the library, only ' + c.decade + 's (' + (c.decade + 9) + ')' : c.autoUsed ? 'the scraper’s whole library' : 'the channel’s own list'),
+        unknownLen + ' programmes have no confirmed running time; ' + uncoded + ' have no season and episode'
+      ],
+      probs: probs,
+      tops: byCount.slice(0, 10).map(function (k) { return uniq[k] + ': ' + cnt[k]; }),
+      blocks: rows.map(function (bl) {
+        var k = key(bl.prog); runN = k === prevK ? runN + 1 : 1; prevK = k;
+        return fmtTime(bl.startMs) + '  ' + Math.round((bl.endMs - bl.startMs) / 60000) + ' min   ' + (bl.prog.title || '?') + (bl.count > 1 ? '  (+' + (bl.count - 1) + ' more)' : '') + (runN >= 3 ? '    ← ' + runN + ' in a row' : '');
+      })
+    };
+  }
+  /** Every ready channel, as text for a browser: problems first, then each channel's next 24 hours. */
+  function epgText() {
+    var list = epgDbgChannels(), out = ['Telly Addicts EPG debug', 'Version: ' + relName(), 'Written: ' + new Date().toString(), 'Guide length setting: ' + SPANS[spanIdx].label, ''];
+    var infos = list.map(function (c) { return { c: c, i: epgInfo(c) }; });
+    out.push('PROBLEMS, ALL CHANNELS');
+    var any = false;
+    infos.forEach(function (x) { x.i.probs.forEach(function (t) { any = true; out.push(x.c.n + ' ' + x.c.name + ': ' + t); }); });
+    if (!any) out.push('None.');
+    infos.forEach(function (x) {
+      out.push('', '=== ' + x.c.n + ' ' + x.c.name + ' ===');
+      x.i.head.forEach(function (t) { out.push(t); });
+      out.push('Most common shows: ' + x.i.tops.join('; '), 'Next 24 hours:');
+      x.i.blocks.forEach(function (t) { out.push('  ' + t); });
     });
-    body.appendChild(ul);
+    return out.join('\n');
+  }
+  function buildEpgDebug(keepScroll) {
+    var body = $('rbody'), top = body.scrollTop;
+    body.textContent = '';
+    $('rkick').textContent = 'EPG debug';
+    var list = epgDbgChannels();
+    if (!epgDbgCh || list.indexOf(epgDbgCh) < 0) epgDbgCh = (gChan && list.indexOf(gChan) >= 0 ? gChan : (cur && list.indexOf(cur.ch) >= 0 ? cur.ch : list[0])) || null;
+    var c = epgDbgCh;
+    if (!c) { $('rver').textContent = ''; $('rdate').textContent = ''; body.appendChild(relList(['No channel is ready yet.'])); return; }
+    $('rver').textContent = c.n + '  ' + c.name;
+    $('rdate').textContent = '◀ ▶ change channel   ·   what the guide is made of, and what it shows for the next 24 hours';
+    function h3(t) { var e = document.createElement('h3'); e.textContent = t; body.appendChild(e); }
+    var info = epgInfo(c);
+    // the same report for every channel, ready to open from a phone or computer on the home network
+    if (!keepScroll || !buildEpgDebug.where) { try { buildEpgDebug.where = window.NativeHttp && NativeHttp.shareLog ? NativeHttp.shareLog(epgText()) : ''; } catch (e) { buildEpgDebug.where = ''; } }
+    h3('Open on a phone or computer');
+    body.appendChild(relList(buildEpgDebug.where
+      ? ['On the same Wi-Fi, open this exactly as shown, starting with http://', buildEpgDebug.where, 'It shows every channel, not just this one. (It replaces the debug log on that address until you open the debug log again.)']
+      : ['This can be opened from a phone or computer when the TV is on the home network.']));
+    h3('This channel');
+    body.appendChild(relList(info.head));
+    h3('Problems found in the next 24 hours');
+    body.appendChild(relList(info.probs.length ? info.probs : ['None: no show three times in a row, no repeats within the day.']));
+    h3('Most common shows');
+    body.appendChild(relList(info.tops));
+    h3('Next 24 hours');
+    body.appendChild(relList(info.blocks));
     body.scrollTop = keepScroll ? top : 0;
     relMore();
   }
@@ -3066,7 +3094,7 @@
   function openRel(which) {
     closeOpts();
     relRow = which === 'about' || which === 'log' || which === 'gaps' || which === 'epg' ? which : 'rel';
-    if (relRow === 'about') buildAbout(); else if (relRow === 'log') buildLog(); else if (relRow === 'gaps') { buildGaps(); gapStart(false); } else if (relRow === 'epg') buildEpgDebug(); else buildRel();
+    if (relRow === 'about') buildAbout(); else if (relRow === 'log') buildLog(); else if (relRow === 'gaps') { buildGaps(); gapStart(false); } else if (relRow === 'epg') { buildEpgDebug.where = ''; buildEpgDebug(); } else buildRel();
     relOpen = true;
     $('rel').className = '';
     $('rbody').scrollTop = 0;

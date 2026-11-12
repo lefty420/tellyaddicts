@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.18",
-  "version": "0.45.18",
-  "code": 4518,
+  "name": "Alpha 0.45.19",
+  "version": "0.45.19",
+  "code": 4519,
   "date": "2026-11-12",
   "notes": [
-    "**Options redesigned as two panes.** A category list down the left (Watch, Picture, TV Guide, Artwork, Playback, Help & tools) and the chosen category's settings on the right. Up and Down choose a category, Right or OK goes in, Back returns to the list. A highlighted setting shows all its choices as buttons (Guide length: 24 hours, 48 hours, 1 week, 1 month) so you can see them without cycling, and Left and Right change it. EPG debug now sits under Help & tools."
+    "**EPG debug can be opened from a browser, like the debug log.** The page now shows an address to open from a phone or computer on the same Wi-Fi, with the report for every channel at once: problems first, then each channel's next 24 hours."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.18",
+      "date": "2026-11-12",
+      "notes": [
+        "**Options redesigned as two panes.** A category list down the left (Watch, Picture, TV Guide, Artwork, Playback, Help & tools) and the chosen category's settings on the right. Up and Down choose a category, Right or OK goes in, Back returns to the list. A highlighted setting shows all its choices as buttons (Guide length: 24 hours, 48 hours, 1 week, 1 month) so you can see them without cycling, and Left and Right change it. EPG debug now sits under Help & tools."
+      ]
+    },
     {
       "name": "Alpha 0.45.17",
       "date": "2026-11-12",
@@ -57,14 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Every film in The Video Shop and Kids Movies no longer shows the same wrong picture.** When the library could not load, the background artwork search looked up the channel names (\"The Video Shop\", \"Kids Movies\") as if they were TV shows, found an unrelated programme, and gave its picture to every film. Channel names are no longer looked up, and films without their own poster show a plain card with the title."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.10",
-      "date": "2026-11-12",
-      "notes": [
-        "**The show library downloads again, which fixes missing film posters, wrong lengths and shows listed as raw file names.** The library file had grown just past the size the app would accept (by under a kilobyte), so every TV rejected it and fell back to old, thin data: no posters or details on films, every video listed as 45 minutes, and shows like Poirot under \"Other videos\". The limit is now far higher.",
-        "**On Demand opens while a film is playing.** It used to jump to the film and start it again straight away, so it looked as if On Demand would not open. It now opens on that film's poster."
       ]
     }
   ]

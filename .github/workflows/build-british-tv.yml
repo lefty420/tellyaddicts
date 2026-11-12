@@ -5,6 +5,7 @@ on:
     branches: [main, master]
     paths:
       - "british-tv/**"
+      - "!british-tv/data/**"
       - "CHANGELOG.md"
       - "tools/make_version.py"
       - ".github/workflows/build-british-tv.yml"

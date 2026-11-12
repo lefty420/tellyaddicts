@@ -6,7 +6,7 @@ one. This page is how it works inside. For what it does, the channels, the contr
 
 ## How a channel is built
 
-- A channel is an entry in `app/src/main/assets/channels.js`. Its programmes come from the scraper's published
+- A channel is an entry in `app/src/main/assets/channels.js`. Its programmes come from the published
   data, and, for the older hand-picked channels, from archive.org items and searches listed in the entry.
 - Programmes go into a fixed shuffled loop per channel, timed by the clock, so a channel is "on" at a set point
   whenever you tune in. The loop is worked out from the stored list, not written out in advance, so the guide can
@@ -21,18 +21,19 @@ list), `include`, `exclude`, `skipFile`, `minDur` / `maxDur` (seconds), `maxSize
 
 ## Where programmes come from
 
-The scraper publishes to `../british-tv/data/` (see the main README for the files). The app:
+The data is published into `british-tv/data/`: `library.json`, `index.json`, a list per channel, `routes.json`, `art.json`,
+`eps/<slug>.json` (an episode guide per show) and `removed-shows.json`. The app:
 
 1. fetches `index.json` for each channel's revision and the library's;
 2. routes `library.json` to channels itself with `assets/libroute.js`, using `tools/shows.json` (its lists), the
-   scraper's `routes.json` (which wins for shows it names) and `removed-shows.json`. A channel marked `"extra"` in
+   `routes.json` (which wins for the shows it names) and `removed-shows.json`. A channel marked `"extra"` in
    `shows.json` keeps its shows on their own channels too. A channel for a broadcaster also gets that broadcaster's shows,
    soaps go to the soaps channel as well, and episodes flagged as Christmas go to a Christmas channel;
 3. falls back to the channel's own `data/<id>.json` when the library routes nothing to it (Food & Cooking), then to
    the bundled copy `autodata.js`.
 
 A channel's revision is a hash of its own routed rows, so only channels that changed are rebuilt. Editing
-`tools/shows.json` re-routes at the next start, with no scrape and no build.
+`tools/shows.json` re-routes at the next start, with no new data and no build.
 
 **Genre guard** (`auto.js`). A programme is dropped from a channel when the show it names belongs only to other
 genres (a detective drama cannot turn up on a kids channel). Programmes naming no known show are kept. One-word show names only count
@@ -68,12 +69,12 @@ but no picture are skipped.
 
 `app.js` holds it (`od*` functions). Each channel's shows are grouped by show name from the same data as the
 channel (`odLoadChannel`, `odGroup`), seasons split by `odSeasons`. Details come from `data/eps/<slug>.json` if the
-scraper has one, otherwise from TVmaze, and are cached per show. Stills from guides are rewritten to TVmaze's medium
-size. Artwork is the scraper's `art.json`, TVmaze, or a hand-picked override.
+published guide has one, otherwise from TVmaze, and are cached per show. Stills from guides are rewritten to TVmaze's medium
+size. Artwork is `art.json`, TVmaze, or a hand-picked override.
 
 ## Episode names and Info
 
-The TVmaze service (free, no key) supplies episode titles, posters and fanart. A show is matched by the scraper's name for it,
+The TVmaze service (free, no key) supplies episode titles, posters and fanart. A show is matched by the name in the library,
 or by the names in `tools/shows.json`. Misses are remembered for 5 days. Info shows the episode's own summary if
 there is one, otherwise the show's.
 

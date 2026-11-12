@@ -34,17 +34,14 @@ Current release: **Alpha 0.38**. Every release is listed in `CHANGELOG.md`.
 | Red / Green / Yellow | Guide | Now / Later / Earlier |
 | Back | Open the guide | Back to what is playing (twice to exit) |
 
-## Who does what
+## How it is put together
 
-The app and the [Telly Addict Scraper](https://github.com/lefty420/Telly-addict-scraper) are kept apart.
-
-- **This repository is the app.** Its code is in `british-tv/app/`, with helper scripts in `tools/`.
-- **The scraper owns the data** in `british-tv/data/`: the library, channel lists, artwork and episode guides.
-  Those files are generated, so they are never edited by hand here.
-- **`tools/shows.json` is the shared contract.** It says which shows belong on which channel. The app reads it
-  at run time, so changing it needs no new build.
-
-New content reaches the TV without an update: the scraper publishes, the app fetches it at start-up.
+- **The app** is in `british-tv/app/`, with helper scripts in `tools/`.
+- **The channel data** (library, lists, artwork, episode guides) is published into `british-tv/data/` and fetched
+  by the app at start-up, so new content reaches the TV without an update. Those files are generated, so they are
+  never edited by hand.
+- **`tools/shows.json`** says which shows belong on which channel. The app reads it at run time, so changing it
+  needs no new build.
 
 ## Getting the app
 
@@ -56,14 +53,15 @@ Every build is signed with the same key, so a new one installs over the old. A b
 `main`. To make a release, add a heading to `CHANGELOG.md` such as `## Alpha 0.39 — 2026-11-12` with a bullet
 per change, run `python3 tools/make_version.py`, commit and push.
 
-## Helping the scraper
+## Reporting problems
 
-- **Options > Missing episodes report** compares everything on the TV with the episode guides and lists what
-  is missing. Open the address it shows on a phone or computer, copy the page, and give it to the scraper.
-- **Options > Debug log** is served the same way and is the first thing to send when something misbehaves.
-- `tools/missing_report.py` builds a similar hand-off file without needing the TV.
+- **Options > Debug log** is served on the home network: open the address it shows on a phone or computer and
+  copy the page. It is the first thing to send when something misbehaves.
+- **Options > Missing episodes report** compares everything on the TV with the episode guides and lists what is
+  missing, in the same way.
+- `tools/missing_report.py` builds a similar list without needing the TV.
 
 ## More
 
 - `british-tv/README.md` explains how the app works inside.
-- `tools/` also holds the notes on the files the scraper publishes (`art-contract.md`, `meta-contract.md`).
+- `tools/` also holds the notes on the published artwork and episode-guide files (`art-contract.md`, `meta-contract.md`).

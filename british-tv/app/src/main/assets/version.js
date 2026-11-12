@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.39.2",
-  "version": "0.39.2",
-  "code": 3902,
+  "name": "Alpha 0.40",
+  "version": "0.40",
+  "code": 4000,
   "date": "2026-11-12",
   "notes": [
-    "**The blue button no longer opens On Demand.** It is back to Watch in the guide and does nothing while watching. On Demand is still reached with the On Demand button, Menu, or Left from what is on now."
+    "**Hold OK on a programme in the guide for a menu.** It offers On Demand (opens that show's page), Watch now, Watch from the start, Info (details for that programme without leaving the guide), Next showing (jumps the guide to the next time the same show is on that channel) and the stream link."
   ],
   "history": [
+    {
+      "name": "Alpha 0.39.2",
+      "date": "2026-11-12",
+      "notes": [
+        "**The blue button no longer opens On Demand.** It is back to Watch in the guide and does nothing while watching. On Demand is still reached with the On Demand button, Menu, or Left from what is on now."
+      ]
+    },
     {
       "name": "Alpha 0.39.1",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**Bigger On Demand posters that fill the width.** Nine posters now span the whole row, about 40% larger than before, and both rows still fit with nothing cut off. The title block is more compact to make room."
-      ]
-    },
-    {
-      "name": "Alpha 0.36",
-      "date": "2026-11-11",
-      "notes": [
-        "**The guide goes round.** Pressing Up on the first channel now takes you to the last one, and Down on the last goes back to the first. The On Demand button is still reached with Left from what is on now."
       ]
     }
   ]

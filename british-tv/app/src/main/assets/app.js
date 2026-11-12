@@ -1315,26 +1315,27 @@
     }, 1200);
   }
 
-  function openInfo() {
-    if (!cur) return;
-    reportProgramme('Info opened');
+  function openInfo(over) {
+    var cp = over || cur;          // a programme picked in the guide, or what is playing
+    if (!cp) return;
+    if (!over) reportProgramme('Info opened');
     infoOpen = true;
     var token = ++infoToken;
-    var title = cur.prog.title || '';
+    var title = cp.prog.title || '';
     $('info').className = '';
     $('ibg').style.backgroundImage = 'none';
     $('iposter').className = 'hidden';
     $('ishow').textContent = title;
     $('iep').textContent = '';
-    $('imeta').textContent = cur.ch.name;
+    $('imeta').textContent = cp.ch.name;
     $('isum').textContent = '';
-    $('idbg').textContent = pbText();
+    $('idbg').textContent = over ? '' : pbText();
     $('isrc').textContent = 'Looking up details…   (Back to close)';
-    if (cur.ad) { $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cur.prog.url || '').replace('https://archive.org/download/', '')); $('isrc').textContent = 'Back to close'; return; }
-    var film = filmFor(cur.prog);
-    if (film) { showFilmInfo(film); return; }                 // a film: TMDb already told us everything
+    if (cp.ad) { $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cp.prog.url || '').replace('https://archive.org/download/', '')); $('isrc').textContent = 'Back to close'; return; }
+    var film = filmFor(cp.prog);
+    if (film) { showFilmInfo(film, cp); return; }                 // a film: TMDb already told us everything
     var p = parseTitle(title);
-    if (cur.prog && cur.prog.show) p.show = cur.prog.show;
+    if (cp.prog && cp.prog.show) p.show = cp.prog.show;
     if (!p.show) { $('isrc').textContent = 'Back to close'; return; }
     tvmInfo(p).then(function (d) {
       if (token !== infoToken || !infoOpen) return;
@@ -1374,14 +1375,14 @@
   }
 
   /** A film's Info screen, straight from the details the scraper gathered: no lookup, so it is up at once. */
-  function showFilmInfo(f) {
-    $('ishow').textContent = f.title || (cur.prog.title || '');
+  function showFilmInfo(f, cp) {
+    $('ishow').textContent = f.title || (cp.prog.title || '');
     var bits = [];
     if (f.released) bits.push(String(f.released).slice(0, 4));
     if (f.cert) bits.push(f.cert);
     if (f.genres) bits.push(f.genres);
     if (f.mins) bits.push(f.mins + ' min');
-    bits.push(cur.ch.name);
+    bits.push(cp.ch.name);
     $('imeta').textContent = bits.join('   ·   ');
     var box = $('isum');
     box.textContent = '';
@@ -2157,14 +2158,14 @@
     renderGuide(true);
   }
 
-  function watchFromGuide() {
+  function watchFromGuide(fromStart) {
     var c = gChan;
     if (!c) return;
     if (c.status !== 'ready') { toast(c.name + ' is still loading', 2000); return; }
     var now = Date.now();
     var b = E.blockAt(c.sched, gFocus);
     closeGuide();
-    if (b && !(b.startMs <= now && now < b.endMs)) {
+    if (b && (fromStart || !(b.startMs <= now && now < b.endMs))) {
       // any other programme in the guide: play it from the start, whatever the time; the channel carries on from there
       playSlot(c, c.sched.groups[b.gi].first, 0, true, !(cur && cur.ch === c));
       return;
@@ -2237,6 +2238,65 @@
     var fb = c.status === 'ready' ? E.blockAt(c.sched, gFocus) : null;
     var file = fb && fb.prog && fb.prog.url ? ' | File: ' + decodeURIComponent(fb.prog.url.replace('https://archive.org/download/', '')) : '';
     toast(c.name + (c.autoUsed ? ' [Auto EPG]' : '') + ': ' + (r.length ? 'not playing - ' + r.join('; ') : 'all sources loaded') + file, 12000);
+  }
+
+
+  // ------------------------------------------------------------------ guide menu (hold OK on a programme)
+
+  var gm = null;
+  function gmName(p) { return (p && (p.show || p.group || parseTitle(p.title || '').show || p.title)) || ''; }
+  function gmOpen() {
+    var c = gChan;
+    if (!c) return;
+    if (c.status !== 'ready') { toast(c.name + ' is still loading', 2000); return; }
+    var b = E.blockAt(c.sched, gFocus);
+    if (!b || !b.prog) return;
+    var p = b.prog, name = gmName(p), now = Date.now(), live = b.startMs <= now && now < b.endMs;
+    var items = [];
+    items.push({ t: 'On Demand', sub: name, f: function () {
+      gmClose();
+      if (odChannels().indexOf(c) < 0) { toast('Nothing on demand for ' + c.name, 3000); return; }
+      odOpenUi(); odJump(c, p);
+    } });
+    if (live) items.push({ t: 'Watch now', f: function () { gmClose(); watchFromGuide(); } });
+    items.push({ t: 'Watch from the start', f: function () { gmClose(); watchFromGuide(true); } });
+    items.push({ t: 'Info', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
+    // the next time the same show comes round on this channel
+    var key = LIBROUTE.norm(name), nb = b, found = null;
+    for (var i = 0; i < 300 && key && !found; i++) {
+      nb = E.stepBlock(c.sched, nb, 1);
+      if (nb.gi === b.gi) break;
+      if (nb.prog && LIBROUTE.norm(gmName(nb.prog)) === key) found = nb;
+    }
+    if (found) items.push({ t: 'Next showing', sub: new Date(found.startMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), f: function () {
+      gmClose();
+      gFocus = Math.min(found.startMs + 1000, found.endMs - 1);
+      if (found.startMs >= gWin + SPAN) gWin = floorHalf(found.startMs);
+      renderGuide(true);
+    } });
+    items.push({ t: 'Stream link', f: function () { gmClose(); showReport(); } });
+    gm = { items: items, i: 0, title: name, sub: c.n + '  ' + c.name };
+    gmRender();
+  }
+  function gmClose() { gm = null; $('gmenu').className = 'hidden'; }
+  function gmRender() {
+    var box = $('gml'); box.textContent = '';
+    $('gmt').textContent = gm.title;
+    $('gms').textContent = gm.sub;
+    gm.items.forEach(function (it, i) {
+      var r = document.createElement('div'); r.className = 'gmr' + (i === gm.i ? ' sel' : '');
+      var b = document.createElement('b'); b.textContent = it.t; r.appendChild(b);
+      if (it.sub) { var sm = document.createElement('small'); sm.textContent = it.sub; r.appendChild(sm); }
+      box.appendChild(r);
+    });
+    $('gmenu').className = '';
+  }
+  function gmKey(k) {
+    if (k === 'ArrowUp') gm.i = (gm.i + gm.items.length - 1) % gm.items.length;
+    else if (k === 'ArrowDown') gm.i = (gm.i + 1) % gm.items.length;
+    else if (k === 'Enter' || k === ' ') { gm.items[gm.i].f(); return; }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'ArrowLeft' || k === 'Menu' || k === 'ContextMenu') { gmClose(); return; }
+    gmRender();
   }
 
   // ------------------------------------------------------------------ OSD bar (OK while watching)
@@ -3029,6 +3089,7 @@
     }
 
     if (odOpen) { odKey(k); e.preventDefault(); return; }
+    if (gm) { if (k !== 'Info') gmKey(k); e.preventDefault(); return; }
     if (k === 'Menu' || k === 'ContextMenu') { odOpenUi(); e.preventDefault(); return; }
 
     if (guideOpen) {
@@ -3052,7 +3113,7 @@
       // in the guide: Back goes back to what is playing; with nothing playing, Back twice leaves the app
       else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { if (cur) closeGuide(); else pressBackToExit(); }
       else if (k === 'Guide') closeGuide();
-      else if (k === 'Info') showReport();
+      else if (k === 'Info') gmOpen();
       else handled = false;
     } else if (optsOpen) {
       handled = optsKey(k);

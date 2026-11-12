@@ -21,6 +21,8 @@
     music: { count: 2, breakSec: 60, maxDur: 150, kw: ['now that\'s what i call music', 'now thats what i call music', 'compilation album', 'cassette', 'cd', 'album', 'hits'] },
     daytime: { count: 2, breakSec: 120, maxDur: 150, kw: ['cleaning', 'washing powder', 'detergent', 'food', 'supermarket', 'tesco', 'sainsbury', 'magazine', 'household', 'biscuits'] },
     // standard commercial breaks: ITV, Channel 4, Channel 5, Sky and cable (never the BBC, which has no adverts)
+    // the Adverts channel: every kind of advert, no break of its own (it is all break)
+    all: { count: 1, breakSec: 0, maxDur: 420, kw: ['adverts', 'commercials', 'tv commercial', 'itv', 'channel 4'] },
     prime: { count: 1, breakSec: 180, maxDur: 420, kw: ['itv', 'channel 4', 'channel 5', 'sky', 'cable', 'commercial break', 'ad break', 'adverts', 'commercials'] }
   };
 
@@ -31,7 +33,8 @@
     music: 'music', mtv: 'music', xmasmusic: 'music',
     itvam: 'daytime', offschool: 'daytime',
     comedy: 'prime', sitcoms: 'prime', drama: 'prime', gameshows: 'prime', tv70s: 'prime', tv80s: 'prime', tv90s: 'prime', noel: 'prime', cooking: 'prime', entertainment: 'prime', ussitcoms: 'prime',
-    itv: 'prime', christmas: 'prime'
+    itv: 'prime', christmas: 'prime',
+    adbreak: 'all'
   };
 
   function categoryFor(channelId) { return CHANNEL_CAT[channelId] || null; }
@@ -157,7 +160,7 @@
   // Drink, tobacco and gambling: kept out of children's and daytime breaks, and out of anything before the 9pm watershed
   var RESTRICTED = /\b(beer|lager|bitter|stout|cider|whisky|whiskey|vodka|gin|rum|wine|guinness|carling|heineken|stella|cigarette|cigarettes|silk cut|benson|embassy|marlboro|rothmans|lottery|bingo|casino|betting|bookmaker|ladbrokes|coral)\b/i;
   function allowedAt(prog, cat, hour) {
-    if (prog.restricted) return cat === 'prime' && hour >= 21;
+    if (prog.restricted) return (cat === 'prime' || cat === 'all') && hour >= 21;
     if (prog.year) return true;                       // the catalogue says what is restricted; titles are not searched
     if (!RESTRICTED.test((prog.title || '') + ' ' + (prog.item || ''))) return true;
     return cat === 'prime' && hour >= 21;

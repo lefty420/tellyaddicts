@@ -723,6 +723,7 @@
    *  the app when they cannot be reached). Nothing is searched for on archive.org and nothing is topped up from the
    *  hand-picked sources, so a channel the library has nothing for simply stays empty and hides itself. */
   function loadPrograms(ch, noAuto) {
+    if (isAdChan(ch)) return Promise.resolve(adChannelPlan(ch));
     if (autoEpg && !noAuto && !ch.noCache && window.AUTO && AUTO.sourcesFor(ch.id)) {
       // Building a list from the scrape means running thousands of file names through the naming rules, so the
       // finished list is cached like any other: on the box that pass costs a second or two per channel. The
@@ -743,6 +744,19 @@
       });
     }
     return loadProgramsLive(ch, noAuto);
+  }
+
+  /** The Adverts channel has no files of its own: it is a run of commercial breaks of different lengths, and each one
+   *  is filled with adverts from the checked catalogue as it plays (playAdBlock), the same way as the breaks inside
+   *  other channels. */
+  function adChannelPlan(ch) {
+    var lens = [1800, 1200, 1800, 2400, 1800, 900, 3600, 1800, 1200, 2700], plan = [];
+    for (var i = 0; i < 60; i++) {
+      plan.push({ id: 'adbreak/' + i, item: 'adbreak', url: '', title: 'Commercial Break', sub: '', dur: lens[i % lens.length],
+                  group: 'Commercial Break', show: 'Commercial Break', ad: true, adBlock: true });
+    }
+    ch.autoUsed = true; ch.report = []; ch.plan = plan;
+    return plan;
   }
 
   /** Turn a published (or bundled) channel list into this channel's programmes, and store the result. */
@@ -1835,6 +1849,7 @@
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
     pbStart(prog.url, offset);
+    if (prog.adBlock) { playAdBlock(ch, index, offset, announce, tuning); return; }
     var meOne = cur;
     setTimeout(function () {
       if (cur === meOne && v.readyState < 1 && !meOne.ad) {       // never even got the file header: move on
@@ -1859,6 +1874,23 @@
     if (announce) showBanner();
     loadAds(ch);
     setTimeout(function () { if (cur === meOne) osdArt(); }, 4000);   // have the artwork ready before the OSD is opened
+  }
+
+  /** A commercial break on the Adverts channel: adverts for the rest of the block, starting wherever the clock has us.
+   *  The adverts are fetched first on a fresh start, so wait (a little) for them rather than skipping on. */
+  function playAdBlock(ch, index, offset, announce, tuning, tries) {
+    var prog = ch.sched.order[index], me = cur;
+    if (tuning) showStatic();
+    if (announce) showBanner();
+    loadAds(ch, true);
+    if (!adPool(ch).length) {
+      if ((tries || 0) >= 20) { showNoSignal('No adverts could be loaded. Trying again shortly...'); setTimeout(function () { hideNoSignal(); if (cur === me) tune(ch, false, true); }, 8000); return; }
+      setTimeout(function () { if (cur === me) playAdBlock(ch, index, offset, false, false, (tries || 0) + 1); }, 1500);
+      return;
+    }
+    var left = Math.max(10, (prog.dur || 1800) - (offset || 0));
+    store.set('last', ch.id);
+    playAd(ch, index, left);
   }
 
   function tune(ch, announce, quiet) {
@@ -1901,7 +1933,10 @@
     if (y >= 1970 && y <= 1999) return y;
     return ch.decade ? ch.decade + 5 : 0;      // a decade channel: the middle of the decade
   }
-  function adKey(ch) { var cat = ADS.categoryFor(ch.id); return cat && adEra !== 'off' ? cat + ':' + adEra : null; }
+  /** The Adverts channel is all adverts, so with the break setting Off it still plays them, from every era. */
+  function isAdChan(ch) { return !!ch && ch.id === 'adbreak'; }
+  function eraFor(ch) { return isAdChan(ch) && adEra === 'off' ? 'all' : adEra; }
+  function adKey(ch) { var cat = ADS.categoryFor(ch.id), era = eraFor(ch); return cat && era !== 'off' ? cat + ':' + era : null; }
   function loadAdCatalogue() {
     if (adCatP) return adCatP;
     var ck = 'adcat1:' + adsRev, hit = store.get(ck);
@@ -1919,7 +1954,7 @@
   function loadAds(ch, soon) {
     var key = adKey(ch);
     if (!key || adPools[key]) return;
-    var cat = ADS.categoryFor(ch.id), era = adEra;
+    var cat = ADS.categoryFor(ch.id), era = eraFor(ch);
     var cached = store.get('ads2:' + key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < AD_TTL) { adPools[key] = unpackPlan(cached.p); return; }
     adPools[key] = [];                  // being fetched (or nothing found): breaks are skipped, and it is not retried until the next launch
@@ -1947,7 +1982,7 @@
   function adPool(ch) {
     var key = adKey(ch);
     if (!key) return [];
-    var fixed = (window.ADS && ADS.fixedFor) ? ADS.fixedFor(ch.id, adEra) : [];
+    var fixed = (window.ADS && ADS.fixedFor) ? ADS.fixedFor(ch.id, eraFor(ch)) : [];
     return fixed.concat(adPools[key] || []);
   }
 
@@ -4445,7 +4480,7 @@
           c.sched = (window.DAYPARTS && DAYPARTS.has(c.id) && DAYPARTS.schedule(c.id, progs, seed, spanH / 24)) ||
                     E.buildSchedule(E.selectSpan(progs, spanH * 3600, seed), seed);
           c.status = 'ready';
-          enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
+          if (!isAdChan(c)) enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
         } else {
           c.status = 'empty';
         }

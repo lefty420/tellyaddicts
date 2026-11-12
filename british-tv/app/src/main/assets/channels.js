@@ -257,14 +257,6 @@ window.CHANNELS = [
   },
   {
     n: 10,
-    id: 'adverts',
-    name: 'Adverts & Continuity',
-    sources: [
-      { search: '(ITV OR BBC1 OR "Channel 4") AND (adverts OR commercials OR continuity OR idents) AND mediatype:movies', rows: 40 }
-    ]
-  },
-  {
-    n: 11,
     id: 'itv',
     name: 'ITV',
     sources: [
@@ -272,7 +264,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 12,
+    n: 11,
     id: 'noel',
     off: true,                       // switched off for now; remove this line to bring it back
     name: "Noel's House Party",
@@ -281,7 +273,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 13,
+    n: 12,
     id: 'citv',
     name: 'CITV',
     perItem: 30,   // cap per item so Art Attack / Ghostbusters can't crowd out the rest
@@ -289,7 +281,7 @@ window.CHANNELS = [
     sources: CITV_SOURCES
   },
   {
-    n: 14,
+    n: 13,
     id: 'games',
     name: 'Video Games',
     sources: [
@@ -299,7 +291,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 15,
+    n: 14,
     id: 'comedy',
     name: 'Comedy',
     perItem: 40,
@@ -316,7 +308,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 16,
+    n: 15,
     id: 'childrens',
     name: "Children's World",
     sources: [
@@ -324,7 +316,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 17,
+    n: 16,
     id: 'kidsmovies',
     name: 'Kids Movies',
     sources: [
@@ -332,7 +324,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 18,
+    n: 17,
     id: 'kidsxmas',
     name: "Children's Christmas",
     perItem: 25,
@@ -342,14 +334,14 @@ window.CHANNELS = [
     ])
   },
   {
-    n: 19,
+    n: 18,
     id: 'xmasmusic',
     name: 'Christmas Music',
     maxItems: 150,
     sources: XMAS_VIDEOS
   },
   {
-    n: 20,
+    n: 19,
     id: 'offschool',
     name: "I'm Off School",
     // What was actually on in the morning and afternoon when you were off school: soaps, talk shows and morning TV.
@@ -372,14 +364,14 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 21,
+    n: 20,
     id: 'disney',
     name: 'Disney',
     maxItems: 100,
     sources: DISNEY
   },
   {
-    n: 22,
+    n: 21,
     id: 'tvarchive',
     name: 'TV Archive',
     // Television from today's date, whatever the year: programmes whose air date falls on today's day and month
@@ -393,7 +385,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 23,
+    n: 22,
     id: 'saturday',
     name: 'Saturday Night TV',
     // The Saturday evening line-up, kept to Saturday's shape every day: lighter shows at teatime, the shows the
@@ -402,7 +394,7 @@ window.CHANNELS = [
     sources: [{ data: 'saturday' }]
   },
   {
-    n: 24,
+    n: 23,
     id: 'videoshop',
     name: 'The Video Shop',
     // What you came home with on a Friday night: the rental shelf, mostly 15s and 18s. The certificate decides
@@ -411,7 +403,7 @@ window.CHANNELS = [
     sources: [{ data: 'videoshop' }]
   },
   {
-    n: 25,
+    n: 24,
     id: 'soaps',
     name: 'Soaps',
     // EastEnders, Coronation Street, Crossroads, Neighbours and the rest, from the scraper's library
@@ -419,7 +411,7 @@ window.CHANNELS = [
     sources: [{ data: 'soaps' }]
   },
   {
-    n: 26,
+    n: 25,
     id: 'cooking',
     name: 'Food & Cooking',
     // Delia, Floyd, Rick Stein, Ready Steady Cook and the rest, from the scraper's library (1970 to 1999)
@@ -427,7 +419,7 @@ window.CHANNELS = [
     sources: [{ data: 'cooking' }]
   },
   {
-    n: 27,
+    n: 26,
     id: 'entertainment',
     name: 'Entertainment',
     // a mix of the best of everything: light entertainment, sketch and panel shows, cult drama and sitcoms
@@ -435,7 +427,7 @@ window.CHANNELS = [
     sources: [{ data: 'entertainment' }]
   },
   {
-    n: 28,
+    n: 27,
     id: 'ussitcoms',
     name: 'US Sitcoms',
     // American sitcoms up to 1999 (Friends, Frasier, Cheers). Stays hidden until the scraper has found some.
@@ -443,7 +435,7 @@ window.CHANNELS = [
     sources: [{ data: 'ussitcoms' }]
   },
   {
-    n: 29,
+    n: 28,
     id: 'tv80s',
     name: "80's TV",
     decade: 1980,
@@ -451,11 +443,18 @@ window.CHANNELS = [
     sources: [{ data: 'tv80s' }]
   },
   {
-    n: 30,
+    n: 29,
     id: 'tv90s',
     name: "90's TV",
     decade: 1990,
     maxItems: 120,
     sources: [{ data: 'tv90s' }]
+  },
+  {
+    n: 30,
+    id: 'adbreak',
+    name: 'Adverts',
+    // built in the app from the checked advert catalogue (see loadPrograms), not searched for
+    sources: []
   }
 ];

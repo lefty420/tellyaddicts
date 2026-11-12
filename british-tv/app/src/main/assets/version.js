@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.38",
-  "version": "0.38",
-  "code": 3800,
-  "date": "2026-11-11",
+  "name": "Alpha 0.38.1",
+  "version": "0.38.1",
+  "code": 3801,
+  "date": "2026-11-12",
   "notes": [
-    "**Channel lists, episode guides and artwork answers are now saved as files,** not in the page's small storage. The page's storage holds about 5 million characters, which 28 channels filled; files have no such limit and load faster. Your settings and any artwork you picked stay where they were. The first start after updating rebuilds the lists once (the old copies are cleared), so expect it to be a little slower that once."
+    "**The options menu is quick again.** Each key press was adding up the size of everything saved (to show it next to Clear saved artwork), which meant reading hundreds of saved files every time. The total is now worked out once, a moment after the options open, and after a clear."
   ],
   "history": [
+    {
+      "name": "Alpha 0.38",
+      "date": "2026-11-11",
+      "notes": [
+        "**Channel lists, episode guides and artwork answers are now saved as files,** not in the page's small storage. The page's storage holds about 5 million characters, which 28 channels filled; files have no such limit and load faster. Your settings and any artwork you picked stay where they were. The first start after updating rebuilds the lists once (the old copies are cleared), so expect it to be a little slower that once."
+      ]
+    },
     {
       "name": "Alpha 0.37",
       "date": "2026-11-11",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**New channel: US Sitcoms (28).** Friends, Frasier, Everybody Loves Raymond, Seinfeld, Cheers, Roseanne, The Fresh Prince and the rest of the American sitcoms up to 1999. It stays out of the guide until the scraper has found some of them on archive.org."
-      ]
-    },
-    {
-      "name": "Alpha 0.33",
-      "date": "2026-11-11",
-      "notes": [
-        "**New channel: Entertainment (27).** A mix of the best of everything from any network: light entertainment (Generation Game, Little and Large, Benny Hill), panel and Friday-night shows (Whose Line, TFI Friday, The Word), sketch and satire (Spitting Image, Harry Enfield, Not the Nine O'Clock News), sitcoms (Father Ted, Men Behaving Badly, Ab Fab) and cult drama (Robin of Sherwood, Tales of the Unexpected, Blake's 7). Its shows stay on their own channels too."
       ]
     }
   ]

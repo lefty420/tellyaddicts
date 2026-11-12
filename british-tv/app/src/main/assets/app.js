@@ -2628,7 +2628,7 @@
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'rel') return relName();
     if (id === 'mkeep') return META_KEEP[metaIdx].label;
-    if (id === 'mclear') return metaSize();
+    if (id === 'mclear') return metaSizeText;
     if (id === 'gaps') return gapState.report ? gapState.report.summary.gaps + ' shows with gaps' : '';
     if (id === 'about' || id === 'log' || id === 'od') return '';
     return autoEpg ? 'On' : 'Off';
@@ -2647,6 +2647,16 @@
     } catch (e) { /* unavailable */ }
     return n ? (bytes / 1048576 < 0.1 ? Math.max(1, Math.round(bytes / 1024)) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB') : 'Nothing saved';
   }
+  // Adding up everything saved means reading every saved file, far too slow to do on each key press in the options:
+  // the row shows the last answer and the sum is redone once, a moment after the options open or after a clear
+  var metaSizeText = '', metaSizeTimer = null;
+  function refreshMetaSize() {
+    clearTimeout(metaSizeTimer);
+    metaSizeTimer = setTimeout(function () {
+      metaSizeText = metaSize();
+      if (optsOpen) $('ov-mclear').textContent = metaSizeText;
+    }, 400);
+  }
   function changeMetaKeep(d) {
     metaIdx = (metaIdx + (d < 0 ? META_KEEP.length - 1 : 1)) % META_KEEP.length;
     store.set('metakeep1', META_KEEP[metaIdx].id);
@@ -2664,6 +2674,7 @@
     try { if (window.NativeHttp && NativeHttp.clearImages) NativeHttp.clearImages(); } catch (e) { /* older app */ }
     artIdx = null; artP = null; artRev = ''; gartFor = '\u0000'; artFor = '';
     odData = {};
+    metaSizeText = ''; refreshMetaSize();
     renderOpts();
     toast('Cleared ' + gone + ' saved items and the picture cache', 3500);
   }
@@ -2704,6 +2715,7 @@
     closeOsd();
     optsOpen = true; optsSel = 0;
     renderOpts();
+    refreshMetaSize();
     $('opts').className = '';
     optsTouch();
   }

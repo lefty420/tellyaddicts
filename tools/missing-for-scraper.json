@@ -2,51 +2,30 @@
  "note": "no_files: listed on a channel but nothing found, please search for them. partial: what the library holds per season (episode ranges); compare with the TVmaze guide (tvmaze_id) and find the missing seasons/episodes, 1999 and earlier only. unnumbered_files are files with no season/episode: map them before treating episodes as missing.",
  "no_files": {
   "sitcoms": [
-   "One Foot in the Grave",
    "Ever Decreasing Circles",
    "The Brittas Empire",
-   "Vicar of Dibley",
    "Drop the Dead Donkey",
-   "The Upper Hand",
-   "Dear John"
+   "The Upper Hand"
   ],
   "gameshows": [
-   "Catchphrase",
-   "The Two Ronnies",
-   "Blockbusters",
    "Strike It Lucky",
-   "The Krypton Factor",
+   "Morecambe and Wise",
    "Vic Reeves Big Night Out",
    "Through the Keyhole",
    "Challenge Anneka",
-   "Pop Quiz",
    "The Jack Docherty Show",
    "The Paul Merton Show",
-   "Strike It Rich",
    "Every Second Counts",
    "Take Your Pick",
-   "Gambit",
    "Man O Man",
-   "Raise the Roof",
    "Lucky Numbers",
-   "Wipeout",
-   "Full Swing",
    "Pot Black",
-   "Superstars",
    "The Indoor League",
-   "It's a Knockout",
-   "Fort Boyard",
    "National Lottery Who Dares Wins",
    "A Question of Sport",
-   "Mastermind",
-   "Fifteen to One",
-   "Turnabout",
    "Brainteaser",
-   "Grand Slam",
-   "Telly Addicts",
    "The Movie Game",
    "Film Buff of the Year",
-   "Screen Test",
    "Top of the Form",
    "Lucky Ladders",
    "The Zodiac Game",
@@ -55,31 +34,20 @@
    "Chain Letters",
    "All Clued Up",
    "Second Guess",
-   "Whittle",
-   "Runway",
-   "Scrabble",
    "Going For A Song",
    "Jukebox Jury",
-   "Sounds Familiar",
-   "Cyberzone",
-   "Call My Bluff",
    "They Think It's All Over",
    "Celebrity Squares",
    "It's Only TV But I Like It",
    "Punchlines",
    "If I Ruled the World",
-   "Crackerjack",
-   "Get Your Own Back",
    "We Are the Champions",
-   "Beat the Teacher",
-   "Incredible Games"
+   "Beat the Teacher"
   ],
   "childrens": [
-   "Live and Kicking",
    "Going Live",
    "Childrens Ward",
    "How 2",
-   "Smart",
    "The Really Wild Show",
    "Dark Towers",
    "Look and Read",
@@ -87,9 +55,7 @@
    "Geordie Racer",
    "Through The Dragons Eye",
    "Earthwarp",
-   "Max Steel",
-   "The Mummy The Animated Series",
-   "Roswell Conspiracies"
+   "The Mummy The Animated Series"
   ],
   "drama": [
    "A Touch of Frost",
@@ -97,34 +63,24 @@
    "Taggart",
    "Londons Burning",
    "Shoestring",
-   "Midsomer Murders",
    "Dalziel and Pascoe",
    "Rebus",
    "Dangerfield",
-   "City Central",
    "The Cops",
    "Peak Practice",
    "Where the Heart Is"
   ],
   "music": [
    "CD UK",
-   "Rapido",
-   "The White Room",
-   "The O-Zone",
    "The Hitman and Her",
    "MTVs Most Wanted",
-   "Pop Quiz",
-   "Never Mind the Buzzcocks",
    "Montreux Pop Festival",
    "The 11 O'Clock Show"
   ],
   "comedy": [
    "French and Saunders",
-   "The Vicar of Dibley",
    "Drop the Dead Donkey",
    "Smack the Pony",
-   "Goodness Gracious Me",
-   "The League of Gentlemen",
    "The Mary Whitehouse Experience",
    "The Royle Family",
    "Rab C Nesbitt",
@@ -136,19 +92,10 @@
    "The Onedin Line"
   ],
   "citv": [
-   "Chocky",
-   "Bravestarr",
-   "Action Force",
-   "Pole Position",
-   "The Mask",
-   "Ultraforce",
-   "The Flintstone Kids",
-   "Ed Grimley",
-   "Peter Pan and the Pirates"
+   "The Mask"
   ],
   "offschool": [
    "Trisha",
-   "The Jenny Jones Show",
    "This Morning",
    "GMTV",
    "Richard and Judy",
@@ -159,37 +106,27 @@
    "Lorraine"
   ],
   "mtv": [
-   "Daria",
-   "Singled Out",
-   "MTV Dance",
    "MTV Select"
   ],
   "disney": [
-   "Minnie Mouse",
    "Daisy Duck",
    "Ludwig Von Drake"
   ],
   "saturday": [
-   "Beadles About",
    "Stars in Their Eyes",
-   "The Two Ronnies",
    "Game for a Laugh",
-   "Catchphrase",
    "Jim'll Fix It",
    "The Russ Abbot Show",
    "Jasper Carrott",
    "Parkinson",
    "Aspel and Company",
-   "Bob Monkhouse",
    "Hale and Pace",
    "Strike It Lucky",
-   "The Krypton Factor",
    "Punchlines"
   ],
   "tvarchive": [
    "News at Ten",
    "The One O'Clock News",
-   "The Six O'Clock News",
    "The Ten O'Clock News",
    "Channel 4 News",
    "Newsnight",
@@ -201,7 +138,6 @@
    "Midlands Today",
    "Wales Today",
    "Scotland Today",
-   "Thames News",
    "Granada Reports",
    "Calendar",
    "Central News",
@@ -210,10 +146,7 @@
    "BBC Archive"
   ],
   "soaps": [
-   "Emmerdale Farm",
    "Brookside",
-   "Families",
-   "Take the High Road",
    "Prisoner Cell Block H",
    "Triangle",
    "Pobol y Cwm"
@@ -249,46 +182,23 @@
    "The Naked Chef",
    "Nigel Slater's Real Food",
    "The Galloping Gourmet",
-   "The French Chef",
    "Yan Can Cook"
   ],
   "entertainment": [
+   "Morecambe and Wise",
    "Not the Nine O'Clock News"
   ],
   "ussitcoms": [
    "Friends",
    "Frasier",
-   "Everybody Loves Raymond",
-   "Seinfeld",
-   "Mad About You",
-   "Just Shoot Me",
    "Spin City",
    "Ellen",
-   "Wings",
-   "3rd Rock from the Sun",
-   "Dharma and Greg",
    "The Drew Carey Show",
    "NewsRadio",
-   "Home Improvement",
    "The Fresh Prince of Bel-Air",
    "Cheers",
-   "The Cosby Show",
-   "Roseanne",
-   "Married with Children",
-   "Murphy Brown",
-   "The Golden Girls",
-   "Perfect Strangers",
-   "Full House",
-   "Family Matters",
-   "Growing Pains",
-   "Taxi",
-   "Happy Days",
-   "M*A*S*H",
    "Mork and Mindy",
-   "Threes Company",
-   "Saved by the Bell",
-   "Sabrina the Teenage Witch",
-   "Boy Meets World"
+   "Threes Company"
   ]
  },
  "partial": [
@@ -301,9 +211,11 @@
    "channels": [
     "mtv"
    ],
-   "files": 3,
-   "unnumbered_files": 3,
-   "have_seasons": {}
+   "files": 84,
+   "unnumbered_files": 83,
+   "have_seasons": {
+    "1": "1"
+   }
   },
   {
    "show": "3-2-1",
@@ -315,9 +227,28 @@
     "gameshows",
     "saturday"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 14,
+   "unnumbered_files": 14,
    "have_seasons": {}
+  },
+  {
+   "show": "3rd Rock from the Sun",
+   "tvmaze_id": 1053,
+   "library_names": [
+    "3rd Rock from the Sun"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 106,
+   "unnumbered_files": 1,
+   "have_seasons": {
+    "1": "1-20",
+    "2": "1-26",
+    "3": "1-27",
+    "4": "1-24",
+    "5": "1-8"
+   }
   },
   {
    "show": "A Bit of Fry and Laurie",
@@ -373,6 +304,19 @@
    }
   },
   {
+   "show": "Action Force",
+   "tvmaze_id": null,
+   "library_names": [
+    "Action Force"
+   ],
+   "channels": [
+    "citv"
+   ],
+   "files": 20,
+   "unnumbered_files": 20,
+   "have_seasons": {}
+  },
+  {
    "show": "Action Man",
    "tvmaze_id": 7462,
    "library_names": [
@@ -397,8 +341,8 @@
    "channels": [
     "citv"
    ],
-   "files": 131,
-   "unnumbered_files": 65,
+   "files": 156,
+   "unnumbered_files": 90,
    "have_seasons": {
     "0": "1",
     "1": "1-65"
@@ -414,11 +358,15 @@
    "channels": [
     "drama"
    ],
-   "files": 11,
+   "files": 92,
    "unnumbered_files": 0,
    "have_seasons": {
-    "3": "2,4,7",
-    "5": "1-8"
+    "1": "1-10",
+    "2": "0-10",
+    "3": "1-11",
+    "4": "1-3",
+    "5": "1-8",
+    "6": "1-4"
    }
   },
   {
@@ -431,10 +379,13 @@
     "comedy",
     "entertainment"
    ],
-   "files": 40,
+   "files": 61,
    "unnumbered_files": 36,
    "have_seasons": {
-    "1": "1-4"
+    "1": "1-6",
+    "2": "1-6",
+    "3": "1-6",
+    "4": "1-7"
    }
   },
   {
@@ -461,8 +412,8 @@
    "channels": [
     "mtv"
    ],
-   "files": 5,
-   "unnumbered_files": 5,
+   "files": 8,
+   "unnumbered_files": 8,
    "have_seasons": {}
   },
   {
@@ -474,8 +425,8 @@
    "channels": [
     "soaps"
    ],
-   "files": 15,
-   "unnumbered_files": 15,
+   "files": 181,
+   "unnumbered_files": 181,
    "have_seasons": {}
   },
   {
@@ -518,11 +469,11 @@
     "sitcoms",
     "tv70s"
    ],
-   "files": 58,
-   "unnumbered_files": 2,
+   "files": 63,
+   "unnumbered_files": 3,
    "have_seasons": {
-    "1": "1-6",
-    "2": "1-5",
+    "1": "1-7",
+    "2": "1-8",
     "3": "1-9",
     "4": "1-7",
     "5": "1-7",
@@ -540,8 +491,8 @@
    "channels": [
     "childrens"
    ],
-   "files": 2,
-   "unnumbered_files": 1,
+   "files": 4,
+   "unnumbered_files": 3,
    "have_seasons": {
     "5": "2"
    }
@@ -573,13 +524,14 @@
    "show": "Back to the Future: The Animated Series",
    "tvmaze_id": 7896,
    "library_names": [
-    "Back to the Future"
+    "Back to the Future",
+    "Back to the Future: The Animated Series"
    ],
    "channels": [
     "citv"
    ],
-   "files": 31,
-   "unnumbered_files": 5,
+   "files": 68,
+   "unnumbered_files": 16,
    "have_seasons": {
     "1": "1-13",
     "2": "1-13"
@@ -594,8 +546,8 @@
    "channels": [
     "games"
    ],
-   "files": 113,
-   "unnumbered_files": 57,
+   "files": 114,
+   "unnumbered_files": 58,
    "have_seasons": {
     "1": "1-13",
     "2": "1-15",
@@ -612,8 +564,8 @@
    "channels": [
     "citv"
    ],
-   "files": 14,
-   "unnumbered_files": 1,
+   "files": 27,
+   "unnumbered_files": 14,
    "have_seasons": {
     "1": "1-13"
    }
@@ -663,8 +615,8 @@
    "channels": [
     "entertainment"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 3,
+   "unnumbered_files": 3,
    "have_seasons": {}
   },
   {
@@ -676,11 +628,13 @@
    "channels": [
     "citv"
    ],
-   "files": 88,
-   "unnumbered_files": 3,
+   "files": 267,
+   "unnumbered_files": 143,
    "have_seasons": {
     "1": "1-65",
-    "2": "1-20"
+    "2": "1-44",
+    "3": "1-10",
+    "4": "1-5"
    }
   },
   {
@@ -693,8 +647,21 @@
    "channels": [
     "tvarchive"
    ],
-   "files": 378,
-   "unnumbered_files": 378,
+   "files": 379,
+   "unnumbered_files": 379,
+   "have_seasons": {}
+  },
+  {
+   "show": "Beadle's About",
+   "tvmaze_id": 9126,
+   "library_names": [
+    "Beadle's About"
+   ],
+   "channels": [
+    "saturday"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
    "have_seasons": {}
   },
   {
@@ -706,8 +673,8 @@
    "channels": [
     "childrens"
    ],
-   "files": 52,
-   "unnumbered_files": 0,
+   "files": 124,
+   "unnumbered_files": 72,
    "have_seasons": {
     "1": "1-26",
     "2": "1-13",
@@ -723,17 +690,17 @@
    "channels": [
     "mtv"
    ],
-   "files": 205,
-   "unnumbered_files": 7,
+   "files": 235,
+   "unnumbered_files": 25,
    "have_seasons": {
-    "0": "0,2",
-    "1": "1-3",
-    "2": "1-10,12-13,15-26",
-    "3": "1-5,7-16,18-20,22-31",
+    "0": "0-2",
+    "1": "1-8",
+    "2": "1-26",
+    "3": "1-31",
     "4": "1-32",
     "5": "1-50",
     "6": "1-7,9-20",
-    "7": "2-41"
+    "7": "1-41"
    }
   },
   {
@@ -745,12 +712,12 @@
    "channels": [
     "citv"
    ],
-   "files": 95,
+   "files": 100,
    "unnumbered_files": 1,
    "have_seasons": {
-    "1": "1-13",
-    "2": "1-8",
-    "3": "1-8",
+    "1": "1-13,17-18",
+    "2": "1-9,13",
+    "3": "1-9",
     "4": "1-65"
    }
   },
@@ -805,10 +772,10 @@
    "channels": [
     "citv"
    ],
-   "files": 11,
-   "unnumbered_files": 0,
+   "files": 28,
+   "unnumbered_files": 15,
    "have_seasons": {
-    "1": "1-9,12-13"
+    "1": "1-13"
    }
   },
   {
@@ -911,13 +878,14 @@
    "show": "Bishoujo Senshi Sailor Moon",
    "tvmaze_id": 5476,
    "library_names": [
+    "Bishoujo Senshi Sailor Moon",
     "Sailor Moon"
    ],
    "channels": [
     "childrens"
    ],
-   "files": 122,
-   "unnumbered_files": 120,
+   "files": 176,
+   "unnumbered_files": 174,
    "have_seasons": {
     "1": "1-2"
    }
@@ -931,8 +899,8 @@
    "channels": [
     "comedy"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 27,
+   "unnumbered_files": 27,
    "have_seasons": {}
   },
   {
@@ -978,11 +946,11 @@
     "entertainment",
     "tv70s"
    ],
-   "files": 39,
-   "unnumbered_files": 0,
+   "files": 86,
+   "unnumbered_files": 34,
    "have_seasons": {
-    "1": "5",
-    "2": "1-4,6-13",
+    "1": "1-13",
+    "2": "1-13",
     "3": "1-13",
     "4": "1-13"
    }
@@ -1019,14 +987,26 @@
     "gameshows",
     "saturday"
    ],
-   "files": 4,
-   "unnumbered_files": 0,
+   "files": 6,
+   "unnumbered_files": 3,
    "have_seasons": {
     "1": "2",
     "5": "12",
-    "6": "4",
-    "9": "17"
+    "6": "4"
    }
+  },
+  {
+   "show": "Blockbusters",
+   "tvmaze_id": 8490,
+   "library_names": [
+    "Blockbusters"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 5,
+   "unnumbered_files": 5,
+   "have_seasons": {}
   },
   {
    "show": "Blue Peter",
@@ -1037,11 +1017,24 @@
    "channels": [
     "childrens"
    ],
-   "files": 6,
-   "unnumbered_files": 5,
+   "files": 2,
+   "unnumbered_files": 1,
    "have_seasons": {
     "1984": "1"
    }
+  },
+  {
+   "show": "Bob Monkhouse On the Spot",
+   "tvmaze_id": 84447,
+   "library_names": [
+    "Bob Monkhouse"
+   ],
+   "channels": [
+    "saturday"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
   },
   {
    "show": "Bob's Full House",
@@ -1111,6 +1104,21 @@
    }
   },
   {
+   "show": "Boy Meets World",
+   "tvmaze_id": 683,
+   "library_names": [
+    "Boy Meets World"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 1,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "5": "3"
+   }
+  },
+  {
    "show": "Brass Eye",
    "tvmaze_id": 2576,
    "library_names": [
@@ -1124,6 +1132,21 @@
    "have_seasons": {}
   },
   {
+   "show": "BraveStarr",
+   "tvmaze_id": 4229,
+   "library_names": [
+    "Bravestarr"
+   ],
+   "channels": [
+    "citv"
+   ],
+   "files": 89,
+   "unnumbered_files": 70,
+   "have_seasons": {
+    "1": "2,4-5,7-17,19-20,44,56,60"
+   }
+  },
+  {
    "show": "Bread",
    "tvmaze_id": 4735,
    "library_names": [
@@ -1132,8 +1155,8 @@
    "channels": [
     "sitcoms"
    ],
-   "files": 74,
-   "unnumbered_files": 0,
+   "files": 155,
+   "unnumbered_files": 81,
    "have_seasons": {
     "1": "1-6",
     "2": "1-6",
@@ -1162,13 +1185,14 @@
    "show": "Bucky O'Hare and the Toad Wars",
    "tvmaze_id": 11002,
    "library_names": [
-    "Bucky O'Hare"
+    "Bucky O'Hare",
+    "Bucky O'Hare and the Toad Wars"
    ],
    "channels": [
     "citv"
    ],
-   "files": 14,
-   "unnumbered_files": 1,
+   "files": 42,
+   "unnumbered_files": 22,
    "have_seasons": {
     "1": "1-13"
    }
@@ -1200,8 +1224,8 @@
    "channels": [
     "citv"
    ],
-   "files": 15,
-   "unnumbered_files": 2,
+   "files": 19,
+   "unnumbered_files": 6,
    "have_seasons": {
     "1": "1-13"
    }
@@ -1279,9 +1303,32 @@
    "channels": [
     "citv"
    ],
-   "files": 13,
-   "unnumbered_files": 13,
-   "have_seasons": {}
+   "files": 33,
+   "unnumbered_files": 24,
+   "have_seasons": {
+    "1": "2-3,5-9,11,13"
+   }
+  },
+  {
+   "show": "Call My Bluff",
+   "tvmaze_id": 9510,
+   "library_names": [
+    "Call My Bluff"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 26,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "9": "2-3,6-8,10-13,23-24",
+    "10": "3,7-8,15-16",
+    "11": "1,5,13",
+    "12": "5,13",
+    "16": "1",
+    "18": "11-12",
+    "20": "1,3"
+   }
   },
   {
    "show": "Cannon and Ball",
@@ -1293,43 +1340,46 @@
     "entertainment",
     "saturday"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 2,
+   "unnumbered_files": 2,
    "have_seasons": {}
   },
   {
    "show": "Captain N: The Game Master",
    "tvmaze_id": 13824,
    "library_names": [
-    "Captain N"
+    "Captain N",
+    "Captain N: The Game Master"
    ],
    "channels": [
     "citv"
    ],
-   "files": 26,
-   "unnumbered_files": 0,
+   "files": 64,
+   "unnumbered_files": 4,
    "have_seasons": {
     "1": "1-13",
-    "2": "1-13"
+    "2": "1-14",
+    "3": "1-7"
    }
   },
   {
    "show": "Captain Planet and the Planeteers",
    "tvmaze_id": 4416,
    "library_names": [
-    "Captain Planet"
+    "Captain Planet",
+    "Captain Planet and the Planeteers"
    ],
    "channels": [
     "citv"
    ],
-   "files": 121,
-   "unnumbered_files": 11,
+   "files": 206,
+   "unnumbered_files": 12,
    "have_seasons": {
     "1": "1-26",
-    "2": "1-11,13-25",
+    "2": "1-26",
     "3": "1-13",
     "4": "1-22",
-    "5": "1-4,6-13",
+    "5": "1-13",
     "6": "1-13"
    }
   },
@@ -1342,9 +1392,11 @@
    "channels": [
     "citv"
    ],
-   "files": 32,
-   "unnumbered_files": 32,
-   "have_seasons": {}
+   "files": 140,
+   "unnumbered_files": 126,
+   "have_seasons": {
+    "1": "1-3,5-9,11-14,17-18"
+   }
   },
   {
    "show": "Captain Pugwash",
@@ -1355,8 +1407,8 @@
    "channels": [
     "citv"
    ],
-   "files": 26,
-   "unnumbered_files": 0,
+   "files": 51,
+   "unnumbered_files": 25,
    "have_seasons": {
     "1": "1-26"
    }
@@ -1385,13 +1437,13 @@
    "channels": [
     "citv"
    ],
-   "files": 72,
-   "unnumbered_files": 1,
+   "files": 115,
+   "unnumbered_files": 29,
    "have_seasons": {
     "1": "1-22",
     "2": "1-16",
-    "3": "1-2,5,7,9,11",
-    "4": "1-5,7-8,10,12-13,15,18,20-21,23,26-27,29,32-33,35,37,39,41,43,45,47"
+    "3": "1-5,7,9-11",
+    "4": "1-5,7-18,20-21,23-27,29,32-43,45,47"
    }
   },
   {
@@ -1403,8 +1455,8 @@
    "channels": [
     "citv"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 92,
+   "unnumbered_files": 92,
    "have_seasons": {}
   },
   {
@@ -1422,6 +1474,20 @@
    "have_seasons": {
     "1": "1"
    }
+  },
+  {
+   "show": "Catchphrase",
+   "tvmaze_id": 5514,
+   "library_names": [
+    "Catchphrase"
+   ],
+   "channels": [
+    "gameshows",
+    "saturday"
+   ],
+   "files": 50,
+   "unnumbered_files": 50,
+   "have_seasons": {}
   },
   {
    "show": "Catweazle",
@@ -1505,10 +1571,38 @@
    "channels": [
     "disney"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 14,
+   "unnumbered_files": 13,
    "have_seasons": {
     "1": "5"
+   }
+  },
+  {
+   "show": "Chip 'N Dale Rescue Rangers",
+   "tvmaze_id": null,
+   "library_names": [
+    "Chip 'N Dale Rescue Rangers"
+   ],
+   "channels": [],
+   "files": 22,
+   "unnumbered_files": 22,
+   "have_seasons": {}
+  },
+  {
+   "show": "Chocky",
+   "tvmaze_id": 9513,
+   "library_names": [
+    "Chocky"
+   ],
+   "channels": [
+    "citv"
+   ],
+   "files": 18,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-6",
+    "2": "1-6",
+    "3": "1-6"
    }
   },
   {
@@ -1537,8 +1631,8 @@
    "channels": [
     "xmasmusic"
    ],
-   "files": 51,
-   "unnumbered_files": 51,
+   "files": 97,
+   "unnumbered_files": 97,
    "have_seasons": {}
   },
   {
@@ -1586,6 +1680,19 @@
    }
   },
   {
+   "show": "City Central",
+   "tvmaze_id": 51656,
+   "library_names": [
+    "City Central"
+   ],
+   "channels": [
+    "drama"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
+  },
+  {
    "show": "Cluedo",
    "tvmaze_id": 9635,
    "library_names": [
@@ -1628,10 +1735,13 @@
    "channels": [
     "gameshows"
    ],
-   "files": 10,
-   "unnumbered_files": 0,
+   "files": 59,
+   "unnumbered_files": 15,
    "have_seasons": {
-    "1": "1-10"
+    "1": "1-10",
+    "2": "1-13,15,17-20",
+    "3": "1-10",
+    "4": "1-6"
    }
   },
   {
@@ -1641,8 +1751,8 @@
     "C.O.P.S."
    ],
    "channels": [],
-   "files": 5,
-   "unnumbered_files": 5,
+   "files": 16,
+   "unnumbered_files": 16,
    "have_seasons": {}
   },
   {
@@ -1709,6 +1819,19 @@
    }
   },
   {
+   "show": "Crackerjack",
+   "tvmaze_id": 8717,
+   "library_names": [
+    "Crackerjack"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
+  },
+  {
    "show": "Crossroads",
    "tvmaze_id": 27327,
    "library_names": [
@@ -1717,11 +1840,11 @@
    "channels": [
     "soaps"
    ],
-   "files": 1288,
-   "unnumbered_files": 1285,
+   "files": 1658,
+   "unnumbered_files": 1632,
    "have_seasons": {
-    "1": "26",
-    "2": "22",
+    "1": "2,5,8,13,15,18,20,22-23,25-26,32-33",
+    "2": "1,5,7,9,12,14,18,22,25-26,33-34",
     "1988": "15"
    }
   },
@@ -1760,8 +1883,23 @@
    "channels": [
     "childrens"
    ],
-   "files": 13,
-   "unnumbered_files": 13,
+   "files": 31,
+   "unnumbered_files": 18,
+   "have_seasons": {
+    "1": "1-13"
+   }
+  },
+  {
+   "show": "Cyberzone",
+   "tvmaze_id": null,
+   "library_names": [
+    "Cyberzone"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
    "have_seasons": {}
   },
   {
@@ -1773,17 +1911,19 @@
    "channels": [
     "sitcoms"
    ],
-   "files": 72,
-   "unnumbered_files": 3,
+   "files": 167,
+   "unnumbered_files": 87,
    "have_seasons": {
+    "0": "1-3",
     "1": "1-6",
-    "2": "1-2,4-5",
+    "2": "1-6",
     "3": "1-14",
     "4": "1-13",
     "5": "1-13",
     "6": "1-7",
     "7": "1-6",
-    "8": "1-6"
+    "8": "1-6",
+    "9": "1-6"
    }
   },
   {
@@ -1795,8 +1935,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 77,
-   "unnumbered_files": 3,
+   "files": 78,
+   "unnumbered_files": 4,
    "have_seasons": {
     "1": "1-69,71-75"
    }
@@ -1810,11 +1950,45 @@
    "channels": [
     "citv"
    ],
-   "files": 11,
-   "unnumbered_files": 10,
+   "files": 80,
+   "unnumbered_files": 18,
    "have_seasons": {
-    "2": "2"
+    "1": "1-10",
+    "2": "2",
+    "3": "4-5",
+    "5": "2-10",
+    "6": "2-8,10-11,13-15,17,19-24,27",
+    "7": "1-5",
+    "8": "1-2",
+    "9": "1-6",
+    "10": "1-7"
    }
+  },
+  {
+   "show": "Daria",
+   "tvmaze_id": 2554,
+   "library_names": [
+    "Daria"
+   ],
+   "channels": [
+    "mtv"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
+  },
+  {
+   "show": "Dear John....",
+   "tvmaze_id": 8804,
+   "library_names": [
+    "Dear John"
+   ],
+   "channels": [
+    "sitcoms"
+   ],
+   "files": 14,
+   "unnumbered_files": 14,
+   "have_seasons": {}
   },
   {
    "show": "Defenders of the Earth",
@@ -1832,6 +2006,32 @@
    }
   },
   {
+   "show": "Delia Smith's Cookery Course",
+   "tvmaze_id": null,
+   "library_names": [
+    "Delia Smith's Cookery Course"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 7,
+   "unnumbered_files": 7,
+   "have_seasons": {}
+  },
+  {
+   "show": "Delia Smith's How to Cook",
+   "tvmaze_id": null,
+   "library_names": [
+    "Delia Smith's How to Cook"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
+  },
+  {
    "show": "Department S",
    "tvmaze_id": 6788,
    "library_names": [
@@ -1840,11 +2040,26 @@
    "channels": [
     "tv70s"
    ],
-   "files": 76,
-   "unnumbered_files": 28,
+   "files": 77,
+   "unnumbered_files": 29,
    "have_seasons": {
     "1": "1-28",
     "2": "1-20"
+   }
+  },
+  {
+   "show": "Dharma & Greg",
+   "tvmaze_id": 569,
+   "library_names": [
+    "Dharma and Greg"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 22,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-16,18-23"
    }
   },
   {
@@ -1874,8 +2089,8 @@
    "channels": [
     "childrens"
    ],
-   "files": 5,
-   "unnumbered_files": 5,
+   "files": 21,
+   "unnumbered_files": 21,
    "have_seasons": {}
   },
   {
@@ -1903,8 +2118,8 @@
    "channels": [
     "citv"
    ],
-   "files": 15,
-   "unnumbered_files": 1,
+   "files": 32,
+   "unnumbered_files": 18,
    "have_seasons": {
     "1": "1-14"
    }
@@ -1916,8 +2131,8 @@
     "Disney Cartoon"
    ],
    "channels": [],
-   "files": 18,
-   "unnumbered_files": 18,
+   "files": 29,
+   "unnumbered_files": 29,
    "have_seasons": {}
   },
   {
@@ -1929,8 +2144,8 @@
    "channels": [
     "tv70s"
    ],
-   "files": 1319,
-   "unnumbered_files": 607,
+   "files": 2225,
+   "unnumbered_files": 1513,
    "have_seasons": {
     "1": "0-42",
     "2": "1-39",
@@ -1999,8 +2214,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 3,
-   "unnumbered_files": 3,
+   "files": 6,
+   "unnumbered_files": 6,
    "have_seasons": {}
   },
   {
@@ -2012,9 +2227,15 @@
    "channels": [
     "disney"
    ],
-   "files": 308,
-   "unnumbered_files": 308,
-   "have_seasons": {}
+   "files": 516,
+   "unnumbered_files": 485,
+   "have_seasons": {
+    "1": "1-3",
+    "2": "1-5",
+    "3": "1-8",
+    "4": "1-7",
+    "5": "1-8"
+   }
   },
   {
    "show": "Double Dragon",
@@ -2041,16 +2262,18 @@
    "channels": [
     "childrens"
    ],
-   "files": 409,
-   "unnumbered_files": 327,
+   "files": 1711,
+   "unnumbered_files": 1486,
    "have_seasons": {
-    "1": "18,30",
-    "2": "22,32",
-    "3": "3,18,23,28",
-    "4": "12-13,16-22,24-32",
+    "1": "18,30,39",
+    "2": "22,29-35",
+    "3": "1-14,16-33",
+    "4": "1-22,24-32",
     "5": "1-13,15-26",
     "6": "1-29",
-    "8": "15,26"
+    "7": "1-25",
+    "8": "1-34",
+    "9": "1-38"
    }
   },
   {
@@ -2062,10 +2285,10 @@
    "channels": [
     "citv"
    ],
-   "files": 15,
-   "unnumbered_files": 2,
+   "files": 24,
+   "unnumbered_files": 5,
    "have_seasons": {
-    "1": "1-13"
+    "1": "1-13,15-17,19,21-22"
    }
   },
   {
@@ -2077,8 +2300,8 @@
    "channels": [
     "citv"
    ],
-   "files": 31,
-   "unnumbered_files": 1,
+   "files": 43,
+   "unnumbered_files": 13,
    "have_seasons": {
     "1": "1-13",
     "2": "1-8,14,22",
@@ -2111,24 +2334,37 @@
    "channels": [
     "soaps"
    ],
-   "files": 744,
-   "unnumbered_files": 98,
+   "files": 806,
+   "unnumbered_files": 146,
    "have_seasons": {
     "1": "48-64",
     "23": "204",
     "1985": "1-5,7-56,65-74,76",
     "1986": "1,5,7,11,103",
-    "1987": "1-9,12-46,48-57,59-80,82-106",
+    "1987": "1-9,12-46,48-106",
     "1988": "1-49,51-102,104-105",
     "1989": "1-71,97-104",
-    "1990": "1,16,19,22,24,27,36,47,51,68,71,75,92",
+    "1990": "1,16-17,19,22,24,27,36,47,51,54,56,58-64,68,71,75,92",
     "1991": "1-4,6-26",
     "1994": "17,19,21,27-30,33-34,37-39,41,44-55,57-61,63-65,67-69,71-76,79-84,86-91,93,95,97-98,100,103-105,107-108,113-120,122,124-125,128-132,138-140",
-    "1995": "1,3-11,20-21,36,38,40-59,61,63-66,72-79,82,95-96,99,117,127,140,142,146-147,150-153,156-157",
+    "1995": "1,3-11,20-21,36,38,40-59,61,63-66,72-79,82,95-96,98-99,117,119,127,140,142,146-147,150-153,156-157",
     "1996": "16,24,28,53,69,110,112-116,125,128-129,142-143",
     "1997": "46,48,66,70,78-79,81,88,90,92,115,118,120,134,142-153,156",
     "1999": "67-69,76-80,109-137,140,143-151"
    }
+  },
+  {
+   "show": "Ed Grimley",
+   "tvmaze_id": null,
+   "library_names": [
+    "Ed Grimley"
+   ],
+   "channels": [
+    "citv"
+   ],
+   "files": 13,
+   "unnumbered_files": 13,
+   "have_seasons": {}
   },
   {
    "show": "Eldorado",
@@ -2139,23 +2375,58 @@
    "channels": [
     "soaps"
    ],
-   "files": 4,
-   "unnumbered_files": 4,
+   "files": 5,
+   "unnumbered_files": 5,
    "have_seasons": {}
   },
   {
    "show": "Emmerdale",
    "tvmaze_id": 2548,
    "library_names": [
-    "Emmerdale"
+    "Emmerdale",
+    "Emmerdale Farm"
    ],
    "channels": [
     "soaps"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 9,
+   "unnumbered_files": 4,
    "have_seasons": {
-    "27": "159"
+    "4": "31",
+    "8": "53",
+    "17": "68",
+    "27": "148,159"
+   }
+  },
+  {
+   "show": "Escape to River Cottage",
+   "tvmaze_id": null,
+   "library_names": [
+    "Escape to River Cottage"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 7,
+   "unnumbered_files": 7,
+   "have_seasons": {}
+  },
+  {
+   "show": "Everybody Loves Raymond",
+   "tvmaze_id": 573,
+   "library_names": [
+    "Everybody Loves Raymond"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 90,
+   "unnumbered_files": 6,
+   "have_seasons": {
+    "1": "1-22",
+    "2": "1-25",
+    "3": "1-26",
+    "4": "1-11"
    }
   },
   {
@@ -2183,8 +2454,8 @@
    "channels": [
     "childrens"
    ],
-   "files": 98,
-   "unnumbered_files": 46,
+   "files": 101,
+   "unnumbered_files": 49,
    "have_seasons": {
     "1": "1-52"
    }
@@ -2237,6 +2508,44 @@
    }
   },
   {
+   "show": "Family Matters",
+   "tvmaze_id": 1250,
+   "library_names": [
+    "Family Matters"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 210,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-14,16-22",
+    "2": "1-17,19-25",
+    "3": "1-25",
+    "4": "1-24",
+    "5": "1-24",
+    "6": "1-25",
+    "7": "1-24",
+    "8": "1-6,8-13,16-24",
+    "9": "1-22"
+   }
+  },
+  {
+   "show": "Fanny Cradock Cooks for Christmas",
+   "tvmaze_id": 38042,
+   "library_names": [
+    "Fanny Cradock Cooks for Christmas"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 5,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-5"
+   }
+  },
+  {
    "show": "Fantastic Four",
    "tvmaze_id": 4240,
    "library_names": [
@@ -2245,10 +2554,10 @@
    "channels": [
     "citv"
    ],
-   "files": 47,
-   "unnumbered_files": 21,
+   "files": 110,
+   "unnumbered_files": 77,
    "have_seasons": {
-    "1": "1-13",
+    "1": "1-20",
     "2": "1-13"
    }
   },
@@ -2259,8 +2568,8 @@
     "Father Christmas"
    ],
    "channels": [],
-   "files": 14,
-   "unnumbered_files": 14,
+   "files": 16,
+   "unnumbered_files": 16,
    "have_seasons": {}
   },
   {
@@ -2299,6 +2608,21 @@
    }
   },
   {
+   "show": "Fifteen to One",
+   "tvmaze_id": null,
+   "library_names": [
+    "Fifteen to One"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 94,
+   "unnumbered_files": 93,
+   "have_seasons": {
+    "1": "60"
+   }
+  },
+  {
    "show": "Figaro",
    "tvmaze_id": null,
    "library_names": [
@@ -2307,8 +2631,8 @@
    "channels": [
     "disney"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 7,
+   "unnumbered_files": 7,
    "have_seasons": {}
   },
   {
@@ -2320,11 +2644,12 @@
    "channels": [
     "childrens"
    ],
-   "files": 58,
-   "unnumbered_files": 48,
+   "files": 66,
+   "unnumbered_files": 49,
    "have_seasons": {
     "1": "1-5",
-    "2": "1-5"
+    "2": "1-5",
+    "5": "2-8"
    }
   },
   {
@@ -2336,8 +2661,8 @@
    "channels": [
     "citv"
    ],
-   "files": 38,
-   "unnumbered_files": 5,
+   "files": 66,
+   "unnumbered_files": 33,
    "have_seasons": {
     "1": "1-8",
     "2": "1-8",
@@ -2354,8 +2679,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 5,
+   "unnumbered_files": 4,
    "have_seasons": {
     "1": "13"
    }
@@ -2369,11 +2694,50 @@
    "channels": [
     "citv"
    ],
-   "files": 40,
-   "unnumbered_files": 27,
+   "files": 248,
+   "unnumbered_files": 218,
    "have_seasons": {
-    "1": "1-12,22"
+    "1": "0-12,15-26,29,35-36,38-39"
    }
+  },
+  {
+   "show": "Floyd on Britain and Ireland",
+   "tvmaze_id": 31401,
+   "library_names": [
+    "Floyd on Britain and Ireland"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 9,
+   "unnumbered_files": 9,
+   "have_seasons": {}
+  },
+  {
+   "show": "Floyd on Italy",
+   "tvmaze_id": 31407,
+   "library_names": [
+    "Floyd on Italy"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 7,
+   "unnumbered_files": 7,
+   "have_seasons": {}
+  },
+  {
+   "show": "Floyd on Spain",
+   "tvmaze_id": 31408,
+   "library_names": [
+    "Floyd on Spain"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "Follyfoot",
@@ -2393,6 +2757,48 @@
    }
   },
   {
+   "show": "Fort Boyard",
+   "tvmaze_id": 4806,
+   "library_names": [
+    "Fort Boyard"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
+  },
+  {
+   "show": "Full House",
+   "tvmaze_id": 35530,
+   "library_names": [
+    "Full House"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 21,
+   "unnumbered_files": 1,
+   "have_seasons": {
+    "1": "1-6,10-13,16,18",
+    "2": "1-8"
+   }
+  },
+  {
+   "show": "Full Swing",
+   "tvmaze_id": 85961,
+   "library_names": [
+    "Full Swing"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 4,
+   "unnumbered_files": 4,
+   "have_seasons": {}
+  },
+  {
    "show": "Fun House",
    "tvmaze_id": 6501,
    "library_names": [
@@ -2401,8 +2807,8 @@
    "channels": [
     "childrens"
    ],
-   "files": 15,
-   "unnumbered_files": 1,
+   "files": 17,
+   "unnumbered_files": 3,
    "have_seasons": {
     "1": "1-12",
     "3": "7",
@@ -2418,28 +2824,43 @@
    "channels": [
     "childrens"
    ],
-   "files": 25,
+   "files": 26,
    "unnumbered_files": 0,
    "have_seasons": {
     "1": "1-13",
-    "2": "1,3-13"
+    "2": "1-13"
    }
   },
   {
    "show": "G.I. Joe: A Real American Hero",
    "tvmaze_id": 6880,
    "library_names": [
-    "G.I. Joe"
+    "G.I. Joe",
+    "G.I. Joe: A Real American Hero"
    ],
    "channels": [
     "citv"
    ],
-   "files": 89,
-   "unnumbered_files": 30,
+   "files": 212,
+   "unnumbered_files": 61,
    "have_seasons": {
     "1": "1-10,12-25,28-41,44-45,48-55,58-63",
-    "2": "1-5"
+    "2": "1-8,10-24,26-30",
+    "3": "1-24"
    }
+  },
+  {
+   "show": "Gambit",
+   "tvmaze_id": null,
+   "library_names": [
+    "Gambit"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "Game On!",
@@ -2450,8 +2871,8 @@
    "channels": [
     "comedy"
    ],
-   "files": 32,
-   "unnumbered_files": 7,
+   "files": 34,
+   "unnumbered_files": 9,
    "have_seasons": {
     "1": "1-13",
     "2": "1-6",
@@ -2502,12 +2923,12 @@
    "channels": [
     "citv"
    ],
-   "files": 42,
-   "unnumbered_files": 4,
+   "files": 116,
+   "unnumbered_files": 38,
    "have_seasons": {
     "1": "1-13",
-    "2": "9-12,21-23,44-45,49-52",
-    "3": "1,3-13"
+    "2": "1-52",
+    "3": "1-13"
    }
   },
   {
@@ -2528,6 +2949,19 @@
     "4": "1-7",
     "5": "1-8"
    }
+  },
+  {
+   "show": "Get Your Own Back",
+   "tvmaze_id": null,
+   "library_names": [
+    "Get Your Own Back"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 6,
+   "unnumbered_files": 6,
+   "have_seasons": {}
   },
   {
    "show": "Give Us a Clue",
@@ -2572,12 +3006,25 @@
    "channels": [
     "childrens"
    ],
-   "files": 37,
-   "unnumbered_files": 10,
+   "files": 38,
+   "unnumbered_files": 11,
    "have_seasons": {
     "1": "1-21",
     "2": "1-6"
    }
+  },
+  {
+   "show": "Goodness Gracious Me",
+   "tvmaze_id": 1718,
+   "library_names": [
+    "Goodness Gracious Me"
+   ],
+   "channels": [
+    "comedy"
+   ],
+   "files": 14,
+   "unnumbered_files": 14,
+   "have_seasons": {}
   },
   {
    "show": "Goodnight Sweetheart",
@@ -2609,8 +3056,21 @@
    "channels": [
     "disney"
    ],
-   "files": 60,
-   "unnumbered_files": 60,
+   "files": 78,
+   "unnumbered_files": 78,
+   "have_seasons": {}
+  },
+  {
+   "show": "Grand Slam",
+   "tvmaze_id": 58344,
+   "library_names": [
+    "Grand Slam"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 3,
+   "unnumbered_files": 3,
    "have_seasons": {}
   },
   {
@@ -2650,6 +3110,22 @@
    }
   },
   {
+   "show": "Growing Pains",
+   "tvmaze_id": 32868,
+   "library_names": [
+    "Growing Pains"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 20,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-10",
+    "2": "1-10"
+   }
+  },
+  {
    "show": "Hamish Macbeth",
    "tvmaze_id": 16545,
    "library_names": [
@@ -2665,6 +3141,36 @@
     "2": "1-6",
     "3": "1-8"
    }
+  },
+  {
+   "show": "Happy Days",
+   "tvmaze_id": 1474,
+   "library_names": [
+    "Happy Days"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 50,
+   "unnumbered_files": 10,
+   "have_seasons": {
+    "1": "1-13",
+    "2": "1-11",
+    "4": "5-7,9-13,15-16,20-25"
+   }
+  },
+  {
+   "show": "Happy Families",
+   "tvmaze_id": 33027,
+   "library_names": [
+    "Families"
+   ],
+   "channels": [
+    "soaps"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "Harry Enfield's Television Programme",
@@ -2694,21 +3200,22 @@
     "entertainment",
     "gameshows"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 2,
+   "unnumbered_files": 2,
    "have_seasons": {}
   },
   {
    "show": "He-Man and the Masters of the Universe",
    "tvmaze_id": 4230,
    "library_names": [
-    "He-Man"
+    "He-Man",
+    "He Man and the Masters of the Universe"
    ],
    "channels": [
     "citv"
    ],
-   "files": 199,
-   "unnumbered_files": 69,
+   "files": 346,
+   "unnumbered_files": 147,
    "have_seasons": {
     "1": "1-65",
     "2": "1-65"
@@ -2723,10 +3230,10 @@
    "channels": [
     "mtv"
    ],
-   "files": 32,
-   "unnumbered_files": 26,
+   "files": 61,
+   "unnumbered_files": 51,
    "have_seasons": {
-    "1": "116,166,169,247,268,330"
+    "1": "116,161,166,169,181,229,247,268,330,352"
    }
   },
   {
@@ -2765,6 +3272,19 @@
    }
   },
   {
+   "show": "High Road",
+   "tvmaze_id": 26514,
+   "library_names": [
+    "Take the High Road"
+   ],
+   "channels": [
+    "soaps"
+   ],
+   "files": 3,
+   "unnumbered_files": 3,
+   "have_seasons": {}
+  },
+  {
    "show": "Hollyoaks",
    "tvmaze_id": 4175,
    "library_names": [
@@ -2789,12 +3309,34 @@
     "offschool",
     "soaps"
    ],
-   "files": 30,
-   "unnumbered_files": 6,
+   "files": 68,
+   "unnumbered_files": 44,
    "have_seasons": {
     "1": "1-21",
     "33": "184",
     "34": "14,48"
+   }
+  },
+  {
+   "show": "Home Improvement",
+   "tvmaze_id": 544,
+   "library_names": [
+    "Home Improvement"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 204,
+   "unnumbered_files": 1,
+   "have_seasons": {
+    "1": "1-24",
+    "2": "1-25",
+    "3": "1-25",
+    "4": "1-22,24-26",
+    "5": "1-26",
+    "6": "1-25",
+    "7": "1-25",
+    "8": "1-28"
    }
   },
   {
@@ -2821,8 +3363,8 @@
    "channels": [
     "disney"
    ],
-   "files": 88,
-   "unnumbered_files": 88,
+   "files": 95,
+   "unnumbered_files": 95,
    "have_seasons": {}
   },
   {
@@ -2847,8 +3389,8 @@
    "channels": [
     "comedy"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 5,
+   "unnumbered_files": 4,
    "have_seasons": {
     "1": "2"
    }
@@ -2863,8 +3405,8 @@
     "drama",
     "tv70s"
    ],
-   "files": 26,
-   "unnumbered_files": 13,
+   "files": 48,
+   "unnumbered_files": 35,
    "have_seasons": {
     "1": "1-13"
    }
@@ -2881,6 +3423,21 @@
    "files": 6,
    "unnumbered_files": 6,
    "have_seasons": {}
+  },
+  {
+   "show": "Incredible Games",
+   "tvmaze_id": 90041,
+   "library_names": [
+    "Incredible Games"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1"
+   }
   },
   {
    "show": "InHumanoids",
@@ -2906,9 +3463,15 @@
    "channels": [
     "drama"
    ],
-   "files": 2,
-   "unnumbered_files": 0,
+   "files": 16,
+   "unnumbered_files": 1,
    "have_seasons": {
+    "1": "2-3",
+    "3": "2-4",
+    "4": "2,4",
+    "5": "1-2,4-5",
+    "6": "4",
+    "7": "2",
     "8": "3-4"
    }
   },
@@ -2936,11 +3499,26 @@
    "channels": [
     "citv"
    ],
-   "files": 54,
-   "unnumbered_files": 31,
+   "files": 103,
+   "unnumbered_files": 51,
    "have_seasons": {
-    "1": "1-13",
-    "2": "1-7,10-11,13"
+    "1": "1-26",
+    "2": "1-26"
+   }
+  },
+  {
+   "show": "It's a Knockout",
+   "tvmaze_id": null,
+   "library_names": [
+    "It's a Knockout"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "17": "0"
    }
   },
   {
@@ -3010,10 +3588,12 @@
    "channels": [
     "citv"
    ],
-   "files": 1,
+   "files": 36,
    "unnumbered_files": 0,
    "have_seasons": {
-    "2": "3"
+    "1": "1-3,5-13",
+    "2": "1-10,12-13",
+    "3": "1,3-13"
    }
   },
   {
@@ -3040,8 +3620,8 @@
    "channels": [
     "citv"
    ],
-   "files": 65,
-   "unnumbered_files": 65,
+   "files": 130,
+   "unnumbered_files": 130,
    "have_seasons": {}
   },
   {
@@ -3053,8 +3633,8 @@
    "channels": [
     "offschool"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 13,
+   "unnumbered_files": 13,
    "have_seasons": {}
   },
   {
@@ -3066,12 +3646,13 @@
    "channels": [
     "gameshows"
    ],
-   "files": 14,
-   "unnumbered_files": 2,
+   "files": 27,
+   "unnumbered_files": 14,
    "have_seasons": {
     "1": "1-10",
     "2": "1",
-    "3": "1"
+    "3": "1",
+    "4": "1"
    }
   },
   {
@@ -3083,9 +3664,11 @@
    "channels": [
     "citv"
    ],
-   "files": 25,
-   "unnumbered_files": 25,
-   "have_seasons": {}
+   "files": 29,
+   "unnumbered_files": 27,
+   "have_seasons": {
+    "1": "1,7"
+   }
   },
   {
    "show": "Jonathan Creek",
@@ -3096,13 +3679,12 @@
    "channels": [
     "drama"
    ],
-   "files": 19,
+   "files": 18,
    "unnumbered_files": 1,
    "have_seasons": {
     "1": "1-5",
     "2": "1-7",
-    "3": "1-5",
-    "5": "3"
+    "3": "1-5"
    }
   },
   {
@@ -3114,10 +3696,10 @@
    "channels": [
     "citv"
    ],
-   "files": 27,
-   "unnumbered_files": 3,
+   "files": 37,
+   "unnumbered_files": 4,
    "have_seasons": {
-    "1": "1,3,7-8,10-12,14,16-19,21-22,24,26",
+    "1": "1-3,5-26",
     "2": "1-4,11,14,21,23"
    }
   },
@@ -3130,8 +3712,8 @@
    "channels": [
     "citv"
    ],
-   "files": 52,
-   "unnumbered_files": 0,
+   "files": 87,
+   "unnumbered_files": 35,
    "have_seasons": {
     "1": "1-26",
     "2": "1-26"
@@ -3146,10 +3728,10 @@
    "channels": [
     "drama"
    ],
-   "files": 7,
+   "files": 8,
    "unnumbered_files": 0,
    "have_seasons": {
-    "1": "5,12-13",
+    "1": "5,7,12-13",
     "3": "5,7-8,12"
    }
   },
@@ -3187,6 +3769,22 @@
    }
   },
   {
+   "show": "Just Shoot Me!",
+   "tvmaze_id": 2039,
+   "library_names": [
+    "Just Shoot Me"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 94,
+   "unnumbered_files": 77,
+   "have_seasons": {
+    "1": "1-6",
+    "2": "1-10,12"
+   }
+  },
+  {
    "show": "Keeping Up Appearances",
    "tvmaze_id": 3837,
    "library_names": [
@@ -3214,8 +3812,8 @@
    "channels": [
     "kidsmovies"
    ],
-   "files": 73,
-   "unnumbered_files": 73,
+   "files": 80,
+   "unnumbered_files": 80,
    "have_seasons": {}
   },
   {
@@ -3264,10 +3862,19 @@
    "channels": [
     "music"
    ],
-   "files": 1,
+   "files": 16,
    "unnumbered_files": 0,
    "have_seasons": {
-    "12": "4"
+    "1": "10",
+    "4": "2,6",
+    "5": "1-2,4",
+    "6": "1",
+    "7": "5",
+    "8": "1",
+    "9": "4",
+    "10": "1,5",
+    "12": "3-5",
+    "14": "8"
    }
   },
   {
@@ -3279,12 +3886,11 @@
    "channels": [
     "citv"
    ],
-   "files": 111,
-   "unnumbered_files": 31,
+   "files": 152,
+   "unnumbered_files": 111,
    "have_seasons": {
     "0": "1-2",
-    "1": "1-39",
-    "39": "1-39"
+    "1": "1-39"
    }
   },
   {
@@ -3294,11 +3900,11 @@
     "Liquid Television"
    ],
    "channels": [],
-   "files": 23,
-   "unnumbered_files": 2,
+   "files": 53,
+   "unnumbered_files": 31,
    "have_seasons": {
     "1": "1-6",
-    "2": "2-10",
+    "2": "1-10",
     "3": "1-6"
    }
   },
@@ -3328,6 +3934,19 @@
    }
   },
   {
+   "show": "Live & Kicking",
+   "tvmaze_id": 7998,
+   "library_names": [
+    "Live and Kicking"
+   ],
+   "channels": [
+    "childrens"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
+  },
+  {
    "show": "Live Aid",
    "tvmaze_id": null,
    "library_names": [
@@ -3336,8 +3955,8 @@
    "channels": [
     "music"
    ],
-   "files": 33,
-   "unnumbered_files": 33,
+   "files": 163,
+   "unnumbered_files": 163,
    "have_seasons": {}
   },
   {
@@ -3376,6 +3995,31 @@
    }
   },
   {
+   "show": "M*A*S*H",
+   "tvmaze_id": 665,
+   "library_names": [
+    "M*A*S*H"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 278,
+   "unnumbered_files": 26,
+   "have_seasons": {
+    "1": "1-24",
+    "2": "1-24",
+    "3": "1-24",
+    "4": "1-24",
+    "5": "1-24",
+    "6": "1-24",
+    "7": "1-26",
+    "8": "1-25",
+    "9": "1-20",
+    "10": "1-21",
+    "11": "1-16"
+   }
+  },
+  {
    "show": "M.A.S.K.",
    "tvmaze_id": 4400,
    "library_names": [
@@ -3384,11 +4028,33 @@
    "channels": [
     "citv"
    ],
-   "files": 75,
-   "unnumbered_files": 1,
+   "files": 149,
+   "unnumbered_files": 45,
    "have_seasons": {
-    "1": "1-43,45-65",
-    "2": "1-10"
+    "1": "1-65",
+    "2": "1-30",
+    "3": "1-9"
+   }
+  },
+  {
+   "show": "Mad About You",
+   "tvmaze_id": 1115,
+   "library_names": [
+    "Mad About You"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 165,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-22",
+    "2": "1-25",
+    "3": "1-24",
+    "4": "1-24",
+    "5": "1-24",
+    "6": "1-23",
+    "7": "1-23"
    }
   },
   {
@@ -3418,15 +4084,65 @@
    "channels": [
     "tv70s"
    ],
-   "files": 31,
+   "files": 39,
    "unnumbered_files": 0,
    "have_seasons": {
+    "1": "1-7",
     "2": "1-6",
-    "3": "1-4,6-7",
+    "3": "1-7",
     "4": "1-6",
     "5": "1-6",
     "6": "1-7"
    }
+  },
+  {
+   "show": "Married... with Children",
+   "tvmaze_id": 499,
+   "library_names": [
+    "Married with Children"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 108,
+   "unnumbered_files": 1,
+   "have_seasons": {
+    "1": "1-13",
+    "2": "20",
+    "3": "1-9,11-15,17-22",
+    "4": "1-11,13-23",
+    "5": "1-25",
+    "6": "1-26"
+   }
+  },
+  {
+   "show": "MasterChef",
+   "tvmaze_id": 42692,
+   "library_names": [
+    "Masterchef"
+   ],
+   "channels": [
+    "cooking",
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "5": "7"
+   }
+  },
+  {
+   "show": "Mastermind",
+   "tvmaze_id": 9129,
+   "library_names": [
+    "Mastermind"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "Match of the Day",
@@ -3437,8 +4153,21 @@
    "channels": [
     "saturday"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 4,
+   "unnumbered_files": 4,
+   "have_seasons": {}
+  },
+  {
+   "show": "Max Steel",
+   "tvmaze_id": null,
+   "library_names": [
+    "Max Steel"
+   ],
+   "channels": [
+    "childrens"
+   ],
+   "files": 33,
+   "unnumbered_files": 33,
    "have_seasons": {}
   },
   {
@@ -3450,11 +4179,11 @@
    "channels": [
     "childrens"
    ],
-   "files": 118,
-   "unnumbered_files": 52,
+   "files": 200,
+   "unnumbered_files": 121,
    "have_seasons": {
     "1": "1-52",
-    "2": "1-14"
+    "2": "1-27"
    }
   },
   {
@@ -3467,11 +4196,16 @@
     "comedy",
     "entertainment"
    ],
-   "files": 37,
+   "files": 42,
    "unnumbered_files": 2,
    "have_seasons": {
-    "1": "1-22",
-    "2": "1-13"
+    "1": "1-6",
+    "2": "1-6",
+    "3": "1-6",
+    "4": "1-7",
+    "5": "1-7",
+    "6": "1-3,5-6",
+    "7": "1-3"
    }
   },
   {
@@ -3500,15 +4234,29 @@
    "channels": [
     "disney"
    ],
-   "files": 882,
-   "unnumbered_files": 756,
+   "files": 978,
+   "unnumbered_files": 842,
    "have_seasons": {
     "1": "1-28",
     "2": "1-39",
     "3": "1-35",
-    "4": "3-7,10-13,15-16,19-20,22",
-    "5": "1-10"
+    "4": "1-22,28",
+    "5": "1-10",
+    "6": "12"
    }
+  },
+  {
+   "show": "Midsomer Murders",
+   "tvmaze_id": 328,
+   "library_names": [
+    "Midsomer Murders"
+   ],
+   "channels": [
+    "drama"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "Mighty Max",
@@ -3519,11 +4267,11 @@
    "channels": [
     "citv"
    ],
-   "files": 41,
-   "unnumbered_files": 2,
+   "files": 90,
+   "unnumbered_files": 50,
    "have_seasons": {
     "1": "1-13",
-    "2": "1-15,17-27"
+    "2": "1-27"
    }
   },
   {
@@ -3535,8 +4283,8 @@
    "channels": [
     "citv"
    ],
-   "files": 14,
-   "unnumbered_files": 1,
+   "files": 15,
+   "unnumbered_files": 2,
    "have_seasons": {
     "1": "1-13"
    }
@@ -3563,18 +4311,33 @@
    "channels": [
     "drama"
    ],
-   "files": 29,
-   "unnumbered_files": 2,
+   "files": 44,
+   "unnumbered_files": 1,
    "have_seasons": {
-    "1": "1-2,6,11",
-    "2": "4-5,7-13",
-    "3": "1,3,8,10",
+    "1": "1-2,5-6,8-9,11",
+    "2": "3-5,7-13",
+    "3": "1,3,8,10,12",
     "4": "8",
-    "6": "3-5",
+    "5": "1,6,8",
+    "6": "3-5,7",
     "7": "2-3",
-    "8": "1,11-12",
-    "9": "13"
+    "8": "1,3,11-13",
+    "9": "5,7,10,13",
+    "10": "2,9"
    }
+  },
+  {
+   "show": "Minnie Mouse",
+   "tvmaze_id": null,
+   "library_names": [
+    "Minnie Mouse"
+   ],
+   "channels": [
+    "disney"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
   },
   {
    "show": "Miss Marple",
@@ -3585,10 +4348,14 @@
    "channels": [
     "drama"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 26,
+   "unnumbered_files": 13,
    "have_seasons": {
-    "1": "11"
+    "1": "1-3,6-8,11",
+    "2": "5-7",
+    "3": "1",
+    "4": "1",
+    "5": "1"
    }
   },
   {
@@ -3643,8 +4410,8 @@
    "channels": [
     "citv"
    ],
-   "files": 26,
-   "unnumbered_files": 0,
+   "files": 52,
+   "unnumbered_files": 26,
    "have_seasons": {
     "1": "1-13",
     "2": "1-13"
@@ -3674,8 +4441,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 76,
-   "unnumbered_files": 23,
+   "files": 102,
+   "unnumbered_files": 49,
    "have_seasons": {
     "1": "1-6,8-22,24,26-29,31-32,34-39",
     "2": "1-18",
@@ -3691,10 +4458,15 @@
    "channels": [
     "entertainment"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 207,
+   "unnumbered_files": 40,
    "have_seasons": {
-    "1": "7"
+    "0": "1-3,5-11",
+    "1": "1-26,33-38,40-42,45-47,49-51",
+    "2": "1-16",
+    "3": "1-19,24-26",
+    "4": "1-52",
+    "5": "1-26"
    }
   },
   {
@@ -3704,9 +4476,11 @@
     "MTV"
    ],
    "channels": [],
-   "files": 246,
-   "unnumbered_files": 246,
-   "have_seasons": {}
+   "files": 403,
+   "unnumbered_files": 390,
+   "have_seasons": {
+    "1": "1-13"
+   }
   },
   {
    "show": "mtv christmas",
@@ -3715,8 +4489,21 @@
     "mtv christmas"
    ],
    "channels": [],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
+  },
+  {
+   "show": "MTV Dance",
+   "tvmaze_id": null,
+   "library_names": [
+    "MTV Dance"
+   ],
+   "channels": [
+    "mtv"
+   ],
+   "files": 5,
+   "unnumbered_files": 5,
    "have_seasons": {}
   },
   {
@@ -3728,8 +4515,8 @@
    "channels": [
     "mtv"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 18,
+   "unnumbered_files": 18,
    "have_seasons": {}
   },
   {
@@ -3754,8 +4541,8 @@
    "channels": [
     "mtv"
    ],
-   "files": 6,
-   "unnumbered_files": 6,
+   "files": 7,
+   "unnumbered_files": 7,
    "have_seasons": {}
   },
   {
@@ -3765,8 +4552,8 @@
     "MTV Spring Break"
    ],
    "channels": [],
-   "files": 8,
-   "unnumbered_files": 8,
+   "files": 10,
+   "unnumbered_files": 10,
    "have_seasons": {}
   },
   {
@@ -3778,16 +4565,19 @@
    "channels": [
     "mtv"
    ],
-   "files": 11,
-   "unnumbered_files": 3,
+   "files": 67,
+   "unnumbered_files": 37,
    "have_seasons": {
-    "1990": "13",
-    "1991": "1",
-    "1992": "4",
-    "1993": "3,12",
-    "1995": "4",
-    "1996": "3",
-    "1999": "2"
+    "5": "9",
+    "1990": "11-13,17",
+    "1991": "1,3",
+    "1992": "1,4-5,7",
+    "1993": "2-3,6,9,12",
+    "1994": "1-2,11",
+    "1995": "4,6,11",
+    "1996": "1,3,5-6,8",
+    "1997": "10",
+    "1999": "2-3"
    }
   },
   {
@@ -3797,9 +4587,33 @@
     "mtv xmas"
    ],
    "channels": [],
-   "files": 43,
-   "unnumbered_files": 43,
+   "files": 40,
+   "unnumbered_files": 40,
    "have_seasons": {}
+  },
+  {
+   "show": "Murphy Brown",
+   "tvmaze_id": 7220,
+   "library_names": [
+    "Murphy Brown"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 246,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-22",
+    "2": "1-27",
+    "3": "1-26",
+    "4": "1-26",
+    "5": "1-25",
+    "6": "1-25",
+    "7": "1-26",
+    "8": "1-24",
+    "9": "1-24",
+    "10": "1,3-22"
+   }
   },
   {
    "show": "My Parents Are Aliens",
@@ -3825,8 +4639,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 5,
+   "unnumbered_files": 5,
    "have_seasons": {}
   },
   {
@@ -3839,8 +4653,8 @@
     "offschool",
     "soaps"
    ],
-   "files": 1837,
-   "unnumbered_files": 1498,
+   "files": 1867,
+   "unnumbered_files": 1523,
    "have_seasons": {
     "1": "1-4,7-9,11-14,16-20,22-146,148-170",
     "2": "1,64-67,178-187,189-193,195-290",
@@ -3849,15 +4663,28 @@
     "5": "52,124",
     "6": "172-173",
     "7": "15,138,170-171",
-    "8": "1,136,214",
-    "9": "1,79,124-125",
+    "8": "1,136,214,240",
+    "9": "1,79,124-125,175",
     "10": "170,181",
     "11": "46-49,53-55,58-60,66,73-77,82-83,87-88",
     "12": "9,180,203",
     "13": "195,225",
-    "14": "1,5,114-116",
-    "15": "111,198-199"
+    "14": "1,5,113-116",
+    "15": "111,198-199,224-225"
    }
+  },
+  {
+   "show": "Never Mind the Buzzcocks",
+   "tvmaze_id": 4062,
+   "library_names": [
+    "Never Mind the Buzzcocks"
+   ],
+   "channels": [
+    "music"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "Newsround",
@@ -3920,8 +4747,8 @@
     "comedy",
     "tvarchive"
    ],
-   "files": 46,
-   "unnumbered_files": 0,
+   "files": 48,
+   "unnumbered_files": 2,
    "have_seasons": {
     "1": "1-7",
     "2": "1-7",
@@ -3938,10 +4765,33 @@
    "channels": [
     "tv70s"
    ],
-   "files": 13,
-   "unnumbered_files": 0,
+   "files": 82,
+   "unnumbered_files": 9,
    "have_seasons": {
-    "7": "1-13"
+    "1": "1-7",
+    "2": "1-6",
+    "3": "1-13",
+    "4": "1-13",
+    "5": "1-5,7-12,14-15",
+    "6": "1-7",
+    "7": "1-13",
+    "8": "4"
+   }
+  },
+  {
+   "show": "One Foot in the Grave",
+   "tvmaze_id": 7753,
+   "library_names": [
+    "One Foot in the Grave"
+   ],
+   "channels": [
+    "sitcoms"
+   ],
+   "files": 82,
+   "unnumbered_files": 79,
+   "have_seasons": {
+    "1": "1",
+    "2": "1,4"
    }
   },
   {
@@ -3953,15 +4803,15 @@
    "channels": [
     "sitcoms"
    ],
-   "files": 59,
-   "unnumbered_files": 1,
+   "files": 136,
+   "unnumbered_files": 77,
    "have_seasons": {
     "1": "1-7",
     "2": "1-8",
     "3": "1-8",
     "4": "1-8",
     "5": "1-9",
-    "6": "1-7",
+    "6": "1-8",
     "7": "0-6,9",
     "8": "1-3"
    }
@@ -3975,8 +4825,8 @@
    "channels": [
     "offschool"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 6,
+   "unnumbered_files": 6,
    "have_seasons": {}
   },
   {
@@ -4002,11 +4852,12 @@
    "show": "Oswald",
    "tvmaze_id": 93580,
    "library_names": [
+    "Oswald",
     "Oswald the Lucky Rabbit"
    ],
    "channels": [],
-   "files": 132,
-   "unnumbered_files": 132,
+   "files": 151,
+   "unnumbered_files": 151,
    "have_seasons": {}
   },
   {
@@ -4018,10 +4869,13 @@
    "channels": [
     "citv"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 20,
+   "unnumbered_files": 7,
    "have_seasons": {
-    "2": "14"
+    "1": "1-2,4,7-8,13",
+    "2": "3,13-14,16",
+    "3": "5,10",
+    "4": "6"
    }
   },
   {
@@ -4033,8 +4887,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 85,
-   "unnumbered_files": 24,
+   "files": 87,
+   "unnumbered_files": 26,
    "have_seasons": {
     "1": "1-31,33-62"
    }
@@ -4066,6 +4920,41 @@
    "have_seasons": {
     "1": "1-12"
    }
+  },
+  {
+   "show": "Perfect Strangers",
+   "tvmaze_id": 4304,
+   "library_names": [
+    "Perfect Strangers"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 166,
+   "unnumbered_files": 16,
+   "have_seasons": {
+    "1": "1-6",
+    "2": "1-22",
+    "3": "1-22",
+    "4": "1-22",
+    "5": "1-24",
+    "6": "1-24",
+    "7": "1-24",
+    "8": "1-6"
+   }
+  },
+  {
+   "show": "Peter Pan and the Pirates",
+   "tvmaze_id": 26381,
+   "library_names": [
+    "Peter Pan and the Pirates"
+   ],
+   "channels": [
+    "citv"
+   ],
+   "files": 34,
+   "unnumbered_files": 34,
+   "have_seasons": {}
   },
   {
    "show": "Phantom 2040",
@@ -4111,8 +5000,8 @@
    "channels": [
     "citv"
    ],
-   "files": 97,
-   "unnumbered_files": 1,
+   "files": 122,
+   "unnumbered_files": 26,
    "have_seasons": {
     "1": "1-26",
     "2": "1-26",
@@ -4145,8 +5034,8 @@
    "channels": [
     "disney"
    ],
-   "files": 6,
-   "unnumbered_files": 6,
+   "files": 26,
+   "unnumbered_files": 26,
    "have_seasons": {}
   },
   {
@@ -4158,8 +5047,8 @@
    "channels": [
     "citv"
    ],
-   "files": 76,
-   "unnumbered_files": 76,
+   "files": 129,
+   "unnumbered_files": 129,
    "have_seasons": {}
   },
   {
@@ -4184,10 +5073,10 @@
    "channels": [
     "childrens"
    ],
-   "files": 65,
-   "unnumbered_files": 3,
+   "files": 1195,
+   "unnumbered_files": 1111,
    "have_seasons": {
-    "1": "1-11,25-27,29-30,36,40,44,50-55",
+    "1": "1-11,15,25-27,29-30,36,40,44,50-55,58-75,77-78,80",
     "2": "1-36",
     "25": "53"
    }
@@ -4201,10 +5090,26 @@
    "channels": [
     "tv70s"
    ],
-   "files": 16,
+   "files": 29,
    "unnumbered_files": 0,
    "have_seasons": {
-    "1": "1-16"
+    "1": "1-16",
+    "2": "1-13"
+   }
+  },
+  {
+   "show": "Pole Position",
+   "tvmaze_id": 19249,
+   "library_names": [
+    "Pole Position"
+   ],
+   "channels": [
+    "citv"
+   ],
+   "files": 16,
+   "unnumbered_files": 3,
+   "have_seasons": {
+    "1": "1-13"
    }
   },
   {
@@ -4216,11 +5121,25 @@
    "channels": [
     "citv"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 74,
+   "unnumbered_files": 73,
    "have_seasons": {
     "2": "35"
    }
+  },
+  {
+   "show": "Pop Quiz",
+   "tvmaze_id": 23283,
+   "library_names": [
+    "Pop Quiz"
+   ],
+   "channels": [
+    "gameshows",
+    "music"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
   },
   {
    "show": "Porridge",
@@ -4284,10 +5203,11 @@
    "channels": [
     "drama"
    ],
-   "files": 1,
+   "files": 3,
    "unnumbered_files": 0,
    "have_seasons": {
-    "1": "1"
+    "1": "1-2",
+    "4": "2"
    }
   },
   {
@@ -4299,14 +5219,57 @@
    "channels": [
     "citv"
    ],
-   "files": 14,
-   "unnumbered_files": 10,
+   "files": 71,
+   "unnumbered_files": 44,
    "have_seasons": {
-    "12": "50",
+    "11": "31-37,39,41-44,47,49,53,58,60",
+    "12": "3,50",
+    "13": "1",
     "14": "49",
+    "16": "5",
     "17": "1",
-    "20": "14"
+    "19": "3",
+    "20": "7,12,14"
    }
+  },
+  {
+   "show": "Raise the Roof",
+   "tvmaze_id": null,
+   "library_names": [
+    "Raise the Roof"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 4,
+   "unnumbered_files": 4,
+   "have_seasons": {}
+  },
+  {
+   "show": "Rapido",
+   "tvmaze_id": null,
+   "library_names": [
+    "Rapido"
+   ],
+   "channels": [
+    "music"
+   ],
+   "files": 27,
+   "unnumbered_files": 27,
+   "have_seasons": {}
+  },
+  {
+   "show": "Ready Steady Cook",
+   "tvmaze_id": 8599,
+   "library_names": [
+    "Ready Steady Cook"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 17,
+   "unnumbered_files": 17,
+   "have_seasons": {}
   },
   {
    "show": "ReBoot",
@@ -4317,9 +5280,10 @@
    "channels": [
     "citv"
    ],
-   "files": 93,
-   "unnumbered_files": 54,
+   "files": 105,
+   "unnumbered_files": 64,
    "have_seasons": {
+    "0": "1,4",
     "1": "1-13",
     "2": "1-10",
     "3": "1-16"
@@ -4334,10 +5298,10 @@
    "channels": [
     "sitcoms"
    ],
-   "files": 102,
-   "unnumbered_files": 14,
+   "files": 203,
+   "unnumbered_files": 116,
    "have_seasons": {
-    "0": "1,5-7,9-10,13,15-16,19-21,23-24,27-30,32,34-35,37,39,41,53-54,60,62,65,70,95,102,106,123-125",
+    "0": "1,5-7,9-10,13,15-16,19-21,23-24,27-30,32,34-35,37,39,41,53,60,62,65,70,95,102,106,123-125",
     "1": "1-6",
     "2": "1-6",
     "3": "1-6",
@@ -4355,9 +5319,11 @@
     "Remote Control"
    ],
    "channels": [],
-   "files": 28,
-   "unnumbered_files": 28,
-   "have_seasons": {}
+   "files": 35,
+   "unnumbered_files": 34,
+   "have_seasons": {
+    "1": "1"
+   }
   },
   {
    "show": "Reporting Scotland",
@@ -4381,10 +5347,10 @@
    "channels": [
     "tv70s"
    ],
-   "files": 24,
+   "files": 25,
    "unnumbered_files": 0,
    "have_seasons": {
-    "1": "1-15",
+    "1": "1-15,19",
     "2": "1-9"
    }
   },
@@ -4397,8 +5363,8 @@
    "channels": [
     "music"
    ],
-   "files": 2,
-   "unnumbered_files": 0,
+   "files": 3,
+   "unnumbered_files": 1,
    "have_seasons": {
     "1": "1,3"
    }
@@ -4412,8 +5378,8 @@
    "channels": [
     "offschool"
    ],
-   "files": 2,
-   "unnumbered_files": 2,
+   "files": 7,
+   "unnumbered_files": 7,
    "have_seasons": {}
   },
   {
@@ -4491,13 +5457,49 @@
    "channels": [
     "citv"
    ],
-   "files": 80,
-   "unnumbered_files": 1,
+   "files": 316,
+   "unnumbered_files": 178,
    "have_seasons": {
-    "1": "1-36",
-    "2": "2-13,17-22",
+    "1": "1-85,116-119",
+    "2": "1-24",
     "3": "1-25"
    }
+  },
+  {
+   "show": "Roseanne",
+   "tvmaze_id": 690,
+   "library_names": [
+    "Roseanne"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 269,
+   "unnumbered_files": 48,
+   "have_seasons": {
+    "1": "1-23",
+    "2": "1-24",
+    "3": "1-25",
+    "4": "1-25",
+    "5": "1-25",
+    "6": "1-25",
+    "7": "1-19,21-26",
+    "8": "1-25",
+    "9": "1-24"
+   }
+  },
+  {
+   "show": "Roswell Conspiracies",
+   "tvmaze_id": null,
+   "library_names": [
+    "Roswell Conspiracies"
+   ],
+   "channels": [
+    "childrens"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "Roughnecks",
@@ -4508,10 +5510,11 @@
    "channels": [
     "citv"
    ],
-   "files": 1,
+   "files": 13,
    "unnumbered_files": 0,
    "have_seasons": {
-    "1": "3"
+    "1": "1-6",
+    "2": "1-7"
    }
   },
   {
@@ -4528,6 +5531,32 @@
    "have_seasons": {}
   },
   {
+   "show": "Runway",
+   "tvmaze_id": null,
+   "library_names": [
+    "Runway"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
+  },
+  {
+   "show": "Sabrina the Teenage Witch",
+   "tvmaze_id": 976,
+   "library_names": [
+    "Sabrina the Teenage Witch"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 3,
+   "unnumbered_files": 3,
+   "have_seasons": {}
+  },
+  {
    "show": "Sale of the Century",
    "tvmaze_id": 9509,
    "library_names": [
@@ -4536,8 +5565,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 51,
-   "unnumbered_files": 2,
+   "files": 58,
+   "unnumbered_files": 9,
    "have_seasons": {
     "2": "5-6,12-15,17,19,25-26,29",
     "3": "1-21",
@@ -4553,8 +5582,41 @@
    "channels": [
     "citv"
    ],
-   "files": 52,
-   "unnumbered_files": 52,
+   "files": 157,
+   "unnumbered_files": 156,
+   "have_seasons": {
+    "1": "22"
+   }
+  },
+  {
+   "show": "Saved by the Bell",
+   "tvmaze_id": 1252,
+   "library_names": [
+    "Saved by the Bell"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 97,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-19",
+    "2": "1-18,20-26",
+    "3": "1-26",
+    "4": "1-27"
+   }
+  },
+  {
+   "show": "Scrabble",
+   "tvmaze_id": 74450,
+   "library_names": [
+    "Scrabble"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
    "have_seasons": {}
   },
   {
@@ -4579,6 +5641,19 @@
    }
   },
   {
+   "show": "Screen Test",
+   "tvmaze_id": null,
+   "library_names": [
+    "Screen Test"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 22,
+   "unnumbered_files": 22,
+   "have_seasons": {}
+  },
+  {
    "show": "Scrooge McDuck",
    "tvmaze_id": null,
    "library_names": [
@@ -4587,8 +5662,8 @@
    "channels": [
     "disney"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 2,
+   "unnumbered_files": 2,
    "have_seasons": {}
   },
   {
@@ -4624,6 +5699,23 @@
    }
   },
   {
+   "show": "Seinfeld",
+   "tvmaze_id": 530,
+   "library_names": [
+    "Seinfeld"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 4,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1,9",
+    "3": "6",
+    "6": "1"
+   }
+  },
+  {
    "show": "Shadow Raiders",
    "tvmaze_id": null,
    "library_names": [
@@ -4632,8 +5724,8 @@
    "channels": [
     "childrens"
    ],
-   "files": 26,
-   "unnumbered_files": 0,
+   "files": 33,
+   "unnumbered_files": 7,
    "have_seasons": {
     "1": "1-13",
     "2": "1-13"
@@ -4682,11 +5774,12 @@
    "channels": [
     "drama"
    ],
-   "files": 2,
-   "unnumbered_files": 0,
+   "files": 14,
+   "unnumbered_files": 4,
    "have_seasons": {
-    "1": "1",
-    "2": "3"
+    "1": "1,3-8",
+    "2": "3",
+    "3": "5-6"
    }
   },
   {
@@ -4698,8 +5791,8 @@
    "channels": [
     "disney"
    ],
-   "files": 83,
-   "unnumbered_files": 83,
+   "files": 163,
+   "unnumbered_files": 163,
    "have_seasons": {}
   },
   {
@@ -4709,8 +5802,8 @@
     "Silly Symphony"
    ],
    "channels": [],
-   "files": 81,
-   "unnumbered_files": 81,
+   "files": 113,
+   "unnumbered_files": 113,
    "have_seasons": {}
   },
   {
@@ -4722,11 +5815,37 @@
    "channels": [
     "citv"
    ],
-   "files": 67,
-   "unnumbered_files": 2,
+   "files": 147,
+   "unnumbered_files": 82,
    "have_seasons": {
     "1": "1-65"
    }
+  },
+  {
+   "show": "Singled Out",
+   "tvmaze_id": 17453,
+   "library_names": [
+    "Singled Out"
+   ],
+   "channels": [
+    "mtv"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
+  },
+  {
+   "show": "Six O'Clock News",
+   "tvmaze_id": null,
+   "library_names": [
+    "The Six O'Clock News"
+   ],
+   "channels": [
+    "tvarchive"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "Skeleton Warriors",
@@ -4737,9 +5856,11 @@
    "channels": [
     "citv"
    ],
-   "files": 2,
-   "unnumbered_files": 2,
-   "have_seasons": {}
+   "files": 17,
+   "unnumbered_files": 4,
+   "have_seasons": {
+    "1": "1-13"
+   }
   },
   {
    "show": "Sky Commanders",
@@ -4765,8 +5886,21 @@
    "channels": [
     "gameshows"
    ],
-   "files": 2,
-   "unnumbered_files": 2,
+   "files": 4,
+   "unnumbered_files": 4,
+   "have_seasons": {}
+  },
+  {
+   "show": "SMart",
+   "tvmaze_id": 8888,
+   "library_names": [
+    "Smart"
+   ],
+   "channels": [
+    "childrens"
+   ],
+   "files": 5,
+   "unnumbered_files": 5,
    "have_seasons": {}
   },
   {
@@ -4778,8 +5912,8 @@
    "channels": [
     "music"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 2,
+   "unnumbered_files": 2,
    "have_seasons": {}
   },
   {
@@ -4791,8 +5925,8 @@
    "channels": [
     "music"
    ],
-   "files": 24,
-   "unnumbered_files": 0,
+   "files": 30,
+   "unnumbered_files": 6,
    "have_seasons": {
     "1": "1-6",
     "2": "1-8",
@@ -4809,8 +5943,8 @@
     "sitcoms",
     "tv70s"
    ],
-   "files": 23,
-   "unnumbered_files": 1,
+   "files": 25,
+   "unnumbered_files": 3,
    "have_seasons": {
     "1": "1-7",
     "2": "1-8",
@@ -4826,11 +5960,11 @@
    "channels": [
     "citv"
    ],
-   "files": 28,
-   "unnumbered_files": 10,
+   "files": 149,
+   "unnumbered_files": 121,
    "have_seasons": {
-    "1": "1-2,4,6-13",
-    "2": "1-3,8,10-12"
+    "1": "1-13",
+    "2": "1-15"
    }
   },
   {
@@ -4842,9 +5976,12 @@
    "channels": [
     "childrens"
    ],
-   "files": 64,
-   "unnumbered_files": 64,
-   "have_seasons": {}
+   "files": 165,
+   "unnumbered_files": 106,
+   "have_seasons": {
+    "1": "1-32,34-40",
+    "2": "21-40"
+   }
   },
   {
    "show": "Sons and Daughters",
@@ -4855,6 +5992,19 @@
    "channels": [
     "offschool",
     "soaps"
+   ],
+   "files": 7,
+   "unnumbered_files": 7,
+   "have_seasons": {}
+  },
+  {
+   "show": "Sounds Familiar",
+   "tvmaze_id": null,
+   "library_names": [
+    "Sounds Familiar"
+   ],
+   "channels": [
+    "gameshows"
    ],
    "files": 1,
    "unnumbered_files": 1,
@@ -4869,8 +6019,8 @@
    "channels": [
     "tv70s"
    ],
-   "files": 57,
-   "unnumbered_files": 2,
+   "files": 66,
+   "unnumbered_files": 11,
    "have_seasons": {
     "0": "3,7-8,10,12-13,17",
     "1": "1-24",
@@ -4886,8 +6036,8 @@
    "channels": [
     "comedy"
    ],
-   "files": 17,
-   "unnumbered_files": 10,
+   "files": 18,
+   "unnumbered_files": 11,
    "have_seasons": {
     "1": "1-7"
    }
@@ -4901,8 +6051,8 @@
    "channels": [
     "citv"
    ],
-   "files": 65,
-   "unnumbered_files": 0,
+   "files": 101,
+   "unnumbered_files": 36,
    "have_seasons": {
     "1": "1-13",
     "2": "1-14",
@@ -4920,9 +6070,11 @@
    "channels": [
     "citv"
    ],
-   "files": 65,
-   "unnumbered_files": 65,
-   "have_seasons": {}
+   "files": 131,
+   "unnumbered_files": 66,
+   "have_seasons": {
+    "1": "1-65"
+   }
   },
   {
    "show": "Spitting Image",
@@ -4934,8 +6086,8 @@
     "comedy",
     "entertainment"
    ],
-   "files": 163,
-   "unnumbered_files": 30,
+   "files": 165,
+   "unnumbered_files": 32,
    "have_seasons": {
     "1": "0-13",
     "2": "1-11",
@@ -4976,13 +6128,14 @@
    "show": "Starcom: The U.S. Space Force",
    "tvmaze_id": 31046,
    "library_names": [
-    "Starcom"
+    "Starcom",
+    "Starcom: The U.S. Space Force"
    ],
    "channels": [
     "citv"
    ],
-   "files": 25,
-   "unnumbered_files": 12,
+   "files": 38,
+   "unnumbered_files": 25,
    "have_seasons": {
     "1": "1-13"
    }
@@ -5034,13 +6187,26 @@
    "channels": [
     "childrens"
    ],
-   "files": 59,
+   "files": 98,
    "unnumbered_files": 0,
    "have_seasons": {
-    "1": "1-13",
+    "1": "1-52",
     "2": "1-19",
     "3": "1-27"
    }
+  },
+  {
+   "show": "Strike It Rich",
+   "tvmaze_id": null,
+   "library_names": [
+    "Strike It Rich"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
   },
   {
    "show": "Super Mario Bros",
@@ -5051,8 +6217,8 @@
    "channels": [
     "citv"
    ],
-   "files": 76,
-   "unnumbered_files": 22,
+   "files": 232,
+   "unnumbered_files": 178,
    "have_seasons": {
     "0": "1",
     "1": "1-52",
@@ -5068,10 +6234,10 @@
    "channels": [
     "citv"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 39,
+   "unnumbered_files": 26,
    "have_seasons": {
-    "1": "5"
+    "1": "1-13"
    }
   },
   {
@@ -5083,8 +6249,8 @@
    "channels": [
     "citv"
    ],
-   "files": 13,
-   "unnumbered_files": 0,
+   "files": 14,
+   "unnumbered_files": 1,
    "have_seasons": {
     "1": "1-13"
    }
@@ -5103,6 +6269,19 @@
    "have_seasons": {}
   },
   {
+   "show": "Superstars",
+   "tvmaze_id": null,
+   "library_names": [
+    "Superstars"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 14,
+   "unnumbered_files": 14,
+   "have_seasons": {}
+  },
+  {
    "show": "SuperTed",
    "tvmaze_id": 5676,
    "library_names": [
@@ -5111,11 +6290,11 @@
    "channels": [
     "citv"
    ],
-   "files": 36,
-   "unnumbered_files": 0,
+   "files": 41,
+   "unnumbered_files": 4,
    "have_seasons": {
     "1": "1-12",
-    "2": "1-12",
+    "2": "1-13",
     "3": "1-12"
    }
   },
@@ -5158,16 +6337,17 @@
    "show": "Swat Kats: The Radical Squadron",
    "tvmaze_id": 15796,
    "library_names": [
-    "Swat Kats"
+    "Swat Kats",
+    "Swat Kats: The Radical Squadron"
    ],
    "channels": [
     "citv"
    ],
-   "files": 21,
-   "unnumbered_files": 0,
+   "files": 28,
+   "unnumbered_files": 3,
    "have_seasons": {
     "1": "1-13",
-    "2": "1-4,7-8,11-12"
+    "2": "1-4,6-12"
    }
   },
   {
@@ -5212,6 +6392,25 @@
    }
   },
   {
+   "show": "Taxi",
+   "tvmaze_id": 2218,
+   "library_names": [
+    "Taxi"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 113,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-6,8-22",
+    "2": "1-24",
+    "3": "1-20",
+    "4": "1-24",
+    "5": "1-24"
+   }
+  },
+  {
    "show": "Teddy Ruxpin",
    "tvmaze_id": null,
    "library_names": [
@@ -5220,22 +6419,27 @@
    "channels": [
     "citv"
    ],
-   "files": 9,
-   "unnumbered_files": 9,
+   "files": 20,
+   "unnumbered_files": 20,
    "have_seasons": {}
   },
   {
    "show": "Teenage Mutant Ninja Turtles",
-   "tvmaze_id": 4159,
+   "tvmaze_id": null,
    "library_names": [
     "Teenage Mutant Hero Turtles"
    ],
    "channels": [
     "citv"
    ],
-   "files": 4,
-   "unnumbered_files": 4,
-   "have_seasons": {}
+   "files": 65,
+   "unnumbered_files": 60,
+   "have_seasons": {
+    "2": "6",
+    "3": "27,38",
+    "4": "46",
+    "5": "9"
+   }
   },
   {
    "show": "Teknoman",
@@ -5251,6 +6455,21 @@
    "have_seasons": {
     "1": "1-26",
     "2": "1-18"
+   }
+  },
+  {
+   "show": "Telly Addicts",
+   "tvmaze_id": 8048,
+   "library_names": [
+    "Telly Addicts"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 1,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "6": "17"
    }
   },
   {
@@ -5291,6 +6510,19 @@
    "have_seasons": {
     "1": "3,17"
    }
+  },
+  {
+   "show": "Thames News",
+   "tvmaze_id": null,
+   "library_names": [
+    "Thames News"
+   ],
+   "channels": [
+    "tvarchive"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "The Addams Family",
@@ -5335,9 +6567,11 @@
    "channels": [
     "drama"
    ],
-   "files": 10,
-   "unnumbered_files": 10,
-   "have_seasons": {}
+   "files": 14,
+   "unnumbered_files": 11,
+   "have_seasons": {
+    "1": "1,6,10"
+   }
   },
   {
    "show": "The Alphabet Game",
@@ -5348,8 +6582,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 7,
+   "unnumbered_files": 6,
    "have_seasons": {
     "1": "1"
    }
@@ -5358,14 +6592,17 @@
    "show": "The Amazing Adventures of Morph",
    "tvmaze_id": 8880,
    "library_names": [
+    "The Amazing Adventures of Morph",
     "Morph"
    ],
    "channels": [
     "citv"
    ],
-   "files": 26,
-   "unnumbered_files": 26,
-   "have_seasons": {}
+   "files": 92,
+   "unnumbered_files": 66,
+   "have_seasons": {
+    "1": "1-26"
+   }
   },
   {
    "show": "The Animals of Farthing Wood",
@@ -5394,8 +6631,8 @@
     "entertainment",
     "gameshows"
    ],
-   "files": 33,
-   "unnumbered_files": 0,
+   "files": 113,
+   "unnumbered_files": 80,
    "have_seasons": {
     "0": "18-19,102-104",
     "1": "1-3",
@@ -5417,11 +6654,11 @@
    "channels": [
     "drama"
    ],
-   "files": 1678,
-   "unnumbered_files": 1,
+   "files": 1575,
+   "unnumbered_files": 26,
    "have_seasons": {
-    "1": "1-11",
-    "2": "1-12",
+    "1": "1-12,15,18-19,22-25",
+    "2": "1-12,14",
     "3": "1-12",
     "4": "1-48",
     "5": "1-104",
@@ -5435,12 +6672,7 @@
     "13": "1-152",
     "14": "1-121",
     "15": "1-87",
-    "16": "9,12,14-16,24,26-29,32-33,35-37,43,47,49-50,52-53,55-57,60-61,64-76,78-81,84-86",
-    "17": "9,13-15,17-21,23,29-31,34,39-42,52-53,58-59,83-88,91",
-    "18": "2,4-9,12-17,20-23,25-28,31-33,35-37,39-44,46,48,50,55,64-65,67-73,76-77,80,83-86",
-    "19": "74",
-    "20": "76,81",
-    "21": "89,92,94,96,99,101-102",
+    "16": "86",
     "22": "16-24,34-38,40-54,56-60,63-74,76-91"
    }
   },
@@ -5483,11 +6715,10 @@
    "channels": [
     "soaps"
    ],
-   "files": 5,
-   "unnumbered_files": 3,
+   "files": 9,
+   "unnumbered_files": 8,
    "have_seasons": {
-    "1": "1",
-    "2": "1"
+    "1": "1"
    }
   },
   {
@@ -5499,11 +6730,11 @@
    "channels": [
     "music"
    ],
-   "files": 27,
+   "files": 31,
    "unnumbered_files": 12,
    "have_seasons": {
-    "3": "1-3,11-13,21,30-31,34,37-39",
-    "4": "1,3"
+    "3": "1-3,11-13,20-21,30-32,34,36-39",
+    "4": "1,3-4"
    }
   },
   {
@@ -5516,10 +6747,34 @@
     "comedy",
     "entertainment"
    ],
-   "files": 1,
+   "files": 3,
    "unnumbered_files": 0,
    "have_seasons": {
-    "1": "1"
+    "1": "1",
+    "4": "1",
+    "5": "6"
+   }
+  },
+  {
+   "show": "The Cosby Show",
+   "tvmaze_id": 2084,
+   "library_names": [
+    "The Cosby Show"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 194,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-24",
+    "2": "1-25",
+    "3": "1-25",
+    "4": "1-18,20-24",
+    "5": "1,3-26",
+    "6": "1-13,15-26",
+    "7": "1-21,23-26",
+    "8": "2,4-19,21-25"
    }
   },
   {
@@ -5551,8 +6806,8 @@
    "channels": [
     "comedy"
    ],
-   "files": 6,
-   "unnumbered_files": 6,
+   "files": 13,
+   "unnumbered_files": 13,
    "have_seasons": {}
   },
   {
@@ -5564,8 +6819,8 @@
    "channels": [
     "childrens"
    ],
-   "files": 5,
-   "unnumbered_files": 0,
+   "files": 26,
+   "unnumbered_files": 21,
    "have_seasons": {
     "2": "1-5"
    }
@@ -5635,6 +6890,36 @@
    "have_seasons": {}
   },
   {
+   "show": "The Flintstone Kids",
+   "tvmaze_id": 8720,
+   "library_names": [
+    "The Flintstone Kids"
+   ],
+   "channels": [
+    "citv"
+   ],
+   "files": 5,
+   "unnumbered_files": 4,
+   "have_seasons": {
+    "2": "23"
+   }
+  },
+  {
+   "show": "The French Chef",
+   "tvmaze_id": null,
+   "library_names": [
+    "The French Chef"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 20,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "6": "1-20"
+   }
+  },
+  {
    "show": "The Generation Game",
    "tvmaze_id": 8455,
    "library_names": [
@@ -5645,8 +6930,8 @@
     "gameshows",
     "saturday"
    ],
-   "files": 73,
-   "unnumbered_files": 5,
+   "files": 74,
+   "unnumbered_files": 6,
    "have_seasons": {
     "1": "1-10,12-14",
     "2": "1-10,12-15,17",
@@ -5665,10 +6950,31 @@
    "channels": [
     "citv"
    ],
-   "files": 14,
-   "unnumbered_files": 0,
+   "files": 17,
+   "unnumbered_files": 3,
    "have_seasons": {
     "1": "0-13"
+   }
+  },
+  {
+   "show": "The Golden Girls",
+   "tvmaze_id": 722,
+   "library_names": [
+    "The Golden Girls"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 181,
+   "unnumbered_files": 2,
+   "have_seasons": {
+    "1": "1-25",
+    "2": "1-26",
+    "3": "1-18,20-25",
+    "4": "1-26",
+    "5": "1-26",
+    "6": "1-26",
+    "7": "1-26"
    }
   },
   {
@@ -5681,18 +6987,18 @@
     "entertainment",
     "tv70s"
    ],
-   "files": 69,
-   "unnumbered_files": 0,
+   "files": 81,
+   "unnumbered_files": 6,
    "have_seasons": {
     "1": "1-7",
-    "2": "1-6,8-13",
-    "3": "1-6",
-    "4": "1-6",
-    "5": "1-13",
+    "2": "1-14",
+    "3": "1-7",
+    "4": "1-7",
+    "5": "1-14",
     "6": "1-7",
     "7": "1-6",
     "8": "1-6",
-    "9": "1-6"
+    "9": "1-7"
    }
   },
   {
@@ -5704,8 +7010,8 @@
    "channels": [
     "mtv"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 4,
+   "unnumbered_files": 4,
    "have_seasons": {}
   },
   {
@@ -5732,11 +7038,24 @@
    "channels": [
     "citv"
    ],
-   "files": 2,
-   "unnumbered_files": 0,
+   "files": 6,
+   "unnumbered_files": 4,
    "have_seasons": {
     "1": "1,4"
    }
+  },
+  {
+   "show": "The Jenny Jones Show",
+   "tvmaze_id": null,
+   "library_names": [
+    "The Jenny Jones Show"
+   ],
+   "channels": [
+    "offschool"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
   },
   {
    "show": "The Jerry Springer Show",
@@ -5748,8 +7067,8 @@
    "channels": [
     "offschool"
    ],
-   "files": 81,
-   "unnumbered_files": 25,
+   "files": 116,
+   "unnumbered_files": 60,
    "have_seasons": {
     "0": "8-12",
     "1": "1,3-7,9-10,13,15-17,19-22",
@@ -5776,13 +7095,40 @@
    "channels": [
     "gameshows"
    ],
-   "files": 66,
-   "unnumbered_files": 3,
+   "files": 76,
+   "unnumbered_files": 13,
    "have_seasons": {
     "1": "1-5,8,11,13,15-17,19,22,25-26,29-32,34,39",
     "2": "1-4,6-7,9-13,17-18,20-21,26,28-29",
     "3": "1-24"
    }
+  },
+  {
+   "show": "The Krypton Factor",
+   "tvmaze_id": 4825,
+   "library_names": [
+    "The Krypton Factor"
+   ],
+   "channels": [
+    "gameshows",
+    "saturday"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
+  },
+  {
+   "show": "The League of Gentlemen",
+   "tvmaze_id": 1720,
+   "library_names": [
+    "The League of Gentlemen"
+   ],
+   "channels": [
+    "comedy"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
   },
   {
    "show": "The Legend of Prince Valiant",
@@ -5824,13 +7170,13 @@
    "channels": [
     "citv"
    ],
-   "files": 214,
-   "unnumbered_files": 1,
+   "files": 307,
+   "unnumbered_files": 86,
    "have_seasons": {
     "1": "1-52",
     "2": "1-26",
     "3": "1-52",
-    "4": "1-42,45,49",
+    "4": "1-52",
     "5": "1-39"
    }
   },
@@ -5843,26 +7189,10 @@
    "channels": [
     "citv"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 33,
+   "unnumbered_files": 30,
    "have_seasons": {
-    "1": "212"
-   }
-  },
-  {
-   "show": "The Morecambe & Wise Show",
-   "tvmaze_id": 7745,
-   "library_names": [
-    "Morecambe and Wise"
-   ],
-   "channels": [
-    "entertainment",
-    "gameshows"
-   ],
-   "files": 2,
-   "unnumbered_files": 1,
-   "have_seasons": {
-    "4": "6"
+    "1": "150,212,223"
    }
   },
   {
@@ -5874,9 +7204,11 @@
    "channels": [
     "citv"
    ],
-   "files": 18,
-   "unnumbered_files": 18,
-   "have_seasons": {}
+   "files": 35,
+   "unnumbered_files": 19,
+   "have_seasons": {
+    "1": "1-16"
+   }
   },
   {
    "show": "The New Adventures of He-Man",
@@ -5887,8 +7219,8 @@
    "channels": [
     "citv"
    ],
-   "files": 83,
-   "unnumbered_files": 18,
+   "files": 85,
+   "unnumbered_files": 20,
    "have_seasons": {
     "1": "1-65"
    }
@@ -5902,10 +7234,10 @@
    "channels": [
     "citv"
    ],
-   "files": 32,
-   "unnumbered_files": 0,
+   "files": 43,
+   "unnumbered_files": 2,
    "have_seasons": {
-    "1": "1-16",
+    "1": "1-19,21-26",
     "2": "1-16"
    }
   },
@@ -5918,10 +7250,11 @@
    "channels": [
     "tv70s"
    ],
-   "files": 1,
+   "files": 5,
    "unnumbered_files": 0,
    "have_seasons": {
-    "1": "1"
+    "1": "1,6,10-11",
+    "2": "3"
    }
   },
   {
@@ -5943,6 +7276,19 @@
    }
   },
   {
+   "show": "The O-Zone",
+   "tvmaze_id": null,
+   "library_names": [
+    "The O-Zone"
+   ],
+   "channels": [
+    "music"
+   ],
+   "files": 6,
+   "unnumbered_files": 6,
+   "have_seasons": {}
+  },
+  {
    "show": "The Old Grey Whistle Test",
    "tvmaze_id": 10660,
    "library_names": [
@@ -5951,8 +7297,8 @@
    "channels": [
     "music"
    ],
-   "files": 2,
-   "unnumbered_files": 2,
+   "files": 21,
+   "unnumbered_files": 21,
    "have_seasons": {}
   },
   {
@@ -5980,10 +7326,10 @@
    "channels": [
     "tv70s"
    ],
-   "files": 2,
-   "unnumbered_files": 1,
+   "files": 51,
+   "unnumbered_files": 27,
    "have_seasons": {
-    "1": "1"
+    "1": "1-24"
    }
   },
   {
@@ -6011,8 +7357,8 @@
    "channels": [
     "citv"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 13,
+   "unnumbered_files": 13,
    "have_seasons": {}
   },
   {
@@ -6025,8 +7371,8 @@
     "gameshows",
     "saturday"
    ],
-   "files": 4,
-   "unnumbered_files": 4,
+   "files": 6,
+   "unnumbered_files": 6,
    "have_seasons": {}
   },
   {
@@ -6112,11 +7458,12 @@
    "channels": [
     "citv"
    ],
-   "files": 33,
-   "unnumbered_files": 2,
+   "files": 85,
+   "unnumbered_files": 25,
    "have_seasons": {
-    "1": "3",
-    "3": "10-13",
+    "1": "1-11",
+    "2": "1-10",
+    "3": "1-13",
     "4": "1-13",
     "5": "1-13"
    }
@@ -6130,8 +7477,8 @@
    "channels": [
     "citv"
    ],
-   "files": 98,
-   "unnumbered_files": 0,
+   "files": 113,
+   "unnumbered_files": 15,
    "have_seasons": {
     "1": "1-13",
     "2": "1-13",
@@ -6174,8 +7521,8 @@
    "channels": [
     "mtv"
    ],
-   "files": 123,
-   "unnumbered_files": 3,
+   "files": 139,
+   "unnumbered_files": 19,
    "have_seasons": {
     "1": "1-2,4-9",
     "2": "1-6",
@@ -6202,8 +7549,8 @@
    "channels": [
     "music"
    ],
-   "files": 9,
-   "unnumbered_files": 7,
+   "files": 19,
+   "unnumbered_files": 17,
    "have_seasons": {
     "2": "12,23"
    }
@@ -6233,10 +7580,11 @@
    "channels": [
     "citv"
    ],
-   "files": 26,
-   "unnumbered_files": 0,
+   "files": 34,
+   "unnumbered_files": 5,
    "have_seasons": {
-    "1": "1-26"
+    "1": "1-26",
+    "2": "10,21,23"
    }
   },
   {
@@ -6246,9 +7594,11 @@
     "The Snowman"
    ],
    "channels": [],
-   "files": 1,
-   "unnumbered_files": 1,
-   "have_seasons": {}
+   "files": 8,
+   "unnumbered_files": 7,
+   "have_seasons": {
+    "1982": "1"
+   }
   },
   {
    "show": "The Sooty Show",
@@ -6259,11 +7609,22 @@
    "channels": [
     "citv"
    ],
-   "files": 3,
-   "unnumbered_files": 0,
+   "files": 62,
+   "unnumbered_files": 25,
    "have_seasons": {
+    "1": "1-8",
     "13": "13-14",
-    "17": "5"
+    "17": "5",
+    "19": "13",
+    "22": "4",
+    "23": "3,8",
+    "24": "10",
+    "25": "1-3,10,12",
+    "26": "7,14",
+    "27": "1,4,7,10",
+    "28": "3-5,7-8",
+    "29": "11",
+    "30": "5,7,9,13"
    }
   },
   {
@@ -6275,8 +7636,8 @@
    "channels": [
     "drama"
    ],
-   "files": 14,
-   "unnumbered_files": 0,
+   "files": 15,
+   "unnumbered_files": 1,
    "have_seasons": {
     "1": "1-6",
     "2": "1-8"
@@ -6307,10 +7668,13 @@
     "drama",
     "tv70s"
    ],
-   "files": 1,
-   "unnumbered_files": 0,
+   "files": 20,
+   "unnumbered_files": 15,
    "have_seasons": {
-    "3": "4"
+    "1": "1-2",
+    "2": "13",
+    "3": "4",
+    "4": "1"
    }
   },
   {
@@ -6322,8 +7686,8 @@
    "channels": [
     "disney"
    ],
-   "files": 228,
-   "unnumbered_files": 228,
+   "files": 270,
+   "unnumbered_files": 270,
    "have_seasons": {}
   },
   {
@@ -6335,8 +7699,8 @@
    "channels": [
     "citv"
    ],
-   "files": 34,
-   "unnumbered_files": 0,
+   "files": 43,
+   "unnumbered_files": 9,
    "have_seasons": {
     "1": "1-13",
     "2": "1-11",
@@ -6353,8 +7717,8 @@
     "childrens",
     "tv70s"
    ],
-   "files": 73,
-   "unnumbered_files": 5,
+   "files": 91,
+   "unnumbered_files": 23,
    "have_seasons": {
     "1": "1-13",
     "2": "1-13",
@@ -6418,6 +7782,34 @@
    }
   },
   {
+   "show": "The Two Ronnies",
+   "tvmaze_id": 7741,
+   "library_names": [
+    "The Two Ronnies"
+   ],
+   "channels": [
+    "gameshows",
+    "saturday"
+   ],
+   "files": 2,
+   "unnumbered_files": 2,
+   "have_seasons": {}
+  },
+  {
+   "show": "The Vicar of Dibley",
+   "tvmaze_id": 1530,
+   "library_names": [
+    "Vicar of Dibley"
+   ],
+   "channels": [
+    "comedy",
+    "sitcoms"
+   ],
+   "files": 3,
+   "unnumbered_files": 3,
+   "have_seasons": {}
+  },
+  {
    "show": "The Video Shop",
    "tvmaze_id": null,
    "library_names": [
@@ -6426,8 +7818,8 @@
    "channels": [
     "videoshop"
    ],
-   "files": 276,
-   "unnumbered_files": 276,
+   "files": 323,
+   "unnumbered_files": 323,
    "have_seasons": {}
   },
   {
@@ -6439,11 +7831,24 @@
    "channels": [
     "gameshows"
    ],
-   "files": 4,
-   "unnumbered_files": 3,
+   "files": 5,
+   "unnumbered_files": 4,
    "have_seasons": {
     "1": "1"
    }
+  },
+  {
+   "show": "The White Room",
+   "tvmaze_id": null,
+   "library_names": [
+    "The White Room"
+   ],
+   "channels": [
+    "music"
+   ],
+   "files": 1,
+   "unnumbered_files": 1,
+   "have_seasons": {}
   },
   {
    "show": "The Wind in the Willows",
@@ -6454,8 +7859,8 @@
    "channels": [
     "citv"
    ],
-   "files": 65,
-   "unnumbered_files": 0,
+   "files": 66,
+   "unnumbered_files": 1,
    "have_seasons": {
     "1": "1-13",
     "2": "1-13",
@@ -6490,8 +7895,8 @@
     "entertainment",
     "music"
    ],
-   "files": 9,
-   "unnumbered_files": 8,
+   "files": 17,
+   "unnumbered_files": 16,
    "have_seasons": {
     "1": "3"
    }
@@ -6505,11 +7910,16 @@
    "channels": [
     "citv"
    ],
-   "files": 4,
-   "unnumbered_files": 0,
+   "files": 818,
+   "unnumbered_files": 642,
    "have_seasons": {
-    "1": "23,25-26",
-    "2": "26"
+    "1": "1-26",
+    "2": "1-26",
+    "3": "1-26",
+    "4": "1-26",
+    "5": "1-26",
+    "22": "1-26",
+    "23": "1-20"
    }
   },
   {
@@ -6556,22 +7966,22 @@
    "channels": [
     "music"
    ],
-   "files": 785,
-   "unnumbered_files": 454,
+   "files": 869,
+   "unnumbered_files": 486,
    "have_seasons": {
-    "1967": "27,30",
+    "1967": "27,30,52",
     "1968": "23,30",
     "1969": "9-10",
-    "1970": "1,4-8,10,14,19,21-23,26,29-30,33-36,39,48-49",
-    "1971": "2,8-9,24,46,48",
+    "1970": "1,4-8,10,14,19,21-23,26,29-30,33-36,39-40,48-49",
+    "1971": "2,8-9,17,24,26,46,48,51-52",
     "1972": "25,27,46,50,52",
-    "1973": "23,35,39-40,47,52",
-    "1974": "5,7,23,45,53",
-    "1975": "30-31,36",
-    "1976": "1-2,4,7,14,22,26,28-29,31,34-35,37,39-45,48,50-52",
-    "1977": "1-5,7-8,10-30,32-35,37-50,52",
-    "1978": "1,3-24,26-28,30-35,37-39,41-50",
-    "1979": "1-7,9-22,24,26-29,31,34-40,42-43,45,47-52",
+    "1973": "4,23,35,39-41,46-47,51-53",
+    "1974": "5,7,15,18,23,32-33,40,45,52-53",
+    "1975": "1,11-12,15,30-31,35-36,52-53",
+    "1976": "1-2,4,7,9,13-26,28-32,34-35,37,39-45,48,50-54",
+    "1977": "1-5,7-8,10-30,32-35,37-53",
+    "1978": "1,3-50",
+    "1979": "1-7,9-43,45,47-52",
     "1980": "1-15,17-35,37-42",
     "1981": "13,16,25,27-29,33,39,41,43",
     "1982": "4-6,11,16,21,27,29,39,41,45,51",
@@ -6594,12 +8004,12 @@
    "channels": [
     "citv"
    ],
-   "files": 162,
-   "unnumbered_files": 66,
+   "files": 639,
+   "unnumbered_files": 524,
    "have_seasons": {
     "1": "1-52",
-    "2": "1-26",
-    "3": "1-13,29-30",
+    "2": "1-27,29,32,34-37,41-43,45-49",
+    "3": "1-15,17,20,29-30",
     "4": "1-3"
    }
   },
@@ -6612,8 +8022,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 64,
-   "unnumbered_files": 0,
+   "files": 68,
+   "unnumbered_files": 4,
    "have_seasons": {
     "1": "1-12",
     "2": "1-13",
@@ -6631,10 +8041,25 @@
    "channels": [
     "citv"
    ],
-   "files": 16,
-   "unnumbered_files": 10,
+   "files": 35,
+   "unnumbered_files": 24,
    "have_seasons": {
-    "1": "1-2,5,7,10-11"
+    "1": "1-8,10-11,13"
+   }
+  },
+  {
+   "show": "Turnabout",
+   "tvmaze_id": 23875,
+   "library_names": [
+    "Turnabout"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 5,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-5"
    }
   },
   {
@@ -6646,9 +8071,28 @@
    "channels": [
     "offschool"
    ],
-   "files": 1,
-   "unnumbered_files": 1,
+   "files": 5,
+   "unnumbered_files": 5,
    "have_seasons": {}
+  },
+  {
+   "show": "Two Fat Ladies",
+   "tvmaze_id": 12471,
+   "library_names": [
+    "Two Fat Ladies"
+   ],
+   "channels": [
+    "cooking"
+   ],
+   "files": 25,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "0": "1-3",
+    "1": "1-6",
+    "2": "1-6",
+    "3": "1-6",
+    "4": "1-4"
+   }
   },
   {
    "show": "Tyne Tees News",
@@ -6664,6 +8108,21 @@
    "have_seasons": {}
   },
   {
+   "show": "UltraForce",
+   "tvmaze_id": 19168,
+   "library_names": [
+    "Ultraforce"
+   ],
+   "channels": [
+    "citv"
+   ],
+   "files": 13,
+   "unnumbered_files": 0,
+   "have_seasons": {
+    "1": "1-13"
+   }
+  },
+  {
    "show": "University Challenge",
    "tvmaze_id": 4085,
    "library_names": [
@@ -6672,8 +8131,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 22,
-   "unnumbered_files": 21,
+   "files": 23,
+   "unnumbered_files": 22,
    "have_seasons": {
     "28": "16"
    }
@@ -6702,13 +8161,14 @@
    "show": "Visionaries: Knights of the Magical Light",
    "tvmaze_id": 11032,
    "library_names": [
-    "Visionaries"
+    "Visionaries",
+    "Visionaries: Knights of the Magical Light"
    ],
    "channels": [
     "citv"
    ],
-   "files": 19,
-   "unnumbered_files": 6,
+   "files": 62,
+   "unnumbered_files": 36,
    "have_seasons": {
     "1": "1-13"
    }
@@ -6722,10 +8182,17 @@
    "channels": [
     "citv"
    ],
-   "files": 28,
+   "files": 102,
    "unnumbered_files": 26,
    "have_seasons": {
-    "1": "1-2"
+    "1": "1-11",
+    "2": "1-13",
+    "3": "1-7",
+    "4": "1-6",
+    "5": "1-6",
+    "6": "1-7",
+    "7": "1-13",
+    "8": "1-13"
    }
   },
   {
@@ -6754,9 +8221,14 @@
     "Walt Disney Cartoon"
    ],
    "channels": [],
-   "files": 17,
-   "unnumbered_files": 17,
-   "have_seasons": {}
+   "files": 348,
+   "unnumbered_files": 343,
+   "have_seasons": {
+    "0": "1",
+    "1": "20",
+    "2": "2,14",
+    "4": "12"
+   }
   },
   {
    "show": "War Planets",
@@ -6767,8 +8239,8 @@
    "channels": [
     "childrens"
    ],
-   "files": 26,
-   "unnumbered_files": 0,
+   "files": 34,
+   "unnumbered_files": 8,
    "have_seasons": {
     "1": "1-13",
     "2": "1-13"
@@ -6799,8 +8271,8 @@
    "channels": [
     "gameshows"
    ],
-   "files": 145,
-   "unnumbered_files": 11,
+   "files": 146,
+   "unnumbered_files": 12,
    "have_seasons": {
     "1": "1-32",
     "2": "1-20,22-41",
@@ -6846,6 +8318,19 @@
    }
   },
   {
+   "show": "Whittle",
+   "tvmaze_id": null,
+   "library_names": [
+    "Whittle"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 8,
+   "unnumbered_files": 8,
+   "have_seasons": {}
+  },
+  {
    "show": "Who Wants to Be a Millionaire?",
    "tvmaze_id": 32828,
    "library_names": [
@@ -6854,11 +8339,11 @@
    "channels": [
     "gameshows"
    ],
-   "files": 142,
-   "unnumbered_files": 40,
+   "files": 152,
+   "unnumbered_files": 49,
    "have_seasons": {
     "1": "1-10",
-    "2": "1,3-13",
+    "2": "1-13",
     "3": "1-12",
     "4": "1-6,8,10-13",
     "5": "3",
@@ -6878,7 +8363,7 @@
     "entertainment",
     "gameshows"
    ],
-   "files": 189,
+   "files": 202,
    "unnumbered_files": 0,
    "have_seasons": {
     "1": "0-20",
@@ -6891,7 +8376,8 @@
     "8": "1-7,9,11-14",
     "9": "1-19",
     "10": "2-11",
-    "11": "1-2,6-7,9,11,14,20"
+    "11": "1-2,6-7,9,11,14,20",
+    "19": "1,3-14"
    }
   },
   {
@@ -6903,8 +8389,8 @@
    "channels": [
     "citv"
    ],
-   "files": 2,
-   "unnumbered_files": 2,
+   "files": 14,
+   "unnumbered_files": 14,
    "have_seasons": {}
   },
   {
@@ -6951,6 +8437,22 @@
    }
   },
   {
+   "show": "Wings",
+   "tvmaze_id": 36084,
+   "library_names": [
+    "Wings"
+   ],
+   "channels": [
+    "ussitcoms"
+   ],
+   "files": 38,
+   "unnumbered_files": 13,
+   "have_seasons": {
+    "1": "1-12",
+    "2": "1-13"
+   }
+  },
+  {
    "show": "Winner Takes All",
    "tvmaze_id": 10659,
    "library_names": [
@@ -6964,6 +8466,21 @@
    "have_seasons": {}
   },
   {
+   "show": "Wipeout",
+   "tvmaze_id": 14514,
+   "library_names": [
+    "Wipeout"
+   ],
+   "channels": [
+    "gameshows"
+   ],
+   "files": 106,
+   "unnumbered_files": 88,
+   "have_seasons": {
+    "3": "1-18"
+   }
+  },
+  {
    "show": "Words and Pictures",
    "tvmaze_id": null,
    "library_names": [
@@ -6972,10 +8489,11 @@
    "channels": [
     "childrens"
    ],
-   "files": 37,
-   "unnumbered_files": 36,
+   "files": 71,
+   "unnumbered_files": 65,
    "have_seasons": {
-    "4": "20"
+    "4": "20",
+    "12": "2-4,6-7"
    }
   },
   {
@@ -6987,12 +8505,12 @@
    "channels": [
     "childrens"
    ],
-   "files": 30,
+   "files": 38,
    "unnumbered_files": 0,
    "have_seasons": {
     "1": "1-10",
     "2": "1-12",
-    "3": "9",
+    "3": "1-9",
     "4": "1-7"
    }
   },
@@ -7020,14 +8538,14 @@
    "channels": [
     "citv"
    ],
-   "files": 165,
-   "unnumbered_files": 22,
+   "files": 316,
+   "unnumbered_files": 172,
    "have_seasons": {
     "1": "1-13",
     "2": "1-26",
     "3": "1-19,27-52",
     "4": "1-17,46-66",
-    "5": "2-6,9-14,67-76"
+    "5": "1-6,9-14,67-76"
    }
   },
   {
@@ -7073,8 +8591,8 @@
    "channels": [
     "mtv"
    ],
-   "files": 11,
-   "unnumbered_files": 11,
+   "files": 31,
+   "unnumbered_files": 31,
    "have_seasons": {}
   },
   {
@@ -7088,10 +8606,8 @@
     "saturday"
    ],
    "files": 1,
-   "unnumbered_files": 0,
-   "have_seasons": {
-    "4": "3"
-   }
+   "unnumbered_files": 1,
+   "have_seasons": {}
   }
  ]
 }

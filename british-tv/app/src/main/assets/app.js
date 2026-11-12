@@ -524,7 +524,11 @@
     var film = { title: d.n || '', plot: d.ov || '', poster: poster.indexOf(TMDB_IMG) === 0 ? poster : '',
                  genres: Array.isArray(d.g) ? d.g.join(', ') : (d.g || ''),
                  mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '', cert: d.cert || '',
-                 cast: Array.isArray(d.cast) ? d.cast.slice(0, 10).map(function (m) { return { n: m.n || '', c: m.c || '', p: String(m.p || '').indexOf(TMDB_IMG) === 0 ? m.p : '' }; }) : [] };
+                 cast: Array.isArray(d.cast) ? d.cast.slice(0, 10).map(function (m) {
+                   if (typeof m === 'string') return { n: m, c: '', p: '' };
+                   var ph = String(m.p || m.photo || m.profile || m.image || m.img || '');    // tolerate a spelled-out key
+                   return { n: m.n || m.name || '', c: m.c || m.character || m.role || '', p: ph.indexOf(TMDB_IMG) === 0 ? ph : '' };
+                 }) : [] };
     // stored even when TMDb knew nothing, so Info shows the film's own title instead of hunting for a TV series
     store.set('film1:' + key, film);
     return key;

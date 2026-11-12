@@ -2304,7 +2304,7 @@
 
   var HALF = 30 * 60 * 1000;
   var SPAN = 4 * HALF;          // two hours visible
-  var VISIBLE_ROWS = 6;
+  var VISIBLE_ROWS = 7;   // the colour-button legend is gone, so the grid takes its space
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

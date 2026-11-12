@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.35",
-  "version": "0.45.35",
-  "code": 4535,
+  "name": "Alpha 0.45.36",
+  "version": "0.45.36",
+  "code": 4536,
   "date": "2026-11-12",
   "notes": [
-    "**Long programme names in the Teletext, 1980s and Radio Times guides.** The big title above the grid was too large for those fonts, so a long name wrapped and its second line was cut off. Smaller title size in those three themes, so two lines fit."
+    "**No colour-button bar at the bottom of the guide, on every theme.** The grid now shows seven channels instead of six. The coloured remote buttons still work (red Now, green Later, yellow Earlier, blue Watch)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.35",
+      "date": "2026-11-12",
+      "notes": [
+        "**Long programme names in the Teletext, 1980s and Radio Times guides.** The big title above the grid was too large for those fonts, so a long name wrapped and its second line was cut off. Smaller title size in those three themes, so two lines fit."
+      ]
+    },
     {
       "name": "Alpha 0.45.34",
       "date": "2026-11-12",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "Fixes the build again: the backup player's libraries need the app compiled against Android 35 (it still runs on the same TVs as before). Nothing else changed."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.27",
-      "date": "2026-11-12",
-      "notes": [
-        "Fixes the build of 0.45.26: the backup player's libraries need AndroidX switched on in the project settings. Nothing else changed."
       ]
     }
   ]

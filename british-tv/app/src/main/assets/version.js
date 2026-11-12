@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.17",
-  "version": "0.45.17",
-  "code": 4517,
+  "name": "Alpha 0.45.18",
+  "version": "0.45.18",
+  "code": 4518,
   "date": "2026-11-12",
   "notes": [
-    "**No more three of the same show in a row.** The running order now mixes shows so the same one does not come round again straight away, and on the timetable channels (Saturday Night TV and the others) a programme that has already been on today is passed over for another. This fixes Noel's House Party playing three times in a row.",
-    "**EPG debug (Options > EPG debug).** Shows how each channel's guide was built and what it will show for the next 24 hours, and flags problems such as the same show three times in a row, repeats within the day, or one show taking over. Left and right change channel."
+    "**Options redesigned as two panes.** A category list down the left (Watch, Picture, TV Guide, Artwork, Playback, Help & tools) and the chosen category's settings on the right. Up and Down choose a category, Right or OK goes in, Back returns to the list. A highlighted setting shows all its choices as buttons (Guide length: 24 hours, 48 hours, 1 week, 1 month) so you can see them without cycling, and Left and Right change it. EPG debug now sits under Help & tools."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.17",
+      "date": "2026-11-12",
+      "notes": [
+        "**No more three of the same show in a row.** The running order now mixes shows so the same one does not come round again straight away, and on the timetable channels (Saturday Night TV and the others) a programme that has already been on today is passed over for another. This fixes Noel's House Party playing three times in a row.",
+        "**EPG debug (Options > EPG debug).** Shows how each channel's guide was built and what it will show for the next 24 hours, and flags problems such as the same show three times in a row, repeats within the day, or one show taking over. Left and right change channel."
+      ]
+    },
     {
       "name": "Alpha 0.45.16",
       "date": "2026-11-12",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "notes": [
         "**The show library downloads again, which fixes missing film posters, wrong lengths and shows listed as raw file names.** The library file had grown just past the size the app would accept (by under a kilobyte), so every TV rejected it and fell back to old, thin data: no posters or details on films, every video listed as 45 minutes, and shows like Poirot under \"Other videos\". The limit is now far higher.",
         "**On Demand opens while a film is playing.** It used to jump to the film and start it again straight away, so it looked as if On Demand would not open. It now opens on that film's poster."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.9",
-      "date": "2026-11-12",
-      "notes": [
-        "**More pictures flick through the start-up TV while it tunes.** The pictures no longer wait for the whole show library to download: the app uses the artwork it already has saved (or asks for the artwork list on its own), so about two dozen show pictures are ready within a second or two."
       ]
     }
   ]

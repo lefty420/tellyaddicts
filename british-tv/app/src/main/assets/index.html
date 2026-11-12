@@ -454,29 +454,38 @@
   .odmc.sel { outline: .45vh solid #fff; transform: scale(1.05); }
   .odmn { width: 100%; margin-top: 1vh; font-size: 2.2vh; color: #aab3cc; }
   #odfoot { position: absolute; right: 4vw; top: 4vh; font-size: 2.1vh; color: #aab3cc; }
-  /* Options: a sheet down the right-hand side, grouped, with a line explaining the highlighted row */
-  #opts { position: fixed; right: 0; top: 0; bottom: 0; z-index: 60; }
+  /* Options: a category list on the left, the settings of the chosen category on the right */
+  #opts { position: fixed; inset: 0; z-index: 60; color: #fff;
+    background: linear-gradient(180deg, rgba(12,47,154,.95) 0%, rgba(7,29,102,.96) 46%, rgba(3,13,54,.98) 100%); }
   #opts.hidden { display: none; }
-  #opanel { box-sizing: border-box; height: 100%; width: 40vw; padding: 3vh 2.6vw 2.6vh; display: flex; flex-direction: column;
-    background: linear-gradient(180deg, rgba(12,42,134,.97), rgba(7,24,79,.98) 60%, rgba(3,13,54,.99));
-    border-left: .3vh solid var(--hi1); box-shadow: -2vw 0 6vw rgba(0,0,0,.55); }
-  #ohead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.2vh; }
-  #opanel h2 { margin: 0; font-size: 4vh; font-weight: 800; letter-spacing: -.01em; color: #fff; }
-  #over { font-size: 1.9vh; color: rgba(255,255,255,.55); font-weight: 600; }
-  #opanel h3 { margin: 1.2vh 0 .2vh; font-size: 1.65vh; letter-spacing: .28em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
-  .orow { display: flex; justify-content: space-between; align-items: center; gap: 2vw; padding: .55vh 1vw; margin: 0 -1vw;
-    border-radius: .7vh; font-size: 2.5vh; border-bottom: .12vh solid rgba(255,255,255,.08); }
+  #ohead { position: absolute; left: 4.4vw; right: 4.4vw; top: 5vh; display: flex; align-items: baseline; justify-content: space-between; }
+  #ohead h2 { margin: 0; font-size: 5.2vh; font-weight: 800; letter-spacing: -.01em; }
+  #over { font-size: 2.1vh; color: rgba(255,255,255,.55); font-weight: 600; }
+  #orail { position: absolute; left: 4.4vw; top: 16vh; width: 23vw; display: flex; flex-direction: column; gap: 1.1vh; }
+  .ocat { display: flex; align-items: center; gap: 1.8vh; padding: 1.9vh 1.3vw; border-radius: 1.7vh; font-size: 2.9vh; font-weight: 600; color: rgba(255,255,255,.8); }
+  .ocat svg { width: 3.4vh; height: 3.4vh; flex: none; }
+  .ocat.cur { background: rgba(255,255,255,.14); color: #fff; }
+  .ocat.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); font-weight: 800; box-shadow: 0 .8vh 2.6vh rgba(0,0,0,.4); }
+  #opane { position: absolute; left: 31vw; right: 4.4vw; top: 16vh; bottom: 12vh; box-sizing: border-box; padding: 3.4vh 2.4vw 2.4vh; border-radius: 2.8vh;
+    background: rgba(7,20,74,.72); border: .14vh solid rgba(255,255,255,.14); display: flex; flex-direction: column; }
+  .ogrp { display: none; flex-direction: column; gap: .6vh; }
+  .ogrp.on { display: flex; }
+  .ogrp h3 { margin: 0 0 1vh; font-size: 2vh; letter-spacing: .24em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
+  .orow { padding: 1.7vh 1.2vw; border-radius: 1.5vh; font-size: 2.9vh; border: .3vh solid transparent; border-bottom-color: rgba(255,255,255,.08); }
+  .oline { display: flex; justify-content: space-between; align-items: center; gap: 2vw; }
   .orow b { font-weight: 600; }
-  .orow span { font-weight: 600; color: rgba(190,208,255,.92); text-align: right; }
-  .orow.act span::after { content: '  \203A'; color: rgba(255,255,255,.5); }
-  .orow.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); border-bottom-color: transparent;
-    box-shadow: 0 .4vh 1.4vh rgba(0,0,0,.35); }
-  .orow.sel span { color: var(--ink); font-weight: 800; }
-  .orow.sel span::before { content: '\25C0  '; } .orow.sel span::after { content: '  \25B6'; }
-  /* rows that do something on OK rather than cycling through values: no left/right arrows */
-  .orow.sel.act span::before { content: ''; } .orow.sel.act span::after { content: '  \203A'; color: var(--ink); }
-  #ohelp { margin-top: auto; padding-top: 1vh; min-height: 6vh; font-size: 2.15vh; line-height: 1.45; color: rgba(255,255,255,.88); }
-  #opanel p { margin: 1.2vh 0 0; padding-top: 1.2vh; border-top: .12vh solid rgba(255,255,255,.14); font-size: 1.7vh; color: rgba(255,255,255,.5); }
+  .orow span { font-weight: 600; color: rgba(190,208,255,.95); text-align: right; }
+  .orow.act span::after { content: '\203A'; color: rgba(255,255,255,.5); font-size: 3.4vh; }
+  .orow.sel { background: rgba(255,255,255,.1); border-color: var(--hi2); }
+  .orow.sel b { font-weight: 800; }
+  .ochips { display: none; flex-wrap: wrap; gap: 1.2vh .8vw; margin-top: 1.4vh; }
+  .orow.sel.hasc .ochips { display: flex; }
+  .orow.sel.hasc .oline span { display: none; }
+  .ochip { flex: 1 1 0; min-width: 6vw; text-align: center; padding: 1.4vh .8vw; border-radius: 1.4vh; background: rgba(255,255,255,.12); font-size: 2.5vh; font-weight: 600; }
+  .ochip.on { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); font-weight: 800; }
+  #ohelp { margin-top: auto; padding-top: 1.2vh; min-height: 6vh; font-size: 2.2vh; line-height: 1.45; color: rgba(255,255,255,.85); }
+  #ofoot { position: absolute; left: 4.4vw; right: 4.4vw; bottom: 4.4vh; display: flex; gap: 2.6vw; font-size: 2.2vh; color: rgba(255,255,255,.7); }
+  #ofoot b { color: #fff; }
   /* Quit: two quick presses of Back, from the guide or while watching */
   #quit { position: fixed; inset: 0; z-index: 90; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.72); }
   #quit.hidden { display: none; }
@@ -562,33 +571,54 @@
   <div id="odmenu" class="hidden"><div id="odmbox"><h2 id="odmt"></h2><div id="odml"></div></div></div>
 </div>
 <div id="opts" class="hidden">
-  <div id="opanel">
-    <div id="ohead"><h2>Options</h2><span id="over"></span></div>
-    <h3>Watch</h3>
-    <div class="orow act" id="or-od"><b>On Demand</b><span id="ov-od"></span></div>
-    <h3>Picture</h3>
-    <div class="orow" id="or-ar"><b>Aspect ratio</b><span id="ov-ar"></span></div>
-    <div class="orow" id="or-fx"><b>Enhancements</b><span id="ov-fx"></span></div>
-    <h3>On screen</h3>
-    <div class="orow" id="or-gart"><b>Artwork</b><span id="ov-gart"></span></div>
-    <div class="orow" id="or-mkeep"><b>Keep artwork &amp; details</b><span id="ov-mkeep"></span></div>
-    <div class="orow act" id="or-mclear"><b>Clear saved artwork</b><span id="ov-mclear"></span></div>
-    <div class="orow" id="or-ads"><b>Adverts</b><span id="ov-ads"></span></div>
-    <h3>Playback &amp; listings</h3>
-    <div class="orow" id="or-buf"><b>Buffer</b><span id="ov-buf"></span></div>
-    <div class="orow" id="or-auto"><b>Auto EPG (experimental)</b><span id="ov-auto"></span></div>
-    <div class="orow" id="or-span"><b>Guide length</b><span id="ov-span"></span></div>
-    <div class="orow" id="or-keep"><b>Keep listings for</b><span id="ov-keep"></span></div>
-    <div class="orow act" id="or-refresh"><b>Refresh listings</b><span id="ov-refresh"></span></div>
-    <h3>About</h3>
-    <div class="orow act" id="or-rel"><b>What&rsquo;s new</b><span id="ov-rel"></span></div>
-    <div class="orow act" id="or-about"><b>About &amp; credits</b><span id="ov-about"></span></div>
-    <div class="orow act" id="or-gaps"><b>Missing episodes report</b><span id="ov-gaps"></span></div>
-    <div class="orow act" id="or-epg"><b>EPG debug</b><span id="ov-epg"></span></div>
-    <div class="orow act" id="or-log"><b>Debug log</b><span id="ov-log"></span></div>
-    <div id="ohelp"></div>
-    <p>Up / Down to choose &nbsp;&middot;&nbsp; Left / Right or OK to change &nbsp;&middot;&nbsp; Back to close</p>
+  <div id="ohead"><h2>Options</h2><span id="over"></span></div>
+  <div id="orail">
+    <div class="ocat" id="oc-cat-watch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Watch</div>
+    <div class="ocat" id="oc-cat-picture"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8"/></svg>Picture</div>
+    <div class="ocat" id="oc-cat-guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>TV Guide</div>
+    <div class="ocat" id="oc-cat-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Artwork</div>
+    <div class="ocat" id="oc-cat-play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>Playback</div>
+    <div class="ocat" id="oc-cat-tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>Help &amp; tools</div>
   </div>
+  <div id="opane">
+    <div class="ogrp" id="og-watch">
+      <h3>Watch</h3>
+      <div class="orow act" id="or-od"><div class="oline"><b>On Demand</b><span id="ov-od"></span></div><div class="ochips" id="oc-od"></div></div>
+    </div>
+    <div class="ogrp" id="og-picture">
+      <h3>Picture</h3>
+      <div class="orow" id="or-ar"><div class="oline"><b>Aspect ratio</b><span id="ov-ar"></span></div><div class="ochips" id="oc-ar"></div></div>
+      <div class="orow" id="or-fx"><div class="oline"><b>Enhancements</b><span id="ov-fx"></span></div><div class="ochips" id="oc-fx"></div></div>
+    </div>
+    <div class="ogrp" id="og-guide">
+      <h3>TV Guide</h3>
+      <div class="orow" id="or-span"><div class="oline"><b>Guide length</b><span id="ov-span"></span></div><div class="ochips" id="oc-span"></div></div>
+      <div class="orow" id="or-keep"><div class="oline"><b>Keep listings for</b><span id="ov-keep"></span></div><div class="ochips" id="oc-keep"></div></div>
+      <div class="orow" id="or-auto"><div class="oline"><b>Auto EPG (experimental)</b><span id="ov-auto"></span></div><div class="ochips" id="oc-auto"></div></div>
+      <div class="orow act" id="or-refresh"><div class="oline"><b>Refresh listings</b><span id="ov-refresh"></span></div><div class="ochips" id="oc-refresh"></div></div>
+    </div>
+    <div class="ogrp" id="og-art">
+      <h3>Artwork</h3>
+      <div class="orow" id="or-gart"><div class="oline"><b>Artwork</b><span id="ov-gart"></span></div><div class="ochips" id="oc-gart"></div></div>
+      <div class="orow" id="or-mkeep"><div class="oline"><b>Keep artwork &amp; details</b><span id="ov-mkeep"></span></div><div class="ochips" id="oc-mkeep"></div></div>
+      <div class="orow act" id="or-mclear"><div class="oline"><b>Clear saved artwork</b><span id="ov-mclear"></span></div><div class="ochips" id="oc-mclear"></div></div>
+    </div>
+    <div class="ogrp" id="og-play">
+      <h3>Playback</h3>
+      <div class="orow" id="or-buf"><div class="oline"><b>Buffer</b><span id="ov-buf"></span></div><div class="ochips" id="oc-buf"></div></div>
+      <div class="orow" id="or-ads"><div class="oline"><b>Adverts</b><span id="ov-ads"></span></div><div class="ochips" id="oc-ads"></div></div>
+    </div>
+    <div class="ogrp" id="og-tools">
+      <h3>Help &amp; tools</h3>
+      <div class="orow act" id="or-rel"><div class="oline"><b>What&rsquo;s new</b><span id="ov-rel"></span></div><div class="ochips" id="oc-rel"></div></div>
+      <div class="orow act" id="or-about"><div class="oline"><b>About &amp; credits</b><span id="ov-about"></span></div><div class="ochips" id="oc-about"></div></div>
+      <div class="orow act" id="or-gaps"><div class="oline"><b>Missing episodes report</b><span id="ov-gaps"></span></div><div class="ochips" id="oc-gaps"></div></div>
+      <div class="orow act" id="or-epg"><div class="oline"><b>EPG debug</b><span id="ov-epg"></span></div><div class="ochips" id="oc-epg"></div></div>
+      <div class="orow act" id="or-log"><div class="oline"><b>Debug log</b><span id="ov-log"></span></div><div class="ochips" id="oc-log"></div></div>
+    </div>
+    <div id="ohelp"></div>
+  </div>
+  <div id="ofoot"><span><b>&#9650; &#9660;</b> Move</span><span><b>&#9664; &#9654;</b> Change</span><span><b>OK</b> Select</span><span id="oback"><b>Back</b> Close</span></div>
 </div>
 <div id="rel" class="hidden">
   <div id="rhead">

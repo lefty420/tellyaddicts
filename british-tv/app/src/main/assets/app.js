@@ -3077,6 +3077,7 @@
     $('rel').className = 'hidden';
     openOpts();
     optsSel = Math.max(0, OPTS.indexOf(relRow));   // back on the row it was opened from
+    optsCat = catOfRow(relRow); optsZone = 1;
     renderOpts();
   }
   /** Only promise scrolling, and only fade the last line, while there is something below the fold. */
@@ -3105,7 +3106,19 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['od', 'ar', 'fx', 'gart', 'mkeep', 'mclear', 'ads', 'buf', 'auto', 'span', 'keep', 'refresh', 'rel', 'about', 'gaps', 'epg', 'log'];
+  // The categories down the left of Options, and the rows in each. OPTS is those rows in order.
+  var OCATS = [
+    { id: 'watch', rows: ['od'] },
+    { id: 'picture', rows: ['ar', 'fx'] },
+    { id: 'guide', rows: ['span', 'keep', 'auto', 'refresh'] },
+    { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
+    { id: 'play', rows: ['buf', 'ads'] },
+    { id: 'tools', rows: ['rel', 'about', 'gaps', 'epg', 'log'] }
+  ];
+  var OPTS = [];
+  OCATS.forEach(function (c) { OPTS = OPTS.concat(c.rows); });
+  var optsCat = 0, optsZone = 0;      // optsZone: 0 = the category list, 1 = a row in the chosen category
+  function catOfRow(id) { for (var i = 0; i < OCATS.length; i++) if (OCATS[i].rows.indexOf(id) >= 0) return i; return 0; }
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -3206,23 +3219,49 @@
   };
   var optsShown = {};     // what each row last said, so a key press only touches the rows that changed
   function setIf(el, prop, val) { if (el[prop] !== val) el[prop] = val; }
+  /** The choices a row cycles through, shown as buttons while the row is highlighted; null for a row with none. */
+  function optChoices(id) {
+    if (id === 'span') return { l: SPANS.map(function (x) { return x.label; }), i: spanIdx };
+    if (id === 'keep') return { l: KEEP.map(function (x) { return x.label; }), i: keepIdx };
+    if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };
+    if (id === 'buf') return { l: BUF.map(function (x) { return x.label; }), i: bufIdx };
+    if (id === 'ar') return { l: AR.map(function (x) { return x.label; }), i: arIdx };
+    if (id === 'ads') return { l: ADS.ERAS.map(function (x) { return x.label; }), i: ADS.eraIndex(adEra) };
+    if (id === 'fx') { var ks = Object.keys(FXLABEL); return { l: ks.map(function (k) { return FXLABEL[k]; }), i: Math.max(0, ks.indexOf(fxMode)) }; }
+    return null;
+  }
   function renderOpts() {
     // the size of everything saved takes a moment to add up, so it is only worked out once its row is reached
-    if (OPTS[optsSel] !== 'mclear') clearTimeout(metaSizeTimer);            // scrolled past it: no need to add it up
+    if (OPTS[optsSel] !== 'mclear' || !optsZone) clearTimeout(metaSizeTimer);            // scrolled past it: no need to add it up
     else if (optsOpen && !metaSizeText) refreshMetaSize();
-    OPTS.forEach(function (id, i) {
-      var val = optValue(id), cls = 'orow' + (ACTION[id] ? ' act' : '') + (i === optsSel ? ' sel' : ''), was = optsShown[id] || {};
+    var cat = OCATS[optsCat];
+    OCATS.forEach(function (c, i) {
+      var cls = 'ocat' + (i === optsCat ? (optsZone ? ' cur' : ' sel') : ''), el = $('oc-cat-' + c.id), g = $('og-' + c.id), gc = 'ogrp' + (i === optsCat ? ' on' : '');
+      if (el.className !== cls) el.className = cls;
+      if (g.className !== gc) g.className = gc;
+    });
+    cat.rows.forEach(function (id) {
+      var i = OPTS.indexOf(id), ch = optChoices(id), sel = !!optsZone && i === optsSel;
+      var val = optValue(id), cls = 'orow' + (ACTION[id] ? ' act' : '') + (sel ? ' sel' : '') + (ch ? ' hasc' : ''), was = optsShown[id] || {};
       if (was.v !== val) setIf($('ov-' + id), 'textContent', val);
       if (was.c !== cls) setIf($('or-' + id), 'className', cls);
-      optsShown[id] = { v: val, c: cls };
+      var sig = ch ? ch.l.join('|') + '#' + ch.i : '';
+      if (sig !== was.s) {
+        var box = $('oc-' + id);
+        box.textContent = '';
+        if (ch) ch.l.forEach(function (t, n) { var d = document.createElement('div'); d.className = 'ochip' + (n === ch.i ? ' on' : ''); d.textContent = t; box.appendChild(d); });
+      }
+      optsShown[id] = { v: val, c: cls, s: sig };
     });
-    var help = OPT_HELP[OPTS[optsSel]] || '', ver = relName();
+    var help = optsZone ? (OPT_HELP[OPTS[optsSel]] || '') : '', ver = relName();
     if (optsShown._h !== help) { $('ohelp').textContent = help; optsShown._h = help; }
     if (optsShown._r !== ver) { $('over').textContent = ver; optsShown._r = ver; }
+    var back = optsZone ? 'Back to categories' : 'Back to close';
+    if (optsShown._b !== back) { $('oback').lastChild.textContent = ' ' + back.slice(5); optsShown._b = back; }
   }
   function openOpts() {
     closeOsd();
-    optsOpen = true; optsSel = 0;
+    optsOpen = true; optsCat = 0; optsZone = 0; optsSel = OPTS.indexOf(OCATS[0].rows[0]);
     renderOpts();
     $('opts').className = '';
     optsTouch();
@@ -3277,12 +3316,22 @@
   }
   function optsKey(k) {
     optsTouch();
-    if (k === 'ArrowUp') optsSel = (optsSel + OPTS.length - 1) % OPTS.length;
-    else if (k === 'ArrowDown') optsSel = (optsSel + 1) % OPTS.length;
-    else if (k === 'ArrowLeft') { optsChange(-1); return true; }
+    var rows = OCATS[optsCat].rows;
+    if (k === 'Guide' || k === 'Red') { closeOpts(); openGuide(); return true; }
+    if (!optsZone) {
+      if (k === 'ArrowUp') optsCat = (optsCat + OCATS.length - 1) % OCATS.length;
+      else if (k === 'ArrowDown') optsCat = (optsCat + 1) % OCATS.length;
+      else if (k === 'ArrowRight' || k === 'Enter' || k === ' ') { optsZone = 1; optsSel = OPTS.indexOf(OCATS[optsCat].rows[0]); }
+      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') closeOpts();
+      if (optsOpen) { optsSel = OPTS.indexOf(OCATS[optsCat].rows[0]); renderOpts(); }
+      return true;
+    }
+    var id = OPTS[optsSel], at = rows.indexOf(id);
+    if (k === 'ArrowUp') optsSel = OPTS.indexOf(rows[(at + rows.length - 1) % rows.length]);
+    else if (k === 'ArrowDown') optsSel = OPTS.indexOf(rows[(at + 1) % rows.length]);
+    else if (k === 'ArrowLeft') { if (ACTION[id]) optsZone = 0; else { optsChange(-1); return true; } }
     else if (k === 'ArrowRight' || k === 'Enter' || k === ' ') { optsChange(1); return true; }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') closeOpts();
-    else if (k === 'Guide' || k === 'Red') { closeOpts(); openGuide(); }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') optsZone = 0;
     renderOpts();
     return true;
   }

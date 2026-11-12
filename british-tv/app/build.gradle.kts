@@ -10,8 +10,8 @@ android {
         applicationId = "app.britishtv"
         minSdk = 22
         targetSdk = 34
-        versionCode = 4528
-        versionName = "0.45.28"
+        versionCode = 4529
+        versionName = "0.45.29"
     }
 
     // A fixed key, so every build is signed the same and installs over the last one

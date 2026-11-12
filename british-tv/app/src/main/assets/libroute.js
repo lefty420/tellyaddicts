@@ -91,6 +91,7 @@
   /** The year an episode or film belongs to: its air date, or a year in a film's title "(1984)"; 0 when neither is known. */
   var CODED = /^S\d{1,4}E\d{1,4}$/i;
   /** Channels that also take videos with no season and episode number (dated or numbered, or just a clip). */
+  var GAMEPLAY = /\b(longplays?|long play|playthrough|play-through|walkthrough|walk-through|gameplay|let'?s play|speedrun|full game)\b|\[(ps[1-5]|psx|psp|xbox( 360| one)?|pc|wii( u)?|switch|n64|snes|nes|gba|gbc|gamecube|3ds|nds|dreamcast|saturn|mega drive|genesis)\]/i;
   var LOOSE = { soaps: 1, offschool: 1, music: 1, mtv: 1, xmasmusic: 1, christmas: 1, kidsxmas: 1, noel: 1, tvarchive: 1, disney: 1, adverts: 1 };
   function yearOf(ep) {
     var y = parseInt(String((ep && ep.a) || '').slice(0, 4), 10);
@@ -151,6 +152,9 @@
         chs.forEach(function (ch) {
           // Only episodes tracked as a season and episode (S01E04) go on the ordinary channels. Dated or numbered videos
           // (soap episodes, Top of the Pops, news, shorts) stay on the channels built for them, and on the Christmas ones.
+          // a video game's playthrough ("Lego Star Wars [PS3] Longplay" filed as the 1977 film, NES longplays on the
+          // Disney channel) is not what the channel is for: only the games channel keeps them
+          if (ch !== 'games' && GAMEPLAY.test(String(ep.t || '').replace(/[_]+/g, ' '))) return;
           if (!LOOSE[ch] && !sh.film && !sh.song && !CODED.test(ep.c || '')) return;
           var items = per[ch] = per[ch] || {};
           order[ch] = order[ch] || [];

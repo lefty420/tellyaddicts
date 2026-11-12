@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.28",
-  "version": "0.45.28",
-  "code": 4528,
+  "name": "Alpha 0.45.29",
+  "version": "0.45.29",
+  "code": 4529,
   "date": "2026-11-12",
   "notes": [
-    "Fixes the build again: the backup player's libraries need the app compiled against Android 35 (it still runs on the same TVs as before). Nothing else changed."
+    "**Video game playthroughs are kept off the channels.** The Kids Movies channel was showing a Lego Star Wars PS3 playthrough as the 1977 film, and the Disney channel had a run of NES/SNES/Mega Drive \"Longplay\" videos. Anything titled as a longplay, playthrough, walkthrough, gameplay or with a console tag like [PS3] now stays off every channel except Video Games (and On Demand)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.28",
+      "date": "2026-11-12",
+      "notes": [
+        "Fixes the build again: the backup player's libraries need the app compiled against Android 35 (it still runs on the same TVs as before). Nothing else changed."
+      ]
+    },
     {
       "name": "Alpha 0.45.27",
       "date": "2026-11-12",
@@ -59,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Options from the guide.** The long-press menu on a programme in the TV guide now ends with Options, which closes the guide and opens the Options menu."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.20",
-      "date": "2026-11-12",
-      "notes": [
-        "**TV Archive is the On This Day channel again.** Daytime is now the BBC Archive On This Day clips, with the news at one, six and ten. The BBC News 24 recordings (which made up three quarters of the channel, with titles like \"145D5B6D-Business-Briefing\") are cut to one of each programme under a clean name, and anything dated is still kept only if it aired on today's date."
       ]
     }
   ]

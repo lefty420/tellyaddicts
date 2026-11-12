@@ -1304,6 +1304,94 @@
     });
   }
 
+
+  // ------------------------------------------------------------------ background artwork scan
+  //
+  // Some shows have no picture or details in the scraper's artwork list, and the lookup On Demand makes when you
+  // reach one can miss. Once the channels have loaded this quietly looks those shows up on TVmaze, one at a time
+  // and slowly, and keeps what it finds with the rest of the artwork. It pauses while On Demand is open, gives up
+  // after a run of failures, and having finished it does not run again until the channels are rebuilt (Refresh EPG)
+  // or the library changes.
+  var artScan = { running: false, fails: 0 };
+  function artScanKey() { return epgGen + ':' + (artRev || '') + ':' + E.hash(JSON.stringify(libRevs || {})); }
+  function artScanStart() {
+    if (artScan.running || !gartOn) return;
+    var key = artScanKey();
+    if (store.get('artscan_run') === key) return;                       // already done for this library and EPG build
+    artScan.running = true; artScan.fails = 0;
+    Promise.all([loadArt(), libP || Promise.resolve(null)]).then(function () {
+      var names = {}, list = [];
+      function add(n) { if (n && n.length > 1 && !names[normShow(n)]) { names[normShow(n)] = n; list.push(n); } }
+      return (libP || Promise.resolve(null)).then(function (routed) {
+        if (routed) Object.keys(routed).forEach(function (ch) {
+          routed[ch].forEach(function (it) {
+            var film = false;
+            if (it.m) for (var f in it.m) if (it.m.hasOwnProperty(f) && (it.m[f].film || it.m[f].song)) film = true;
+            if (film) return;
+            if (it.s) add(it.s); else (it.f || []).forEach(function (f) { if (Array.isArray(f)) add(f[1]); });
+          });
+        });
+        else channels.forEach(function (c) { (c.plan || []).forEach(function (p) { if (!p.filmKey && !p.ad) add(p.show || p.group); }); });
+        var noPic = [], noBack = [];
+        list.forEach(function (n) {
+          var m = store.get('artscan1:' + normShow(n));
+          if (m && Date.now() - m.t < TVM_MISS) return;               // TVmaze had nothing a few days ago
+          var k = knownArt({ title: n, show: n });
+          if (!k || !k.poster) noPic.push(n); else if (!k.back) noBack.push(n);
+        });
+        return noPic.concat(noBack);
+      });
+    }).then(function (queue) {
+      var found = 0, missed = 0, total = queue.length;
+      dlog('ARTSCAN start: ' + total + ' shows to look up');
+      function finish(done) {
+        artScan.running = false;
+        if (done) store.set('artscan_run', key);
+        dlog('ARTSCAN ' + (done ? 'done' : 'stopped (will try again next time)') + ': ' + found + ' found, ' + missed + ' with no match, ' + queue.length + ' left');
+        odKGen++;
+      }
+      (function step() {
+        if (!queue.length) { finish(true); return; }
+        if (odOpen || odm || !gartOn) { setTimeout(step, 8000); return; }     // never compete with On Demand
+        var name = queue.shift();
+        artScanOne(name).then(function (r) {
+          if (r === 'found') found++; else if (r === 'miss') missed++;
+          if (r === 'fail') { if (++artScan.fails >= 5) { queue.unshift(name); finish(false); return; } } else artScan.fails = 0;
+          setTimeout(step, 1500);
+        });
+      })();
+    }, function () { artScan.running = false; });
+  }
+  function artScanOne(name) {
+    var nk = normShow(name), words = name.split(/\s+/), tries = [name];
+    if (words.length > 3) tries.push(words.slice(0, 3).join(' '));
+    if (words.length > 2) tries.push(words.slice(0, 2).join(' '));
+    function search(i) {
+      if (i >= tries.length) return Promise.resolve(null);
+      return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(tries[i])).then(function (l) {
+        return pickShow(l, tries[i], 0) || wait(700).then(function () { return search(i + 1); });
+      });
+    }
+    return search(0).then(function (sh) {
+      if (!sh) { store.set('artscan1:' + nk, { t: Date.now() }); return 'miss'; }
+      return wait(600).then(function () { return getJSON('https://api.tvmaze.com/shows/' + sh.id + '/images'); }).then(function (imgs) {
+        var bg = (imgs || []).filter(function (x) { return x.type === 'background'; })[0];
+        var poster = https(sh.image && (sh.image.original || sh.image.medium));
+        if (!poster) { var pp = (imgs || []).filter(function (x) { return x.type === 'poster'; })[0]; if (pp && pp.resolutions && pp.resolutions.original) poster = https(pp.resolutions.original.url); }
+        var key = 'info3:' + nk + ':0:0', old = store.get(key), os = old && old.d && old.d.show || {};
+        var show = {
+          name: sh.name, year: sh.premiered ? String(sh.premiered).slice(0, 4) : '', ended: sh.ended ? String(sh.ended).slice(0, 4) : '',
+          network: (sh.network && sh.network.name) || (sh.webChannel && sh.webChannel.name) || '',
+          genres: (sh.genres || []).slice(0, 3).join(', '), rating: sh.rating && sh.rating.average || 0, summary: plain(sh.summary),
+          poster: os.poster || poster, background: os.background || (bg && bg.resolutions && bg.resolutions.original ? https(bg.resolutions.original.url) : ''), id: sh.id
+        };
+        store.set(key, { t: Date.now(), x: 0, d: { show: show, ep: null } });
+        if (!show.poster && !show.background) store.set('artscan1:' + nk, { t: Date.now() });
+        return show.poster || show.background ? 'found' : 'miss';
+      });
+    }).then(null, function () { return 'fail'; });          // rate-limited or offline: not that TVmaze has nothing
+  }
+
   function guideArt(prog) {
     var el = $('gart');
     var title = gartOn && prog ? (prog.title || '') : '';
@@ -3968,6 +4056,7 @@
         finished++;
         renderStatus();
         if (finished === channels.length) setTimeout(seedLinks, 4000);
+        if (finished === channels.length) setTimeout(artScanStart, 60000);
         begin();
         if (guideOpen) renderGuide();
         if (finished === channels.length && !started) {

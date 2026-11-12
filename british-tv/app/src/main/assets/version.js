@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.9",
-  "version": "0.45.9",
-  "code": 4509,
+  "name": "Alpha 0.45.10",
+  "version": "0.45.10",
+  "code": 4510,
   "date": "2026-11-12",
   "notes": [
-    "**More pictures flick through the start-up TV while it tunes.** The pictures no longer wait for the whole show library to download: the app uses the artwork it already has saved (or asks for the artwork list on its own), so about two dozen show pictures are ready within a second or two."
+    "**The show library downloads again, which fixes missing film posters, wrong lengths and shows listed as raw file names.** The library file had grown just past the size the app would accept (by under a kilobyte), so every TV rejected it and fell back to old, thin data: no posters or details on films, every video listed as 45 minutes, and shows like Poirot under \"Other videos\". The limit is now far higher.",
+    "**On Demand opens while a film is playing.** It used to jump to the film and start it again straight away, so it looked as if On Demand would not open. It now opens on that film's poster."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.9",
+      "date": "2026-11-12",
+      "notes": [
+        "**More pictures flick through the start-up TV while it tunes.** The pictures no longer wait for the whole show library to download: the app uses the artwork it already has saved (or asks for the artwork list on its own), so about two dozen show pictures are ready within a second or two."
+      ]
+    },
     {
       "name": "Alpha 0.45.8",
       "date": "2026-11-12",
@@ -57,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**On Demand ignores certificates.** Kids Movies and The Video Shop were showing almost nothing because On Demand hid films by certificate and time of day. It now lists every film that is stored, on both channels. The guide's schedule still follows the certificate rules."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.1",
-      "date": "2026-11-12",
-      "notes": [
-        "**Decade channels use a show's end year.** An episode with no air date is only placed in a decade if its show also ended in that decade, when the library says when it ended."
       ]
     }
   ]

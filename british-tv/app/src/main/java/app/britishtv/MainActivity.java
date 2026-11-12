@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
     // Film posters that come with the scraper's TMDb details. The page shows these in an <img>, which the WebView
     // fetches itself; this is here so anything that does go through the bridge is not blocked.
     private static final String ALLOWED_PREFIX_4 = "https://image.tmdb.org/";
-    private static final int MAX_BODY_BYTES = 8 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
+    private static final int MAX_BODY_BYTES = 48 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
     private static final int HTTP_THREADS = 8;                  // archive.org is happier with a few connections than with hundreds
 
     private final Handler main = new Handler(Looper.getMainLooper());

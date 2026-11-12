@@ -3762,6 +3762,7 @@
       sh.forEach(function (g, i) { if (si < 0 && (LIBROUTE.norm(g.name) === key || g.eps.some(function (ep) { return ep.p.url === prog.url; }))) si = i; });
       if (ri < 0 || si < 0) return;
       odRi = ri; odRc = c; odPos[c.id] = si;
+      if (sh[si].film) { odRender(); return; }      // a film is one video: land on its poster, don't start it again
       odOpenShow();
       var g = sh[si];
       for (var s = 0; s < g.sea.length; s++) {

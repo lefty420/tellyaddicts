@@ -377,6 +377,10 @@
   /* amber while it is coming off this device rather than straight from archive.org */
   #obuf.local { background: rgba(255,210,77,.55); }
   #obar { position: absolute; left: 0; top: 0; bottom: 0; background: var(--hi2); border-radius: .6vh; width: 0; }
+  #othumb { position: absolute; top: 50%; width: 2.4vh; height: 2.4vh; margin: -1.2vh 0 0 -1.2vh; border-radius: 50%; background: #fff; box-shadow: 0 0 1vh rgba(0,0,0,.7); opacity: 0; left: 0; }
+  #oprog.sel { height: 1.8vh; box-shadow: 0 0 0 .3vh rgba(255,255,255,.9); }
+  #oprog.sel #othumb { opacity: 1; }
+  #oprog.scrub #obar { background: #ffd24d; }
   #otime { position: absolute; right: 0; top: 1.8vh; font-size: 2vh; color: rgba(255,255,255,.75); }
   #obtns { display: flex; gap: 1vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
   .ob { flex: 1; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .6vw;
@@ -524,12 +528,10 @@
     <div id="oinfo"><div id="ochan"></div><div id="otitle"></div><div id="osub"></div></div>
     <div id="onext"></div>
   </div>
-  <div id="oprog"><i id="obuf"></i><i id="obar"></i><span id="otime"></span></div>
+  <div id="oprog"><i id="obuf"></i><i id="obar"></i><i id="othumb"></i><span id="otime"></span></div>
   <div id="obtns">
     <div class="ob" id="ob-guide"><span>TV Guide</span></div>
-    <div class="ob" id="ob-rew"><span class="ic">&#9664;&#9664;</span><span>30s</span></div>
     <div class="ob" id="ob-pp"><span class="ic" id="oic-pp"></span><span id="olbl-pp"></span></div>
-    <div class="ob" id="ob-ff"><span>30s</span><span class="ic">&#9654;&#9654;</span></div>
     <div class="ob" id="ob-next"><span class="ic">&#9654;&#10072;</span><span>Play Next</span></div>
     <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
     <div class="ob" id="ob-info"><span>Info</span></div>

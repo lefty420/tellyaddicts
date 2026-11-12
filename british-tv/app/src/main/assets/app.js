@@ -2225,12 +2225,6 @@
     }, 1400);
   }
 
-  function seek(delta) {
-    if (!isFinite(v.duration)) return;
-    try { v.currentTime = Math.max(0, Math.min(v.duration - 1, v.currentTime + delta)); } catch (e) { /* ignore */ }
-    toast((delta > 0 ? '+' : '−') + Math.abs(delta) + 's', 1000);
-  }
-
   function showReport() {
     var c = gChan;
     if (!c) return;
@@ -2306,8 +2300,31 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'rew', 'pp', 'ff', 'next', 'restart', 'info', 'od', 'options'];   // buttons on the bar, left to right
-  var osdOpen = false, osdSel = 2, osdTimer = null, osdTick = null;
+  var OB = ['guide', 'pp', 'next', 'restart', 'info', 'od', 'options'];   // buttons on the bar, left to right
+  var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
+  // The progress bar is a scrubber: Left / Right on it wind through the video (hold to go faster), Down reaches the buttons.
+  var osdZone = 'btn', scrubT = null, scrubTimer = null, scrubLast = 0, scrubHold = 0, scrubDir = 0;
+  function scrubApply() {
+    clearTimeout(scrubTimer);
+    if (scrubT === null) return;
+    var t = scrubT; scrubT = null;
+    try { v.currentTime = t; } catch (e) { /* ignore */ }
+    if (osdOpen) renderOsd();
+  }
+  function scrubKey(dir) {
+    if (!cur || cur.ad || !isFinite(v.duration) || v.duration <= 0) return;
+    var now = Date.now();
+    if (!osdOpen) openOsd();
+    osdZone = 'bar'; osdTouch();
+    var holding = scrubDir === dir && now - scrubLast < 600, step = 10;
+    if (!holding) scrubHold = now;
+    else { var dt = now - scrubHold; step = (dt < 800 ? 20 : dt < 2000 ? 60 : dt < 4000 ? 150 : 300) * (now - scrubLast) / 1000; }
+    scrubDir = dir; scrubLast = now;
+    var base = scrubT === null ? v.currentTime : scrubT;
+    scrubT = Math.max(0, Math.min(v.duration - 1, base + dir * step));
+    clearTimeout(scrubTimer); scrubTimer = setTimeout(scrubApply, 700);   // wind, then jump once you let go
+    renderOsd();
+  }
   (function () {
     var saved = store.get('ar');
     for (var i = 0; i < AR.length; i++) if (AR[i].id === saved) arIdx = i;
@@ -2935,18 +2952,20 @@
       nb.textContent = next.title;
       $('onext').appendChild(nb);
     }
-    var dur = v.duration, pos = v.currentTime;
-    $('obar').style.width = (isFinite(dur) && dur > 0 ? Math.min(100, pos / dur * 100) : 0) + '%';
+    var dur = v.duration, pos = scrubT === null ? v.currentTime : scrubT;
+    $('oprog').className = (osdZone === 'bar' ? 'sel' : '') + (scrubT !== null ? ' scrub' : '');
+    var pct = (isFinite(dur) && dur > 0 ? Math.min(100, pos / dur * 100) : 0) + '%';
+    $('obar').style.width = pct; $('othumb').style.left = pct;
     var ahead = loadedTo();
     var buf = $('obuf');
     buf.style.width = (isFinite(dur) && dur > 0 && ahead > 0 ? Math.min(100, ahead / dur * 100) : 0) + '%';
     buf.className = playingLocally() ? 'local' : '';
     var secs = ahead > pos ? Math.round(ahead - pos) : 0;
-    $('otime').textContent = fmtPos(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtPos(dur) : '') +
+    $('otime').textContent = (scrubT !== null ? '\u25b6\u25b6 ' : '') + fmtPos(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtPos(dur) : '') +
       (secs > 1 ? '   ·   ' + fmtPos(secs) + ' ahead' + (playingLocally() ? ' on this device' : '') : '');
     $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
     $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
-    OB.forEach(function (id, i) { $('ob-' + id).className = 'ob' + (i === osdSel ? ' sel' : ''); });
+    OB.forEach(function (id, i) { $('ob-' + id).className = 'ob' + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
   }
 
   function osdTouch() {
@@ -2991,6 +3010,7 @@
     osdOpen = true;
     osdArt();
     osdSel = OB.indexOf('pp');      // start on play/pause
+    osdZone = 'btn'; scrubT = null;
     clearTimeout(bannerTimer);
     $('banner').className = 'off';
     renderOsd();
@@ -3001,6 +3021,7 @@
   }
 
   function closeOsd() {
+    scrubApply();
     osdOpen = false;
     clearTimeout(osdTimer);
     clearInterval(osdTick);
@@ -3030,9 +3051,7 @@
   }
 
   function osdAct(id) {
-    if (id === 'rew') seek(-30);
-    else if (id === 'ff') seek(30);
-    else if (id === 'pp') togglePlay();
+    if (id === 'pp') togglePlay();
     else if (id === 'next') { closeOsd(); playNext(); return; }
     else if (id === 'restart') { restartShow(); return; }
     else if (id === 'options') { openOpts(); return; }
@@ -3044,17 +3063,21 @@
 
   function osdKey(k) {
     osdTouch();
-    if (k === 'ArrowLeft') { osdSel = Math.max(0, osdSel - 1); renderOsd(); }
-    else if (k === 'ArrowRight') { osdSel = Math.min(OB.length - 1, osdSel + 1); renderOsd(); }
-    else if (k === 'Enter') osdAct(OB[osdSel]);
-    else if (k === 'MediaRewind') osdAct('rew');
-    else if (k === 'MediaFastForward') osdAct('ff');
+    if (k === 'ArrowLeft' || k === 'ArrowRight') {
+      if (osdZone === 'bar') scrubKey(k === 'ArrowLeft' ? -1 : 1);
+      else { osdSel = Math.max(0, Math.min(OB.length - 1, osdSel + (k === 'ArrowLeft' ? -1 : 1))); renderOsd(); }
+    }
+    else if (k === 'Enter') { if (osdZone === 'bar') { if (scrubT !== null) scrubApply(); else osdAct('pp'); } else osdAct(OB[osdSel]); }
+    else if (k === 'MediaRewind') scrubKey(-1);
+    else if (k === 'MediaFastForward') scrubKey(1);
     else if (k === 'MediaNext') osdAct('next');
     else if (k === 'MediaPlayPause' || k === ' ') osdAct('pp');
     else if (k === 'MediaPlay') { v.play(); setTimeout(renderOsd, 60); }
     else if (k === 'MediaPause') { v.pause(); setTimeout(renderOsd, 60); }
     else if (k === 'Guide' || k === 'Red') { closeOsd(); openGuide(); }
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') closeOsd();
+    else if (k === 'ArrowUp' && osdZone === 'btn') { osdZone = 'bar'; renderOsd(); }
+    else if (k === 'ArrowDown' && osdZone === 'bar') { scrubApply(); osdZone = 'btn'; renderOsd(); }
     else if (k === 'ArrowUp' || k === 'ChannelUp') { closeOsd(); surf(1); }
     else if (k === 'ArrowDown' || k === 'ChannelDown') { closeOsd(); surf(-1); }
     else if (k >= '0' && k <= '9' && k.length === 1) { closeOsd(); onDigit(k); }
@@ -3126,8 +3149,8 @@
     else if (k === 'Guide' || k === 'Red') { openGuide(); }
     else if (k === 'Enter') { openOsd(); }
     else if (k === 'Info') { openInfo(); }
-    else if (k === 'ArrowRight' || k === 'MediaFastForward') { seek(30); }
-    else if (k === 'ArrowLeft' || k === 'MediaRewind') { seek(-30); }
+    else if (k === 'ArrowRight' || k === 'MediaFastForward') { scrubKey(1); }
+    else if (k === 'ArrowLeft' || k === 'MediaRewind') { scrubKey(-1); }
     else if (k === 'MediaPlayPause' || k === ' ') {
       if (v.paused) { v.play(); toast('Play', 1000); } else { v.pause(); toast('Paused', 1500); }
     }

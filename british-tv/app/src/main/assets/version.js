@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.1",
-  "version": "0.45.1",
-  "code": 4501,
+  "name": "Alpha 0.45.2",
+  "version": "0.45.2",
+  "code": 4502,
   "date": "2026-11-12",
   "notes": [
-    "**Decade channels use a show's end year.** An episode with no air date is only placed in a decade if its show also ended in that decade, when the library says when it ended."
+    "**On Demand ignores certificates.** Kids Movies and The Video Shop were showing almost nothing because On Demand hid films by certificate and time of day. It now lists every film that is stored, on both channels. The guide's schedule still follows the certificate rules."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.1",
+      "date": "2026-11-12",
+      "notes": [
+        "**Decade channels use a show's end year.** An episode with no air date is only placed in a decade if its show also ended in that decade, when the library says when it ended."
+      ]
+    },
     {
       "name": "Alpha 0.45",
       "date": "2026-11-12",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**The blue button no longer opens On Demand.** It is back to Watch in the guide and does nothing while watching. On Demand is still reached with the On Demand button, Menu, or Left from what is on now."
-      ]
-    },
-    {
-      "name": "Alpha 0.39.1",
-      "date": "2026-11-12",
-      "notes": [
-        "**Start-up waits for the whole guide.** The TV stays on the tuning screen until every channel has loaded (up to 30 seconds on a slow connection), so the guide opens complete instead of appearing and then pausing while channels fill in."
       ]
     }
   ]

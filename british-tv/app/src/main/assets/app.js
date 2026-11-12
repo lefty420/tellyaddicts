@@ -3448,7 +3448,9 @@
     rec = odData[ch.id] = { shows: null };
     rec.p = loadDataIndex().then(function (idx) { return loadChannelData(ch.id, idx[ch.id] || ''); }).then(function (rows) {
       var progs = rows && rows.length ? progsFromData(rows, ch.id, true).filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); }) : [];
-      rec.shows = odGroup(certified({ id: ch.id, report: [] }, progs));
+      // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
+      // are not trimmed by era either. (The schedule on the guide still applies those rules.)
+      rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }));
       return rec;
     }, function () { rec.shows = []; return rec; });
     return rec.p;
@@ -3513,19 +3515,10 @@
   }
   /** On Demand has no clock, but films keep the watershed: family films all day, 15s from eight, the rest after nine,
    *  as on the film channels. Without a certificate a film counts as an 18. */
-  function odFilmOk(p) {
-    var c = String(p.cert || '').toUpperCase().replace(/[^0-9A-Z]/g, ''), now = new Date(), t = now.getHours() + now.getMinutes() / 60;
-    if ({ U: 1, UC: 1, PG: 1, '12': 1, '12A': 1, G: 1, TVY: 1, TVG: 1, TVPG: 1 }[c]) return true;
-    if ({ '15': 1, PG13: 1, TV14: 1 }[c]) return t >= 20 || t < 5.5;
-    return t >= 21 || t < 5.5;
-  }
-  var odFilmCache = {};
+  /** A channel's shows in On Demand: everything stored, whatever a film's certificate says. */
   function odShowsOf(c) {
     var r = c && odData[c.id];
-    if (!r || !r.shows || !OD_FILMS[c.id]) return r && r.shows;
-    var minute = Math.floor(Date.now() / 60000), hit = odFilmCache[c.id];
-    if (!hit || hit.m !== minute || hit.src !== r.shows) hit = odFilmCache[c.id] = { m: minute, src: r.shows, list: r.shows.filter(function (g) { return odFilmOk(g.eps[0].p); }) };
-    return hit.list;
+    return r && r.shows;
   }
   /** Where the highlight is: the channel row, and the show in it. */
   function odSel() {

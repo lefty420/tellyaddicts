@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.8 — 2026-11-12
+
+- **"Please stand by" text keeps clear of the TV picture.** The text column now starts further right and a long "Coming up" title wraps onto a second line instead of running under the TV.
+
 ## Alpha 0.45.7 — 2026-11-12
 
 - **"Please stand by" no longer runs under the programme banner.** The Telly Addicts logo and the text beneath it sit higher, so "This channel is loading" is no longer cut off.

@@ -269,6 +269,28 @@
     { id: '1w', label: '1 week', h: 168 },
     { id: '1m', label: '1 month', h: 720 }
   ];
+  // Guide themes: a class on <body> (gt-<id>) restyles the guide. 'auto' follows the channel: the decade channels get their own decade.
+  var THEMES = [
+    { id: 'auto', label: 'Match the channel' }, { id: 'classic', label: 'Classic Blue' }, { id: 'teletext', label: 'Teletext' },
+    { id: 'paper', label: 'Radio Times' }, { id: 'seventies', label: '1970s' }, { id: 'eighties', label: '1980s' }, { id: 'nineties', label: '1990s' }
+  ];
+  var themeIdx = 0, themeNow = '';
+  (function () { var id = store.get('gtheme1'); for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) themeIdx = i; })();
+  var DECADE_THEME = { tv70s: 'seventies', tv80s: 'eighties', tv90s: 'nineties' };
+  function applyTheme(ch) {
+    var id = THEMES[themeIdx].id;
+    if (id === 'auto') id = (ch && DECADE_THEME[ch.id]) || 'classic';
+    if (id === themeNow) return;
+    themeNow = id;
+    THEMES.forEach(function (t) { document.body.classList.remove('gt-' + t.id); });
+    if (id !== 'classic') document.body.classList.add('gt-' + id);
+  }
+  function changeTheme(d) {
+    themeIdx = (themeIdx + (d < 0 ? THEMES.length - 1 : 1)) % THEMES.length;
+    store.set('gtheme1', THEMES[themeIdx].id);
+    applyTheme(gChan || (cur && cur.ch));
+    renderOpts();
+  }
   var spanIdx = 0;
   (function () { var id = store.get('span1'); for (var i = 0; i < SPANS.length; i++) if (SPANS[i].id === id) spanIdx = i; })();
   // Bumped by Options > Refresh listings. It goes into each channel's running order, so every channel comes back
@@ -2325,6 +2347,7 @@
     var now = Date.now();
     gRow = list.indexOf(gChan);
     if (gRow < 0) { gRow = 0; gChan = list[0]; }
+    applyTheme(gChan);
     if (gRow < gTop) gTop = gRow;
     if (gRow >= gTop + VISIBLE_ROWS) gTop = gRow - VISIBLE_ROWS + 1;
 
@@ -3247,7 +3270,7 @@
   var OCATS = [
     { id: 'watch', rows: ['od'] },
     { id: 'picture', rows: ['ar', 'fx'] },
-    { id: 'guide', rows: ['span', 'keep', 'auto', 'refresh'] },
+    { id: 'guide', rows: ['span', 'theme', 'keep', 'auto', 'refresh'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads'] },
     { id: 'tools', rows: ['rel', 'about', 'gaps', 'epg', 'log'] }
@@ -3265,6 +3288,7 @@
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
     if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs a newer app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  (' + Object.keys(npKnown).length + ' files)' : '');
     if (id === 'span') return SPANS[spanIdx].label;
+    if (id === 'theme') return THEMES[themeIdx].label;
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'rel') return relName();
@@ -3338,6 +3362,7 @@
   var ACTION = { epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
+    theme: 'How the TV guide looks. Match the channel gives the 70s, 80s and 90s channels a guide from their own decade; the rest keep Classic Blue.',
     mkeep: 'How long artwork and episode details are remembered before they are looked up again. Permanent keeps them until you clear them.',
     mclear: 'Forgets the saved artwork, episode details and downloaded pictures, so they are fetched again fresh. Shows what is stored now.',
     od: 'Browse every channel\u2019s shows, series and episodes, and play any of them from the start.',
@@ -3361,6 +3386,7 @@
   /** The choices a row cycles through, shown as buttons while the row is highlighted; null for a row with none. */
   function optChoices(id) {
     if (id === 'player') return { l: PLAYERS.map(function (x) { return x.label; }), i: playerIdx };
+    if (id === 'theme') return { l: THEMES.map(function (x) { return x.label; }), i: themeIdx };
     if (id === 'span') return { l: SPANS.map(function (x) { return x.label; }), i: spanIdx };
     if (id === 'keep') return { l: KEEP.map(function (x) { return x.label; }), i: keepIdx };
     if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };
@@ -3393,6 +3419,9 @@
       }
       optsShown[id] = { v: val, c: cls, s: sig };
     });
+    applyTheme(gChan || (cur && cur.ch));
+    var pv = $('otpv'), pc = 'otpv' + (themeNow === 'classic' || !themeNow ? '' : ' gt-' + themeNow);
+    if (pv && pv.className !== pc) pv.className = pc;
     var help = optsZone ? (OPT_HELP[OPTS[optsSel]] || '') : '', ver = relName();
     if (optsShown._h !== help) { $('ohelp').textContent = help; optsShown._h = help; }
     if (optsShown._r !== ver) { $('over').textContent = ver; optsShown._r = ver; }
@@ -3444,6 +3473,7 @@
     else if (id === 'player') changePlayer(d);
     else if (id === 'buf') changeBuf(d);
     else if (id === 'span') changeSpan(d);
+    else if (id === 'theme') changeTheme(d);
     else if (id === 'keep') changeKeep(d);
     else if (id === 'mkeep') changeMetaKeep(d);
     else if (id === 'mclear') clearMeta();

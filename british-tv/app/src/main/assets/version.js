@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.31",
-  "version": "0.45.31",
-  "code": 4531,
+  "name": "Alpha 0.45.32",
+  "version": "0.45.32",
+  "code": 4532,
   "date": "2026-11-12",
   "notes": [
-    "**Mr. Bean is the sitcom again.** The 134 episodes of the 2002 cartoon (Mr. Bean: The Animated Series) that the library filed under Mr. Bean are left out; the live-action episodes and specials stay."
+    "**Guide themes.** Options > TV Guide > Guide theme: Classic Blue, Teletext, Radio Times (print), 1970s, 1980s and 1990s, with a live preview of each as you flick through. \"Match the channel\" (the default) gives the 70s, 80s and 90s channels a guide from their own decade and keeps Classic Blue everywhere else. The fancy fonts load from the internet; offline a theme falls back to a plain system font."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.31",
+      "date": "2026-11-12",
+      "notes": [
+        "**Mr. Bean is the sitcom again.** The 134 episodes of the 2002 cartoon (Mr. Bean: The Animated Series) that the library filed under Mr. Bean are left out; the live-action episodes and specials stay."
+      ]
+    },
     {
       "name": "Alpha 0.45.30",
       "date": "2026-11-12",
@@ -59,13 +66,6 @@ window.RELEASE = {
         "**Adverts follow the programme.** A break aims for the year of what just played (the episode's air date, or the middle of a decade channel's decade), then the same decade. Adverts are not repeated within a couple of dozen breaks. Drink, tobacco and gambling adverts stay out of kids and daytime breaks and before 9pm.",
         "**Nothing after 1999, and no guessing.** Adverts with no year are no longer played unless the archive's own date puts them in 1970-1999 or they are hand-picked. Turning adverts on or off rebuilds the guide.",
         "Spec for a checked advert catalogue from the scraper: `tools/adverts-contract.md`."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.23",
-      "date": "2026-11-12",
-      "notes": [
-        "**Less background work.** The loading-screen static kept redrawing nine times a second for as long as the app was open, and the start-up check kept waking four times a second; both now stop once the first channel is playing."
       ]
     }
   ]

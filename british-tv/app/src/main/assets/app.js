@@ -2628,7 +2628,7 @@
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'rel') return relName();
     if (id === 'mkeep') return META_KEEP[metaIdx].label;
-    if (id === 'mclear') return metaSizeText;
+    if (id === 'mclear') return metaSizeText || '\u2026';
     if (id === 'gaps') return gapState.report ? gapState.report.summary.gaps + ' shows with gaps' : '';
     if (id === 'about' || id === 'log' || id === 'od') return '';
     return autoEpg ? 'On' : 'Off';
@@ -2654,7 +2654,7 @@
     clearTimeout(metaSizeTimer);
     metaSizeTimer = setTimeout(function () {
       metaSizeText = metaSize();
-      if (optsOpen) $('ov-mclear').textContent = metaSizeText;
+      if (optsOpen) renderOpts();
     }, 400);
   }
   function changeMetaKeep(d) {
@@ -2703,19 +2703,26 @@
     about: 'Where the programmes, artwork and details come from.',
     log: 'What failed to play and why, ready to send when something goes wrong.'
   };
+  var optsShown = {};     // what each row last said, so a key press only touches the rows that changed
+  function setIf(el, prop, val) { if (el[prop] !== val) el[prop] = val; }
   function renderOpts() {
+    // the size of everything saved takes a moment to add up, so it is only worked out once its row is reached
+    if (OPTS[optsSel] !== 'mclear') clearTimeout(metaSizeTimer);            // scrolled past it: no need to add it up
+    else if (optsOpen && !metaSizeText) refreshMetaSize();
     OPTS.forEach(function (id, i) {
-      $('ov-' + id).textContent = optValue(id);
-      $('or-' + id).className = 'orow' + (ACTION[id] ? ' act' : '') + (i === optsSel ? ' sel' : '');
+      var val = optValue(id), cls = 'orow' + (ACTION[id] ? ' act' : '') + (i === optsSel ? ' sel' : ''), was = optsShown[id] || {};
+      if (was.v !== val) setIf($('ov-' + id), 'textContent', val);
+      if (was.c !== cls) setIf($('or-' + id), 'className', cls);
+      optsShown[id] = { v: val, c: cls };
     });
-    $('ohelp').textContent = OPT_HELP[OPTS[optsSel]] || '';
-    $('over').textContent = relName();
+    var help = OPT_HELP[OPTS[optsSel]] || '', ver = relName();
+    if (optsShown._h !== help) { $('ohelp').textContent = help; optsShown._h = help; }
+    if (optsShown._r !== ver) { $('over').textContent = ver; optsShown._r = ver; }
   }
   function openOpts() {
     closeOsd();
     optsOpen = true; optsSel = 0;
     renderOpts();
-    refreshMetaSize();
     $('opts').className = '';
     optsTouch();
   }

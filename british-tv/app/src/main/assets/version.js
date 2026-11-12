@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.38.1",
-  "version": "0.38.1",
-  "code": 3801,
+  "name": "Alpha 0.38.2",
+  "version": "0.38.2",
+  "code": 3802,
   "date": "2026-11-12",
   "notes": [
-    "**The options menu is quick again.** Each key press was adding up the size of everything saved (to show it next to Clear saved artwork), which meant reading hundreds of saved files every time. The total is now worked out once, a moment after the options open, and after a clear."
+    "**Options menu: less work on every key press.** Only the rows that changed are redrawn, and the size of saved artwork is added up only if you stop on that row, not as you scroll past it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.38.1",
+      "date": "2026-11-12",
+      "notes": [
+        "**The options menu is quick again.** Each key press was adding up the size of everything saved (to show it next to Clear saved artwork), which meant reading hundreds of saved files every time. The total is now worked out once, a moment after the options open, and after a clear."
+      ]
+    },
     {
       "name": "Alpha 0.38",
       "date": "2026-11-11",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**Smart aspect ratio taken out of the options for now.** It wasn't working properly. Anyone who had it selected goes back to Auto."
-      ]
-    },
-    {
-      "name": "Alpha 0.34",
-      "date": "2026-11-11",
-      "notes": [
-        "**New channel: US Sitcoms (28).** Friends, Frasier, Everybody Loves Raymond, Seinfeld, Cheers, Roseanne, The Fresh Prince and the rest of the American sitcoms up to 1999. It stays out of the guide until the scraper has found some of them on archive.org."
       ]
     }
   ]

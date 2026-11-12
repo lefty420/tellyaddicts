@@ -26,8 +26,8 @@ The scraper publishes to `../british-tv/data/` (see the main README for the file
 1. fetches `index.json` for each channel's revision and the library's;
 2. routes `library.json` to channels itself with `assets/libroute.js`, using `tools/shows.json` (its lists), the
    scraper's `routes.json` (which wins for shows it names) and `removed-shows.json`. A channel marked `"extra"` in
-   `shows.json` keeps its shows on their own channels too. A broadcaster's channel (BBC, ITV) also gets its shows,
-   soaps go to Soaps as well, and episodes flagged as Christmas go to a Christmas channel;
+   `shows.json` keeps its shows on their own channels too. A channel for a broadcaster also gets that broadcaster's shows,
+   soaps go to the soaps channel as well, and episodes flagged as Christmas go to a Christmas channel;
 3. falls back to the channel's own `data/<id>.json` when the library routes nothing to it (Food & Cooking), then to
    the bundled copy `autodata.js`.
 
@@ -35,11 +35,11 @@ A channel's revision is a hash of its own routed rows, so only channels that cha
 `tools/shows.json` re-routes at the next start, with no scrape and no build.
 
 **Genre guard** (`auto.js`). A programme is dropped from a channel when the show it names belongs only to other
-genres (Miss Marple cannot appear on CITV). Programmes naming no known show are kept. One-word show names only count
-when what follows is harmless (`Bread series 3`, not `Rainbow Six`). `auto.js` is partly generated from
+genres (a detective drama cannot turn up on a kids channel). Programmes naming no known show are kept. One-word show names only count
+when what follows is harmless ("series 3" after the name is fine; a longer title that merely starts with it is not). `auto.js` is partly generated from
 `tools/shows.json` by `tools/make_shows.py`; the theme and allowed-genre tables in it are edited by hand.
 
-**Rules applied on the way in.** Era 1970 to 1999 (Disney exempt); a film needs a certificate and obeys the
+**Rules applied on the way in.** Era 1970 to 1999 (the cartoon-shorts channel is exempt); a film needs a certificate and obeys the
 watershed; adult material is blocked; no one show may take more than a quarter of a channel; programmes with sound
 but no picture are skipped.
 
@@ -56,7 +56,7 @@ but no picture are skipped.
 
 ## Speed
 
-- A pool of eight connections, asked for in the order they are wanted (last channel watched, then down the guide).
+- A pool of eight connections, asked for in the order they are wanted (the channel you were last on, then down the guide).
 - Only the fields the app reads are kept from archive.org's metadata.
 - The guide redraws rather than rebuilds: moving the highlight only changes the highlight.
 - On Demand moves only the highlight when a key stays inside the posters on screen, remembers pictures it has found,
@@ -73,17 +73,17 @@ size. Artwork is the scraper's `art.json`, TVmaze, or a hand-picked override.
 
 ## Episode names and Info
 
-TVmaze (free, no key) supplies episode titles, posters and fanart. A show is matched by the scraper's name for it,
+The TVmaze service (free, no key) supplies episode titles, posters and fanart. A show is matched by the scraper's name for it,
 or by the names in `tools/shows.json`. Misses are remembered for 5 days. Info shows the episode's own summary if
 there is one, otherwise the show's.
 
 ## Adverts
 
 Period breaks between programmes, matched to the channel by `ads.js`: toys and sweets for kids channels, console
-adverts for Video Games, album adverts for music, household and food in the daytime, ITV and Channel 4 breaks on the
-rest. UK adverts are searched first and played about four times in five; anything American is dropped; never BBC
-(Classic BBC and Adverts & Continuity have no breaks). `assets/adverts.js` has hand-picked adverts as
-`[url, title, channels]`. The era setting applies to all of them.
+adverts for games, album adverts for music, household and food in the daytime, general breaks on the rest. UK
+adverts are searched first and played about four times in five, anything American is dropped, and the public
+broadcaster's channels have no breaks at all. `assets/adverts.js` has hand-picked adverts as `[url, title, channels]`.
+The era setting applies to all of them.
 
 ## The native side
 

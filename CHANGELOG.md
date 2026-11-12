@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.28 — 2026-11-12
+
+- Fixes the build again: the backup player's libraries need the app compiled against Android 35 (it still runs on the same TVs as before). Nothing else changed.
+
 ## Alpha 0.45.27 — 2026-11-12
 
 - Fixes the build of 0.45.26: the backup player's libraries need AndroidX switched on in the project settings. Nothing else changed.

@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace = "app.britishtv"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "app.britishtv"
         minSdk = 22
         targetSdk = 34
-        versionCode = 4527
-        versionName = "0.45.27"
+        versionCode = 4528
+        versionName = "0.45.28"
     }
 
     // A fixed key, so every build is signed the same and installs over the last one

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.36",
-  "version": "0.45.36",
-  "code": 4536,
+  "name": "Alpha 0.45.37",
+  "version": "0.45.37",
+  "code": 4537,
   "date": "2026-11-12",
   "notes": [
-    "**No colour-button bar at the bottom of the guide, on every theme.** The grid now shows seven channels instead of six. The coloured remote buttons still work (red Now, green Later, yellow Earlier, blue Watch)."
+    "**On Demand: left and right change season** while you are in the episode list (they already did on the season strip). The episode pictures are 50% bigger, so three episodes show at a time instead of four."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.36",
+      "date": "2026-11-12",
+      "notes": [
+        "**No colour-button bar at the bottom of the guide, on every theme.** The grid now shows seven channels instead of six. The coloured remote buttons still work (red Now, green Later, yellow Earlier, blue Watch)."
+      ]
+    },
     {
       "name": "Alpha 0.45.35",
       "date": "2026-11-12",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Video game playthroughs are kept off the channels.** The Kids Movies channel was showing a Lego Star Wars PS3 playthrough as the 1977 film, and the Disney channel had a run of NES/SNES/Mega Drive \"Longplay\" videos. Anything titled as a longplay, playthrough, walkthrough, gameplay or with a console tag like [PS3] now stays off every channel except Video Games (and On Demand)."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.28",
-      "date": "2026-11-12",
-      "notes": [
-        "Fixes the build again: the backup player's libraries need the app compiled against Android 35 (it still runs on the same TVs as before). Nothing else changed."
       ]
     }
   ]

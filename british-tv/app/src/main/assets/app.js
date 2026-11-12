@@ -3805,7 +3805,7 @@
   var odOpen = false, odFrom = '', odGuide = null, odData = {}, odArtFor = '', odBgFor = '';
   var odView = 'home', odRi = 0, odRc = null, odTop = 0, odPos = {}, odZone = 0, odSea = 0, odEi = 0;
   var OD_VIS = 9;           // posters across a row
-  var OD_EPS = 4;           // episodes on screen at once
+  var OD_EPS = 3;           // episodes on screen at once
   var OD_SKIP = { xmasmusic: 1, tvarchive: 1 };         // songs and dated clips are not shows
   var OD_FILMS = { kidsmovies: 1, videoshop: 1 };       // the film channels: each film is its own one-video title
   function odChannels() {
@@ -4085,7 +4085,7 @@
     }
     var list = (g.sea[odSea] || { eps: [] }).eps, box = $('odeps'); box.textContent = '';
     odEi = Math.max(0, Math.min(odEi, list.length - 1));
-    var top = Math.max(0, Math.min(odEi - 2, list.length - OD_EPS));
+    var top = Math.max(0, Math.min(odEi - 1, list.length - OD_EPS));
     for (var j = top; j < Math.min(list.length, top + OD_EPS); j++) {
       var ep = list[j], m = g.meta && g.meta[ep.s + 'x' + ep.e], row = odEl('div', 'ode' + (j === odEi && odZone === 2 ? ' sel' : ''));
       row.appendChild(odEl('i', '', ep.s > 0 ? String(ep.e) : '•'));
@@ -4216,7 +4216,8 @@
       else if (odZone === 1) { odZone = 2; odEi = 0; }
       else odEi = Math.min(list.length - 1, odEi + 1);
     } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
-      if (odZone === 1) { odSea = Math.max(0, Math.min(g.sea.length - 1, odSea + (k === 'ArrowLeft' ? -1 : 1))); odEi = 0; }
+      // left and right move through the seasons from the season strip or from the episode list
+      if ((odZone === 1 || odZone === 2) && g.sea.length > 1) { odSea = Math.max(0, Math.min(g.sea.length - 1, odSea + (k === 'ArrowLeft' ? -1 : 1))); odEi = 0; }
     } else if (k === 'ChannelUp' || k === 'ChannelDown') {
       if (odZone === 2) odEi = Math.max(0, Math.min(list.length - 1, odEi + (k === 'ChannelUp' ? -OD_EPS + 1 : OD_EPS - 1)));
     } else if (k === 'Enter' || k === ' ') {

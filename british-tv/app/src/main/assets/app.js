@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   var kv = {
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
@@ -523,7 +523,8 @@
     var poster = String(d.p || '');
     var film = { title: d.n || '', plot: d.ov || '', poster: poster.indexOf(TMDB_IMG) === 0 ? poster : '',
                  genres: Array.isArray(d.g) ? d.g.join(', ') : (d.g || ''),
-                 mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '', cert: d.cert || '' };
+                 mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '', cert: d.cert || '',
+                 cast: Array.isArray(d.cast) ? d.cast.slice(0, 10).map(function (m) { return { n: m.n || '', c: m.c || '', p: String(m.p || '').indexOf(TMDB_IMG) === 0 ? m.p : '' }; }) : [] };
     // stored even when TMDb knew nothing, so Info shows the film's own title instead of hunting for a TV series
     store.set('film1:' + key, film);
     return key;
@@ -1148,7 +1149,7 @@
   function showFromArt(a, name) {
     return {
       name: a.name || name, year: a.y ? String(a.y) : '', ended: a.e ? String(a.e) : '', network: a.n || '',
-      genres: a.g || '', rating: +a.r || 0, summary: a.s || '', poster: https(a.p), background: https(a.b)
+      genres: a.g || '', rating: +a.r || 0, summary: a.s || '', poster: https(a.p), background: https(a.b), id: a.i || 0
     };
   }
 
@@ -1228,7 +1229,7 @@
         name: sh.name, year: sh.premiered ? String(sh.premiered).slice(0, 4) : '', ended: sh.ended ? String(sh.ended).slice(0, 4) : '',
         network: (sh.network && sh.network.name) || (sh.webChannel && sh.webChannel.name) || '',
         genres: (sh.genres || []).slice(0, 3).join(', '), rating: sh.rating && sh.rating.average || 0,
-        summary: plain(sh.summary), poster: https(sh.image && (sh.image.original || sh.image.medium)), background: ''
+        summary: plain(sh.summary), poster: https(sh.image && (sh.image.original || sh.image.medium)), background: '', id: sh.id
       }, ep: null };
       return wait(400).then(function () { return getJSON('https://api.tvmaze.com/shows/' + sh.id + '/images'); }).then(function (imgs) {
         var bg = (imgs || []).filter(function (x) { return x.type === 'background'; })[0];
@@ -1329,7 +1330,7 @@
     $('iep').textContent = '';
     $('imeta').textContent = cp.ch.name;
     $('isum').textContent = '';
-    $('idbg').textContent = over ? '' : pbText();
+    $('icast').textContent = '';
     $('isrc').textContent = 'Looking up details…   (Back to close)';
     if (cp.ad) { $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cp.prog.url || '').replace('https://archive.org/download/', '')); $('isrc').textContent = 'Back to close'; return; }
     var film = filmFor(cp.prog);
@@ -1367,10 +1368,42 @@
       if (s.poster) { ph.src = s.poster; ph.className = ''; }
       if (s.background || pic) $('ibg').style.backgroundImage = 'url("' + (s.background || pic) + '")';
       $('isrc').textContent = 'Details from TVmaze   \u00b7   Back to close';
+      if (s.id) tvmCast(s.id).then(function (list) { if (token === infoToken && infoOpen) showCast(list); });
     }, function () {
       if (token !== infoToken || !infoOpen) return;
       $('isum').textContent = 'Could not look this up right now.';
       $('isrc').textContent = 'Back to close';
+    });
+  }
+
+  /** The main cast of a show (TVmaze, free): name, character and a photo. Kept once per show. */
+  function tvmCast(id) {
+    var key = 'cast1:' + id, c = store.get(key);
+    if (c && metaFresh(c)) return Promise.resolve(c.l || []);
+    return getJSON('https://api.tvmaze.com/shows/' + id + '/cast').then(function (rows) {
+      var seen = {}, l = [];
+      (rows || []).forEach(function (r) {
+        var p = r && r.person; if (!p || seen[p.id]) return; seen[p.id] = 1;
+        l.push({ n: p.name || '', c: (r.character && r.character.name) || '', p: https(p.image && (p.image.medium || p.image.original)) });
+      });
+      l = l.slice(0, 10);
+      store.set(key, { t: Date.now(), l: l });
+      return l;
+    }, function () { return (c && c.l) || []; });
+  }
+  /** A row of round photos on the Info screen. A film's cast comes with the scraper's film details. */
+  function showCast(list) {
+    var box = $('icast');
+    box.textContent = '';
+    (list || []).slice(0, 8).forEach(function (m) {
+      if (!m || !m.n) return;
+      var card = document.createElement('div'); card.className = 'icm';
+      var ph = document.createElement('div'); ph.className = 'icp';
+      if (m.p) ph.style.backgroundImage = 'url("' + m.p + '")'; else ph.textContent = m.n.charAt(0);
+      var nm = document.createElement('b'); nm.textContent = m.n;
+      card.appendChild(ph); card.appendChild(nm);
+      if (m.c) { var ch = document.createElement('small'); ch.textContent = m.c; card.appendChild(ch); }
+      box.appendChild(card);
     });
   }
 
@@ -1395,6 +1428,7 @@
     // just where it came from, as the TVmaze screens say. The credit TMDb's terms ask for, with their logo,
     // lives in Options > About & credits rather than on top of every film.
     $('isrc').textContent = 'Details from TMDB   ·   Back to close';
+    showCast(f.cast);
   }
 
   function closeInfo() {
@@ -2766,7 +2800,7 @@
   }
 
   /** Picking longer keeps the lists already stored; picking shorter lets them run out. Links are never thrown away. */
-  var META_KEYS = /^(info3|art2|tvm4|eps1|artdb1):/;
+  var META_KEYS = /^(info3|art2|tvm4|eps1|artdb1|cast1):/;
   /** How much saved artwork and episode detail there is, as text for the Options row. */
   function metaSize() {
     var bytes = 0, n = 0;

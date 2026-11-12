@@ -1,14 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.23",
-  "version": "0.45.23",
-  "code": 4523,
+  "name": "Alpha 0.45.24",
+  "version": "0.45.24",
+  "code": 4524,
   "date": "2026-11-12",
   "notes": [
-    "**Less background work.** The loading-screen static kept redrawing nine times a second for as long as the app was open, and the start-up check kept waking four times a second; both now stop once the first channel is playing."
+    "**Advert breaks reworked.** Breaks are now listed inside the programme's time in the guide (three minutes after a prime-time programme, a minute and a half on kids channels), so the guide stays right to the minute. A break is a time budget filled with adverts, not a fixed count. There are no breaks on the film channels (Video Shop, Kids Movies, Disney), after films, or after anything shorter than 15 minutes.",
+    "**Adverts follow the programme.** A break aims for the year of what just played (the episode's air date, or the middle of a decade channel's decade), then the same decade. Adverts are not repeated within a couple of dozen breaks. Drink, tobacco and gambling adverts stay out of kids and daytime breaks and before 9pm.",
+    "**Nothing after 1999, and no guessing.** Adverts with no year are no longer played unless the archive's own date puts them in 1970-1999 or they are hand-picked. Turning adverts on or off rebuilds the guide.",
+    "Spec for a checked advert catalogue from the scraper: `tools/adverts-contract.md`."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.23",
+      "date": "2026-11-12",
+      "notes": [
+        "**Less background work.** The loading-screen static kept redrawing nine times a second for as long as the app was open, and the start-up check kept waking four times a second; both now stop once the first channel is playing."
+      ]
+    },
     {
       "name": "Alpha 0.45.22",
       "date": "2026-11-12",
@@ -57,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**The guide length now starts at 24 hours**, so a fresh install starts up quickly. Choose a longer one in Options > Guide length."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.15",
-      "date": "2026-11-12",
-      "notes": [
-        "**Guide length option (Options > Guide length): 24 hours, 48 hours, 1 week or 1 month.** It sets how much airtime each channel's guide covers before it repeats. For the everyday channels the app picks a varied mix of programmes (one from each show in turn, so no show takes over) from what the channel's rules already allow. Soaps, Saturday Night TV, The Video Shop, TV Archive and Drama, which follow a clock timetable, now lay out each day (or week) afresh instead of repeating the same 24 hours, for as many days as you choose. The default is 24 hours. On Demand is not affected and still lists everything."
       ]
     }
   ]

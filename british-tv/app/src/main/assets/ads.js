@@ -16,17 +16,17 @@
 
   // genre of advert for each kind of channel. count = adverts per break, maxDur = longest single clip (seconds)
   var CATS = {
-    kids: { count: 2, maxDur: 150, kw: ['toy', 'toys', 'board game', 'action figure', 'sweets', 'chocolate', 'cereal', 'crisps', 'lego', 'barbie', 'transformers'] },
-    games: { count: 2, maxDur: 150, kw: ['sega', 'nintendo', 'snes', 'mega drive', 'megadrive', 'playstation', 'game boy', 'gameboy', 'amiga', 'atari', 'video game'] },
-    music: { count: 2, maxDur: 150, kw: ['now that\'s what i call music', 'now thats what i call music', 'compilation album', 'cassette', 'cd', 'album', 'hits'] },
-    daytime: { count: 2, maxDur: 150, kw: ['cleaning', 'washing powder', 'detergent', 'food', 'supermarket', 'tesco', 'sainsbury', 'magazine', 'household', 'biscuits'] },
+    kids: { count: 2, breakSec: 90, maxDur: 150, kw: ['toy', 'toys', 'board game', 'action figure', 'sweets', 'chocolate', 'cereal', 'crisps', 'lego', 'barbie', 'transformers'] },
+    games: { count: 2, breakSec: 90, maxDur: 150, kw: ['sega', 'nintendo', 'snes', 'mega drive', 'megadrive', 'playstation', 'game boy', 'gameboy', 'amiga', 'atari', 'video game'] },
+    music: { count: 2, breakSec: 60, maxDur: 150, kw: ['now that\'s what i call music', 'now thats what i call music', 'compilation album', 'cassette', 'cd', 'album', 'hits'] },
+    daytime: { count: 2, breakSec: 120, maxDur: 150, kw: ['cleaning', 'washing powder', 'detergent', 'food', 'supermarket', 'tesco', 'sainsbury', 'magazine', 'household', 'biscuits'] },
     // standard commercial breaks: ITV, Channel 4, Channel 5, Sky and cable (never the BBC, which has no adverts)
-    prime: { count: 1, maxDur: 420, kw: ['itv', 'channel 4', 'channel 5', 'sky', 'cable', 'commercial break', 'ad break', 'adverts', 'commercials'] }
+    prime: { count: 1, breakSec: 180, maxDur: 420, kw: ['itv', 'channel 4', 'channel 5', 'sky', 'cable', 'commercial break', 'ad break', 'adverts', 'commercials'] }
   };
 
   // channel id -> advert genre. No entry = no adverts (Classic BBC: the BBC has none; Adverts & Continuity is adverts already).
   var CHANNEL_CAT = {
-    citv: 'kids', childrens: 'kids', disney: 'kids', kidsmovies: 'kids', kidsxmas: 'kids',
+    citv: 'kids', childrens: 'kids', kidsxmas: 'kids',   // no breaks on the film channels (kidsmovies, disney, videoshop)
     games: 'games',
     music: 'music', mtv: 'music', xmasmusic: 'music',
     itvam: 'daytime', offschool: 'daytime',
@@ -68,11 +68,9 @@
     }
     if (eraId === 'all') {
       ['70', '80', '90'].forEach(function (d) { add('uk', d, true, ALL_ROWS[d]); });
-      add('uk', 'all', false, 12);
       add('g', 'all', true, 12);
     } else {
       add('uk', eraId, true, 30);
-      add('uk', eraId, false, 12);
       add('g', eraId, true, 12);
     }
     return out;
@@ -102,8 +100,10 @@
     if (/\bBBC\b/i.test(t) || US_RE.test(t) || MODERN_RE.test(t)) return false;
     var e = eraOf(prog.title) || eraOf(prog.item);
     if (e === 'other') return false;
-    if (eraId === 'all') return e === null || e === '70' || e === '80' || e === '90';
-    return e === eraId || (e === null && /-d$/.test(prog.group || ''));
+    // an advert whose year cannot be shown is never played: its title says the year, the archive's own date says it
+    // (the '-d' searches), or a person picked it by hand
+    if (eraId === 'all') return e === '70' || e === '80' || e === '90' || (e === null && (prog.trusted || /-d$/.test(prog.group || '')));
+    return e === eraId || (e === null && /-d$/.test(prog.group || ''));   // no year in the title: only if the search was by the item's date
   }
 
   function filterPool(progs, eraId) { return (progs || []).filter(function (p) { return accept(p, eraId); }); }
@@ -119,23 +119,50 @@
       var path = url.replace(/^https?:\/\/[^\/]*\/download\//, '');
       try { path = decodeURIComponent(path); } catch (e) { /* leave it encoded */ }
       var p = { id: url, item: path, url: url, title: title, sub: '', dur: 40,
-                group: dated ? 'uk-d' : 'uk-u' };
+                group: dated ? 'uk-d' : 'uk-u', trusted: true };
       if (accept(p, eraId)) out.push(p);
     });
     return out;
   }
 
-  /** Pick the next advert: UK-collection ones about 4 times in 5, random, never the one that just played. */
-  function pickNext(pool, lastUrl) {
+  /** The year a title names (1970-1999), or 0. */
+  function yearOf(title) {
+    var re = /(?:^|[^0-9])(19[7-9]\d)(?![0-9])/.exec(String(title || ''));
+    return re ? +re[1] : 0;
+  }
+  // Drink, tobacco and gambling: kept out of children's and daytime breaks, and out of anything before the 9pm watershed
+  var RESTRICTED = /\b(beer|lager|bitter|stout|cider|whisky|whiskey|vodka|gin|rum|wine|guinness|carling|heineken|stella|cigarette|cigarettes|silk cut|benson|embassy|marlboro|rothmans|lottery|bingo|casino|betting|bookmaker|ladbrokes|coral)\b/i;
+  function allowedAt(prog, cat, hour) {
+    if (!RESTRICTED.test((prog.title || '') + ' ' + (prog.item || ''))) return true;
+    return cat === 'prime' && hour >= 21;
+  }
+
+  /** Pick the next advert. opts: { year: the year of what just played (0 = unknown), cat, hour, last: url of the
+   *  advert that just ran, recent: urls played lately }. Near that year first (within three), then the same decade,
+   *  then ones with no year; UK-collection ones about 4 times in 5; never one played lately. */
+  function pickNext(pool, lastUrl, opts) {
     if (!pool || !pool.length) return null;
-    var uk = pool.filter(function (p) { return /^uk-/.test(p.group || ''); });
-    var from = uk.length && Math.random() < 0.8 ? uk : pool;
+    opts = opts || {};
+    var recent = opts.recent || [];
+    var ok = pool.filter(function (p) { return allowedAt(p, opts.cat, opts.hour == null ? 12 : opts.hour); });
+    if (!ok.length) return null;
+    var fresh = ok.filter(function (p) { return p.url !== lastUrl && recent.indexOf(p.url) < 0; });
+    if (fresh.length) ok = fresh;
+    var y = opts.year || 0;
+    if (y) {
+      var near = ok.filter(function (p) { var py = yearOf(p.title) || yearOf(p.item); return py && Math.abs(py - y) <= 3; });
+      var dec = ok.filter(function (p) { var py = yearOf(p.title) || yearOf(p.item); return py && Math.floor(py / 10) === Math.floor(y / 10); });
+      if (near.length && Math.random() < 0.85) ok = near;
+      else if (dec.length) ok = dec;
+    }
+    var uk = ok.filter(function (p) { return /^uk-/.test(p.group || ''); });
+    var from = uk.length && Math.random() < 0.8 ? uk : ok;
     var i = Math.floor(Math.random() * from.length);
     if (from.length > 1 && from[i].url === lastUrl) i = (i + 1) % from.length;
     return from[i];
   }
 
   var Ads = { ERAS: ERAS, CATS: CATS, categoryFor: categoryFor, fixedFor: fixedFor, eraIndex: eraIndex, buildQuery: buildQuery,
-    sourcesFor: sourcesFor, eraOf: eraOf, accept: accept, filterPool: filterPool, pickNext: pickNext };
+    sourcesFor: sourcesFor, eraOf: eraOf, yearOf: yearOf, allowedAt: allowedAt, accept: accept, filterPool: filterPool, pickNext: pickNext };
   if (typeof module !== 'undefined' && module.exports) module.exports = Ads; else root.ADS = Ads;
 })(typeof window !== 'undefined' ? window : this);

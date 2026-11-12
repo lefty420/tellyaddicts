@@ -1823,6 +1823,31 @@
   })();
   var adPools = {};                     // 'genre:era' -> filtered adverts (shared by every channel of that genre)
   var AD_TTL = 7 * 24 * 3600 * 1000;
+  /** Real television lists the breaks inside the programme's time, so do the same: a programme on a channel that has
+   *  breaks (and is long enough to have one) is listed a break longer, and the adverts fill the end of its slot.
+   *  Films never get one, and neither does anything shorter than a quarter of an hour. */
+  var BREAK_MIN = 900;
+  function breakFor(ch, p) {
+    var cat = ADS.categoryFor(ch.id);
+    if (!cat || adEra === 'off' || p.filmKey || p.song || p.ad || !(p.dur >= BREAK_MIN)) return 0;
+    return ADS.CATS[cat].breakSec;
+  }
+  function withBreaks(ch, progs) {
+    if (!ADS.categoryFor(ch.id) || adEra === 'off') return progs;
+    return progs.map(function (p) {
+      var b = breakFor(ch, p);
+      if (!b) return p;
+      var q = {}; for (var k in p) if (p.hasOwnProperty(k)) q[k] = p[k];
+      q.dur = p.dur + b; q.adPad = b;
+      return q;
+    });
+  }
+  var adRecent = [];                    // adverts shown lately, so a break does not repeat one
+  function adYear(ch, prog) {
+    var y = prog && prog.aired ? parseInt(String(prog.aired).slice(0, 4), 10) : 0;
+    if (y >= 1970 && y <= 1999) return y;
+    return ch.decade ? ch.decade + 5 : 0;      // a decade channel: the middle of the decade
+  }
   function adKey(ch) { var cat = ADS.categoryFor(ch.id); return cat && adEra !== 'off' ? cat + ':' + adEra : null; }
   function loadAds(ch, soon) {
     var key = adKey(ch);
@@ -1853,8 +1878,12 @@
   function playAd(ch, index, left) {
     var key = adKey(ch), pool = adPool(ch);
     if (!pool.length) return nextInChannel();
-    var ad = ADS.pickNext(pool, cur && cur.ad ? cur.prog.url : null);
-    cur = { ch: ch, index: index, prog: { title: 'Advert', sub: ad.title, url: ad.url }, ad: true, adLeft: left - 1, errors: 0 };
+    var was = cur;
+    var ad = ADS.pickNext(pool, was && was.ad ? was.prog.url : null,
+      { year: was ? was.adYear : 0, cat: ADS.categoryFor(ch.id), hour: new Date().getHours(), recent: adRecent });
+    if (!ad) return nextInChannel();
+    adRecent.push(ad.url); if (adRecent.length > 24) adRecent.shift();
+    cur = { ch: ch, index: index, prog: { title: 'Advert', sub: ad.title, url: ad.url }, ad: true, adLeft: left, errors: 0, adYear: was ? was.adYear : 0 };
     v.dataset.offset = '0';
     pbStart(ad.url, 0);
     v.src = ad.url;
@@ -1869,10 +1898,14 @@
   }
   function onEnded() {
     if (cur && cur.od) return odStep(1);
-    if (cur && cur.ad && cur.adLeft > 0) return playAd(cur.ch, cur.index, cur.adLeft);
-    var key = cur && !cur.ad && adKey(cur.ch);
-    if (key && adPool(cur.ch).length) {              // hand-picked adverts count too, not only what the search found
-      return playAd(cur.ch, cur.index, ADS.CATS[ADS.categoryFor(cur.ch.id)].count);
+    // the break is a time budget (seconds), not a number of adverts: each one that ends uses up its own length
+    if (cur && cur.ad) {
+      var left = cur.adLeft - Math.max(5, isFinite(v.duration) ? v.duration : 30);
+      if (left > 8) return playAd(cur.ch, cur.index, left);
+    } else if (cur && !cur.prog.filmKey && !cur.prog.song && cur.prog.adPad && adKey(cur.ch) && adPool(cur.ch).length) {
+      var y = adYear(cur.ch, cur.prog);
+      cur.adYear = y;                                // carried onto the first advert
+      return playAd(cur.ch, cur.index, cur.prog.adPad);
     }
     nextInChannel();
   }
@@ -3387,8 +3420,16 @@
   var ERA_SHORT = { off: 'Off', all: 'All', '70': '70s', '80': '80s', '90': '90s' };
   function changeAds(d) {
     var ids = ADS.ERAS.map(function (e) { return e.id; });
+    var wasOff = adEra === 'off';
     adEra = ids[(ids.indexOf(adEra) + d + ids.length) % ids.length];
     store.set('adera', adEra);
+    if (wasOff !== (adEra === 'off')) {              // the guide has breaks listed in it, or not: rebuild it
+      renderOpts();
+      toast('Adverts ' + (adEra === 'off' ? 'off' : 'on') + '. Rebuilding the guides\u2026', 3000);
+      clearTimeout(spanTimer);
+      spanTimer = setTimeout(function () { location.reload(); }, 2200);
+      return;
+    }
     if (cur) loadAds(cur.ch, true);
     renderOpts();
   }
@@ -4307,6 +4348,7 @@
         if (progs && progs.length) {
           progs = dropSlow(progs);
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
+          progs = withBreaks(c, progs);
           var seed = c.id + (epgGen ? ':' + epgGen : '');
           // a channel with a daypart plan is laid out against the clock; the rest are one shuffled loop
           var spanH = SPANS[spanIdx].h;

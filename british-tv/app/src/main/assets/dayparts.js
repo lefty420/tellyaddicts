@@ -52,13 +52,13 @@
     // the clips, and anything else short, fill the run-up to each bulletin
     filler: function (progs) { return progs.filter(function (p) { return isClip(p) || shorter(600)(p); }); },
     blocks: [
-      { at: '06:00', want: daytime },
+      { at: '06:00', want: isClip },
       { at: '13:00', exact: true, want: NEWS },
-      { at: '13:30', want: daytime },
+      { at: '13:30', want: isClip },
       { at: '18:00', exact: true, want: NEWS },
-      { at: '18:30', want: daytime },
+      { at: '18:30', want: isClip },
       { at: '22:00', exact: true, want: NEWS },
-      { at: '22:30', want: daytime }
+      { at: '22:30', want: isClip }
     ]
   };
 

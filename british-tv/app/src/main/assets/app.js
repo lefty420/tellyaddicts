@@ -660,11 +660,28 @@
    *  than show an empty channel. */
   function datedToday(ch, progs) {
     if (ch.id !== 'tvarchive' || !progs.length) return progs;
+    var seenNews = {};
+    /** Undated items: BBC Archive clips stay; a BBC News 24 recording stays once per programme under a cleaned
+     *  title (its file name starts with a recording id and ends -BBC-News-24); anything else with an id for a
+     *  title is dropped, because a wall of "145D5B6D-Business-Briefing" is not what this channel is for. */
+    function undatedOk(p) {
+      if (p.group === 'BBC Archive') return true;
+      var t = String(p.title || '');
+      if (/BBC[- ]News[- ]24|^[0-9A-F]{6,}X?-/i.test(t)) {
+        var c = t.replace(/^(BBC-News-24-Part\d+-tva - )?[0-9A-F]{6,}X?-/i, '').replace(/[- ]*-?BBC-News-24\s*$/i, '')
+          .replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!c || /^[0-9A-F ]+$/i.test(c) || seenNews[c.toLowerCase()]) return false;
+        seenNews[c.toLowerCase()] = 1;
+        p.title = c;
+        return true;
+      }
+      return true;
+    }
     var now = new Date(), today = pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
     var dated = 0, keep = progs.filter(function (p) {
       var md = (p.aired && /^\d{4}-(\d{2}-\d{2})$/.exec(p.aired) || [])[1] ||
                monthDay(p.sub) || monthDay(p.title) || monthDay(p.id);
-      if (!md) return true;                                   // no date on it: the clips and odds and ends
+      if (!md) return undatedOk(p);                           // no date on it: the clips and odds and ends
       dated++;
       return md === today;
     });

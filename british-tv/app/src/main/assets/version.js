@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.19",
-  "version": "0.45.19",
-  "code": 4519,
+  "name": "Alpha 0.45.20",
+  "version": "0.45.20",
+  "code": 4520,
   "date": "2026-11-12",
   "notes": [
-    "**EPG debug can be opened from a browser, like the debug log.** The page now shows an address to open from a phone or computer on the same Wi-Fi, with the report for every channel at once: problems first, then each channel's next 24 hours."
+    "**TV Archive is the On This Day channel again.** Daytime is now the BBC Archive On This Day clips, with the news at one, six and ten. The BBC News 24 recordings (which made up three quarters of the channel, with titles like \"145D5B6D-Business-Briefing\") are cut to one of each programme under a clean name, and anything dated is still kept only if it aired on today's date."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.19",
+      "date": "2026-11-12",
+      "notes": [
+        "**EPG debug can be opened from a browser, like the debug log.** The page now shows an address to open from a phone or computer on the same Wi-Fi, with the report for every channel at once: problems first, then each channel's next 24 hours."
+      ]
+    },
     {
       "name": "Alpha 0.45.18",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**The missing episodes report is now a proper import file.** It starts with `format: \"telly-addicts-missing\"` and a version number, and each show carries TVmaze's id when it is known, so the scraper can load it and go and find what is missing."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.11",
-      "date": "2026-11-12",
-      "notes": [
-        "**Every film in The Video Shop and Kids Movies no longer shows the same wrong picture.** When the library could not load, the background artwork search looked up the channel names (\"The Video Shop\", \"Kids Movies\") as if they were TV shows, found an unrelated programme, and gave its picture to every film. Channel names are no longer looked up, and films without their own poster show a plain card with the title."
       ]
     }
   ]

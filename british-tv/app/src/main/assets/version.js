@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.39.1",
-  "version": "0.39.1",
-  "code": 3901,
+  "name": "Alpha 0.39.2",
+  "version": "0.39.2",
+  "code": 3902,
   "date": "2026-11-12",
   "notes": [
-    "**Start-up waits for the whole guide.** The TV stays on the tuning screen until every channel has loaded (up to 30 seconds on a slow connection), so the guide opens complete instead of appearing and then pausing while channels fill in."
+    "**The blue button no longer opens On Demand.** It is back to Watch in the guide and does nothing while watching. On Demand is still reached with the On Demand button, Menu, or Left from what is on now."
   ],
   "history": [
+    {
+      "name": "Alpha 0.39.1",
+      "date": "2026-11-12",
+      "notes": [
+        "**Start-up waits for the whole guide.** The TV stays on the tuning screen until every channel has loaded (up to 30 seconds on a slow connection), so the guide opens complete instead of appearing and then pausing while channels fill in."
+      ]
+    },
     {
       "name": "Alpha 0.39",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**The guide goes round.** Pressing Up on the first channel now takes you to the last one, and Down on the last goes back to the first. The On Demand button is still reached with Left from what is on now."
-      ]
-    },
-    {
-      "name": "Alpha 0.35.1",
-      "date": "2026-11-11",
-      "notes": [
-        "**Episode pictures load faster.** The scraper's episode guides (now published for 431 shows) point at TVmaze's full-size stills, which a TV is slow to decode. The app asks for the medium size, which is plenty for the thumbnail next to each episode."
       ]
     }
   ]

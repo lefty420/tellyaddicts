@@ -3048,7 +3048,7 @@
       else if (k === 'Green' || k === 'MediaFastForward') gJump('later');
       else if (k === 'Yellow' || k === 'MediaRewind') gJump('earlier');
       else if (k === 'Enter' || k === ' ') watchFromGuide();
-      else if (k === 'Blue') odOpenUi();
+      else if (k === 'Blue') watchFromGuide();
       // in the guide: Back goes back to what is playing; with nothing playing, Back twice leaves the app
       else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { if (cur) closeGuide(); else pressBackToExit(); }
       else if (k === 'Guide') closeGuide();
@@ -3065,7 +3065,6 @@
     else if (k === 'Guide' || k === 'Red') { openGuide(); }
     else if (k === 'Enter') { openOsd(); }
     else if (k === 'Info') { openInfo(); }
-    else if (k === 'Blue') { odOpenUi(); }
     else if (k === 'ArrowRight' || k === 'MediaFastForward') { seek(30); }
     else if (k === 'ArrowLeft' || k === 'MediaRewind') { seek(-30); }
     else if (k === 'MediaPlayPause' || k === ' ') {

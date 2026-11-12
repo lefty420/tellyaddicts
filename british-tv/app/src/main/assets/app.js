@@ -1211,6 +1211,11 @@
    * channel is chosen: a film's poster, the scraper's art.json, or what was looked up the last time this show was on.
    * null when there is none yet (the show is looked up in the background, so next time there is).
    */
+  var FILM_NAMES = null;
+  function isFilmChannelName(n) {
+    if (!FILM_NAMES) { FILM_NAMES = {}; channels.forEach(function (c) { if (OD_FILMS[c.id]) FILM_NAMES[normShow(c.name)] = 1; }); }
+    return !!FILM_NAMES[normShow(n)];
+  }
   function knownArt(prog) {
     if (!gartOn || !prog || prog.ad) return null;
     var film = filmFor(prog);
@@ -1218,6 +1223,7 @@
     var p = parseTitle(prog.title || '');
     if (prog.show) p.show = prog.show;
     if (!p.show) return null;
+    if (isFilmChannelName(p.show)) return null;      // "The Video Shop" / "Kids Movies" are channels, not shows: never look them up for a poster
     if (!artP) loadArt();
     var out = { poster: '', back: '' };
     var fxa = store.get('artfix:' + normShow(p.show));
@@ -1370,7 +1376,7 @@
             if (it.s) add(it.s); else (it.f || []).forEach(function (f) { if (Array.isArray(f)) add(f[1]); });
           });
         });
-        else channels.forEach(function (c) { (c.plan || []).forEach(function (p) { if (!p.filmKey && !p.ad) add(p.show || p.group); }); });
+        else channels.forEach(function (c) { if (OD_FILMS[c.id]) return; (c.plan || []).forEach(function (p) { if (!p.filmKey && !p.ad) add(p.show || p.group); }); });
         var noPic = [], noBack = [];
         list.forEach(function (n) {
           var m = store.get('artscan1:' + normShow(n));

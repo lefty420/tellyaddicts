@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.10",
-  "version": "0.45.10",
-  "code": 4510,
+  "name": "Alpha 0.45.11",
+  "version": "0.45.11",
+  "code": 4511,
   "date": "2026-11-12",
   "notes": [
-    "**The show library downloads again, which fixes missing film posters, wrong lengths and shows listed as raw file names.** The library file had grown just past the size the app would accept (by under a kilobyte), so every TV rejected it and fell back to old, thin data: no posters or details on films, every video listed as 45 minutes, and shows like Poirot under \"Other videos\". The limit is now far higher.",
-    "**On Demand opens while a film is playing.** It used to jump to the film and start it again straight away, so it looked as if On Demand would not open. It now opens on that film's poster."
+    "**Every film in The Video Shop and Kids Movies no longer shows the same wrong picture.** When the library could not load, the background artwork search looked up the channel names (\"The Video Shop\", \"Kids Movies\") as if they were TV shows, found an unrelated programme, and gave its picture to every film. Channel names are no longer looked up, and films without their own poster show a plain card with the title."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.10",
+      "date": "2026-11-12",
+      "notes": [
+        "**The show library downloads again, which fixes missing film posters, wrong lengths and shows listed as raw file names.** The library file had grown just past the size the app would accept (by under a kilobyte), so every TV rejected it and fell back to old, thin data: no posters or details on films, every video listed as 45 minutes, and shows like Poirot under \"Other videos\". The limit is now far higher.",
+        "**On Demand opens while a film is playing.** It used to jump to the film and start it again straight away, so it looked as if On Demand would not open. It now opens on that film's poster."
+      ]
+    },
     {
       "name": "Alpha 0.45.9",
       "date": "2026-11-12",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "notes": [
         "**On Demand from the guide menu goes straight to the show.** It could land on a different show because the highlighted channel was followed by row number, and the rows shift as each channel's list loads. It is now followed by channel.",
         "**Leaving On Demand puts you back where you were in the guide.** The channel, the time and the programme you held OK on are still selected."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.2",
-      "date": "2026-11-12",
-      "notes": [
-        "**On Demand ignores certificates.** Kids Movies and The Video Shop were showing almost nothing because On Demand hid films by certificate and time of day. It now lists every film that is stored, on both channels. The guide's schedule still follows the certificate rules."
       ]
     }
   ]

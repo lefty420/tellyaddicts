@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "4223abff2b",
+ "rev": "0ed5fa9c95",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
@@ -23,6 +23,21 @@
    "name": "Drama",
    "shows": [
     "Poirot"
+   ]
+  },
+  "games": {
+   "name": "Video Game Shows",
+   "shows": [
+    "Darkstalkers",
+    "Donkey Kong Country",
+    "Dragon's Lair",
+    "Fatal Fury",
+    "Final Fantasy",
+    "Pac-Man",
+    "Saturday Supercade",
+    "Tekken",
+    "Virtua Fighter",
+    "Zillion"
    ]
   },
   "mtv": {

@@ -458,7 +458,9 @@
 
   /** One channel's published list: from the whole library when that's in use, else its own file, else the bundled copy. */
   function loadChannelData(id, rev) {
-    if (libRevs && rev && rev === libRevs[id]) {
+    // a decade channel has no file of its own to compare against (the index lists none for 80's and 90's TV), so it
+    // always takes what the library routed to it
+    if (libRevs && ((rev && rev === libRevs[id]) || decadeOfChannel(id))) {
       return loadLibraryRoutes().then(function (routed) {
         if (routed && routed[id] && routed[id].length) return routed[id];
         return loadChannelFile(id, true);

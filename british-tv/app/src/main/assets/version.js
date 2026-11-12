@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.21",
-  "version": "0.45.21",
-  "code": 4521,
+  "name": "Alpha 0.45.22",
+  "version": "0.45.22",
+  "code": 4522,
   "date": "2026-11-12",
   "notes": [
-    "**Options from the guide.** The long-press menu on a programme in the TV guide now ends with Options, which closes the guide and opens the Options menu."
+    "**70's, 80's and 90's TV channels are back.** They are built from the library, but the app only used the library for a channel whose published revision matched, and the scraper's index lists none for 80's and 90's (and a stale one for 70's), so all three came up empty and hid themselves. They now always take what the library routes to them."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.21",
+      "date": "2026-11-12",
+      "notes": [
+        "**Options from the guide.** The long-press menu on a programme in the TV guide now ends with Options, which closes the guide and opens the Options menu."
+      ]
+    },
     {
       "name": "Alpha 0.45.20",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Ordinary channels only take episodes tracked by season and episode.** The library's dated or numbered videos (Top of the Pops, soap episodes, news, cartoon shorts and the like) no longer fill the drama, comedy, kids, decade and other everyday channels. They stay on the channels built for them (Soaps, Music, MTV, TV Archive, Disney, I'm Off School) and on the Christmas channels. Films and songs are unaffected."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.13",
-      "date": "2026-11-12",
-      "notes": [
-        "**Files that play with no sound are noticed.** Some .mkv files carry audio this TV cannot decode, so the picture plays in silence. The app now checks a few seconds in; on the TV it skips to the next programme and leaves that file out next time, and in On Demand it tells you to use Try another version. The debug log records \"NO SOUND\" with the file."
       ]
     }
   ]

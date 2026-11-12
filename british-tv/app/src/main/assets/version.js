@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.5",
-  "version": "0.45.5",
-  "code": 4505,
+  "name": "Alpha 0.45.6",
+  "version": "0.45.6",
+  "code": 4506,
   "date": "2026-11-12",
   "notes": [
-    "**Episodes with dotted file names are sorted into their seasons.** Files named like `Show.S01E01.1080p.BluRay.mkv` were landing under \"Other videos\" because the app could not read the episode code out of the dots. It now uses the library's own episode code when the file name cannot be read."
+    "**The show library now downloads reliably on slow connections.** The big library file (episode names, seasons, codes) was timing out on some TVs, so shows like Agatha Christie's Poirot appeared as raw file names under \"Other videos\". The app now waits longer, tries three times, and keeps a copy on the TV to fall back on."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.5",
+      "date": "2026-11-12",
+      "notes": [
+        "**Episodes with dotted file names are sorted into their seasons.** Files named like `Show.S01E01.1080p.BluRay.mkv` were landing under \"Other videos\" because the app could not read the episode code out of the dots. It now uses the library's own episode code when the file name cannot be read."
+      ]
+    },
     {
       "name": "Alpha 0.45.4",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**New guide menu entries.** Hold OK on a programme and you now get **Stream next episode** (plays the episode after it and carries on through the show), **Try another version** (plays a different stored copy of that episode or film; press again for the next copy) and **Scrape this show** (looks the show up again, pins the match, and re-sorts its stored files into seasons and episodes). Next showing and Stream link are gone."
-      ]
-    },
-    {
-      "name": "Alpha 0.42",
-      "date": "2026-11-12",
-      "notes": [
-        "**Cast on the Info screen.** A row of round photos with each actor's name and character, from TVmaze for programmes and from the film details for films (films show a cast once the film data carries one). The debugging lines that used to sit at the bottom of the Info screen are gone."
       ]
     }
   ]

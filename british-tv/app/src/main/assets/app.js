@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   var kv = {
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
@@ -211,7 +211,7 @@
         window.NativeHttp.get(id, url);
         setTimeout(function () {
           if (pending[id]) { delete pending[id]; if (++httpFails <= 40) dlog('REQUEST TIMED OUT  ' + url); rej(new Error('timeout')); }
-        }, 40000);
+        }, /\/data\/library\.json/.test(url) ? 120000 : 40000);
       });
     }
     return fetch(url).then(function (r) {
@@ -368,6 +368,29 @@
     return out;
   }
 
+  /** The 8 MB library is the one file a slow TV connection can fail to get. Try up to three times, keep the last good
+   *  copy on the TV, and use that copy when the download still fails, so shows keep their episode details. */
+  function fetchLibrary(libRev) {
+    var url = DATA_BASE + 'library.json', tries = 0;
+    function cached() {
+      var t = null; try { t = store.get('libtxt1:main'); } catch (e) { /* ignore */ }
+      if (!t || typeof t !== 'string') throw new Error('no library');
+      dlog('library.json: using the copy saved on this TV');
+      return JSON.parse(t);
+    }
+    function go() {
+      return http(url).then(function (txt) {
+        var j = JSON.parse(txt);
+        try { store.set('libtxt1:main', txt); } catch (e) { /* too big to keep: fine */ }
+        return j;
+      }, function (err) {
+        if (++tries < 3) return new Promise(function (r) { setTimeout(r, 3000 * tries); }).then(go);
+        return cached();
+      });
+    }
+    return go();
+  }
+
   /** {channel: rows} from the whole library; null if it or shows.json can't be had. */
   var removedRev = '';     // index.json "removed": revision of data/removed-shows.json
   function loadLibraryRoutes(libRev, showsText) {
@@ -377,7 +400,7 @@
     var routesP = getJSON(DATA_BASE + 'routes.json').then(null, function () { return null; });
     // shows the scraper has removed for good: only asked for when the index says there are some
     var removedP = removedRev ? getJSON(DATA_BASE + 'removed-shows.json').then(function (x) { return (x && x.shows) || []; }, function () { return []; }) : Promise.resolve([]);
-    libP = Promise.all([getJSON(DATA_BASE + 'library.json'), showsP, routesP, removedP]).then(function (r) {
+    libP = Promise.all([fetchLibrary(libRev), showsP, routesP, removedP]).then(function (r) {
       var lib = r[0], shows = r[1];
       if (!lib || !lib.shows || !shows || !window.LIBROUTE || (libRev && lib.rev && lib.rev !== libRev)) return null;
       return LIBROUTE.route(lib, mergeRoutes(shows, r[2]), r[3]);

@@ -352,8 +352,8 @@ public class MainActivity extends Activity {
                             throw new SecurityException("blocked url");
                         }
                         c = (HttpURLConnection) new URL(url).openConnection();
-                        c.setConnectTimeout(15000);
-                        c.setReadTimeout(30000);
+                        c.setConnectTimeout(20000);
+                        c.setReadTimeout(url.contains("/data/library.json") ? 90000 : 30000);
                         c.setRequestProperty("User-Agent", "BritishTV/1.0 (Android TV)");
                         status = c.getResponseCode();
                         InputStream in = status >= 200 && status < 300 ? c.getInputStream() : c.getErrorStream();

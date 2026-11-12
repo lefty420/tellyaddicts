@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.9 — 2026-11-12
+
+- **More pictures flick through the start-up TV while it tunes.** The pictures no longer wait for the whole show library to download: the app uses the artwork it already has saved (or asks for the artwork list on its own), so about two dozen show pictures are ready within a second or two.
+
 ## Alpha 0.45.8 — 2026-11-12
 
 - **"Please stand by" text keeps clear of the TV picture.** The text column now starts further right and a long "Coming up" title wraps onto a second line instead of running under the TV.

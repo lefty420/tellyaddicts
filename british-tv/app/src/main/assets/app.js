@@ -900,16 +900,29 @@
   function spLoadPics() {
     if (spPicsTried) return;
     spPicsTried = 1;
-    loadArt().then(function (idx) {
+    // Don't wait for the whole library (loadArt does): use the artwork list already saved on this TV straight away,
+    // and only if there is none ask for art.json on its own.
+    function use(idx) {
       if (!idx) return;
-      var keys = Object.keys(idx), tries = 0;
-      while (spPics.length < 12 && tries++ < 60 && keys.length) {
+      var keys = Object.keys(idx), tries = 0, n = 0;
+      while (n < 24 && tries++ < 150 && keys.length) {
         var e = idx[keys[(Math.random() * keys.length) | 0]];
         var u = (e && (e.b || e.p)) || '';
         if (!u || spPics.indexOf(u) >= 0) continue;
         u = u.replace('/original_untouched/', e.b ? '/medium_landscape/' : '/medium_portrait/');
+        n++;
         (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) spPics.push(url); }; im.src = url; })(u);
       }
+    }
+    var cachedIdx = null;
+    try {
+      kv.keys().forEach(function (k) { if (!cachedIdx && k && k.indexOf('artdb1:') === 0) { var c = store.get(k); if (c && c.idx) cachedIdx = c.idx; } });
+    } catch (e) { /* none saved */ }
+    if (cachedIdx) { use(cachedIdx); return; }
+    getJSON(DATA_BASE + 'art.json').then(function (j) {
+      var idx = {};
+      Object.keys((j && j.shows) || {}).forEach(function (n) { idx[n] = j.shows[n]; });
+      use(idx);
     }).then(null, function () { /* static only */ });
   }
   // The set hunts like a real one: static, a picture flicks up for a moment, static again, another picture ...
@@ -921,9 +934,9 @@
     for (var i = 0; i < d.length; i += 4) { var v = (Math.random() * 255) | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
     x.putImageData(spNoiseImg, 0, 0);
     if (--spTick <= 0) {
-      if (spPic || !spPics.length) { spPic = false; spTick = 3 + ((Math.random() * 5) | 0); }
+      if (spPic || !spPics.length) { spPic = false; spTick = 2 + ((Math.random() * 3) | 0); }
       else {
-        spPic = true; spJit = true; spTick = 6 + ((Math.random() * 6) | 0);
+        spPic = true; spJit = true; spTick = 7 + ((Math.random() * 6) | 0);
         $('sppic').style.backgroundImage = 'url("' + spPics[(Math.random() * spPics.length) | 0] + '")';
       }
     } else if (spJit && spTick < 4) spJit = false;

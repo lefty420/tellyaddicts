@@ -269,7 +269,7 @@
     { id: '1w', label: '1 week', h: 168 },
     { id: '1m', label: '1 month', h: 720 }
   ];
-  var spanIdx = 3;
+  var spanIdx = 0;
   (function () { var id = store.get('span1'); for (var i = 0; i < SPANS.length; i++) if (SPANS[i].id === id) spanIdx = i; })();
   // Bumped by Options > Refresh listings. It goes into each channel's running order, so every channel comes back
   // with its programmes in different places, and into the cache keys, so the lists are gathered again from source.

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.15",
-  "version": "0.45.15",
-  "code": 4515,
+  "name": "Alpha 0.45.16",
+  "version": "0.45.16",
+  "code": 4516,
   "date": "2026-11-12",
   "notes": [
-    "**Guide length option (Options > Guide length): 24 hours, 48 hours, 1 week or 1 month.** It sets how much airtime each channel's guide covers before it repeats. For the everyday channels the app picks a varied mix of programmes (one from each show in turn, so no show takes over) from what the channel's rules already allow. Soaps, Saturday Night TV, The Video Shop, TV Archive and Drama, which follow a clock timetable, now lay out each day (or week) afresh instead of repeating the same 24 hours, for as many days as you choose. The default is 1 month. On Demand is not affected and still lists everything."
+    "**The guide length now starts at 24 hours**, so a fresh install starts up quickly. Choose a longer one in Options > Guide length."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.15",
+      "date": "2026-11-12",
+      "notes": [
+        "**Guide length option (Options > Guide length): 24 hours, 48 hours, 1 week or 1 month.** It sets how much airtime each channel's guide covers before it repeats. For the everyday channels the app picks a varied mix of programmes (one from each show in turn, so no show takes over) from what the channel's rules already allow. Soaps, Saturday Night TV, The Video Shop, TV Archive and Drama, which follow a clock timetable, now lay out each day (or week) afresh instead of repeating the same 24 hours, for as many days as you choose. The default is 24 hours. On Demand is not affected and still lists everything."
+      ]
+    },
     {
       "name": "Alpha 0.45.14",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**\"Please stand by\" text keeps clear of the TV picture.** The text column now starts further right and a long \"Coming up\" title wraps onto a second line instead of running under the TV."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.7",
-      "date": "2026-11-12",
-      "notes": [
-        "**\"Please stand by\" no longer runs under the programme banner.** The Telly Addicts logo and the text beneath it sit higher, so \"This channel is loading\" is no longer cut off."
       ]
     }
   ]

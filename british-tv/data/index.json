@@ -1,7 +1,7 @@
 {
- "updated": "2026-11-12T22:48:21Z",
+ "updated": "2026-11-12T23:23:46Z",
  "channels": {
-  "bbc": "aea359247b",
+  "bbc": "32739331ac",
   "childrens": "4271ade62f",
   "christmas": "4f3c71ff57",
   "citv": "d67d689d9f",
@@ -10,7 +10,7 @@
   "disney": "d837d0a042",
   "drama": "9c07f54554",
   "games": "a5dc124cdd",
-  "gameshows": "e1cef7e29d",
+  "gameshows": "b4d0f45bee",
   "itv": "4541c33f7c",
   "kidsmovies": "ddc85354bb",
   "kidsxmas": "4f8905c410",
@@ -28,7 +28,7 @@
   "xmasmusic": "b98a69e5a6"
  },
  "counts": {
-  "bbc": 1267,
+  "bbc": 1268,
   "childrens": 529,
   "christmas": 314,
   "citv": 1030,
@@ -37,7 +37,7 @@
   "disney": 361,
   "drama": 185,
   "games": 358,
-  "gameshows": 571,
+  "gameshows": 572,
   "itv": 878,
   "kidsmovies": 80,
   "kidsxmas": 96,
@@ -54,11 +54,11 @@
   "videoshop": 322,
   "xmasmusic": 68
  },
- "library": "2f91211e5e",
+ "library": "e34eef07ea",
  "library_counts": {
   "shows": 523,
-  "episodes": 42110,
-  "copies": 113315
+  "episodes": 42111,
+  "copies": 113317
  },
  "routes": "d828a145cd",
  "art": "2fe3cab3b3",

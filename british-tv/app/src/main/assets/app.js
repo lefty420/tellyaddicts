@@ -2852,6 +2852,7 @@
   }
   function gapAnalyse(name, chans, have, others, g) {
     var rec = { show: name, channels: chans, files: 0, other: others };
+    if (g && g.art && g.art.i) rec.tvmaze = g.art.i;          // TVmaze's id for the show, when the scraper's art list has it
     var hs = Object.keys(have);
     hs.forEach(function (sn) { rec.files += have[sn].length; });
     rec.have = {};
@@ -2932,12 +2933,13 @@
     var r = gapState.report;
     var shows = r.shows.filter(function (x) { return x.guide ? (x.missingCount || 0) > 0 : true; }).map(function (x) {
       var o = { show: x.show, channels: x.channels, have_files: x.files, other_videos: x.other, have: x.have };
+      if (x.tvmaze) o.tvmaze_id = x.tvmaze;
       if (x.guide) { o.missing_seasons = x.missingSeasons; o.missing_episodes = x.missing; o.guide_episodes = x.guideEpisodes; o.missing_count = x.missingCount; }
       else o.no_episode_guide = true;
       return o;
     });
-    return JSON.stringify({ generated: new Date(r.t).toISOString(), app: r.app, era: r.era, summary: r.summary,
-      note: 'have/missing are season -> episode ranges. missing_seasons are seasons with nothing on the TV; missing_episodes are gaps inside a season we do have. Counts only episodes aired 1999 or earlier.',
+    return JSON.stringify({ format: 'telly-addicts-missing', v: 1, generated: new Date(r.t).toISOString(), app: r.app, era: r.era, summary: r.summary,
+      note: 'have/missing are season -> episode ranges. missing_seasons are seasons with nothing on the TV; missing_episodes are gaps inside a season we do have. Ranges are comma-separated and inclusive, like "1-6,9". Counts only episodes aired 1999 or earlier.',
       shows: shows }, null, 1);
   }
   function buildGaps() {

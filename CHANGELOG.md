@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.12 — 2026-11-12
+
+- **The missing episodes report is now a proper import file.** It starts with `format: "telly-addicts-missing"` and a version number, and each show carries TVmaze's id when it is known, so the scraper can load it and go and find what is missing.
+
 ## Alpha 0.45.11 — 2026-11-12
 
 - **Every film in The Video Shop and Kids Movies no longer shows the same wrong picture.** When the library could not load, the background artwork search looked up the channel names ("The Video Shop", "Kids Movies") as if they were TV shows, found an unrelated programme, and gave its picture to every film. Channel names are no longer looked up, and films without their own poster show a plain card with the title.

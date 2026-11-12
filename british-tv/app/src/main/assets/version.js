@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.11",
-  "version": "0.45.11",
-  "code": 4511,
+  "name": "Alpha 0.45.12",
+  "version": "0.45.12",
+  "code": 4512,
   "date": "2026-11-12",
   "notes": [
-    "**Every film in The Video Shop and Kids Movies no longer shows the same wrong picture.** When the library could not load, the background artwork search looked up the channel names (\"The Video Shop\", \"Kids Movies\") as if they were TV shows, found an unrelated programme, and gave its picture to every film. Channel names are no longer looked up, and films without their own poster show a plain card with the title."
+    "**The missing episodes report is now a proper import file.** It starts with `format: \"telly-addicts-missing\"` and a version number, and each show carries TVmaze's id when it is known, so the scraper can load it and go and find what is missing."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.11",
+      "date": "2026-11-12",
+      "notes": [
+        "**Every film in The Video Shop and Kids Movies no longer shows the same wrong picture.** When the library could not load, the background artwork search looked up the channel names (\"The Video Shop\", \"Kids Movies\") as if they were TV shows, found an unrelated programme, and gave its picture to every film. Channel names are no longer looked up, and films without their own poster show a plain card with the title."
+      ]
+    },
     {
       "name": "Alpha 0.45.10",
       "date": "2026-11-12",
@@ -57,14 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Films in On Demand are listed one by one.** Kids Movies and The Video Shop showed a single card holding every film. Each film is now its own card in the row, like a TV show, and OK on one plays it straight away."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.3",
-      "date": "2026-11-12",
-      "notes": [
-        "**On Demand from the guide menu goes straight to the show.** It could land on a different show because the highlighted channel was followed by row number, and the rows shift as each channel's list loads. It is now followed by channel.",
-        "**Leaving On Demand puts you back where you were in the guide.** The channel, the time and the programme you held OK on are still selected."
       ]
     }
   ]

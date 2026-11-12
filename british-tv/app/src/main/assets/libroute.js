@@ -96,14 +96,15 @@
     return m ? +m[1] : 0;
   }
   /** Which decade (1970, 1980 ...) an episode belongs to, or 0 if that cannot be said. An episode with an air date is
-   *  simply of that year. One without goes by when its show began, but only if everything dated in the show agrees:
+   *  simply of that year. One without goes by when its show began, but only if the show ended in that decade (tv.ye, when known) and everything dated in it agrees:
    *  a show that began in 1985 and has episodes dated 2001 is not trusted to put an undated one in the eighties. */
   function decadeOf(ep, sh, span) {
     var y = yearOf(ep);
     if (y) return Math.floor(y / 10) * 10;
     var py = parseInt(sh.tv && sh.tv.y, 10);
     if (!(py > 1900)) return 0;
-    var base = Math.floor(py / 10) * 10;
+    var base = Math.floor(py / 10) * 10, ye = parseInt(sh.tv && sh.tv.ye, 10);
+    if (ye > 1900 && Math.floor(ye / 10) * 10 !== base) return 0;        // the show ran on into another decade
     return !span.max || Math.floor(span.max / 10) * 10 === base ? base : 0;
   }
 

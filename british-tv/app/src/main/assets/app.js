@@ -3692,6 +3692,7 @@
 
   var bootedAt = Date.now();
   var FIRST_WAIT = 8000;      // how long to hold the loading screen for the channel we want to open on
+  var ALL_WAIT = 30000;       // ... and for every other channel to finish, so the guide opens complete, not still filling in
 
   function begin() {
     var list = ready();
@@ -3703,6 +3704,8 @@
     var prefer = channels.filter(function (c) { return c.id === want; })[0] ||
                  channels.slice().sort(function (a, b) { return a.n - b.n; })[0];
     if (prefer && prefer.status === 'loading' && Date.now() - bootedAt < FIRST_WAIT) return;
+    // stay on the loading screen until every channel has answered (or a slow connection runs out the clock)
+    if (Date.now() - bootedAt < ALL_WAIT && channels.some(function (c) { return c.status === 'loading'; })) return;
     started = true;
     $('splash').className = 'hidden';
     var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];

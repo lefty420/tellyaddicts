@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.12",
-  "version": "0.45.12",
-  "code": 4512,
+  "name": "Alpha 0.45.13",
+  "version": "0.45.13",
+  "code": 4513,
   "date": "2026-11-12",
   "notes": [
-    "**The missing episodes report is now a proper import file.** It starts with `format: \"telly-addicts-missing\"` and a version number, and each show carries TVmaze's id when it is known, so the scraper can load it and go and find what is missing."
+    "**Files that play with no sound are noticed.** Some .mkv files carry audio this TV cannot decode, so the picture plays in silence. The app now checks a few seconds in; on the TV it skips to the next programme and leaves that file out next time, and in On Demand it tells you to use Try another version. The debug log records \"NO SOUND\" with the file."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.12",
+      "date": "2026-11-12",
+      "notes": [
+        "**The missing episodes report is now a proper import file.** It starts with `format: \"telly-addicts-missing\"` and a version number, and each show carries TVmaze's id when it is known, so the scraper can load it and go and find what is missing."
+      ]
+    },
     {
       "name": "Alpha 0.45.11",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Episodes with dotted file names are sorted into their seasons.** Files named like `Show.S01E01.1080p.BluRay.mkv` were landing under \"Other videos\" because the app could not read the episode code out of the dots. It now uses the library's own episode code when the file name cannot be read."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.4",
-      "date": "2026-11-12",
-      "notes": [
-        "**Films in On Demand are listed one by one.** Kids Movies and The Video Shop showed a single card holding every film. Each film is now its own card in the row, like a TV show, and OK on one plays it straight away."
       ]
     }
   ]

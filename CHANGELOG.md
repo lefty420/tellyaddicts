@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.13 — 2026-11-12
+
+- **Files that play with no sound are noticed.** Some .mkv files carry audio this TV cannot decode, so the picture plays in silence. The app now checks a few seconds in; on the TV it skips to the next programme and leaves that file out next time, and in On Demand it tells you to use Try another version. The debug log records "NO SOUND" with the file.
+
 ## Alpha 0.45.12 — 2026-11-12
 
 - **The missing episodes report is now a proper import file.** It starts with `format: "telly-addicts-missing"` and a version number, and each show carries TVmaze's id when it is known, so the scraper can load it and go and find what is missing.

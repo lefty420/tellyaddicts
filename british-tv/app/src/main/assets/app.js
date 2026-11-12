@@ -1708,6 +1708,21 @@
       markSlow(cur.prog.id); nextInChannel();
     }, 5000);
   });
+  // The reverse: a picture but no sound. A file whose audio this TV cannot decode (AC3/DTS in an .mkv, mostly) plays
+  // in silence with nothing to say so. The page can see how many audio bytes were decoded.
+  v.addEventListener('playing', function () {
+    var watched = cur;
+    setTimeout(function () {
+      if (cur !== watched || !cur || cur.ad || !cur.prog || v.paused || v.muted || !(v.currentTime > 3)) return;
+      if (typeof v.webkitAudioDecodedByteCount !== 'number' || v.webkitAudioDecodedByteCount > 0) return;
+      var mkv = !/\.(mp4|m4v)(\?|$)/i.test(cur.prog.url || '');
+      dlog('NO SOUND ' + (cur.prog.title || '') + ': the picture plays but no audio was decoded (' + (mkv ? 'not an mp4: probably audio this TV cannot play' : 'an mp4, so it may simply have no sound') + ')');
+      if (!mkv) return;
+      markSlow(cur.prog.id);
+      if (cur.od) toast('No sound on this file. In the guide, hold OK on it and choose Try another version', 6000);
+      else nextInChannel();
+    }, 6000);
+  });
   v.addEventListener('error', function () {
     dlog('FAILED ' + (cur && cur.ad ? 'advert ' : '') + (cur && cur.prog ? (cur.prog.title || '') : '') + ' (' + playState() + ')');
     diagnose(pb.url);

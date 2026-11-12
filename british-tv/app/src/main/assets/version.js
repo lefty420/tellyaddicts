@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.37",
-  "version": "0.45.37",
-  "code": 4537,
+  "name": "Alpha 0.45.38",
+  "version": "0.45.38",
+  "code": 4538,
   "date": "2026-11-12",
   "notes": [
-    "**On Demand: left and right change season** while you are in the episode list (they already did on the season strip). The episode pictures are 50% bigger, so three episodes show at a time instead of four."
+    "**Donkey Kong Country** episodes that were really the \"Super Beard Bros.\" game-play videos are left out (the cartoon stays). Other YouTube game-play series (Game Grumps, Achievement Hunter, Yogscast, \"Let's Play\") are turned away from every channel the same way."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.37",
+      "date": "2026-11-12",
+      "notes": [
+        "**On Demand: left and right change season** while you are in the episode list (they already did on the season strip). The episode pictures are 50% bigger, so three episodes show at a time instead of four."
+      ]
+    },
     {
       "name": "Alpha 0.45.36",
       "date": "2026-11-12",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Episodes filed under the wrong show are dropped.** When the file clearly belongs to a different show and only the episode's title matches (Mobile Suit Gundam Wing's \"Eternal Flame of the Shooting Stars\" listed as Shooting Stars; Community's \"Advanced Dungeons & Dragons\"; Sooty & Co's \"Surprise Surprise\" and \"Blind Date\"), it no longer appears on any channel or On Demand. Checked against the whole library: 18 episodes, all wrong."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.29",
-      "date": "2026-11-12",
-      "notes": [
-        "**Video game playthroughs are kept off the channels.** The Kids Movies channel was showing a Lego Star Wars PS3 playthrough as the 1977 film, and the Disney channel had a run of NES/SNES/Mega Drive \"Longplay\" videos. Anything titled as a longplay, playthrough, walkthrough, gameplay or with a console tag like [PS3] now stays off every channel except Video Games (and On Demand)."
       ]
     }
   ]

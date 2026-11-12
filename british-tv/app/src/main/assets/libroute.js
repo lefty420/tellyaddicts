@@ -97,8 +97,11 @@
    *  turns up after the code. (Checked over the whole library: it catches the wrong ones and nothing else.) */
   // Shows where the library holds a different programme of the same name: the file names give it away
   var OTHER_VERSION = { 'mr bean': /animated/i };      // the 1990s sitcom, not the 2002 cartoon
+  // Game-play channels from YouTube that share a name with a cartoon or series ("Donkey Kong Country" by Super Beard Bros.)
+  var PLAYER_CHANNELS = /super\s*beard\s*bros|game\s*grumps|achievement\s*hunter|yogscast|let'?s\s*play|dunkey/i;
   function wrongShow(sh, ep) {
     if (sh.film || sh.song) return false;
+    if (PLAYER_CHANNELS.test(String(ep.f || '') + ' ' + String(ep.id || '') + ' ' + String(ep.t || ''))) return true;
     var ov = OTHER_VERSION[String(sh.n || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()];
     if (ov && ov.test(String(ep.f || '') + ' ' + String(ep.id || ''))) return true;
     function norm(t) { return String(t || '').toLowerCase().replace(/[_.\-:'\u2019,!?()\[\]]+/g, ' ').replace(/\s+/g, ' ').trim(); }

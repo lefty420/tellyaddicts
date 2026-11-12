@@ -2993,11 +2993,80 @@
     })));
     body.scrollTop = top;
   }
+  // ------------------------------------------------------------------ EPG debug (Options > EPG debug)
+  var epgDbgCh = null;
+  function epgDbgChannels() { return channels.filter(function (c) { return c.status === 'ready' && c.sched; }); }
+  function epgDbgMove(d) {
+    var list = epgDbgChannels(); if (!list.length) return;
+    var i = Math.max(0, list.indexOf(epgDbgCh));
+    epgDbgCh = list[(i + (d < 0 ? list.length - 1 : 1)) % list.length];
+    buildEpgDebug(true);
+  }
+  function buildEpgDebug(keepScroll) {
+    var body = $('rbody'), top = body.scrollTop;
+    body.textContent = '';
+    $('rkick').textContent = 'EPG debug';
+    var list = epgDbgChannels();
+    if (!epgDbgCh || list.indexOf(epgDbgCh) < 0) epgDbgCh = (gChan && list.indexOf(gChan) >= 0 ? gChan : (cur && list.indexOf(cur.ch) >= 0 ? cur.ch : list[0])) || null;
+    var c = epgDbgCh;
+    if (!c) { $('rver').textContent = ''; $('rdate').textContent = ''; body.appendChild(relList(['No channel is ready yet.'])); return; }
+    var s = c.sched, now = Date.now();
+    $('rver').textContent = c.n + '  ' + c.name + '      ◀ ▶ change channel';
+    $('rdate').textContent = '\u25C0 \u25B6 change channel   \u00b7   what the guide is made of, and what it shows for the next 24 hours';
+    function h3(t) { var e = document.createElement('h3'); e.textContent = t; body.appendChild(e); }
+    // the blocks the guide will show from now for a day
+    var rows = [], b = E.blockAt(s, now), n = 0;
+    while (b && n < 600 && (!rows.length || b.startMs < rows[0].startMs + 24 * 3600 * 1000)) { rows.push(b); b = E.stepBlock(s, b, 1); n++; }     // exactly one day from the block on now, so a daily timetable does not count its own repeat
+    var key = function (p) { return String(p.show || p.group || String(p.title || '').replace(/\s+S\d+E\d+.*$/i, '')).toLowerCase(); };
+    var cnt = {}, urls = {}, dupes = [], unknownLen = 0, uncoded = 0, runs = [];
+    var uniq = {};
+    s.order.forEach(function (p) { var k = key(p); cnt[k] = (cnt[k] || 0) + 1; uniq[k] = p.show || p.group || p.title; if (!(p.lenKnown)) unknownLen++; if (!/S\d+E\d+/i.test(p.title || '') && !p.filmKey) uncoded++; });
+    var run = 0, prev = '', runStart = 0;
+    rows.forEach(function (bl, i) {
+      var k = key(bl.prog);
+      if (k === prev) run++; else { if (run >= 3) runs.push({ show: uniq[prev] || prev, n: run, at: runStart }); run = 1; prev = k; runStart = bl.startMs; }
+      if (urls[bl.prog.url]) dupes.push(bl.prog.title); urls[bl.prog.url] = 1;
+    });
+    if (run >= 3) runs.push({ show: uniq[prev] || prev, n: run, at: runStart });
+    var kind = s.cycle === 'multi' ? 'a clock timetable, ' + s.n + ' ' + (s.unit === 604800 ? 'weeks' : 'days') + ' before it repeats'
+      : s.cycle === 'week' ? 'a clock timetable that repeats every week' : s.cycle === 'day' ? 'a clock timetable that repeats every day'
+      : 'one shuffled loop of ' + (s.total / 3600).toFixed(1) + ' hours';
+    h3('This channel');
+    body.appendChild(relList([
+      'Guide length setting: ' + SPANS[spanIdx].label,
+      'Built as ' + kind,
+      s.order.length + ' programmes in the schedule, ' + Object.keys(cnt).length + ' different shows, ' + (s.total / 3600).toFixed(1) + ' hours in all',
+      (c.plan ? c.plan.length : '?') + ' programmes stored for this channel before the guide length is applied',
+      'Where it comes from: ' + (c.decade ? 'the library, only ' + c.decade + 's (' + (c.decade + 9) + ')' : c.autoUsed ? 'the scraper’s whole library' : 'the channel’s own list'),
+      unknownLen + ' programmes have no confirmed running time; ' + uncoded + ' have no season and episode'
+    ]));
+    h3('Problems found in the next 24 hours');
+    var probs = [];
+    runs.forEach(function (r) { probs.push(r.show + ' is on ' + r.n + ' times in a row from ' + fmtTime(r.at)); });
+    if (dupes.length) probs.push(dupes.length + ' programme' + (dupes.length > 1 ? 's repeat' : ' repeats') + ' within the day: ' + dupes.slice(0, 3).join('; '));
+    var topShow = Object.keys(cnt).sort(function (x, y) { return cnt[y] - cnt[x]; })[0];
+    if (topShow && cnt[topShow] / s.order.length > 0.4 && Object.keys(cnt).length > 1) probs.push(uniq[topShow] + ' fills ' + Math.round(100 * cnt[topShow] / s.order.length) + '% of the schedule');
+    body.appendChild(relList(probs.length ? probs : ['None: no show three times in a row, no repeats within the day.']));
+    h3('Most common shows');
+    body.appendChild(relList(Object.keys(cnt).sort(function (x, y) { return cnt[y] - cnt[x]; }).slice(0, 10).map(function (k) { return uniq[k] + ': ' + cnt[k]; })));
+    h3('Next 24 hours');
+    var ul = document.createElement('ul'), prevK = '', runN = 0;
+    rows.forEach(function (bl) {
+      var k = key(bl.prog); runN = k === prevK ? runN + 1 : 1; prevK = k;
+      var li = document.createElement('li');
+      li.textContent = fmtTime(bl.startMs) + '  ' + Math.round((bl.endMs - bl.startMs) / 60000) + ' min   ' + (bl.prog.title || '?') + (bl.count > 1 ? '  (+' + (bl.count - 1) + ' more)' : '') + (runN >= 3 ? '    ← ' + runN + ' in a row' : '');
+      ul.appendChild(li);
+    });
+    body.appendChild(ul);
+    body.scrollTop = keepScroll ? top : 0;
+    relMore();
+  }
+
   var relRow = 'rel';
   function openRel(which) {
     closeOpts();
-    relRow = which === 'about' || which === 'log' || which === 'gaps' ? which : 'rel';
-    if (relRow === 'about') buildAbout(); else if (relRow === 'log') buildLog(); else if (relRow === 'gaps') { buildGaps(); gapStart(false); } else buildRel();
+    relRow = which === 'about' || which === 'log' || which === 'gaps' || which === 'epg' ? which : 'rel';
+    if (relRow === 'about') buildAbout(); else if (relRow === 'log') buildLog(); else if (relRow === 'gaps') { buildGaps(); gapStart(false); } else if (relRow === 'epg') buildEpgDebug(); else buildRel();
     relOpen = true;
     $('rel').className = '';
     $('rbody').scrollTop = 0;
@@ -3020,6 +3089,7 @@
     var b = $('rbody'), step = Math.max(80, Math.round(b.clientHeight * 0.55));
     if (k === 'ArrowDown' || k === 'ChannelDown') { b.scrollTop += step; relMore(); }
     else if (k === 'ArrowUp' || k === 'ChannelUp') { b.scrollTop -= step; relMore(); }
+    else if (relRow === 'epg' && (k === 'ArrowLeft' || k === 'ArrowRight')) epgDbgMove(k === 'ArrowLeft' ? -1 : 1);
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Enter' || k === ' ' || k === 'Info') closeRel();
     else if (k === 'Guide' || k === 'Red') { relOpen = false; $('rel').className = 'hidden'; openGuide(); }
     else return false;
@@ -3035,7 +3105,7 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['od', 'ar', 'fx', 'gart', 'mkeep', 'mclear', 'ads', 'buf', 'auto', 'span', 'keep', 'refresh', 'rel', 'about', 'gaps', 'log'];
+  var OPTS = ['od', 'ar', 'fx', 'gart', 'mkeep', 'mclear', 'ads', 'buf', 'auto', 'span', 'keep', 'refresh', 'rel', 'about', 'gaps', 'epg', 'log'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -3050,7 +3120,7 @@
     if (id === 'mkeep') return META_KEEP[metaIdx].label;
     if (id === 'mclear') return metaSizeText || '\u2026';
     if (id === 'gaps') return gapState.report ? gapState.report.summary.gaps + ' shows with gaps' : '';
-    if (id === 'about' || id === 'log' || id === 'od') return '';
+    if (id === 'about' || id === 'log' || id === 'od' || id === 'epg') return '';
     return autoEpg ? 'On' : 'Off';
   }
 
@@ -3114,7 +3184,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
     mkeep: 'How long artwork and episode details are remembered before they are looked up again. Permanent keeps them until you clear them.',
@@ -3131,6 +3201,7 @@
     refresh: 'Throws away every line-up and builds them all again in a new running order.',
     rel: 'What changed in this version and the ones before it.',
     about: 'Where the programmes, artwork and details come from.',
+    epg: 'What each channel\u2019s guide is built from and what it will show for the next 24 hours, with any problems such as the same show three times in a row.',
     log: 'What failed to play and why, ready to send when something goes wrong.'
   };
   var optsShown = {};     // what each row last said, so a key press only touches the rows that changed
@@ -3200,6 +3271,7 @@
     else if (id === 'rel') openRel('rel');
     else if (id === 'log') openRel('log');
     else if (id === 'gaps') openRel('gaps');
+    else if (id === 'epg') openRel('epg');
     else if (id === 'about') openRel('about');
     else toggleAuto();
   }

@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.16",
-  "version": "0.45.16",
-  "code": 4516,
+  "name": "Alpha 0.45.17",
+  "version": "0.45.17",
+  "code": 4517,
   "date": "2026-11-12",
   "notes": [
-    "**The guide length now starts at 24 hours**, so a fresh install starts up quickly. Choose a longer one in Options > Guide length."
+    "**No more three of the same show in a row.** The running order now mixes shows so the same one does not come round again straight away, and on the timetable channels (Saturday Night TV and the others) a programme that has already been on today is passed over for another. This fixes Noel's House Party playing three times in a row.",
+    "**EPG debug (Options > EPG debug).** Shows how each channel's guide was built and what it will show for the next 24 hours, and flags problems such as the same show three times in a row, repeats within the day, or one show taking over. Left and right change channel."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.16",
+      "date": "2026-11-12",
+      "notes": [
+        "**The guide length now starts at 24 hours**, so a fresh install starts up quickly. Choose a longer one in Options > Guide length."
+      ]
+    },
     {
       "name": "Alpha 0.45.15",
       "date": "2026-11-12",
@@ -57,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**More pictures flick through the start-up TV while it tunes.** The pictures no longer wait for the whole show library to download: the app uses the artwork it already has saved (or asks for the artwork list on its own), so about two dozen show pictures are ready within a second or two."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.8",
-      "date": "2026-11-12",
-      "notes": [
-        "**\"Please stand by\" text keeps clear of the TV picture.** The text column now starts further right and a long \"Coming up\" title wraps onto a second line instead of running under the TV."
       ]
     }
   ]

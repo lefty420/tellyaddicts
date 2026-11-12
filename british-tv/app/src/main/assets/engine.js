@@ -409,6 +409,36 @@
     return sched.cycle === 'week' ? d.getDay() * DAY_SEC + s : s;
   }
 
+  function showKey(p) { return String(p.show || p.group || String(p.title || '').replace(/\s+S\d+E\d+.*$/i, '')).toLowerCase(); }
+  /** Mix a shuffled list so the same show does not come round again straight away. Each place is filled by a show
+   *  chosen at random in proportion to how many episodes it has left, never the one that just played, so a show with
+   *  lots of episodes appears often but not three in a row. A list that is all one show is left as it is. */
+  function spread(list, seed) {
+    if (!list || list.length < 3) return list;
+    var by = {}, keys = [];
+    list.forEach(function (p) { var k = showKey(p); if (!by[k]) { by[k] = []; keys.push(k); } by[k].push(p); });
+    if (keys.length < 2) return list;
+    var st = (seed || 1) >>> 0;
+    function rnd() { st = (st + 0x6D2B79F5) >>> 0; var t = st; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }
+    var left = list.length, out = [], last = null;
+    while (left > 0) {
+      var total = 0, i;
+      for (i = 0; i < keys.length; i++) if (keys[i] !== last) total += Math.pow(by[keys[i]].length, 3);
+      var pick = null;
+      if (total > 0) {
+        var r = rnd() * total;
+        for (i = 0; i < keys.length; i++) {
+          if (keys[i] === last || !by[keys[i]].length) continue;
+          r -= Math.pow(by[keys[i]].length, 3);
+          if (r < 0) { pick = keys[i]; break; }
+        }
+        if (pick === null) for (i = 0; i < keys.length; i++) if (keys[i] !== last && by[keys[i]].length) { pick = keys[i]; break; }
+      } else pick = last;                                   // only one show left: nothing else to put between
+      out.push(by[pick].shift()); last = pick; left--;
+    }
+    return out;
+  }
+
   /** Several clock schedules (one per day, or per week) chained into one that only repeats after all of them.
    *  Each has to be exactly one cycle long, or the clock would drift; if one is not, just the first is used. */
   function joinCycles(list) {
@@ -481,7 +511,7 @@
       var at = typeof b.at === 'number' ? b.at : clockSec(b.at);
       var items = (b.items || []).filter(function (p) { return p && p.dur > 0; });
       if (at === null || at === undefined || !items.length) return;
-      marks.push({ at: ((at % span) + span) % span, exact: !!b.exact, items: shuffle(items, seeded ^ at) });
+      marks.push({ at: ((at % span) + span) % span, exact: !!b.exact, items: spread(shuffle(items, seeded ^ at), seeded ^ at ^ 0x3c3c) });
     });
     if (!marks.length) return null;
     marks.sort(function (a, b) { return a.at - b.at; });
@@ -503,6 +533,18 @@
       if (at < target) { at = target; }
     }
 
+    // a programme that has already been on today is passed over for the next one, unless the block has nothing else
+    var used = {};
+    function nextItem(block) {
+      var len = block.items.length, cand = null;
+      block.i = block.i || 0;
+      for (var t = 0; t < len; t++) {
+        cand = block.items[block.i++ % len];
+        if (!used[cand.url || cand.id]) { used[cand.url || cand.id] = 1; return cand; }
+      }
+      cand = block.items[block.i++ % len];
+      return cand;
+    }
     for (var i = 0; i < marks.length; i++) {
       var block = marks[i], next = marks[i + 1];
       var ends = next ? next.at : marks[0].at + span;         // the cycle has to close on its own start time
@@ -513,7 +555,7 @@
         if (keep >= 60) { order[over] = clone(order[over], keep); at = block.at; }   // the news waits for nobody
       }
       for (var k = 0; at < ends && k <= block.items.length * 40; k++) {
-        var p = block.items[k % block.items.length];
+        var p = nextItem(block);
         if (p.dur <= ends - at) { put(p, p.dur); continue; }
         // it will not finish in time: let it overrun into a block that is not fussy, otherwise fill to the mark
         if (!mustEnd) { put(p, p.dur); break; }
@@ -541,7 +583,7 @@
 
   /** Deterministic shuffled loop. Everyone running the app sees the same programme at the same time. */
   function buildSchedule(programs, seed) {
-    var order = shuffle(programs, hash(String(seed)));
+    var order = spread(shuffle(programs, hash(String(seed))), hash(String(seed)) ^ 0x1717);
     var starts = [];
     var total = 0;
     for (var i = 0; i < order.length; i++) {
@@ -663,7 +705,7 @@
   var Engine = {
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
     pickPrograms: pickPrograms, whyEmpty: whyEmpty, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
-    buildClockSchedule: buildClockSchedule, joinCycles: joinCycles, selectSpan: selectSpan, clockSec: clockSec,
+    buildClockSchedule: buildClockSchedule, joinCycles: joinCycles, spread: spread, selectSpan: selectSpan, clockSec: clockSec,
     cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, stepBlock: stepBlock, blocks: blocks,
     DEFAULT_DURATION: DEFAULT_DURATION, encodePath: encodePath, archiveUrl: archiveUrl, canonicalUrl: canonicalUrl
   };

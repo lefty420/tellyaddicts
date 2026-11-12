@@ -4270,6 +4270,7 @@
     if (Date.now() - bootedAt < ALL_WAIT && channels.some(function (c) { return c.status === 'loading'; })) return;
     started = true;
     $('splash').className = 'hidden';
+    clearInterval(spNoiseTimer); spNoiseTimer = null; clearInterval(bootTimer);   // nothing needs waking up 9 times a second now
     var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];
     tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
     openGuide();               // ... but land in the TV guide
@@ -4337,6 +4338,6 @@
     renderStatus();
   }
 
-  setInterval(function () { if (!started) { renderStatus(); begin(); } }, 400);   // also lets the wait above time out
+  var bootTimer = setInterval(function () { if (!started) { renderStatus(); begin(); } else clearInterval(bootTimer); }, 400);   // also lets the wait above time out
   startLoading();
 })();

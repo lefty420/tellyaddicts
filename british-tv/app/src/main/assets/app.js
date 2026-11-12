@@ -2292,24 +2292,104 @@
     } });
     if (live) items.push({ t: 'Watch now', f: function () { gmClose(); watchFromGuide(); } });
     items.push({ t: 'Watch from the start', f: function () { gmClose(); watchFromGuide(true); } });
+    var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
+    if (ref) items.push({ t: 'Stream next episode', f: function () { gmClose(); gmNext(c, p); } });
+    if (ref || film) items.push({ t: 'Try another version', f: function () { gmClose(); gmAlt(c, p); } });
     items.push({ t: 'Info', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
-    // the next time the same show comes round on this channel
-    var key = LIBROUTE.norm(name), nb = b, found = null;
-    for (var i = 0; i < 300 && key && !found; i++) {
-      nb = E.stepBlock(c.sched, nb, 1);
-      if (nb.gi === b.gi) break;
-      if (nb.prog && LIBROUTE.norm(gmName(nb.prog)) === key) found = nb;
-    }
-    if (found) items.push({ t: 'Next showing', sub: new Date(found.startMs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), f: function () {
-      gmClose();
-      gFocus = Math.min(found.startMs + 1000, found.endMs - 1);
-      if (found.startMs >= gWin + SPAN) gWin = floorHalf(found.startMs);
-      renderGuide(true);
-    } });
-    items.push({ t: 'Stream link', f: function () { gmClose(); showReport(); } });
+    items.push({ t: film ? 'Scrape this film' : 'Scrape this show', f: function () { gmClose(); gmScrape(c, p, name, film); } });
     gm = { items: items, i: 0, title: name, sub: c.n + '  ' + c.name };
     gmRender();
   }
+
+  /** The show this programme belongs to on its channel, and where the programme sits in its episode list. */
+  function gmFind(c, p, fn) {
+    odLoadChannel(c).then(function () {
+      var sh = odShowsOf(c) || [], key = LIBROUTE.norm(gmName(p)), ref = LINKS.parseEp(p.title), g = null, i = -1;
+      sh.forEach(function (x) { if (!g && (LIBROUTE.norm(x.name) === key || x.eps.some(function (ep) { return ep.p.url === p.url; }))) g = x; });
+      if (g) g.flat.forEach(function (ep, n) { if (i < 0 && (ep.p.url === p.url || (ref && ep.s === ref.s && ep.e === ref.e))) i = n; });
+      fn(g, i, ref);
+    });
+  }
+  /** Stream the episode after this one, and carry on through the show from there. */
+  function gmNext(c, p) {
+    toast('Finding the next episode\u2026', 2000);
+    gmFind(c, p, function (g, i) {
+      if (!g || i < 0 || i + 1 >= g.flat.length) { toast('No next episode of ' + gmName(p) + ' is stored', 3500); return; }
+      closeGuide();
+      odStart(c, g.flat, i + 1);
+    });
+  }
+  var altTried = {};
+  /** Play a different stored copy of the same episode (or film); each press tries the next copy. */
+  function gmAlt(c, p) {
+    toast('Looking for another version\u2026', 2000);
+    var ref = LINKS.parseEp(p.title), name = LIBROUTE.norm(gmName(p));
+    var tk = c.id + '|' + (p.filmKey || (name + ':' + (ref ? ref.s + 'x' + ref.e : '')));
+    // every stored copy: this channel's files first, then the other channels' (a show is often on more than one)
+    loadDataIndex().then(function (idx) {
+      var order = [c].concat(channels.filter(function (x) { return x !== c && x.id !== c.id; })), all = [];
+      return order.reduce(function (chain, ch) {
+        return chain.then(function () {
+          return loadChannelData(ch.id, idx[ch.id] || '').then(function (rows) {
+            if (rows && rows.length) all = all.concat(progsFromData(rows, ch.id, true));
+          }, function () { /* that channel has no data */ });
+        });
+      }, Promise.resolve()).then(function () { return all; });
+    }).then(function (all) {
+      var seen = {}, cands = [];
+      all.forEach(function (q) {
+        if (!q.url || seen[q.url] || blocked(q)) return;
+        var same = p.filmKey ? q.filmKey === p.filmKey
+          : (function () { var r = LINKS.parseEp(q.title); return r && ref && r.s === ref.s && r.e === ref.e && LIBROUTE.norm(gmName(q)) === name; })();
+        if (same) { seen[q.url] = 1; cands.push(q); }
+      });
+      return (ref ? LINKS.get(LINKS.key(gmName(p), ref.s, ref.e)) : Promise.resolve(null)).then(function (row) {
+        if (row && row.url && !seen[row.url] && row.url !== p.url) cands.push({ id: row.id || row.url, item: row.item, url: row.url, title: row.title || p.title, dur: row.dur || p.dur, show: p.show, group: p.group });
+        var tried = altTried[tk] = altTried[tk] || [p.url];
+        if (tried.indexOf(p.url) < 0) tried.push(p.url);
+        var others = cands.filter(function (q) { return q.url !== p.url; });
+        if (!others.length) { toast('No other version of this is stored', 3500); return; }
+        var next = others.filter(function (q) { return tried.indexOf(q.url) < 0; })[0];
+        if (!next) { altTried[tk] = [p.url]; next = others[0]; }
+        altTried[tk].push(next.url);
+        gmFind(c, p, function (g, i) {
+          closeGuide();
+          if (g && i >= 0) { var list = g.flat.slice(); list[i] = Object.assign({}, list[i], { p: next }); odStart(c, list, i); }
+          else odStart(c, [{ p: next, s: ref ? ref.s : 0, e: ref ? ref.e : 0 }], 0);
+          toast('Trying another version (' + (altTried[tk].length - 1) + ' of ' + (others.length + 1) + ')', 3500);
+        });
+      });
+    }, function () { toast('Could not load the stored versions', 3500); });
+  }
+  /** Look the show up again on TVmaze, pin the match, and rebuild how its stored files are sorted into seasons. */
+  function gmScrape(c, p, name, film) {
+    if (film) { toast('Films use the details that came with them', 3000); return; }
+    toast('Looking for ' + name + '\u2026', 15000);
+    getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(name)).then(function (list) {
+      var sh = pickShow(Array.isArray(list) ? list : [], name, 0);
+      if (!sh) { toast('No clear match for ' + name + ' on TVmaze', 4000); return null; }
+      return tvmImages(sh.id).then(function (imgs) {
+        var e = tvmEntry(sh), bg = imgs.filter(function (x) { return x.type === 'background'; })[0];
+        if (bg) e.b = odImgUrl(bg, true, 'background');
+        if (!e.p) { var po = imgs.filter(function (x) { return x.type === 'poster'; })[0]; if (po) e.p = odImgUrl(po, true, 'poster'); }
+        store.set('artfix:' + normShow(name), { a: e });
+        try {                                                  // forget what was worked out before, so it is all looked up fresh
+          kv.removeItem('eps1:' + odSlug(name)); kv.removeItem('cast1:' + e.i);
+          kv.keys().forEach(function (k) { if (k.indexOf('info3:' + normShow(name) + ':') === 0) kv.removeItem(k); });
+        } catch (err) { /* nothing stored */ }
+        delete odData[c.id]; odKGen++; odArtFor = ''; odBgFor = ''; artFor = ''; gartFor = '';
+        dlog('SCRAPE ' + name + ': ' + e.name + ' (TVmaze ' + e.i + ')');
+        return odLoadChannel(c).then(function () {
+          var g = (odShowsOf(c) || []).filter(function (x) { return LIBROUTE.norm(x.name) === LIBROUTE.norm(name); })[0];
+          if (!g) { toast('Found ' + e.name + ', but no stored files matched it', 4500); return; }
+          return odMeta(g).then(function () {
+            toast('Found ' + e.name + (e.y ? ' (' + e.y + ')' : '') + ': ' + g.flat.length + ' stored episodes sorted into ' + g.sea.length + (g.sea.length === 1 ? ' group' : ' groups'), 5000);
+          });
+        });
+      });
+    }, function () { toast('Could not reach TVmaze', 3500); });
+  }
+
   function gmClose() { gm = null; $('gmenu').className = 'hidden'; }
   function gmRender() {
     var box = $('gml'); box.textContent = '';

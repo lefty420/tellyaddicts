@@ -95,8 +95,12 @@
    *  S01E26 - The Eternal Flame of the Shooting Stars" is not an episode of Shooting Stars. True when the file name
    *  has a name in front of its season/episode code that shares no word with the show, and the show's name only
    *  turns up after the code. (Checked over the whole library: it catches the wrong ones and nothing else.) */
+  // Shows where the library holds a different programme of the same name: the file names give it away
+  var OTHER_VERSION = { 'mr bean': /animated/i };      // the 1990s sitcom, not the 2002 cartoon
   function wrongShow(sh, ep) {
     if (sh.film || sh.song) return false;
+    var ov = OTHER_VERSION[String(sh.n || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()];
+    if (ov && ov.test(String(ep.f || '') + ' ' + String(ep.id || ''))) return true;
     function norm(t) { return String(t || '').toLowerCase().replace(/[_.\-:'\u2019,!?()\[\]]+/g, ' ').replace(/\s+/g, ' ').trim(); }
     var sn = norm(sh.n).replace(/^the /, '');
     if (sn.length < 5) return false;

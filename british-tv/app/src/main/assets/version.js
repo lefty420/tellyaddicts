@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.30",
-  "version": "0.45.30",
-  "code": 4530,
+  "name": "Alpha 0.45.31",
+  "version": "0.45.31",
+  "code": 4531,
   "date": "2026-11-12",
   "notes": [
-    "**Episodes filed under the wrong show are dropped.** When the file clearly belongs to a different show and only the episode's title matches (Mobile Suit Gundam Wing's \"Eternal Flame of the Shooting Stars\" listed as Shooting Stars; Community's \"Advanced Dungeons & Dragons\"; Sooty & Co's \"Surprise Surprise\" and \"Blind Date\"), it no longer appears on any channel or On Demand. Checked against the whole library: 18 episodes, all wrong."
+    "**Mr. Bean is the sitcom again.** The 134 episodes of the 2002 cartoon (Mr. Bean: The Animated Series) that the library filed under Mr. Bean are left out; the live-action episodes and specials stay."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.30",
+      "date": "2026-11-12",
+      "notes": [
+        "**Episodes filed under the wrong show are dropped.** When the file clearly belongs to a different show and only the episode's title matches (Mobile Suit Gundam Wing's \"Eternal Flame of the Shooting Stars\" listed as Shooting Stars; Community's \"Advanced Dungeons & Dragons\"; Sooty & Co's \"Surprise Surprise\" and \"Blind Date\"), it no longer appears on any channel or On Demand. Checked against the whole library: 18 episodes, all wrong."
+      ]
+    },
     {
       "name": "Alpha 0.45.29",
       "date": "2026-11-12",
@@ -59,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Less background work.** The loading-screen static kept redrawing nine times a second for as long as the app was open, and the start-up check kept waking four times a second; both now stop once the first channel is playing."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.22",
-      "date": "2026-11-12",
-      "notes": [
-        "**70's, 80's and 90's TV channels are back.** They are built from the library, but the app only used the library for a channel whose published revision matched, and the scraper's index lists none for 80's and 90's (and a stale one for 70's), so all three came up empty and hid themselves. They now always take what the library routes to them."
       ]
     }
   ]

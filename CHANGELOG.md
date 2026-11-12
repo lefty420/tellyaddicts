@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.31 — 2026-11-12
+
+- **Mr. Bean is the sitcom again.** The 134 episodes of the 2002 cartoon (Mr. Bean: The Animated Series) that the library filed under Mr. Bean are left out; the live-action episodes and specials stay.
+
 ## Alpha 0.45.30 — 2026-11-12
 
 - **Episodes filed under the wrong show are dropped.** When the file clearly belongs to a different show and only the episode's title matches (Mobile Suit Gundam Wing's "Eternal Flame of the Shooting Stars" listed as Shooting Stars; Community's "Advanced Dungeons & Dragons"; Sooty & Co's "Surprise Surprise" and "Blind Date"), it no longer appears on any channel or On Demand. Checked against the whole library: 18 episodes, all wrong.

@@ -2482,6 +2482,7 @@
     if (ref || film) items.push({ t: 'Try another version', f: function () { gmClose(); gmAlt(c, p); } });
     items.push({ t: 'Info', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
     items.push({ t: film ? 'Scrape this film' : 'Scrape this show', f: function () { gmClose(); gmScrape(c, p, name, film); } });
+    items.push({ t: 'Options', f: function () { gmClose(); closeGuide(); openOpts(); } });
     gm = { items: items, i: 0, title: name, sub: c.n + '  ' + c.name };
     gmRender();
   }

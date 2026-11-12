@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.30 — 2026-11-12
+
+- **Episodes filed under the wrong show are dropped.** When the file clearly belongs to a different show and only the episode's title matches (Mobile Suit Gundam Wing's "Eternal Flame of the Shooting Stars" listed as Shooting Stars; Community's "Advanced Dungeons & Dragons"; Sooty & Co's "Surprise Surprise" and "Blind Date"), it no longer appears on any channel or On Demand. Checked against the whole library: 18 episodes, all wrong.
+
 ## Alpha 0.45.29 — 2026-11-12
 
 - **Video game playthroughs are kept off the channels.** The Kids Movies channel was showing a Lego Star Wars PS3 playthrough as the 1977 film, and the Disney channel had a run of NES/SNES/Mega Drive "Longplay" videos. Anything titled as a longplay, playthrough, walkthrough, gameplay or with a console tag like [PS3] now stays off every channel except Video Games (and On Demand).

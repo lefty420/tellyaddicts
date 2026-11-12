@@ -91,6 +91,23 @@
   /** The year an episode or film belongs to: its air date, or a year in a film's title "(1984)"; 0 when neither is known. */
   var CODED = /^S\d{1,4}E\d{1,4}$/i;
   /** Channels that also take videos with no season and episode number (dated or numbered, or just a clip). */
+  /** A file that is plainly another show's episode whose title happens to be this show's name: "Mobile Suit Gundam Wing -
+   *  S01E26 - The Eternal Flame of the Shooting Stars" is not an episode of Shooting Stars. True when the file name
+   *  has a name in front of its season/episode code that shares no word with the show, and the show's name only
+   *  turns up after the code. (Checked over the whole library: it catches the wrong ones and nothing else.) */
+  function wrongShow(sh, ep) {
+    if (sh.film || sh.song) return false;
+    function norm(t) { return String(t || '').toLowerCase().replace(/[_.\-:'\u2019,!?()\[\]]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+    var sn = norm(sh.n).replace(/^the /, '');
+    if (sn.length < 5) return false;
+    var raw = norm(String(ep.f || '').replace(/\.[a-z0-9]+$/i, ''));
+    var m = /\bs\d{1,2}\s?e\d{1,3}\b|\b\d{1,2}x\d{1,3}\b/i.exec(raw);
+    if (!m) return false;
+    var before = raw.slice(0, m.index).trim(), after = raw.slice(m.index + m[0].length);
+    if (before.length < 4 || before.indexOf(sn) >= 0 || after.indexOf(sn) < 0) return false;
+    var bw = before.split(' ').filter(function (w) { return w.length > 2; });
+    return !sn.split(' ').some(function (w) { return w.length > 2 && bw.indexOf(w) >= 0; });
+  }
   var GAMEPLAY = /\b(longplays?|long play|playthrough|play-through|walkthrough|walk-through|gameplay|let'?s play|speedrun|full game)\b|\[(ps[1-5]|psx|psp|xbox( 360| one)?|pc|wii( u)?|switch|n64|snes|nes|gba|gbc|gamecube|3ds|nds|dreamcast|saturn|mega drive|genesis)\]/i;
   var LOOSE = { soaps: 1, offschool: 1, music: 1, mtv: 1, xmasmusic: 1, christmas: 1, kidsxmas: 1, noel: 1, tvarchive: 1, disney: 1, adverts: 1 };
   function yearOf(ep) {
@@ -144,6 +161,7 @@
         if (net && !forKids) also.push(net);
         // and a Christmas episode goes to the Christmas channel of the right sort
         if (ep.xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
+        if (wrongShow(sh, ep)) return;
         var chs = late ? ['disney'] : (also.length ? uniqSorted(genre.concat(also)) : genre);
         if (decKeys.length && !late && !sh.song) {
           var dec = decadeOf(ep, sh, span);

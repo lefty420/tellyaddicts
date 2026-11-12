@@ -19,6 +19,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+import android.view.SurfaceView;
 
 import org.json.JSONObject;
 
@@ -68,6 +69,8 @@ public class MainActivity extends Activity {
     });
     private FrameLayout root;
     private WebView web;
+    private SurfaceView videoSurface;
+    private NativePlayer np;
     private boolean onTv;
 
     @Override
@@ -81,6 +84,19 @@ public class MainActivity extends Activity {
         root.setBackgroundColor(Color.BLACK);
         setContentView(root);
         immersive();
+        // the backup player's picture goes on a surface behind the page (see NativePlayer)
+        videoSurface = new SurfaceView(this);
+        videoSurface.setVisibility(View.GONE);
+        root.addView(videoSurface, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        np = new NativePlayer(this, videoSurface, new NativePlayer.Sink() {
+            @Override
+            public void js(final String script) {
+                if (web != null) {
+                    web.evaluateJavascript(script, null);
+                }
+            }
+        });
         buildWeb();
         web.loadUrl(PAGE);
     }
@@ -88,7 +104,7 @@ public class MainActivity extends Activity {
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     private void buildWeb() {
         web = new WebView(this);
-        web.setBackgroundColor(Color.BLACK);
+        web.setBackgroundColor(Color.TRANSPARENT);   // the page paints its own black; transparent lets the backup player show through
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
@@ -263,6 +279,7 @@ public class MainActivity extends Activity {
             // Home pressed on a TV: stop playback and close so audio never plays from a hidden screen.
             web.evaluateJavascript(
                     "document.querySelectorAll('video').forEach(function(m){try{m.pause();}catch(e){}})", null);
+            np.stop();
             finish();
         } else {
             web.onPause();
@@ -276,6 +293,7 @@ public class MainActivity extends Activity {
             web.destroy();
             web = null;
         }
+        np.stop();
         http.shutdownNow();
         logs.stop();
         if (cache != null) {
@@ -294,6 +312,37 @@ public class MainActivity extends Activity {
         public String kvGet(String key) {
             KvStore k = store();
             return k == null ? null : k.get(key);
+        }
+
+        // ---- the backup player (see NativePlayer, player.js)
+        @JavascriptInterface
+        public void npOpen(String url, long startMs, int generation) {
+            np.open(url, startMs, generation);
+        }
+
+        @JavascriptInterface
+        public void npPlay() {
+            np.play();
+        }
+
+        @JavascriptInterface
+        public void npPause() {
+            np.pause();
+        }
+
+        @JavascriptInterface
+        public void npSeek(long ms) {
+            np.seek(ms);
+        }
+
+        @JavascriptInterface
+        public void npMute(boolean muted) {
+            np.mute(muted);
+        }
+
+        @JavascriptInterface
+        public void npStop() {
+            np.stop();
         }
 
         @JavascriptInterface

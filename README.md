@@ -65,3 +65,11 @@ per change, run `python3 tools/make_version.py`, commit and push.
 
 - `british-tv/README.md` explains how the app works inside.
 - `tools/` also holds the notes on the published artwork and episode-guide files (`art-contract.md`, `meta-contract.md`).
+
+
+## Licence note: the backup player
+
+The backup player (`NativePlayer.java`) uses Media3 ExoPlayer (Apache-2.0) and `org.jellyfin.media3:media3-ffmpeg-decoder`,
+Jellyfin's build of the FFmpeg audio decoders for Media3, which is **GPL-3.0**. An app that includes it and is passed on
+to anyone else has to be offered under GPL-3.0 as well, with its source. For a private build this changes nothing; before
+sharing the APK, add a GPL-3.0 `LICENSE` file to the repository.

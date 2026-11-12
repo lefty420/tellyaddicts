@@ -18,7 +18,7 @@
   var RETRY_MS = 15000;
 
   function $(id) { return document.getElementById(id); }
-  var v = $('v');
+  var v = makeVideo($('v'));      // the page's video, with the app's own player behind it for files it cannot play (player.js)
 
   // Picture looks (CRT / Vivid / Sharp) are CSS only: the browser may not read archive.org video pixels, so no shader.
   var guideOpen = false;
@@ -1703,6 +1703,34 @@
 
   // ---- playback timing log (shown in the Info panel) so slow starts can be diagnosed
   var pb = { t0: 0, ev: [], url: '', offset: 0 };
+  // ---- the backup player (player.js, NativePlayer.java): Auto = the web view first, the app's own player for files
+  // it cannot play (remembered, so the next time they go straight there); Standard only; Always.
+  var PLAYERS = [{ id: 'auto', label: 'Auto' }, { id: 'off', label: 'Standard only' }, { id: 'always', label: 'Always backup' }];
+  var playerIdx = (function () { var s = store.get('player1'); for (var i = 0; i < PLAYERS.length; i++) if (PLAYERS[i].id === s) return i; return 0; })();
+  var npKnown = store.get('np1') || {};                // file -> when it needed the backup player
+  function playerMode() { return PLAYERS[playerIdx].id; }
+  v.wantNative = function () {
+    var m = playerMode();
+    if (m === 'off') return false;
+    if (m === 'always') return true;
+    var t = cur && cur.prog && cur.prog.url && npKnown[cur.prog.url];
+    return !!(t && Date.now() - t < 30 * 86400000);      // a file that needed it a month ago may have been replaced since
+  };
+  function backupSwitch(why) {
+    if (playerMode() === 'off' || v.native || !v.canNative() || !cur || !cur.prog || !cur.prog.url) return false;
+    if (!v.switchToNative()) return false;
+    npKnown[cur.prog.url] = Date.now();
+    var ks = Object.keys(npKnown);
+    if (ks.length > 400) ks.sort(function (a, b) { return npKnown[a] - npKnown[b]; }).slice(0, ks.length - 400).forEach(function (k) { delete npKnown[k]; });
+    store.set('np1', npKnown);
+    dlog('BACKUP PLAYER ' + (cur.prog.title || '') + ': ' + why + ' in the web view, carrying on in the app\u2019s own player');
+    return true;
+  }
+  function changePlayer(d) {
+    playerIdx = (playerIdx + d + PLAYERS.length) % PLAYERS.length;
+    store.set('player1', PLAYERS[playerIdx].id);
+    renderOpts();
+  }
   function pbStart(url, offset) { pb = { t0: Date.now(), ev: [], url: url, offset: offset || 0 }; }
   ['loadstart', 'loadedmetadata', 'loadeddata', 'canplay', 'playing', 'waiting', 'stalled', 'seeked', 'error'].forEach(function (n) {
     v.addEventListener(n, function () {
@@ -1746,6 +1774,7 @@
       if (cur !== watched || !cur || cur.ad || !cur.prog || v.paused || v.muted || !(v.currentTime > 3)) return;
       if (typeof v.webkitAudioDecodedByteCount !== 'number' || v.webkitAudioDecodedByteCount > 0) return;
       var mkv = !/\.(mp4|m4v)(\?|$)/i.test(cur.prog.url || '');
+      if (backupSwitch('no sound')) return;
       dlog('NO SOUND ' + (cur.prog.title || '') + ': the picture plays but no audio was decoded (' + (mkv ? 'not an mp4: probably audio this TV cannot play' : 'an mp4, so it may simply have no sound') + ')');
       if (!mkv) return;
       markSlow(cur.prog.id);
@@ -2196,6 +2225,7 @@
   v.addEventListener('ended', onEnded);
   v.addEventListener('error', function () {
     if (!cur) return;
+    if (backupSwitch('would not load')) return;     // the web view cannot play this file: the app's own player can try
     if (cur.trial && revertTrial()) return;   // a Play Next episode that fails: back to the previous programme
     cur.errors++;
     if (cur.errors >= MAX_ERRORS) {
@@ -2713,12 +2743,13 @@
   }
   function ambTick() {
     if (document.body.classList.contains('guide-open')) { setFill(false); return; }
+    if (v.native) { setFill(false); return; }          // the backup player draws on its own surface: nothing to sample
     var w = v.videoWidth, h = v.videoHeight;
     if (!w || !h || v.readyState < 2 || w / h >= 1.6) { setFill(false); return; }   // already wide: nothing to fill
     try {
       if (!ambX) ambX = document.getElementById('amb').getContext('2d');
       var sh = w * 9 / 16;
-      ambX.drawImage(v, 0, (h - sh) / 2, w, sh, 0, 0, 48, 27);
+      ambX.drawImage(v.el, 0, (h - sh) / 2, w, sh, 0, 0, 48, 27);
       ambX.fillStyle = 'rgba(0,0,0,.45)';
       ambX.fillRect(0, 0, 48, 27);
       setFill(true);
@@ -3218,7 +3249,7 @@
     { id: 'picture', rows: ['ar', 'fx'] },
     { id: 'guide', rows: ['span', 'keep', 'auto', 'refresh'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
-    { id: 'play', rows: ['buf', 'ads'] },
+    { id: 'play', rows: ['player', 'buf', 'ads'] },
     { id: 'tools', rows: ['rel', 'about', 'gaps', 'epg', 'log'] }
   ];
   var OPTS = [];
@@ -3232,6 +3263,7 @@
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
+    if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs a newer app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  (' + Object.keys(npKnown).length + ' files)' : '');
     if (id === 'span') return SPANS[spanIdx].label;
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
@@ -3313,6 +3345,7 @@
     fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness.',
     gart: 'Posters and backdrops in the guide and on the bar. Off keeps things plain.',
     ads: 'Adverts between programmes, from the decade you choose. UK first, and never on the BBC.',
+    player: 'Auto plays everything normally and switches to the app\u2019s own player for a file that has no sound or will not load (AC3/DTS sound, some MKVs). Always uses it for every file; Standard only never does. The VHS and Smart ratio looks do not apply to the backup player.',
     buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
     auto: 'Builds every channel from the scraper\u2019s whole library instead of the hand-picked lists.',
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
@@ -3327,6 +3360,7 @@
   function setIf(el, prop, val) { if (el[prop] !== val) el[prop] = val; }
   /** The choices a row cycles through, shown as buttons while the row is highlighted; null for a row with none. */
   function optChoices(id) {
+    if (id === 'player') return { l: PLAYERS.map(function (x) { return x.label; }), i: playerIdx };
     if (id === 'span') return { l: SPANS.map(function (x) { return x.label; }), i: spanIdx };
     if (id === 'keep') return { l: KEEP.map(function (x) { return x.label; }), i: keepIdx };
     if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };
@@ -3407,6 +3441,7 @@
     else if (id === 'fx') changeFx(d);
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
+    else if (id === 'player') changePlayer(d);
     else if (id === 'buf') changeBuf(d);
     else if (id === 'span') changeSpan(d);
     else if (id === 'keep') changeKeep(d);

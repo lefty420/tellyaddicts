@@ -94,6 +94,9 @@
   body.fx-dots #ovl { background-image: radial-gradient(rgba(0,0,0,.30) 34%, rgba(0,0,0,0) 36%); background-size: .34vh .34vh; }
   body.fx-dots #ovl::after { background: repeating-linear-gradient(0deg, rgba(0,0,0,.14) 0 .17vh, rgba(0,0,0,0) .17vh .44vh); }
   .hidden { display: none !important; }
+  /* the backup player draws on a surface behind the page: let it show through (the guide covers it as usual) */
+  html.np, body.np:not(.guide-open) { background: transparent !important; }
+  body.np:not(.guide-open) #v { background: transparent; }
 
   /* mini TV window while the guide is open */
   body.guide-open #v {
@@ -605,6 +608,7 @@
     </div>
     <div class="ogrp" id="og-play">
       <h3>Playback</h3>
+      <div class="orow" id="or-player"><div class="oline"><b>Video player</b><span id="ov-player"></span></div><div class="ochips" id="oc-player"></div></div>
       <div class="orow" id="or-buf"><div class="oline"><b>Buffer</b><span id="ov-buf"></span></div><div class="ochips" id="oc-buf"></div></div>
       <div class="orow" id="or-ads"><div class="oline"><b>Adverts</b><span id="ov-ads"></span></div><div class="ochips" id="oc-ads"></div></div>
     </div>
@@ -721,6 +725,7 @@
 
 <script src="version.js"></script>
 <script src="engine.js"></script>
+<script src="player.js"></script>
 <script src="links.js"></script>
 <script src="ads.js"></script>
 <script src="auto.js"></script>

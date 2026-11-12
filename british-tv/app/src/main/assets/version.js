@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.3",
-  "version": "0.45.3",
-  "code": 4503,
+  "name": "Alpha 0.45.4",
+  "version": "0.45.4",
+  "code": 4504,
   "date": "2026-11-12",
   "notes": [
-    "**On Demand from the guide menu goes straight to the show.** It could land on a different show because the highlighted channel was followed by row number, and the rows shift as each channel's list loads. It is now followed by channel.",
-    "**Leaving On Demand puts you back where you were in the guide.** The channel, the time and the programme you held OK on are still selected."
+    "**Films in On Demand are listed one by one.** Kids Movies and The Video Shop showed a single card holding every film. Each film is now its own card in the row, like a TV show, and OK on one plays it straight away."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.3",
+      "date": "2026-11-12",
+      "notes": [
+        "**On Demand from the guide menu goes straight to the show.** It could land on a different show because the highlighted channel was followed by row number, and the rows shift as each channel's list loads. It is now followed by channel.",
+        "**Leaving On Demand puts you back where you were in the guide.** The channel, the time and the programme you held OK on are still selected."
+      ]
+    },
     {
       "name": "Alpha 0.45.2",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**A scrubber instead of the 30-second buttons.** The rewind and fast-forward buttons are gone from the OK bar. Press Left or Right while watching (or the remote's rewind / fast-forward keys) and the progress bar becomes a scrubber: a tap moves 10 seconds, holding winds faster the longer you hold, and the picture jumps when you let go. Down reaches the buttons, Up comes back to the bar."
-      ]
-    },
-    {
-      "name": "Alpha 0.40",
-      "date": "2026-11-12",
-      "notes": [
-        "**Hold OK on a programme in the guide for a menu.** It offers On Demand (opens that show's page), Watch now, Watch from the start, Info (details for that programme without leaving the guide), Next showing (jumps the guide to the next time the same show is on that channel) and the stream link."
       ]
     }
   ]

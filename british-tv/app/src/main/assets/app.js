@@ -3419,10 +3419,10 @@
     list.forEach(function (sn) { g.flat = g.flat.concat(sn.eps); });
   }
   /** A channel's programmes grouped into shows, each with its seasons and episodes in order. */
-  function odGroup(progs) {
+  function odGroup(progs, films) {          // films: a film channel, where every video is its own title
     var by = {}, shows = [];
     progs.forEach(function (p) {
-      var name = p.filmKey ? (p.title || 'Film') : (p.show || p.group || (parseTitle(p.title || '').show) || 'Other');   // a film is its own title
+      var name = (p.filmKey || films) ? (p.title || 'Film') : (p.show || p.group || (parseTitle(p.title || '').show) || 'Other');   // a film is its own title
       var k = 'k' + LIBROUTE.norm(name);
       var g = by[k];
       if (!g) { g = by[k] = { name: name, eps: [], seen: {} }; shows.push(g); }
@@ -3437,7 +3437,7 @@
         return (a.s - b.s) || (a.e - b.e) || (String(a.p.aired || '') < String(b.p.aired || '') ? -1 : String(a.p.aired || '') > String(b.p.aired || '') ? 1 : 0) ||
                String(a.label).localeCompare(String(b.label), undefined, { numeric: true, sensitivity: 'base' });
       });
-      g.film = !!(g.eps[0] && g.eps[0].p.filmKey);
+      g.film = !!films || !!(g.eps[0] && g.eps[0].p.filmKey);
       odSeasons(g);
     });
     return shows;
@@ -3450,7 +3450,7 @@
       var progs = rows && rows.length ? progsFromData(rows, ch.id, true).filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); }) : [];
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
-      rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }));
+      rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);
       return rec;
     }, function () { rec.shows = []; return rec; });
     return rec.p;
@@ -3689,8 +3689,9 @@
     $('odshow').className = on ? '' : 'hidden';
   }
   function odOpenShow() {
-    var g = odSel().g;
+    var s0 = odSel(), g = s0.g;
     if (!g) return;
+    if (g.film && g.flat && g.flat.length === 1) { odClose(false); odStart(s0.c, g.flat, 0); return; }     // a film is one video: OK plays it
     odZone = 0; odSea = 0; odEi = 0;
     odShowView(true);
     if (!g.metaP) odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });

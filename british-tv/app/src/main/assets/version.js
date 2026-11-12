@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.38.2",
-  "version": "0.38.2",
-  "code": 3802,
+  "name": "Alpha 0.39",
+  "version": "0.39",
+  "code": 3900,
   "date": "2026-11-12",
   "notes": [
-    "**Options menu: less work on every key press.** Only the rows that changed are redrawn, and the size of saved artwork is added up only if you stop on that row, not as you scroll past it."
+    "**New start-up screen.** The logo sits on top with a retro TV in the middle that tunes in your channels: static, show pictures flicking up as it hunts, colour bars when a channel locks in, and the name of each channel under the set."
   ],
   "history": [
+    {
+      "name": "Alpha 0.38.2",
+      "date": "2026-11-12",
+      "notes": [
+        "**Options menu: less work on every key press.** Only the rows that changed are redrawn, and the size of saved artwork is added up only if you stop on that row, not as you scroll past it."
+      ]
+    },
     {
       "name": "Alpha 0.38.1",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-11",
       "notes": [
         "**VHS and VHS 2 look after themselves on heavy files.** If the TV is dropping more than a fifth of the frames, which is what makes the picture drift out of sync with the sound, only the slight blur is taken off. The scan lines, colour and tint stay. The next programme starts with the full look again, and the debug log notes which file caused it (\"VIDEO EFFECT lightened\"). Files that play fine look exactly as before."
-      ]
-    },
-    {
-      "name": "Alpha 0.34.1",
-      "date": "2026-11-11",
-      "notes": [
-        "**Smart aspect ratio taken out of the options for now.** It wasn't working properly. Anyone who had it selected goes back to Auto."
       ]
     }
   ]

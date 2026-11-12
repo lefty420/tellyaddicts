@@ -853,24 +853,78 @@
   }
 
   var statusSig = null;
+  var spNoiseImg = null, spNoiseTimer = null, spLockUntil = 0, spShown = 0, spKnobs = 0;
+  var doneSeen = {}, lastDone = null, spPics = [], spPicsTried = 0, spPhase = 0, spTick = 0, spPic = false, spJit = false;
+  /** Pull a handful of artwork from the scraper's art list so the set can flick through "channels" while it tunes. */
+  function spLoadPics() {
+    if (spPicsTried) return;
+    spPicsTried = 1;
+    loadArt().then(function (idx) {
+      if (!idx) return;
+      var keys = Object.keys(idx), tries = 0;
+      while (spPics.length < 12 && tries++ < 60 && keys.length) {
+        var e = idx[keys[(Math.random() * keys.length) | 0]];
+        var u = (e && (e.b || e.p)) || '';
+        if (!u || spPics.indexOf(u) >= 0) continue;
+        u = u.replace('/original_untouched/', e.b ? '/medium_landscape/' : '/medium_portrait/');
+        (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) spPics.push(url); }; im.src = url; })(u);
+      }
+    }).then(null, function () { /* static only */ });
+  }
+  // The set hunts like a real one: static, a picture flicks up for a moment, static again, another picture ...
+  function spNoise() {
+    var c = $('spnoise'); if (!c || $('splash').className === 'hidden') return;
+    var x = c.getContext('2d');
+    if (!spNoiseImg) spNoiseImg = x.createImageData(c.width, c.height);
+    var d = spNoiseImg.data;
+    for (var i = 0; i < d.length; i += 4) { var v = (Math.random() * 255) | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+    x.putImageData(spNoiseImg, 0, 0);
+    if (--spTick <= 0) {
+      if (spPic || !spPics.length) { spPic = false; spTick = 3 + ((Math.random() * 5) | 0); }
+      else {
+        spPic = true; spJit = true; spTick = 6 + ((Math.random() * 6) | 0);
+        $('sppic').style.backgroundImage = 'url("' + spPics[(Math.random() * spPics.length) | 0] + '")';
+      }
+    } else if (spJit && spTick < 4) spJit = false;
+    spApply();
+  }
+  function spApply() {
+    var scr = $('spscreen'), want = Date.now() < spLockUntil ? 'lock' : spPic ? 'pic' + (spJit ? ' jit' : '') : '';
+    if (scr.className !== want) scr.className = want;
+  }
   function renderStatus() {
     var lines = channels.map(function (c) {
       var mark = c.status === 'ready' ? '✓' : c.status === 'empty' ? '–' : '…';
       return mark + '  ' + c.n + '  ' + c.name +
-        (c.status === 'ready' ? '  (' + Math.round(c.sched.total / 60) + ' min of programmes)' :
+        (c.status === 'ready' ? '  (' + Math.round(c.sched.total / 60) + ' min)' :
           c.status === 'empty' ? '  (nothing found)' : '');
     });
     var sig = lines.join('\n');
-    if (sig !== statusSig) {        // only when a channel actually changed, not on every tick of the bars
+    if (sig !== statusSig) {        // only when a channel actually changed, not on every tick
       statusSig = sig;
       var box = $('chstatus');
       box.textContent = '';
-      lines.forEach(function (text) {
+      var done = 0, firstWait = null;
+      channels.forEach(function (c, i) {
         var line = document.createElement('div');
-        line.textContent = text;
+        line.textContent = lines[i];
+        if (c.status === 'ready' || c.status === 'empty') { line.className = 'done'; done++; if (!doneSeen[c.id]) { doneSeen[c.id] = 1; if (c.status === 'ready') lastDone = c; } }
+        else if (!firstWait) { firstWait = c; line.className = 'cur'; }
         box.appendChild(line);
       });
+      if (lastDone) $('spcount').textContent = lastDone.n + '  ' + lastDone.name;
+      // a channel just locked in: show colour bars for a moment, then back to static on the next one
+      if (done > spShown) { spLockUntil = Math.max(spLockUntil, Date.now() + 350); spKnobs += 70; $('spk1').style.transform = 'rotate(' + spKnobs + 'deg)'; $('spk2').style.transform = 'rotate(' + (-spKnobs * 0.6) + 'deg)'; }
+      spShown = done;
+      var shown = firstWait || channels[channels.length - 1];
+      if (shown) {
+        $('spnum').textContent = 'P' + (shown.n < 10 ? '0' : '') + shown.n;
+        $('spname').textContent = firstWait ? shown.name : 'All set';
+      }
     }
+    spLoadPics();
+    spApply();
+    if (!spNoiseTimer) spNoiseTimer = setInterval(spNoise, 110);
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;
     for (var i = 0; i < bars.length; i++) {

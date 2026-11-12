@@ -324,13 +324,13 @@
   .tline { position: relative; flex: 1; }
   .tick { position: absolute; top: 0; bottom: 0; padding: 0 1vw; display: flex; align-items: center;
     font-size: 2.9vh; font-weight: 700; color: var(--ticktx, #fff); border-left: .3vh solid var(--tickb, rgba(255,255,255,.45)); }
-  .gch { display: flex; align-items: center; padding: 0 1vw; background: var(--chan); color: var(--chantx, inherit); border-radius: var(--rad, 0); border-left: .8vh solid var(--chanb, #3a6fe0); }
-  .gch .n { font-size: 3.4vh; font-weight: 700; color: var(--hi2); width: 5.4vh; flex: none; }
-  .gch .name { font-size: 2.7vh; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .gch { display: flex; align-items: center; padding: 0 .7vw; background: var(--chan); color: var(--chantx, inherit); border-radius: var(--rad, 0); border-left: .8vh solid var(--chanb, #3a6fe0); }
+  .gch .n { font-size: 3.2vh; font-weight: 700; color: var(--hi2); width: 4.9vh; flex: none; }
+  .gch .name { font-size: 2.5vh; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .gch.sel { background: var(--chansel, #2a4fc0); border-left-color: var(--hi2); }
 
   .blk {
-    position: absolute; top: 0; bottom: 0; padding: .8vh 1vw; overflow: hidden;
+    position: absolute; top: 0; bottom: 0; padding: .5vh 1vw; overflow: hidden; line-height: 1.12;
     background: linear-gradient(180deg, var(--cell) 0%, var(--cell2) 100%);
     border-top: .3vh solid var(--bt, rgba(255,255,255,.32)); border-left: .3vh solid var(--bl, rgba(255,255,255,.18));
     border-radius: var(--rad, 0); color: var(--celltx, inherit);
@@ -365,9 +365,11 @@
     --gfont: "VT323", ui-monospace, Menlo, Consolas, monospace; --gsoft: #00ffff; --gsoft2: #00ff00; --gshadow: none; --legbg: #0000ff; }
   .gt-teletext #gart { display: none; }
   .gt-teletext .blk { border-left-width: .6vh; }
-  .gt-teletext .blk .t, .gt-teletext .gch .name { font-size: 3.5vh; font-weight: 400; text-transform: uppercase; }
-  .gt-teletext .blk .s { font-size: 2.9vh; }
-  .gt-teletext .gch .n { font-size: 4vh; font-weight: 400; }
+  .gt-teletext .blk .t { font-size: 3vh; font-weight: 400; text-transform: uppercase; line-height: 1; }
+  .gt-teletext #glegend { bottom: 1.4vh; } .gt-teletext #glegend div { font-size: 2.1vh; padding: .3vh .6vw; }
+  .gt-teletext .gch .name { font-size: 2.3vh; font-weight: 400; text-transform: uppercase; }
+  .gt-teletext .blk .s { font-size: 2.3vh; line-height: 1; margin-top: 0; }
+  .gt-teletext .gch .n { font-size: 3.4vh; font-weight: 400; }
   .gt-teletext .gch.sel { color: #000; } .gt-teletext .gch.sel .n { color: #000; }
   .gt-teletext .blk.foc { border-left-color: #ff00ff; }
   .gt-teletext .tick { font-size: 3.6vh; font-weight: 400; }
@@ -383,7 +385,7 @@
   .gt-paper .blk { border: .2vh solid #1c1a17; }
   .gt-paper .blk.foc { border-color: #c8102e; }
   .gt-paper .blk .s { font-style: italic; }
-  .gt-paper .gch .n { color: #ff6b57; font-family: "Playfair Display", Georgia, serif; font-weight: 900; }
+  .gt-paper .gch .n { font-size: 3vh; width: 4.6vh; color: #ff6b57; font-family: "Playfair Display", Georgia, serif; font-weight: 900; }
   .gt-paper .gch.sel .n { color: #fff; }
   .gt-paper #gtitle { font-family: "Playfair Display", Georgia, serif; font-weight: 900; }
   .gt-paper #gchan, .gt-paper #gtop { color: #c8102e; }
@@ -401,6 +403,10 @@
   .gt-seventies .blk { border-width: .35vh; border-style: solid; border-color: #3b1f0e; }
   .gt-seventies .blk.foc { border-color: #fff6dc; box-shadow: 0 0 0 .35vh #e8761a; }
   .gt-seventies .gch .n, .gt-seventies #gtitle, .gt-seventies .tick { font-family: "Righteous", "DM Sans", sans-serif; font-weight: 400; }
+  .gt-seventies .gch { padding-left: 1.2vw; }
+  .gt-seventies .gch .n { font-size: 2.9vh; width: 4.4vh; }
+  .gt-seventies .gch .name { font-size: 2.3vh; }
+  .gt-seventies .blk { padding-left: 1.4vw; padding-right: 1.2vw; }
   .gt-seventies .gch .n { color: #fff6dc; }
   .gt-seventies .blk .s { color: var(--subtx); } .gt-seventies .blk.foc .s { color: var(--focsub); }
 
@@ -415,9 +421,12 @@
   .gt-eighties .blk.now { border-color: #ff2e97; box-shadow: 0 0 1vh rgba(255,46,151,.5); }
   .gt-eighties .blk.foc { border-color: #fff; box-shadow: 0 0 2vh rgba(255,46,151,.9); }
   .gt-eighties .gch .n, .gt-eighties #gtitle, .gt-eighties .tick { font-family: "Audiowide", "Rajdhani", sans-serif; font-weight: 400; }
+  .gt-eighties .gch .n { font-size: 2.7vh; width: 4.6vh; }
+  .gt-eighties .tick { font-size: 2.5vh; }
+  .gt-eighties .blk .t { font-size: 2.5vh; }
   .gt-eighties .gch .n { color: #00f0ff; text-shadow: 0 0 .8vh #00f0ff; }
   .gt-eighties #gtitle { text-shadow: 0 0 1.4vh #00f0ff; text-transform: uppercase; }
-  .gt-eighties .gch .name { text-transform: uppercase; letter-spacing: .04em; }
+  .gt-eighties .gch .name { text-transform: uppercase; font-size: 2.2vh; }
 
   .gt-nineties { --g1: #008080; --g2: #008080; --g3: #008080; --gtx: #fff; --chan: #c0c0c0; --chantx: #000; --chanb: #c0c0c0; --chansel: #000080;
     --cell: #c0c0c0; --cell2: #c0c0c0; --cellnow: #d6e4f0; --cellnow2: #d6e4f0; --hi1: #000080; --hi2: #000080; --ink: #fff;
@@ -427,8 +436,15 @@
   .gt-nineties .blk, .gt-nineties .gch { border: .3vh solid; border-color: #fff #404040 #404040 #fff; box-shadow: inset -1px -1px 0 #808080; border-radius: 0; }
   .gt-nineties .blk.foc, .gt-nineties .gch.sel { border-color: #404040 #fff #fff #404040; box-shadow: none; color: #fff; }
   .gt-nineties .gch.sel .n { color: #ffff00; }
+  .gt-nineties .blk, .gt-nineties .gch { box-sizing: border-box; }
+  .gt-nineties .blk { padding: .2vh .8vw; } .gt-nineties .gch .name { font-size: 2.3vh; }
   .gt-nineties .tday { background: #c0c0c0; color: #000; border: .3vh solid; border-color: #fff #404040 #404040 #fff; }
+  .gt-nineties #glegend { bottom: 1.4vh; }
+  .gt-nineties #glegend div { font-size: 2.1vh; padding: .2vh .6vw; line-height: 1.1; }
   .gt-nineties #glegend div { color: #000; border: .3vh solid; border-color: #fff #404040 #404040 #fff; border-radius: 0; }
+
+  /* a programme cut off at either edge keeps room for its arrow, whatever the theme's own padding says */
+  body[class*="gt-"] .blk.cl { padding-left: 2.6vw; } body[class*="gt-"] .blk.cr { padding-right: 2.6vw; }
 
   #glegend { position: absolute; left: 4vw; right: 4vw; bottom: 2.6vh; display: flex; gap: 1vw; }
   #glegend div { flex: 1; display: flex; align-items: center; gap: .9vw; font-size: 2.5vh; font-weight: 600;

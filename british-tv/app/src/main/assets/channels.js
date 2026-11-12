@@ -250,10 +250,10 @@ window.CHANNELS = [
   {
     n: 9,
     id: 'tv70s',
-    name: '70s TV',
-    sources: [
-      { search: 'collection:classic_tv_1970s AND mediatype:movies', rows: 40 }
-    ]
+    name: "70's TV",
+    decade: 1970,       // only programmes from this decade, from the whole library
+    maxItems: 120,
+    sources: [{ data: 'tv70s' }]
   },
   {
     n: 10,
@@ -441,5 +441,21 @@ window.CHANNELS = [
     // American sitcoms up to 1999 (Friends, Frasier, Cheers). Stays hidden until the scraper has found some.
     maxItems: 120,
     sources: [{ data: 'ussitcoms' }]
+  },
+  {
+    n: 29,
+    id: 'tv80s',
+    name: "80's TV",
+    decade: 1980,
+    maxItems: 120,
+    sources: [{ data: 'tv80s' }]
+  },
+  {
+    n: 30,
+    id: 'tv90s',
+    name: "90's TV",
+    decade: 1990,
+    maxItems: 120,
+    sources: [{ data: 'tv90s' }]
   }
 ];

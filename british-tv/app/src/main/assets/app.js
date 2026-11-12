@@ -434,7 +434,13 @@
     return loadChannelFile(id, rev);
   }
 
+  /** A decade channel (70's, 80's, 90's TV) is built only from the library, which knows each episode's year. A stale
+   *  per-channel file or the bundled copy can't say, so with no library the channel stays empty rather than guessing. */
+  /** On a decade channel, anything with a known air date outside the decade is turned away (a second check after the library's own). */
+  function decadeOk(ch, p) { return !ch.decade || !p.aired || Math.floor(parseInt(String(p.aired).slice(0, 4), 10) / 10) * 10 === ch.decade; }
+  function decadeOfChannel(id) { for (var i = 0; i < channels.length; i++) if (channels[i].id === id) return channels[i].decade || 0; return 0; }
   function loadChannelFile(id, rev) {
+    if (decadeOfChannel(id)) return Promise.resolve(null);
     if (!rev) return loadAutoData().then(function (D) { return (D && D[id]) || null; });
     return getJSON(DATA_BASE + encodeURIComponent(id) + '.json').then(function (rows) {
       return rows && rows.length ? rows : null;
@@ -665,7 +671,11 @@
   function buildFromData(ch, noAuto, rev, dkey) {
     return loadChannelData(ch.id, rev).then(function (rows) {
       if (!rows || !rows.length) { ch.autoUsed = true; ch.report = ['nothing in the library for this channel']; ch.plan = []; return []; }
-      var progs = dedupeTitles(capShows(progsFromData(rows, ch.id).filter(function (p) { return genreFits(ch, p) && !blocked(p); }), 0.25));
+      var progs = dedupeTitles(capShows(progsFromData(rows, ch.id).filter(function (p) {
+        // a decade channel: anything with a known air date outside its decade is turned away, as a second check
+        if (!decadeOk(ch, p)) return false;
+        return genreFits(ch, p) && !blocked(p);
+      }), 0.25));
       // hand-listed clips belong to the channel whichever way its programmes were gathered (TV Archive's BBC
       // Archive clips), and they need no lookups, so bring them in here too
       Array.prototype.push.apply(progs, namedFiles(ch));
@@ -736,7 +746,7 @@
         chain = chain.then(function () {
           return loadDataIndex().then(function (idx) { return loadChannelData(s.data, idx[s.data] || ''); })
             .then(function (rows) {
-              if (rows && rows.length) Array.prototype.push.apply(direct, progsFromData(rows, s.data));
+              if (rows && rows.length) Array.prototype.push.apply(direct, progsFromData(rows, s.data).filter(function (p) { return decadeOk(ch, p); }));
             }, function () { /* nothing published for it */ });
         });
         return;
@@ -846,7 +856,7 @@
   // ------------------------------------------------------------------ channels
 
   var channels = window.CHANNELS.filter(function (c) { return !c.off; }).map(function (c) {
-    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, report: [], status: 'loading', sched: null };
+    return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, decade: c.decade || 0, report: [], status: 'loading', sched: null };
   });
 
   /** True once every channel has finished loading: optional extras (artwork, advert lists) wait for this so they never compete with start-up. */

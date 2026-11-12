@@ -335,39 +335,9 @@
     ]
   },
   "tv70s": {
-    "name": "Classic 70s TV (All Genres)",
-    "shows": [
-      "The Sweeney",
-      "Some Mothers Do Ave Em",
-      "Are You Being Served",
-      "The New Avengers",
-      "Blakes 7",
-      "Space 1999",
-      "Survivors",
-      "Citizen Smith",
-      "Man About the House",
-      "George and Mildred",
-      "Doctor Who",
-      "I Claudius",
-      "Upstairs Downstairs",
-      "Poldark",
-      "Dixon of Dock Green",
-      "The Tomorrow People",
-      "Return of the Saint",
-      "Secret Army",
-      "On the Buses",
-      "The Goodies",
-      "The Onedin Line",
-      "When the Boat Comes In",
-      "Crown Court",
-      "Follyfoot",
-      "Robin of Sherwood",
-      "Dick Turpin",
-      "The Persuaders",
-      "Department S",
-      "The Protectors",
-      "Jason King"
-    ]
+    "name": "70's TV",
+    "decade": 1970,
+    "shows": []
   },
   "citv": {
     "name": "80s & 90s Kids Cartoons (CBBC & CITV)",
@@ -841,5 +811,15 @@
       "Sabrina the Teenage Witch",
       "Boy Meets World"
     ]
+  },
+  "tv80s": {
+    "name": "80's TV",
+    "decade": 1980,
+    "shows": []
+  },
+  "tv90s": {
+    "name": "90's TV",
+    "decade": 1990,
+    "shows": []
   }
 }

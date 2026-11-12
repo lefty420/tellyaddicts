@@ -88,10 +88,33 @@
     return !(y > 1999);
   }
 
+  /** The year an episode or film belongs to: its air date, or a year in a film's title "(1984)"; 0 when neither is known. */
+  function yearOf(ep) {
+    var y = parseInt(String((ep && ep.a) || '').slice(0, 4), 10);
+    if (y > 1900) return y;
+    var m = /\(((?:19|20)\d\d)\)\s*$/.exec(String((ep && ep.n) || ''));
+    return m ? +m[1] : 0;
+  }
+  /** Which decade (1970, 1980 ...) an episode belongs to, or 0 if that cannot be said. An episode with an air date is
+   *  simply of that year. One without goes by when its show began, but only if everything dated in the show agrees:
+   *  a show that began in 1985 and has episodes dated 2001 is not trusted to put an undated one in the eighties. */
+  function decadeOf(ep, sh, span) {
+    var y = yearOf(ep);
+    if (y) return Math.floor(y / 10) * 10;
+    var py = parseInt(sh.tv && sh.tv.y, 10);
+    if (!(py > 1900)) return 0;
+    var base = Math.floor(py / 10) * 10;
+    return !span.max || Math.floor(span.max / 10) * 10 === base ? base : 0;
+  }
+
   /** library.json + shows.json (minus the removed shows) -> {channel: rows}. A row is {id, t, f, s?, m}: one archive.org item, its file names
    *  (or [name, show] pairs when the item holds more than one show), and m = {file name: episode details}. */
   function route(lib, showsJson, removed) {
     var smap = showMap(showsJson), keys = Object.keys(smap), per = {}, order = {}, gone = {};
+    // a channel flagged "decade": 1970 takes every show in the library that belongs to that decade, whatever genre it is
+    var decades = {};
+    Object.keys(showsJson || {}).forEach(function (ch) { var d = showsJson[ch] && +showsJson[ch].decade; if (d) decades[ch] = d; });
+    var decKeys = Object.keys(decades);
     // shows the scraper has removed for good (data/removed-shows.json): [{name, slug}] or plain names
     (removed || []).forEach(function (r) {
       var name = typeof r === 'string' ? r : (r && r.name) || '', slug = r && r.slug ? String(r.slug).replace(/-/g, ' ') : '';
@@ -100,7 +123,8 @@
     });
     ((lib && lib.shows) || []).forEach(function (sh) {
       if (gone[norm(sh.n)]) return;
-      var net = NET[String(sh.net || '').toLowerCase()];
+      var net = NET[String(sh.net || '').toLowerCase()], span = { max: 0 };
+      if (decKeys.length) (sh.e || []).forEach(function (ep) { var y = yearOf(ep); if (y > span.max) span.max = y; });
       (sh.e || []).forEach(function (ep) {
         var genre = channelsFor(sh.n, ep.t, smap, keys);
         // the 1970 to 1999 limit does not apply to the Disney channel: its shorts go back to the 1930s and are mostly undated
@@ -116,6 +140,10 @@
         // and a Christmas episode goes to the Christmas channel of the right sort
         if (ep.xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
         var chs = late ? ['disney'] : (also.length ? uniqSorted(genre.concat(also)) : genre);
+        if (decKeys.length && !late && !sh.song) {
+          var dec = decadeOf(ep, sh, span);
+          if (dec) decKeys.forEach(function (ch) { if (decades[ch] === dec && chs.indexOf(ch) < 0) chs = chs.concat(ch); });
+        }
         chs.forEach(function (ch) {
           var items = per[ch] = per[ch] || {};
           order[ch] = order[ch] || [];
@@ -166,6 +194,6 @@
     return (show ? show + ' ' : '') + (d.c && d.c !== 'Special' ? d.c + ' ' : '') + d.n;
   }
 
-  var LibRoute = { norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, titleFor: titleFor };
+  var LibRoute = { yearOf: yearOf, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, titleFor: titleFor };
   if (typeof module !== 'undefined' && module.exports) module.exports = LibRoute; else root.LIBROUTE = LibRoute;
 })(typeof window !== 'undefined' ? window : this);

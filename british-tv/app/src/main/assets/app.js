@@ -261,6 +261,16 @@
     });
   }
   var keepIdx = keepIndex((store.get('keep1') || '1w'));
+  // How much airtime each channel's guide is built to cover before it repeats (Options > Guide length). It only shapes
+  // the guide and what plays on the channels: On Demand always lists everything.
+  var SPANS = [
+    { id: '24h', label: '24 hours', h: 24 },
+    { id: '48h', label: '48 hours', h: 48 },
+    { id: '1w', label: '1 week', h: 168 },
+    { id: '1m', label: '1 month', h: 720 }
+  ];
+  var spanIdx = 3;
+  (function () { var id = store.get('span1'); for (var i = 0; i < SPANS.length; i++) if (SPANS[i].id === id) spanIdx = i; })();
   // Bumped by Options > Refresh listings. It goes into each channel's running order, so every channel comes back
   // with its programmes in different places, and into the cache keys, so the lists are gathered again from source.
   var epgGen = +(store.get('epggen') || 0) || 0;
@@ -3025,7 +3035,7 @@
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
-  var OPTS = ['od', 'ar', 'fx', 'gart', 'mkeep', 'mclear', 'ads', 'buf', 'auto', 'keep', 'refresh', 'rel', 'about', 'gaps', 'log'];
+  var OPTS = ['od', 'ar', 'fx', 'gart', 'mkeep', 'mclear', 'ads', 'buf', 'auto', 'span', 'keep', 'refresh', 'rel', 'about', 'gaps', 'log'];
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'ar') return AR[arIdx].label;
@@ -3033,6 +3043,7 @@
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
+    if (id === 'span') return SPANS[spanIdx].label;
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'rel') return relName();
@@ -3087,6 +3098,15 @@
     renderOpts();
     toast('Cleared ' + gone + ' saved items and the picture cache', 3500);
   }
+  var spanTimer = null;
+  function changeSpan(d) {
+    spanIdx = (spanIdx + (d < 0 ? SPANS.length - 1 : 1)) % SPANS.length;
+    store.set('span1', SPANS[spanIdx].id);
+    renderOpts();
+    toast('Guide length: ' + SPANS[spanIdx].label + '. Building the guides\u2026', 3000);
+    clearTimeout(spanTimer);       // more than one press in a row: rebuild once, after the last
+    spanTimer = setTimeout(function () { location.reload(); }, 2200);
+  }
   function changeKeep(d) {
     keepIdx = (keepIdx + (d < 0 ? KEEP.length - 1 : 1)) % KEEP.length;
     store.set('keep1', KEEP[keepIdx].id);
@@ -3106,6 +3126,7 @@
     ads: 'Adverts between programmes, from the decade you choose. UK first, and never on the BBC.',
     buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
     auto: 'Builds every channel from the scraper\u2019s whole library instead of the hand-picked lists.',
+    span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
     keep: 'How long a channel\u2019s line-up stays as it is before it is built afresh.',
     refresh: 'Throws away every line-up and builds them all again in a new running order.',
     rel: 'What changed in this version and the ones before it.',
@@ -3171,6 +3192,7 @@
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
     else if (id === 'buf') changeBuf(d);
+    else if (id === 'span') changeSpan(d);
     else if (id === 'keep') changeKeep(d);
     else if (id === 'mkeep') changeMetaKeep(d);
     else if (id === 'mclear') clearMeta();
@@ -4117,8 +4139,9 @@
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           var seed = c.id + (epgGen ? ':' + epgGen : '');
           // a channel with a daypart plan is laid out against the clock; the rest are one shuffled loop
-          c.sched = (window.DAYPARTS && DAYPARTS.has(c.id) && DAYPARTS.schedule(c.id, progs, seed)) ||
-                    E.buildSchedule(progs, seed);
+          var spanH = SPANS[spanIdx].h;
+          c.sched = (window.DAYPARTS && DAYPARTS.has(c.id) && DAYPARTS.schedule(c.id, progs, seed, spanH / 24)) ||
+                    E.buildSchedule(E.selectSpan(progs, spanH * 3600, seed), seed);
           c.status = 'ready';
           enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
         } else {

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.14",
-  "version": "0.45.14",
-  "code": 4514,
+  "name": "Alpha 0.45.15",
+  "version": "0.45.15",
+  "code": 4515,
   "date": "2026-11-12",
   "notes": [
-    "**Ordinary channels only take episodes tracked by season and episode.** The library's dated or numbered videos (Top of the Pops, soap episodes, news, cartoon shorts and the like) no longer fill the drama, comedy, kids, decade and other everyday channels. They stay on the channels built for them (Soaps, Music, MTV, TV Archive, Disney, I'm Off School) and on the Christmas channels. Films and songs are unaffected."
+    "**Guide length option (Options > Guide length): 24 hours, 48 hours, 1 week or 1 month.** It sets how much airtime each channel's guide covers before it repeats. For the everyday channels the app picks a varied mix of programmes (one from each show in turn, so no show takes over) from what the channel's rules already allow. Soaps, Saturday Night TV, The Video Shop, TV Archive and Drama, which follow a clock timetable, now lay out each day (or week) afresh instead of repeating the same 24 hours, for as many days as you choose. The default is 1 month. On Demand is not affected and still lists everything."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.14",
+      "date": "2026-11-12",
+      "notes": [
+        "**Ordinary channels only take episodes tracked by season and episode.** The library's dated or numbered videos (Top of the Pops, soap episodes, news, cartoon shorts and the like) no longer fill the drama, comedy, kids, decade and other everyday channels. They stay on the channels built for them (Soaps, Music, MTV, TV Archive, Disney, I'm Off School) and on the Christmas channels. Films and songs are unaffected."
+      ]
+    },
     {
       "name": "Alpha 0.45.13",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**\"Please stand by\" no longer runs under the programme banner.** The Telly Addicts logo and the text beneath it sit higher, so \"This channel is loading\" is no longer cut off."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.6",
-      "date": "2026-11-12",
-      "notes": [
-        "**The show library now downloads reliably on slow connections.** The big library file (episode names, seasons, codes) was timing out on some TVs, so shows like Agatha Christie's Poirot appeared as raw file names under \"Other videos\". The app now waits longer, tries three times, and keeps a copy on the TV to fall back on."
       ]
     }
   ]

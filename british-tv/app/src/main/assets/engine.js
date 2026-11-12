@@ -401,7 +401,57 @@
   function cyclePos(sched, tMs) {
     var d = new Date(tMs);
     var s = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+    if (sched.cycle === 'multi') {                          // several days (or weeks) before the pattern comes round again
+      var di = Math.floor((tMs / 60000 - d.getTimezoneOffset()) / 1440);      // whole local days since 1 Jan 1970
+      if (sched.unit === WEEK_SEC) return (Math.floor((di + 4) / 7) % sched.n) * WEEK_SEC + d.getDay() * DAY_SEC + s;
+      return (((di % sched.n) + sched.n) % sched.n) * DAY_SEC + s;
+    }
     return sched.cycle === 'week' ? d.getDay() * DAY_SEC + s : s;
+  }
+
+  /** Several clock schedules (one per day, or per week) chained into one that only repeats after all of them.
+   *  Each has to be exactly one cycle long, or the clock would drift; if one is not, just the first is used. */
+  function joinCycles(list) {
+    list = (list || []).filter(Boolean);
+    if (!list.length) return null;
+    var unit = list[0].cycle === 'week' ? WEEK_SEC : DAY_SEC;
+    if (list.length === 1 || list.some(function (x) { return x.total !== unit || x.base !== list[0].base; })) return list[0];
+    var order = [], starts = [], off = 0;
+    list.forEach(function (x) {
+      for (var i = 0; i < x.order.length; i++) { order.push(x.order[i]); starts.push(x.starts[i] + off); }
+      off += x.total;
+    });
+    var g = buildGroups(order, starts);
+    return { order: order, starts: starts, total: off, cycle: 'multi', unit: unit, n: list.length, base: list[0].base, groups: g.groups, gstarts: g.gstarts };
+  }
+
+  /** Enough programmes to fill about `seconds` of airtime, chosen so the line-up stays varied: one from each show in
+   *  turn, so no show takes over and a short span still has plenty of different programmes. Everything given is
+   *  already inside the channel's rules (era, genre, certificate); this only decides how much of it is used. */
+  function selectSpan(progs, seconds, seed) {
+    var total = 0;
+    progs.forEach(function (p) { total += p.dur || 0; });
+    if (!(seconds > 0) || total <= seconds * 1.05) return progs;
+    var by = {}, keys = [];
+    progs.forEach(function (p) {
+      var k = String(p.show || p.group || String(p.title || '').replace(/\s+S\d+E\d+.*$/i, '')).toLowerCase();
+      if (!by[k]) { by[k] = []; keys.push(k); }
+      by[k].push(p);
+    });
+    var sd = hash(String(seed));
+    keys = shuffle(keys, sd ^ 0x2b2b);
+    keys.forEach(function (k) { by[k] = shuffle(by[k], sd ^ hash(k)); });
+    var out = [], got = 0, round = 0, more = true;
+    while (got < seconds && more) {
+      more = false;
+      for (var i = 0; i < keys.length && got < seconds; i++) {
+        var p = by[keys[i]][round];
+        if (!p) continue;
+        more = true; out.push(p); got += p.dur || 0;
+      }
+      round++;
+    }
+    return out.length >= 4 ? out : progs;
   }
 
   /** How far into a schedule a moment is: the time of day for a clock schedule, otherwise a point in the loop. */
@@ -613,7 +663,7 @@
   var Engine = {
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
     pickPrograms: pickPrograms, whyEmpty: whyEmpty, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
-    buildClockSchedule: buildClockSchedule, clockSec: clockSec,
+    buildClockSchedule: buildClockSchedule, joinCycles: joinCycles, selectSpan: selectSpan, clockSec: clockSec,
     cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, stepBlock: stepBlock, blocks: blocks,
     DEFAULT_DURATION: DEFAULT_DURATION, encodePath: encodePath, archiveUrl: archiveUrl, canonicalUrl: canonicalUrl
   };

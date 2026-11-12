@@ -235,19 +235,27 @@
 
   var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, drama: DRAMA, soaps: SOAPS };
 
-  /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. */
-  function schedule(channelId, progs, seed) {
+  /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. `days` is how long the
+   *  schedule runs before it repeats: each day (or week, for a weekly plan) is laid out afresh from its own seed. */
+  function schedule(channelId, progs, seed, days) {
     var plan = DAYPARTS[channelId];
     if (!plan || !progs || progs.length < 4 || !root.Engine) return null;
-    var blocks = [];
-    if (plan.make) blocks = plan.make(progs, seed);          // a plan that needs more than "which programmes fit"
-    else plan.blocks.forEach(function (b) {
-      var items = progs.filter(b.want);
-      if (items.length) blocks.push({ at: b.at, exact: b.exact, items: items });
-    });
-    if (blocks.length < 2) return null;                   // nothing to shape: an ordinary loop is more honest
-    var filler = plan.filler ? plan.filler(progs) : [];
-    return root.Engine.buildClockSchedule(blocks, filler.length ? filler : progs, seed, plan.cycle);
+    var unitDays = plan.cycle === 'week' ? 7 : 1;
+    var n = Math.max(1, Math.min(28, Math.round((days || 1) / unitDays)));
+    var list = [];
+    for (var d = 0; d < n; d++) {
+      var sd = d ? seed + '|d' + d : seed;
+      var blocks = [];
+      if (plan.make) blocks = plan.make(progs, sd);          // a plan that needs more than "which programmes fit"
+      else plan.blocks.forEach(function (b) {
+        var items = progs.filter(b.want);
+        if (items.length) blocks.push({ at: b.at, exact: b.exact, items: items });
+      });
+      if (blocks.length < 2) { if (d === 0) return null; break; }   // nothing to shape: an ordinary loop is more honest
+      var filler = plan.filler ? plan.filler(progs) : [];
+      list.push(root.Engine.buildClockSchedule(blocks, filler.length ? filler : progs, sd, plan.cycle));
+    }
+    return n > 1 ? root.Engine.joinCycles(list) : list[0];
   }
 
   var Dayparts = { has: function (id) { return !!DAYPARTS[id]; }, schedule: schedule, isNews: NEWS };

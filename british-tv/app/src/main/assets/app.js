@@ -478,6 +478,9 @@
         var d = it.m && it.m[nm];
         if (d) {
           var t = window.LIBROUTE && LIBROUTE.titleFor(show, d);
+          // no TVmaze name for it, and the file name has no episode code the app can read ("Show.S01E01.1080p..."):
+          // the library's own code for the episode still says where it belongs
+          if (!t && d.c && show && /^S\d{1,2}E\d{1,3}$/i.test(d.c) && !(window.LINKS && LINKS.parseEp(p.title))) t = show + ' ' + d.c.toUpperCase();
           if (t) p.title = t;
           if (d.a) p.aired = d.a;
           if (d.l > 60) { p.dur = d.l; p.lenKnown = 1; }

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.4",
-  "version": "0.45.4",
-  "code": 4504,
+  "name": "Alpha 0.45.5",
+  "version": "0.45.5",
+  "code": 4505,
   "date": "2026-11-12",
   "notes": [
-    "**Films in On Demand are listed one by one.** Kids Movies and The Video Shop showed a single card holding every film. Each film is now its own card in the row, like a TV show, and OK on one plays it straight away."
+    "**Episodes with dotted file names are sorted into their seasons.** Files named like `Show.S01E01.1080p.BluRay.mkv` were landing under \"Other videos\" because the app could not read the episode code out of the dots. It now uses the library's own episode code when the file name cannot be read."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.4",
+      "date": "2026-11-12",
+      "notes": [
+        "**Films in On Demand are listed one by one.** Kids Movies and The Video Shop showed a single card holding every film. Each film is now its own card in the row, like a TV show, and OK on one plays it straight away."
+      ]
+    },
     {
       "name": "Alpha 0.45.3",
       "date": "2026-11-12",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Cast on the Info screen.** A row of round photos with each actor's name and character, from TVmaze for programmes and from the film details for films (films show a cast once the film data carries one). The debugging lines that used to sit at the bottom of the Info screen are gone."
-      ]
-    },
-    {
-      "name": "Alpha 0.41",
-      "date": "2026-11-12",
-      "notes": [
-        "**A scrubber instead of the 30-second buttons.** The rewind and fast-forward buttons are gone from the OK bar. Press Left or Right while watching (or the remote's rewind / fast-forward keys) and the progress bar becomes a scrubber: a tap moves 10 seconds, holding winds faster the longer you hold, and the picture jumps when you let go. Down reaches the buttons, Up comes back to the bar."
       ]
     }
   ]

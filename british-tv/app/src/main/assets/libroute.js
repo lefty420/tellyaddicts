@@ -89,6 +89,9 @@
   }
 
   /** The year an episode or film belongs to: its air date, or a year in a film's title "(1984)"; 0 when neither is known. */
+  var CODED = /^S\d{1,4}E\d{1,4}$/i;
+  /** Channels that also take videos with no season and episode number (dated or numbered, or just a clip). */
+  var LOOSE = { soaps: 1, offschool: 1, music: 1, mtv: 1, xmasmusic: 1, christmas: 1, kidsxmas: 1, noel: 1, tvarchive: 1, disney: 1, adverts: 1 };
   function yearOf(ep) {
     var y = parseInt(String((ep && ep.a) || '').slice(0, 4), 10);
     if (y > 1900) return y;
@@ -146,6 +149,9 @@
           if (dec) decKeys.forEach(function (ch) { if (decades[ch] === dec && chs.indexOf(ch) < 0) chs = chs.concat(ch); });
         }
         chs.forEach(function (ch) {
+          // Only episodes tracked as a season and episode (S01E04) go on the ordinary channels. Dated or numbered videos
+          // (soap episodes, Top of the Pops, news, shorts) stay on the channels built for them, and on the Christmas ones.
+          if (!LOOSE[ch] && !sh.film && !sh.song && !CODED.test(ep.c || '')) return;
           var items = per[ch] = per[ch] || {};
           order[ch] = order[ch] || [];
           var it = items[ep.id];

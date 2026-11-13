@@ -3874,6 +3874,7 @@
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
       rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);
       rec.shows.forEach(function (g) { g.chan = ch; });
+      odRowsMemo = null;
       return rec;
     }, function () { rec.shows = []; return rec; });
     return rec.p;
@@ -3975,10 +3976,13 @@
     var e = g && g._cw;
     return e && ep && ep.p && e.url === ep.p.url && e.pos > 30 && (!e.dur || e.pos < e.dur - 60) ? e.pos : 0;
   }
+  var odRowsMemo = null;
   function odRowList() {
+    if (odRowsMemo) return odRowsMemo;
+    setTimeout(function () { odRowsMemo = null; }, 0);
     var rows = odChannels().filter(function (c) { var r = odData[c.id]; return !(r && r.shows && !odShowsOf(c).length); });
     var cw = odCwRow();
-    return cw ? [cw].concat(rows) : rows;
+    return (odRowsMemo = cw ? [cw].concat(rows) : rows);
   }
   /** On Demand has no clock, but films keep the watershed: family films all day, 15s from eight, the rest after nine,
    *  as on the film channels. Without a certificate a film counts as an 18. */
@@ -4067,12 +4071,20 @@
       : '◀ ▶ browse   ▲ ▼ channels   OK open   Back';
   }
   var rowIsCw = false;
+  /** One poster element per show, kept and reused: moving along a row re-attaches the ones already built (and decoded)
+   *  instead of making new ones, which is what made browsing stutter on the TV. */
   function odCard(g, sel) {
-    var k = odKnown(g), d = odEl('div', 'odc' + (sel ? ' sel' : ''));
-    if (k && (k.poster || k.back)) d.style.backgroundImage = 'url("' + (k.poster || k.back) + '")';
-    else { d.style.backgroundImage = odTone(g.name); d.appendChild(odEl('b', '', g.name)); }
-    var w = g._cw && g._cw.dur ? Math.min(100, Math.round(100 * g._cw.pos / g._cw.dur)) : 0;
-    if (w > 1 && rowIsCw) { var pg = odEl('div', 'odpg'); var bar = odEl('i'); bar.style.width = w + '%'; pg.appendChild(bar); d.appendChild(pg); }
+    var key = rowIsCw ? '_elc' : '_el', d = g[key], gen = odKGen + ':' + cwGen;
+    if (!d) { d = g[key] = odEl('div', 'odc'); d._g = ''; }
+    if (d._g !== gen) {
+      d._g = gen; d.textContent = '';
+      var k = odKnown(g);
+      if (k && (k.poster || k.back)) d.style.backgroundImage = 'url("' + (k.poster || k.back) + '")';
+      else { d.style.backgroundImage = odTone(g.name); d.appendChild(odEl('b', '', g.name)); }
+      var w = g._cw && g._cw.dur ? Math.min(100, Math.round(100 * g._cw.pos / g._cw.dur)) : 0;
+      if (w > 1 && rowIsCw) { var pg = odEl('div', 'odpg'); var bar = odEl('i'); bar.style.width = w + '%'; pg.appendChild(bar); d.appendChild(pg); }
+    }
+    d.className = 'odc' + (sel ? ' sel' : '');
     return d;
   }
   var odDom = [];       // what the home rows on screen were built from: a key press that stays inside them only moves the highlight

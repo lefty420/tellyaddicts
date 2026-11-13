@@ -959,6 +959,23 @@
 
   /** True once every channel has finished loading: optional extras (artwork, advert lists) wait for this so they never compete with start-up. */
   function quiet() { return channels.every(function (c) { return c.status !== 'loading'; }); }
+  /** Someone is pressing buttons right now: background work waits so it never makes the screen stutter. */
+  function userBusy() { return Date.now() - lastKeyAt < 900; }
+  /** progsFromData for a long list, in small slices with a breath between them (and a longer wait while a button is
+   *  being pressed), so building a big channel in the background cannot freeze the screen for a second. */
+  function progsFromDataSliced(items, channelId, everything) {
+    return new Promise(function (resolve) {
+      var out = [], i = 0, n = 4;                                     // items per slice: learned as it goes, aiming at about 8 ms
+      (function step() {
+        if (!odOpen && userBusy()) { setTimeout(step, 250); return; }      // On Demand on screen is waiting for this: no pausing then
+        var t0 = performance.now(), part = progsFromData(items.slice(i, i + n), channelId, everything), ms = performance.now() - t0;
+        for (var k = 0; k < part.length; k++) out.push(part[k]);
+        i += n;
+        n = ms < 5 ? n * 2 : ms > 10 ? Math.max(1, n >> 1) : n;
+        if (i < items.length) setTimeout(step, 0); else resolve(out);
+      })();
+    });
+  }
 
   function ready() {
     return channels.filter(function (c) { return c.status === 'ready'; })
@@ -3792,7 +3809,9 @@
     return true;
   }
 
+  var lastKeyAt = 0;
   window.addEventListener('keydown', function (e) {
+    lastKeyAt = Date.now();
     if (!started) {
       if (e.key === 'GoBack' || e.key === 'Escape' || e.key === 'Backspace') { exitApp(); e.preventDefault(); }
       return;
@@ -3942,7 +3961,9 @@
     if (rec) return rec.p;
     rec = odData[ch.id] = { shows: null };
     rec.p = loadDataIndex().then(function (idx) { return loadChannelData(ch.id, idx[ch.id] || ''); }).then(function (rows) {
-      var progs = rows && rows.length ? progsFromData(rows, ch.id, true).filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); }) : [];
+      return rows && rows.length ? progsFromDataSliced(rows, ch.id, true) : [];
+    }).then(function (all) {
+      var progs = all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); });
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
       rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);

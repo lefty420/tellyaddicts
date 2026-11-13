@@ -274,7 +274,7 @@
     { id: 'auto', label: 'Match the channel' }, { id: 'classic', label: 'Classic Blue' }, { id: 'teletext', label: 'Teletext' },
     { id: 'paper', label: 'Radio Times' }, { id: 'seventies', label: '1970s' }, { id: 'eighties', label: '1980s' }, { id: 'nineties', label: '1990s' }
   ];
-  var themeIdx = 0, themeNow = '';
+  var themeIdx = 1, themeNow = '';             // Classic Blue unless one was picked: the look only changes when it is changed in Options
   (function () { var id = store.get('gtheme1'); for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) themeIdx = i; })();
   var DECADE_THEME = { tv70s: 'seventies', tv80s: 'eighties', tv90s: 'nineties' };
   function applyTheme(ch) {

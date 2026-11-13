@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.81 — 2026-11-13
+
+- **The guide only changes theme when you change it.** Until a theme is chosen in Options, the guide is now Classic Blue (before, it was "Match the channel", which dressed the guide as the 70's, 80's or 90's whenever one of those channels was involved). "Match the channel" is still there in Options for anyone who wants it. If it was picked on purpose it stays picked.
+
 ## Alpha 0.45.80 — 2026-11-13
 
 - **Hid two music uploads that had been matched to the BBC drama "Angels".** "Angels in Heat" is a band: the items are live concert recordings ("Live from The Freight") whose names happened to contain "Angels". They are hidden until the scraper drops them.

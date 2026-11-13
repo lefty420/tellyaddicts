@@ -3,42 +3,6 @@
   "channel": "gameshows",
   "videos": [
    {
-    "id": "FwAg9gS07NE",
-    "title": "Gladiators UK (2026) - Season 3 Episode 11 - The Final",
-    "dur": 3542,
-    "by": "Pagi Pagi",
-    "season": 3,
-    "ep": 11,
-    "epTitle": "Quarter-Final Two",
-    "airdate": "1994-11-12"
-   },
-   {
-    "id": "9_M0OTgGDu4",
-    "title": "Gladiators (2026) - Season 3 Episode 7",
-    "dur": 3547,
-    "by": "Pagi Pagi",
-    "season": 3,
-    "ep": 7,
-    "epTitle": "Heat Six",
-    "airdate": "1994-10-15"
-   },
-   {
-    "id": "V9KXc_m4HcY",
-    "title": "Gladiators UK - Saturday 1st March 2025 (1st Quarter-Finals)",
-    "dur": 3471,
-    "by": "CSE2.0"
-   },
-   {
-    "id": "6Fe1aBcBi40",
-    "title": "Gladiators (2026) - Season 3 Episode 8",
-    "dur": 3527,
-    "by": "Pagi Pagi",
-    "season": 3,
-    "ep": 8,
-    "epTitle": "Heat Seven",
-    "airdate": "1994-10-22"
-   },
-   {
     "id": "MjK-LUD-AaA",
     "title": "UK Gladiators - Series 5 1996 - South Heat 2",
     "dur": 2946,
@@ -47,22 +11,6 @@
     "ep": 2,
     "epTitle": "Heat 2",
     "airdate": "1992-10-17"
-   },
-   {
-    "id": "obtB7lwnqIs",
-    "title": "Gladiators (2026) - Season 3 Episode 10",
-    "dur": 3653,
-    "by": "Pagi Pagi",
-    "season": 3,
-    "ep": 10,
-    "epTitle": "Quarter-Final One",
-    "airdate": "1994-11-05"
-   },
-   {
-    "id": "IUZhqMzGlgQ",
-    "title": "Gladiators Celebrity Special 2025 | Celebrities Face the Ultimate Arena Challenge",
-    "dur": 3521,
-    "by": "Dovie McKenzie"
    },
    {
     "id": "fQh80OH5lZA",
@@ -81,44 +29,6 @@
     "airdate": "1992-10-10"
    },
    {
-    "id": "LNWFo7Yl11s",
-    "title": "Gladiators (2026) - Season 3 Episode 9",
-    "dur": 3609,
-    "by": "Pagi Pagi",
-    "season": 3,
-    "ep": 9,
-    "epTitle": "Heat Eight",
-    "airdate": "1994-10-29"
-   },
-   {
-    "id": "Szpqwi7-kOI",
-    "title": "Gladiators UK - Saturday 1st February 2025",
-    "dur": 3484,
-    "by": "CSE2.0"
-   },
-   {
-    "id": "aOmYZQWXeJE",
-    "title": "Gladiators UK - Saturday 25th January 2025",
-    "dur": 3450,
-    "by": "CSE2.0"
-   },
-   {
-    "id": "5cG2nXHjlIc",
-    "title": "Epic Battles: Best Gladiator vs Contender Moments 💪 | Gladiators - BBC",
-    "dur": 538,
-    "by": "BBC"
-   },
-   {
-    "id": "mIA-i8ex7Vc",
-    "title": "Gladiators (2025) - Season 2 Episode 1",
-    "dur": 3681,
-    "by": "Pagi Pagi",
-    "season": 2,
-    "ep": 1,
-    "epTitle": "\"Return of the Gladiators\"",
-    "airdate": "1993-08-28"
-   },
-   {
     "id": "qrqDmIaj_aM",
     "title": "ITV's Gladiators - Series 3 Episode 1 - 10th September 1994",
     "dur": 2972,
@@ -129,22 +39,10 @@
     "airdate": "1994-09-03"
    },
    {
-    "id": "2DcI7zoC7dY",
-    "title": "Gladiators UK - Saturday 22nd February 2025",
-    "dur": 3529,
-    "by": "CSE2.0"
-   },
-   {
     "id": "sc8aSNEnUf4",
     "title": "ITV's The Battle Of The Gladiators Celebrity Special - 26th December 1993",
     "dur": 3078,
     "by": "ChrisVHS89"
-   },
-   {
-    "id": "XfyPCOyYpVY",
-    "title": "Gladiators UK - Saturday 15th February 2025",
-    "dur": 3483,
-    "by": "CSE2.0"
    },
    {
     "id": "GW3oIK6YJnA",
@@ -183,22 +81,6 @@
     "airdate": "1992-11-14"
    },
    {
-    "id": "-oCmslMXnec",
-    "title": "Gladiators: Best of Legend 2025",
-    "dur": 1754,
-    "by": "1.7M views"
-   },
-   {
-    "id": "8t_dRMvMYvY",
-    "title": "Gladiator Laser Absolutely Decimates In Joust! | American Gladiators | Full Episode | S02E01",
-    "dur": 2653,
-    "by": "American Gladiators",
-    "season": 2,
-    "ep": 1,
-    "epTitle": "\"Return of the Gladiators\"",
-    "airdate": "1993-08-28"
-   },
-   {
     "id": "dvq5c6HTYas",
     "title": "UK Gladiators - Series 1 1992 - Heat 4",
     "dur": 3034,
@@ -217,13 +99,6 @@
     "ep": 5,
     "epTitle": "Heat 5",
     "airdate": "1992-11-07"
-   },
-   {
-    "id": "OSTFcEr2GpI",
-    "title": "Gladiators UK - Saturday 18th January 2025 (Series 2 - BBC)",
-    "dur": 3561,
-    "by": "CSE2.0",
-    "season": 2
    },
    {
     "id": "Q0kjupz_47c",
@@ -299,12 +174,6 @@
     "airdate": "1992-10-31"
    },
    {
-    "id": "K9EpwMmkg1E",
-    "title": "Gladiators (31.08.2008) The Legends Return",
-    "dur": 4123,
-    "by": "UzumakiPlayroom"
-   },
-   {
     "id": "KfkuVF__Lco",
     "title": "UK Gladiators - Series 3 1994 - Heat 6",
     "dur": 3012,
@@ -333,16 +202,6 @@
     "ep": 8,
     "epTitle": "Heat 8",
     "airdate": "1997-11-01"
-   },
-   {
-    "id": "VObqD7tg5lY",
-    "title": "Australian Gladiators 1995   S01E01",
-    "dur": 2997,
-    "by": "Phantom Gladiator",
-    "season": 1,
-    "ep": 1,
-    "epTitle": "Heat 1",
-    "airdate": "1992-10-10"
    },
    {
     "id": "F6dmVNduNlI",
@@ -436,16 +295,6 @@
     "airdate": "1994-03-26"
    },
    {
-    "id": "-SU7MFw2ZAI",
-    "title": "Big Break - 16/6/2001 - Series 10 - Episode 1- Stephen Hendry, Ronnie O'Sullivan and Ken Doherty",
-    "dur": 1750,
-    "by": "The Sporting Rewind Vault",
-    "season": 10,
-    "ep": 1,
-    "epTitle": "Episode 1",
-    "airdate": "1998-01-09"
-   },
-   {
     "id": "HaKy_ngxGNE",
     "title": "Big Break - 14th October 1995 - Series 6 Episode 7 - Steve Davis, Ronnie O'Sullivan and Mark Davis",
     "dur": 1705,
@@ -482,16 +331,6 @@
     "ep": 4,
     "epTitle": "Episode 4",
     "airdate": "1994-09-30"
-   },
-   {
-    "id": "2G0M5OUDnGQ",
-    "title": "Big Break - 13/07/2002 - Series 10 - Episode 12 - Paul Hunter, Jimmy Michie and Stephen Lee",
-    "dur": 1687,
-    "by": "The Sporting Rewind Vault",
-    "season": 10,
-    "ep": 12,
-    "epTitle": "Episode 12",
-    "airdate": "1998-04-18"
    },
    {
     "id": "ht5R_xKnkxM",
@@ -532,16 +371,6 @@
     "ep": 25,
     "epTitle": "Episode 25",
     "airdate": "1994-03-12"
-   },
-   {
-    "id": "Y2nKH0FlI5M",
-    "title": "Big Break - 29/03/2000 - Series 9- Episode 15 - Alfie Burden, Tony Drago, Peter Ebdon",
-    "dur": 1743,
-    "by": "The Sporting Rewind Vault",
-    "season": 9,
-    "ep": 15,
-    "epTitle": "Episode 15",
-    "airdate": "1997-04-18"
    },
    {
     "id": "-p5GNZvFHx4",
@@ -738,16 +567,6 @@
     "airdate": "1998-06-06"
    },
    {
-    "id": "q_NOKKG330E",
-    "title": "Big Break - 02/02/2000 - Series 9- Episode 7 - Quinten Hann, John Higgins, Brian Morgan.",
-    "dur": 1735,
-    "by": "The Sporting Rewind Vault",
-    "season": 9,
-    "ep": 7,
-    "epTitle": "Episode 7",
-    "airdate": "1997-02-14"
-   },
-   {
     "id": "1IShvVtVRfQ",
     "title": "Big Break Christmas Special Episode Two",
     "dur": 2358,
@@ -816,12 +635,6 @@
     "ep": 12,
     "epTitle": "Episode 12",
     "airdate": "1991-07-16"
-   },
-   {
-    "id": "y7D9FE5q5X4",
-    "title": "Big Break (2002)",
-    "dur": 1662,
-    "by": "randomTVnostalgia"
    },
    {
     "id": "UyKi99t8auM",
@@ -1396,13 +1209,6 @@
     "by": "james booker"
    },
    {
-    "id": "81m_sOjqFWU",
-    "title": "2005 Blind Date FULL SEASON 6 Complete Roger Lodge Retro Dating TV Show",
-    "dur": 4051,
-    "by": "KoalaKola",
-    "season": 6
-   },
-   {
     "id": "wp9_6DrpqAw",
     "title": "Blind Date || S4 || Episode 29",
     "dur": 3845,
@@ -1434,23 +1240,10 @@
     "by": "Nosey"
    },
    {
-    "id": "7GV6LGqwtTg",
-    "title": "2004 Blind Date Season 5 FULL SEASON COMPLETE Roger Lodge TV Dating Reality Old Retro Show",
-    "dur": 3723,
-    "by": "KoalaKola",
-    "season": 5
-   },
-   {
     "id": "napePuxrhao",
     "title": "Kenny Cannot 😬🫣Blind Date Full Episode",
     "dur": 1244,
     "by": "Nosey"
-   },
-   {
-    "id": "-_SzF8EXgKM",
-    "title": "2003-11-24 | Blind Date | Full Episode with Commercials | SpikeTV Portland, OR",
-    "dur": 1700,
-    "by": "Killin' Time Classics"
    },
    {
     "id": "ABJqd3wJfbM",
@@ -1632,12 +1425,6 @@
     "by": "Cb.Jayden"
    },
    {
-    "id": "mqtGYePZdW8",
-    "title": "LULEZ GOES ON BLIND DATE WITH SHY FREAK😈😨‼️(GONE RIGHT)🦈",
-    "dur": 1632,
-    "by": "LULEZ"
-   },
-   {
     "id": "s0TVSg8ZYtM",
     "title": "BLIND DATE|S3|E11| MUST WATCH EPISODE IN SOUTH AFRICA 🇿🇦 HOSTED BY SMILEY",
     "dur": 1399,
@@ -1698,12 +1485,6 @@
     "title": "30 Singles Blind Date in Total Darkness | Love in the Dark | Cut",
     "dur": 1337,
     "by": "Cut"
-   },
-   {
-    "id": "Wm3YOHWdSRY",
-    "title": "My Wild Blind Date Experiences | I’m prepared to stay single forever as a Chinese woman",
-    "dur": 1827,
-    "by": "GuYi Alone"
    },
    {
     "id": "u60ISn0IWAM",
@@ -1942,12 +1723,6 @@
     "by": "𝓒𝓵𝓪𝓼𝓼𝓲𝓬 𝓣𝓥"
    },
    {
-    "id": "d8SsvZLcDSY",
-    "title": "The Krypton Factor 2009 Final",
-    "dur": 1425,
-    "by": "Adam Beckwith"
-   },
-   {
     "id": "1nUd9FXSymk",
     "title": "The Krypton Factor | Graeme/Pauline/Roy/Hugh (Sept. 14th, 1977)",
     "dur": 1541,
@@ -2031,12 +1806,6 @@
     "airdate": "1992-09-07"
    },
    {
-    "id": "vHexwW_t4Ss",
-    "title": "James Acaster on Blockbusters",
-    "dur": 1460,
-    "by": "Stranger Crack"
-   },
-   {
     "id": "9Ay_ViPiNhg",
     "title": "Blockbusters UK (12 September 1984 | S2 E13)",
     "dur": 1795,
@@ -2045,12 +1814,6 @@
     "ep": 13,
     "epTitle": "Episode 13",
     "airdate": "1984-09-12"
-   },
-   {
-    "id": "JRTN8R2kJ24",
-    "title": "Blockbusters UK - Thursday 3rd October 2019",
-    "dur": 1319,
-    "by": "CSE2.0"
    },
    {
     "id": "w3vSJwAlwag",
@@ -2099,12 +1862,6 @@
     "airdate": "1983-08-30"
    },
    {
-    "id": "jvGFx5Hv-Ms",
-    "title": "Blockbusters (USA & UK) (1980 & 1983) First episodes",
-    "dur": 2700,
-    "by": "UzumakiPlayroom"
-   },
-   {
     "id": "v_QkK0mpnSM",
     "title": "Blockbusters -  Series 1 Episode 1 - 29/08/1983 (HQ)",
     "dur": 1422,
@@ -2123,12 +1880,6 @@
     "ep": 31,
     "epTitle": "Episode 31",
     "airdate": "1984-10-08"
-   },
-   {
-    "id": "z3eaUnO5NSU",
-    "title": "Blockbusters UK - Thursday 26th September 2019 (Celebrity Special)",
-    "dur": 1377,
-    "by": "CSE2.0"
    },
    {
     "id": "9PIP7x7r2-g",
@@ -2168,12 +1919,6 @@
     "title": "Blockbusters 1991 Mark Clulo and Tim Senior",
     "dur": 3506,
     "by": "Bananas bananas 44"
-   },
-   {
-    "id": "-fTk02Q-rM0",
-    "title": "Blockbusters UK - Thursday 10th October 2019",
-    "dur": 1335,
-    "by": "CSE2.0"
    },
    {
     "id": "fiN_UUYS4-s",
@@ -2216,13 +1961,6 @@
     "title": "Blockbusters | Dan vs. Jack & Jan",
     "dur": 1792,
     "by": "Game Show Temple Archives"
-   },
-   {
-    "id": "yBaQrjjLjGs",
-    "title": "Fiona and James on Blockbusters Ep.1",
-    "dur": 1303,
-    "by": "DesktopTableLamp",
-    "ep": 1
    },
    {
     "id": "xsKhwMA3GOo",
@@ -2273,12 +2011,6 @@
     "ep": 62,
     "epTitle": "Episode 62",
     "airdate": "1984-11-20"
-   },
-   {
-    "id": "mgN6QwVlyyY",
-    "title": "Blockbusters - 2012 episode",
-    "dur": 1341,
-    "by": "[bluefrog]"
    },
    {
     "id": "_UvvqWHhHxw",
@@ -2353,12 +2085,6 @@
     "by": "ChrisVHS89"
    },
    {
-    "id": "5pSRihQY64o",
-    "title": "The Inevitable Failure of 2023 Blockbusters",
-    "dur": 4976,
-    "by": "Friendly Space Ninja"
-   },
-   {
     "id": "rghpihVuUio",
     "title": "Blockbusters - Series 10 Episode 9 - ITV",
     "dur": 1472,
@@ -2367,12 +2093,6 @@
     "ep": 9,
     "epTitle": "Episode 9",
     "airdate": "1992-09-17"
-   },
-   {
-    "id": "g6YvkbqAhAY",
-    "title": "Why Is Every Streaming Blockbuster So Bad?",
-    "dur": 3434,
-    "by": "Patrick (H) Willems"
    },
    {
     "id": "JRbCYzr5jOM",
@@ -2429,8 +2149,8 @@
    }
   ]
  },
- "telly addicts": {
-  "channel": null,
+ "Telly Addicts": {
+  "channel": "gameshows",
   "videos": [
    {
     "id": "a957bXwkyyw",
@@ -3009,40 +2729,6 @@
   "channel": "gameshows",
   "videos": [
    {
-    "id": "usM0M_DmhFY",
-    "title": "Shooting Stars | Best Iconic Silliness from Series 1 | BBC Playback",
-    "dur": 2381,
-    "by": "BBC Playback",
-    "season": 1
-   },
-   {
-    "id": "3ZZI5IMupOg",
-    "title": "🔴 LIVE: The Best of Vic & Bob from Shooting Stars Series 1 LIVESTREAM! | BBC Comedy Greats",
-    "dur": 2595,
-    "by": "BBC Comedy Greats",
-    "season": 1
-   },
-   {
-    "id": "2_HXDx0nrac",
-    "title": "Shooting Stars Season 7 Episode 6",
-    "dur": 1734,
-    "by": "Shooting Stars Season TV",
-    "season": 7,
-    "ep": 6,
-    "epTitle": "Paloma Faith, Louie Spence, James May, James Buckley",
-    "airdate": "2010-08-17"
-   },
-   {
-    "id": "t8FGOFij7fc",
-    "title": "Shooting Stars Season 6 Episode 6",
-    "dur": 1744,
-    "by": "Shooting Stars Season TV",
-    "season": 6,
-    "ep": 6,
-    "epTitle": "Noel Fielding, Tony Blackburn, Zoe Salmon",
-    "airdate": "2009-09-30"
-   },
-   {
     "id": "ir6ZFjFVloM",
     "title": "Shooting Stars Season 7 Episode 7",
     "dur": 1757,
@@ -3059,26 +2745,6 @@
     "ep": 3,
     "epTitle": "Jo Brand, Gary Rhodes, Russell Grant, Carol Smillie",
     "airdate": "1996-10-11"
-   },
-   {
-    "id": "ZgCkn_H2Ejk",
-    "title": "Shooting Stars Season 6 Episode 5",
-    "dur": 1748,
-    "by": "Shooting Stars Season TV",
-    "season": 6,
-    "ep": 5,
-    "epTitle": "Mutya Buena, Laurence Llewelyn Bowen, Lenny Henry",
-    "airdate": "2009-09-23"
-   },
-   {
-    "id": "U-Kj99drNAM",
-    "title": "Shooting Stars Season 6 Episode 1",
-    "dur": 1744,
-    "by": "Shooting Stars Season TV",
-    "season": 6,
-    "ep": 1,
-    "epTitle": "Christine Beakley, DJ Ironik, Paddy McGuinness",
-    "airdate": "2009-08-26"
    },
    {
     "id": "KrR2EAtZiBI",
@@ -3099,36 +2765,6 @@
     "ep": 2,
     "epTitle": "Alice Beer, Gordon Burns, Dermot Morgan, Robbie Williams",
     "airdate": "1996-10-04"
-   },
-   {
-    "id": "FeOxUua9jac",
-    "title": "Shooting Stars Season 7 Episode 5",
-    "dur": 1756,
-    "by": "Shooting Stars Season TV",
-    "season": 7,
-    "ep": 5,
-    "epTitle": "Matthew Horne, Alex Reid, Penny Smith, Tim Lovejoy",
-    "airdate": "2010-08-10"
-   },
-   {
-    "id": "FDafVOUhclw",
-    "title": "Shooting Stars Season 6 Episode 2",
-    "dur": 1739,
-    "by": "Shooting Stars Season TV",
-    "season": 6,
-    "ep": 2,
-    "epTitle": "Liz McClarnon, Ricky Wilson, Gregg Wallace",
-    "airdate": "2009-09-02"
-   },
-   {
-    "id": "67y2-_qQbM0",
-    "title": "Shooting Stars Season 8 Episode 2",
-    "dur": 1738,
-    "by": "Shooting Stars Season TV",
-    "season": 8,
-    "ep": 2,
-    "epTitle": "Chris Packham, Tess Daly, Mark Benton, Alexa Chung",
-    "airdate": "2011-08-15"
    },
    {
     "id": "Pd9ZIvm73Qk",
@@ -3181,16 +2817,6 @@
     "airdate": "1995-11-03"
    },
    {
-    "id": "hQIHBhwwsOc",
-    "title": "Shooting Stars Season 4 Episode 2",
-    "dur": 1744,
-    "by": "Shooting Stars Season TV",
-    "season": 4,
-    "ep": 2,
-    "epTitle": "Paul Whitehouse, Gail Hipgrave, Larry Hagman",
-    "airdate": "2002-01-20"
-   },
-   {
     "id": "HRMO98sEFh4",
     "title": "Shooting Stars - S03E05",
     "dur": 1808,
@@ -3211,16 +2837,6 @@
     "airdate": "1995-10-20"
    },
    {
-    "id": "7AOw30olqoM",
-    "title": "Shooting Stars Season 6 Episode 4",
-    "dur": 1750,
-    "by": "Shooting Stars Season TV",
-    "season": 6,
-    "ep": 4,
-    "epTitle": "Dave Myers, Kim Woodburn, Lee Mack",
-    "airdate": "2009-09-16"
-   },
-   {
     "id": "snh2GV6HTE0",
     "title": "Shooting Stars - S03E01",
     "dur": 1771,
@@ -3229,16 +2845,6 @@
     "ep": 1,
     "epTitle": "Tanya Bryer, Mariella Frostrup, Leo Sayer, Anthony Worrall-Thompson",
     "airdate": "1997-09-26"
-   },
-   {
-    "id": "YfHPUEU4fLY",
-    "title": "Shooting Stars Season 6 Episode 3",
-    "dur": 1735,
-    "by": "Shooting Stars Season TV",
-    "season": 6,
-    "ep": 3,
-    "epTitle": "Julia Bradbury, Martin Freeman, Paddy Considine",
-    "airdate": "2009-09-09"
    },
    {
     "id": "g0OSDfIZVvE",
@@ -3266,26 +2872,6 @@
     "ep": 6,
     "epTitle": "Danny Baker, Shane Richie, Simon Bates, Caroline Hook",
     "airdate": "1995-10-27"
-   },
-   {
-    "id": "uvB4RRb4h4w",
-    "title": "Shooting Stars Season 5 Episode 6",
-    "dur": 1738,
-    "by": "Shooting Stars Season TV",
-    "season": 5,
-    "ep": 6,
-    "epTitle": "Nick Moran, Stuart Hall, Tess Daly",
-    "airdate": "2002-11-17"
-   },
-   {
-    "id": "6CV0013YY9g",
-    "title": "Shooting Stars Season 4 Episode 8",
-    "dur": 1738,
-    "by": "Shooting Stars Season TV",
-    "season": 4,
-    "ep": 8,
-    "epTitle": "Geoff Capes, Patsy Kensit, Damon Hill",
-    "airdate": "2002-03-03"
    },
    {
     "id": "ndoe7PAdddU",
@@ -3326,26 +2912,6 @@
     "ep": 7,
     "epTitle": "David Emanuel, Judith Hann, Mark Homer, Lisa Stansfield",
     "airdate": "1997-11-07"
-   },
-   {
-    "id": "Me_MlkgHanA",
-    "title": "Shooting Stars Season 5 Episode 1",
-    "dur": 2448,
-    "by": "Shooting Stars Season TV",
-    "season": 5,
-    "ep": 1,
-    "epTitle": "Jeremy Edwards, Amanda Donohoe, Curtis Stigers",
-    "airdate": "2002-10-13"
-   },
-   {
-    "id": "Xu0njCd2vsk",
-    "title": "Shooting Stars - S07E01 [13/7/10]",
-    "dur": 1751,
-    "by": "Green Tea Rooms",
-    "season": 7,
-    "ep": 1,
-    "epTitle": "Example, Si King, Camilla Dallerup, Linda Henry",
-    "airdate": "2010-07-13"
    }
   ]
  },
@@ -3667,12 +3233,6 @@
     "airdate": "1989-02-24"
    },
    {
-    "id": "5axhWX2DdYI",
-    "title": "P!NK - Funhouse Tour: Live in Australia | Full Concert",
-    "dur": 7328,
-    "by": "Front Row Music"
-   },
-   {
     "id": "3NOpHmUBwhU",
     "title": "Fun House - Series 10, Episode 5 (1998)",
     "dur": 1488,
@@ -3703,12 +3263,6 @@
     "title": "The Fun House! 🛝 | Peppa Pig Tales",
     "dur": 1988,
     "by": "Peppa Pig - Official Channel"
-   },
-   {
-    "id": "B9Q5luXFkAI",
-    "title": "The Stooges - Fun House (Full Album)",
-    "dur": 2198,
-    "by": "REIK"
    },
    {
     "id": "ihpdlxP6-Gk",
@@ -4052,12 +3606,6 @@
     "ep": 0
    },
    {
-    "id": "8HzRYi-MHUM",
-    "title": "Lymm High on Cheggers Plays Pop, 1983",
-    "dur": 581,
-    "by": "Ian Bibby"
-   },
-   {
     "id": "PieGqq3nRUM",
     "title": "Cheggers Plays Pop Series 1 Episode 7 1978 HD",
     "dur": 1485,
@@ -4335,26 +3883,10 @@
     "by": "Transmaniacon MC"
    },
    {
-    "id": "Y6XUy8fLMaU",
-    "title": "BEST \"Bullseye DESTROYS Whole AVTF Squad\" Reactions in DAREDEVIL: BORN AGAIN S2E4 (2026)",
-    "dur": 1923,
-    "by": "NoWayReactions",
-    "season": 2,
-    "ep": 4,
-    "epTitle": "Episode 4",
-    "airdate": "1982-10-31"
-   },
-   {
     "id": "AAj0FQFetcs",
     "title": "Bullseye Is a Problem.",
     "dur": 614,
     "by": "Bean Boy"
-   },
-   {
-    "id": "aY7B3W7CExY",
-    "title": "Bullseye | Full Australian Western Movie | Paul Goddard, Kathryn Walker, John Wood",
-    "dur": 5558,
-    "by": "Umbrella Entertainment"
    }
   ]
  },
@@ -4398,13 +3930,6 @@
     "by": "When TV Was Worth Watching",
     "season": 7,
     "ep": 11
-   },
-   {
-    "id": "XAup_60nYtg",
-    "title": "Strike it Lucky Series 2 Funniest Episode Ever",
-    "dur": 1383,
-    "by": "james booker",
-    "season": 2
    },
    {
     "id": "V4hs2flFaNE",
@@ -4767,12 +4292,6 @@
     "by": "Rewind The Tapes"
    },
    {
-    "id": "c6fLS3oneKQ",
-    "title": "Michael Barrymore's Strike it Rich - Best Moments",
-    "dur": 3295,
-    "by": "Rewind The Tapes"
-   },
-   {
     "id": "hwwbwfrKoyw",
     "title": "Strike it Rich - Bernie & Clive/Betty & Jean/Gary & Kate",
     "dur": 1472,
@@ -4796,12 +4315,6 @@
     "title": "NO ONE HAD A CLUE! | Strike It Rich/Lucky | MICHAEL BARRYMORE",
     "dur": 1423,
     "by": "Michael Barrymore"
-   },
-   {
-    "id": "E4gOSjr6pR0",
-    "title": "Strike It Rich - Some of My Favorite Moments",
-    "dur": 859,
-    "by": "Weston's TV Tidbits"
    },
    {
     "id": "oPcenPevuUw",
@@ -4929,12 +4442,6 @@
     "title": "THEY GOT ALL THE QUESTIONS WRONG | Strike It Rich/Lucky | MICHAEL BARRYMORE",
     "dur": 1448,
     "by": "Michael Barrymore"
-   },
-   {
-    "id": "-QVCGK6Ynfs",
-    "title": "STAR:STRIKE IT RICH 1- japans deadliest highschool girl!",
-    "dur": 770,
-    "by": "Fight Corner"
    }
   ]
  },
@@ -5072,12 +4579,6 @@
     "ep": 4
    },
    {
-    "id": "gDcsqiLBdss",
-    "title": "Don't Forget Your Toothbrush - Australia - Halloween (Partial)",
-    "dur": 1755,
-    "by": "d0nkeyshines"
-   },
-   {
     "id": "TqSZn8P00-A",
     "title": "Don't Forget Your Toothbrush II - S02E05 - 1994/12/24 Complete With Ads",
     "dur": 3520,
@@ -5161,25 +4662,6 @@
     "ep": 2
    },
    {
-    "id": "F3dQ0SlIMRc",
-    "title": "Don't Forget your Toothbrush Australia - Number 1 (NWS-9, Incomplete, 19/9/1995)",
-    "dur": 1909,
-    "by": "IfoundthesesVHStapesburiedinmybackyard"
-   },
-   {
-    "id": "XuJzfBE_R6g",
-    "title": "Don't Forget Your Toothbrush (Funniest Moments) 1995 Nine Network",
-    "dur": 2586,
-    "by": "For The Love Of Broadcast"
-   },
-   {
-    "id": "mNCDXSlEou4",
-    "title": "Dont Forget Your Toothbrush AUSTRALIA Part 1",
-    "dur": 505,
-    "by": "d0nkeyshines",
-    "ep": 1
-   },
-   {
     "id": "ntMha5oJ4iM",
     "title": "Don't Forget Your Toothbrush Big Johnnie",
     "dur": 532,
@@ -5241,13 +4723,6 @@
     "by": "Thomas Hughes"
    },
    {
-    "id": "jb2TkbyIiJc",
-    "title": "Man O Man (Pearson TV, 2000) Part 1",
-    "dur": 1549,
-    "by": "Brighton Tim Wolf",
-    "ep": 1
-   },
-   {
     "id": "v1yDUSLvUvE",
     "title": "Anthony's 'Man O Man' show!",
     "dur": 2913,
@@ -5264,12 +4739,6 @@
     "title": "TV3  - Man O Man - (1996)",
     "dur": 2015,
     "by": "TV Godis"
-   },
-   {
-    "id": "TrwW-1pSv54",
-    "title": "Limmy watches Man O Man [2021-10-19]",
-    "dur": 727,
-    "by": "Benny's Basement"
    },
    {
     "id": "ZuE-MjOH7OU",
@@ -5384,26 +4853,8 @@
     "by": "MagicWeek"
    },
    {
-    "id": "u4lBy6jhNqc",
-    "title": "ITV Don't Try This at Home (Shark Diving in Mossel Bay, Cape Town) (2001)",
-    "dur": 973,
-    "by": "Edutainment Edutainment"
-   },
-   {
-    "id": "0hfFT8r7hKU",
-    "title": "Don't Try This At Home (Album Version)",
-    "dur": 570,
-    "by": "Michael Brecker - Topic"
-   },
-   {
     "id": "g0ENWp9FqnA",
     "title": "Don't Try This At Home",
-    "dur": 656,
-    "by": "Kativui Mweene"
-   },
-   {
-    "id": "k_zeGDQjmwY",
-    "title": "Ben Mbatha (Kativui Mweene) - Don't Try This At Home (Official Audio)",
     "dur": 656,
     "by": "Kativui Mweene"
    }
@@ -5468,12 +4919,6 @@
     "airdate": "1988-10-20"
    },
    {
-    "id": "NSg47aZury4",
-    "title": "Going For Gold (2008)",
-    "dur": 2642,
-    "by": "UzumakiPlayroom"
-   },
-   {
     "id": "pF8VxIHC9mE",
     "title": "Going For Gold is BACK! Three 90s Scored in RUNFEST at the GCC ☄️",
     "dur": 1154,
@@ -5494,12 +4939,6 @@
     "by": "neverrrainy",
     "season": 9,
     "ep": 75
-   },
-   {
-    "id": "c68_od2-W2E",
-    "title": "Going for Gold - 21 Jan 2009",
-    "dur": 3217,
-    "by": "gameshowdoc "
    },
    {
     "id": "D2gqO-Gi-O8",
@@ -5606,18 +5045,6 @@
     "by": "ChrisVHS89",
     "season": 3,
     "ep": 1
-   },
-   {
-    "id": "Uys4OLBwL5w",
-    "title": "Finders Keepers UK Reboot Series (2006) - Full Episode [2/4]",
-    "dur": 1374,
-    "by": "Timewarp Entertainment"
-   },
-   {
-    "id": "3Yho55U0_3M",
-    "title": "Finders Keepers UK Reboot Series (2006) - Full Episode [1/4]",
-    "dur": 1364,
-    "by": "Timewarp Entertainment"
    },
    {
     "id": "kpOJ5Er6234",
@@ -5862,12 +5289,6 @@
     "by": "LineDanceDallas3"
    },
    {
-    "id": "tpNFgfsHQbE",
-    "title": "Finders Keepers (2014).HDTV.LoneWolf666",
-    "dur": 5064,
-    "by": "ALI KHAN"
-   },
-   {
     "id": "65NTH3E7l2s",
     "title": "Finders Keepers line dance tutorial",
     "dur": 866,
@@ -5903,56 +5324,12 @@
   "channel": "gameshows",
   "videos": [
    {
-    "id": "YlbaXdm2KWw",
-    "title": "Get Your Own Back Series 12 (2001) - Episode 1: Full Episode",
-    "dur": 1443,
-    "by": "The Gunge Guy",
-    "season": 12,
-    "ep": 1
-   },
-   {
-    "id": "b3aMb9ow6Bs",
-    "title": "Get your Own Back - Full episode - Wednesday 10th November 2004",
-    "dur": 1434,
-    "by": "Daniel Mullins"
-   },
-   {
-    "id": "zwAvhF0Cd0g",
-    "title": "Get Your Own Back - Series Finale (2003) - Full Episode",
-    "dur": 1428,
-    "by": "The Gunge Guy"
-   },
-   {
     "id": "74YpIGxOnbw",
     "title": "Get Your Own Back Series 8 (1998) - Episode 1 (Full Episode)",
     "dur": 1471,
     "by": "The Gunge Guy",
     "season": 8,
     "ep": 1
-   },
-   {
-    "id": "LhOCHbMf-M0",
-    "title": "Get Your Own Back Series 12 (2001) Episode 10 - Full Episode",
-    "dur": 1444,
-    "by": "The Gunge Guy",
-    "season": 12,
-    "ep": 10
-   },
-   {
-    "id": "py16p9pCWls",
-    "title": "Get Your Own Back (2001) S12E6",
-    "dur": 1435,
-    "by": "Staribe2K10’s Archive",
-    "season": 12,
-    "ep": 6
-   },
-   {
-    "id": "H4AkYvG2Ydc",
-    "title": "Get Your Own Back Series 12 (2001) - Episode 9: Full Episode",
-    "dur": 1441,
-    "by": "The Gunge Guy",
-    "season": 12,
-    "ep": 9
    },
    {
     "id": "1m8JP_J3V6I",
@@ -5979,14 +5356,6 @@
     "ep": 7
    },
    {
-    "id": "YcjRvV5NVJQ",
-    "title": "Get Your Own Back Series 12 (2001) - Episode 11 (Full Episode)",
-    "dur": 1407,
-    "by": "The Gunge Guy",
-    "season": 12,
-    "ep": 11
-   },
-   {
     "id": "-LkzCBMUmaQ",
     "title": "CBBC Get Your Own Back Series 10 Episode 12",
     "dur": 1453,
@@ -5995,44 +5364,12 @@
     "ep": 12
    },
    {
-    "id": "ZUDhrot8Yo0",
-    "title": "Get Your Own Back (2001) S12E7",
-    "dur": 1535,
-    "by": "Staribe2K10’s Archive",
-    "season": 12,
-    "ep": 7
-   },
-   {
-    "id": "4iRgNUr421s",
-    "title": "Get Your Own Back - Series 14 Episode 7 (2003)",
-    "dur": 1488,
-    "by": "BritishTVFan2005",
-    "season": 14,
-    "ep": 7
-   },
-   {
-    "id": "iVr5SfvyemQ",
-    "title": "Get Your Own Back - Series 14 Episode 8 (2003)",
-    "dur": 1396,
-    "by": "BritishTVFan2005",
-    "season": 14,
-    "ep": 8
-   },
-   {
     "id": "zFELdaP0wNg",
     "title": "Get Your Own Back Series 7 (1997) Episode 7: Full Episode",
     "dur": 1477,
     "by": "The Gunge Guy",
     "season": 7,
     "ep": 7
-   },
-   {
-    "id": "JGCmSHrDpvs",
-    "title": "Get Your Own Back Series 10 (2000) Episode 9 - Full Episode",
-    "dur": 1434,
-    "by": "The Gunge Guy",
-    "season": 10,
-    "ep": 9
    },
    {
     "id": "8MuSHUxVLgU",
@@ -6055,14 +5392,6 @@
     "dur": 1471,
     "by": "Ten Past Twelve",
     "season": 4,
-    "ep": 11
-   },
-   {
-    "id": "dCa2dYl3WVw",
-    "title": "Get Your Own Back - Series 11 Episode 11 (2000)",
-    "dur": 1527,
-    "by": "BritishTVFan2005",
-    "season": 11,
     "ep": 11
    },
    {
@@ -6090,14 +5419,6 @@
     "ep": 2
    },
    {
-    "id": "jU12pIu5yqQ",
-    "title": "Get Your Own Back Series 12 (2001) - Episode 12 (Full Episode)",
-    "dur": 1428,
-    "by": "The Gunge Guy",
-    "season": 12,
-    "ep": 12
-   },
-   {
     "id": "-FJgxEeHL1A",
     "title": "Get Your Own Back Series 7 (1997) Episode 5 - Full Episode",
     "dur": 1381,
@@ -6111,14 +5432,6 @@
     "dur": 911,
     "by": "The Gunge Guy",
     "season": 5
-   },
-   {
-    "id": "kXxxWyOZubM",
-    "title": "Get Your Own Back Series 13 (2002) Episode 12 - Full Episode",
-    "dur": 1379,
-    "by": "The Gunge Guy",
-    "season": 13,
-    "ep": 12
    },
    {
     "id": "cvzb4DefsQM",

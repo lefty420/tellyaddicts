@@ -4206,7 +4206,9 @@
     v.muted = true;
     odBusy = !!(odFrom === 'watch' && cur && cur.prog && !cur.ad && at >= 0);
     odEnter();
-    odPreload(chs);
+    // the other channels are built only once the one you are looking at is ready, so they never delay it
+    var first = rows[odRi];
+    (first ? odLoadChannel(first) : Promise.resolve()).then(function () { setTimeout(function () { if (odOpen) odPreload(chs, first); }, 300); });
     if (odFrom === 'watch' && cur && cur.prog && !cur.ad && at >= 0) odJump(cur.ch, cur.prog);
   }
   /** Opened while something is playing: go straight to that show's page, on the season and episode that is on. */
@@ -4248,8 +4250,9 @@
   }
   /** Load every channel's list in the background, one after another, so the counts fill in and browsing is instant. */
   var odPre = 0;
-  function odPreload(chs) {
+  function odPreload(chs, first) {
     var tok = ++odPre, i = 0;
+    if (first) chs = chs.slice().sort(function (a, b) { return Math.abs(chs.indexOf(a) - chs.indexOf(first)) - Math.abs(chs.indexOf(b) - chs.indexOf(first)); });
     (function next() {
       if (tok !== odPre || !odOpen || i >= chs.length) return;
       var c = chs[i++];

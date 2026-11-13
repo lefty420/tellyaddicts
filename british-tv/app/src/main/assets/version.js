@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.45",
-  "version": "0.45.45",
-  "code": 4545,
+  "name": "Alpha 0.45.46",
+  "version": "0.45.46",
+  "code": 4546,
   "date": "2026-11-13",
   "notes": [
-    "**No more half-empty On Demand while it loads.** If the lists are not ready when you open On Demand, you now get a plain loading screen (spinner, \"Getting your shows ready...\") that goes away the moment the first row is ready, instead of a page of \"Loading...\" text. Opening straight onto the show that is playing waits behind it too, so you never see the home screen flash first. A row further down that is still loading shows blank poster blocks, not text. The background build of the lists now starts four seconds after start-up instead of twenty, so it is usually ready before you open it."
+    "**On Demand loads only as long as it has to.** Opening it now builds just the channel you are on (or the show that is playing) and nothing else, so the loading screen goes away as soon as that one is ready. The other channels are built in the background afterwards, nearest first, instead of competing with it. If the lists were already built in the background after start-up, there is no loading screen at all."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.45",
+      "date": "2026-11-13",
+      "notes": [
+        "**No more half-empty On Demand while it loads.** If the lists are not ready when you open On Demand, you now get a plain loading screen (spinner, \"Getting your shows ready...\") that goes away the moment the first row is ready, instead of a page of \"Loading...\" text. Opening straight onto the show that is playing waits behind it too, so you never see the home screen flash first. A row further down that is still loading shows blank poster blocks, not text. The background build of the lists now starts four seconds after start-up instead of twenty, so it is usually ready before you open it."
+      ]
+    },
     {
       "name": "Alpha 0.45.44",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Donkey Kong Country** episodes that were really the \"Super Beard Bros.\" game-play videos are left out (the cartoon stays). Other YouTube game-play series (Game Grumps, Achievement Hunter, Yogscast, \"Let's Play\") are turned away from every channel the same way."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.37",
-      "date": "2026-11-12",
-      "notes": [
-        "**On Demand: left and right change season** while you are in the episode list (they already did on the season strip). The episode pictures are 50% bigger, so three episodes show at a time instead of four."
       ]
     }
   ]

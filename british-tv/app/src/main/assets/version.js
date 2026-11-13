@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.79",
-  "version": "0.45.79",
-  "code": 4579,
+  "name": "Alpha 0.45.80",
+  "version": "0.45.80",
+  "code": 4580,
   "date": "2026-11-13",
   "notes": [
-    "**One Poirot, not two, on each channel.** The library names it both \"Poirot\" and \"Agatha Christies Poirot\", and On Demand listed each as a separate show with the same episodes (and one of them was missing an episode the other had). They are now one show, \"Agatha Christie's Poirot\", on every channel."
+    "**Hid two music uploads that had been matched to the BBC drama \"Angels\".** \"Angels in Heat\" is a band: the items are live concert recordings (\"Live from The Freight\") whose names happened to contain \"Angels\". They are hidden until the scraper drops them."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.79",
+      "date": "2026-11-13",
+      "notes": [
+        "**One Poirot, not two, on each channel.** The library names it both \"Poirot\" and \"Agatha Christies Poirot\", and On Demand listed each as a separate show with the same episodes (and one of them was missing an episode the other had). They are now one show, \"Agatha Christie's Poirot\", on every channel."
+      ]
+    },
     {
       "name": "Alpha 0.45.78",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Live view (debug).** Options > Tools > Live view (debug), off until switched on and off again each time the app starts. When on it shows an address with a four-digit code; open it in a browser on the same Wi-Fi to see what the TV is showing (updating a few times a second, including video), press the remote's buttons from the page or the keyboard's arrows, and read the app's current screen, programme and recent debug log. It only sends a picture, text and button presses; nothing on the page can run code in the app. This one changes the Android app itself, so it needs a full build."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.71",
-      "date": "2026-11-13",
-      "notes": [
-        "**Start-up TV never repeats a picture.** Each background is shown once per start-up, picked at random from the whole art list. More are fetched in the background as they get used up, so the TV only starts over if it has genuinely shown every one."
       ]
     }
   ]

@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.80 — 2026-11-13
+
+- **Hid two music uploads that had been matched to the BBC drama "Angels".** "Angels in Heat" is a band: the items are live concert recordings ("Live from The Freight") whose names happened to contain "Angels". They are hidden until the scraper drops them.
+
 ## Alpha 0.45.79 — 2026-11-13
 
 - **One Poirot, not two, on each channel.** The library names it both "Poirot" and "Agatha Christies Poirot", and On Demand listed each as a separate show with the same episodes (and one of them was missing an episode the other had). They are now one show, "Agatha Christie's Poirot", on every channel.

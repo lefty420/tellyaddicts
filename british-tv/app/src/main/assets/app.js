@@ -4021,7 +4021,7 @@
     if (g.film) { var f = filmFor(g.eps[0].p); return f && f.plot || ''; }
     return (g.art && g.art.s) || '';
   }
-  var odBgTimer = null;
+  var odBgTimer = null, odLastG = '', odLastS = '';
   function odSetBg(g) {
     var k = odKnown(g);
     var want = g ? g.name + '|' + (k && k.back || '') : '';
@@ -4029,7 +4029,7 @@
     odBgFor = want;
     var img = k && k.back ? 'url("' + k.back + '")' : (g ? odTone(g.name) : 'none');
     clearTimeout(odBgTimer);                      // a big picture takes a moment to decode: wait until the highlight rests
-    odBgTimer = setTimeout(function () { $('odbg').style.backgroundImage = img; }, 140);
+    odBgTimer = setTimeout(function () { var b = $('odbg'); b.style.backgroundImage = img; if (b.animate) try { b.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); } catch (e) { /* no animation */ } }, 140);
   }
   /** The show's own details (network, years, summary) and artwork, looked up once the highlight has rested on it. */
   var odMetaTimer = null;
@@ -4087,6 +4087,20 @@
     d.className = 'odc' + (sel ? ' sel' : '');
     return d;
   }
+  /** Slide freshly placed items in from where they were: by n units (vw or vh) along x or y. Quicker while a key is held. */
+  var odSlideAt = 0;
+  function odSlide(els, n, unit, vert) {
+    if (!els[0] || !els[0].animate) return;
+    var now = Date.now(), dur = now - odSlideAt < 220 ? 90 : 170;
+    odSlideAt = now;
+    var t = vert ? 'translateY' : 'translateX';
+    for (var i = 0; i < els.length; i++) {
+      var sc = els[i].classList.contains('sel') ? ' scale(1.06)' : '';
+      try { els[i].animate([{ transform: t + '(' + n + unit + ')' + sc }, { transform: t + '(0)' + sc }], { duration: dur, easing: 'ease-out' }); } catch (e) { /* no animation */ }
+    }
+  }
+  /** Fade a piece of text in when it changes to another show. */
+  function odFade(el) { if (el.animate) try { el.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' }); } catch (e) { /* no animation */ } }
   var odDom = [];       // what the home rows on screen were built from: a key press that stays inside them only moves the highlight
   function odRenderHome() {
     var s = odSel(), rows = s.rows, box = $('odrows');
@@ -4109,6 +4123,7 @@
         }
       });
     } else {
+      var prevDom = odDom;
       box.textContent = '';
       odDom = [];
       var frag = document.createDocumentFragment();
@@ -4123,9 +4138,15 @@
         odDom.push({ c: x.c, sh: x.sh, start: x.start, n: x.n, gen: odKGen, sel: x.ri === odRi && x.n ? x.pos - x.start : -1 });
       });
       box.appendChild(frag);
+      // moving along a row slides the posters across by the distance moved instead of jumping
+      want.forEach(function (x, wi) {
+        var o = prevDom[wi], d = o && o.c === x.c && o.sh === x.sh && o.gen === odKGen ? x.start - o.start : 0;
+        if (d) odSlide(box.children[wi].lastChild.children, d * 13.2, 'vw');
+      });
     }
     var g = s.g;
     odSetBg(g);
+    if ((g && g.name) !== odLastG) { odLastG = g && g.name; ['odh1', 'odlogo', 'odm', 'odp'].forEach(function (id) { odFade($(id)); }); }
     var tc = g && g.chan || s.c;
     $('odch').textContent = tc ? (tc.n ? tc.n + '  \u00b7  ' : '') + tc.name : '';
     $('odh1').textContent = g ? g.name : (s.c ? s.c.name : '');
@@ -4148,6 +4169,7 @@
     var s = odSel(), g = s.g;
     if (!g) { odView = 'home'; $('odhome').className = ''; $('odshow').className = 'hidden'; odRenderHome(); return; }
     odSetBg(g);
+    if (g.name !== odLastS) { odLastS = g.name; ['odpost', 'odst', 'odsm', 'odsp'].forEach(function (id) { odFade($(id)); }); }
     var k = odKnown(g), post = $('odpost');
     post.style.backgroundImage = k && (k.poster || k.back) ? 'url("' + (k.poster || k.back) + '")' : odTone(g.name);
     $('odst').textContent = g.name;
@@ -4159,20 +4181,33 @@
     var rs = g._cw && g.flat.filter(function (e) { return odResumeAt(g, e); })[0];
     var lead = rs || first;
     btn.appendChild(odEl('div', 'odb' + (odZone === 0 ? ' sel' : ''), '▶  ' + (rs ? 'Resume' : 'Play') + (lead && lead.s ? ' S' + odPad(lead.s) + 'E' + odPad(lead.e) : (g.film ? ' film' : ''))));
-    var rail = $('odrail'); rail.textContent = '';
+    var rail = $('odrail');
     var multi = g.sea.length > 1;
     $('odeps').className = multi ? '' : 'wide';
-    if (multi) {
-      var cs = Math.max(0, Math.min(odSea - 3, g.sea.length - 7));
-      for (var i = cs; i < Math.min(g.sea.length, cs + 7); i++) {
-        var sn = odEl('div', 'odsn' + (i === odSea ? ' on' : '') + (i === odSea && odZone === 1 ? ' sel' : ''), g.sea[i].name);
-        sn.appendChild(odEl('small', '', String(g.sea[i].eps.length)));
-        rail.appendChild(sn);
+    var cs = multi ? Math.max(0, Math.min(odSea - 3, g.sea.length - 7)) : 0, rsig = g.name + '|' + cs + '|' + g.sea.length + '|' + multi;
+    if (rsig === odRailSig && rail.children.length === Math.min(g.sea.length, 7) * (multi ? 1 : 0)) {      // same list: just move the highlight
+      for (var ri = 0; ri < rail.children.length; ri++) rail.children[ri].className = 'odsn' + (cs + ri === odSea ? ' on' : '') + (cs + ri === odSea && odZone === 1 ? ' sel' : '');
+    } else {
+      odRailSig = rsig; rail.textContent = '';
+      if (multi) {
+        for (var i = cs; i < Math.min(g.sea.length, cs + 7); i++) {
+          var sn = odEl('div', 'odsn' + (i === odSea ? ' on' : '') + (i === odSea && odZone === 1 ? ' sel' : ''), g.sea[i].name);
+          sn.appendChild(odEl('small', '', String(g.sea[i].eps.length)));
+          rail.appendChild(sn);
+        }
       }
     }
-    var list = (g.sea[odSea] || { eps: [] }).eps, box = $('odeps'); box.textContent = '';
+    var list = (g.sea[odSea] || { eps: [] }).eps, box = $('odeps');
     odEi = Math.max(0, Math.min(odEi, list.length - 1));
     var top = Math.max(0, Math.min(odEi - 1, list.length - OD_EPS));
+    var base = g.name + '|' + odSea + '|' + odKGen + '|' + (g.meta ? 1 : 0) + '|' + list.length, esig = base + '|' + top;
+    if (esig === odEpSig && box.children.length) {
+      for (var ei = 0; ei < box.children.length; ei++) box.children[ei].className = 'ode' + (top + ei === odEi && odZone === 2 ? ' sel' : '');
+      return;
+    }
+    var slideBy = base === odEpBase ? top - odEpTop : 0;
+    odEpSig = esig; odEpBase = base; odEpTop = top;
+    box.textContent = '';
     for (var j = top; j < Math.min(list.length, top + OD_EPS); j++) {
       var ep = list[j], m = g.meta && g.meta[ep.s + 'x' + ep.e], row = odEl('div', 'ode' + (j === odEi && odZone === 2 ? ' sel' : ''));
       row.appendChild(odEl('i', '', ep.s > 0 ? String(ep.e) : '•'));
@@ -4188,7 +4223,9 @@
       row.appendChild(odEl('em', '', m && m.l ? m.l + ' min' : (ep.year || (m && m.a ? String(m.a).slice(0, 4) : ''))));
       box.appendChild(row);
     }
+    if (slideBy) odSlide(box.children, slideBy * 13.2, 'vh', true);
   }
+  var odRailSig = '', odEpSig = '', odEpBase = '', odEpTop = 0;
   function odShowView(on) {
     odView = on ? 'show' : 'home';
     $('odhome').className = on ? 'hidden' : '';

@@ -526,7 +526,8 @@
   .odc { position: relative; flex: none; width: 12.1vw; height: 18.15vw; border-radius: 1.2vh; overflow: hidden; background: #1d2433 center / cover no-repeat; }
   .odc b { position: absolute; left: 1.1vh; right: 1.1vh; bottom: 1.1vh; font-size: 2.4vh; line-height: 1.1; }
   .odc::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.6), rgba(0,0,0,0) 55%); }
-  .odc.sel { outline: .45vh solid #fff; transform: scale(1.06); z-index: 2; }
+  .odc { outline: .45vh solid transparent; transition: transform .14s ease-out, outline-color .14s ease-out; }
+  .odc.sel { outline-color: #fff; transform: scale(1.06); z-index: 2; }
   .odpg { position: absolute; left: 0; right: 0; bottom: 0; height: .7vh; background: rgba(255,255,255,.3); z-index: 1; }
   .odpg i { display: block; height: 100%; background: #ffcb6b; }
   #odload { position: absolute; inset: 0; z-index: 8; background: #0b0d12; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; font-size: 2.8vh; color: #aab3cc; }
@@ -546,12 +547,14 @@
   #odrail { position: absolute; left: 4vw; top: 41vh; width: 17vw; overflow: hidden; }
   .odsn { display: flex; justify-content: space-between; align-items: center; height: 5.6vh; padding: 0 1.1vw; margin-bottom: .5vh; border-radius: 1vh; font-size: 2.4vh; color: #cdd3e4; }
   .odsn small { font-size: 1.9vh; opacity: .75; }
+  .odsn { transition: background-color .12s, color .12s; }
   .odsn.on { background: #3a4260; color: #fff; }
   .odsn.sel { background: #fff; color: #000; font-weight: 700; }
   #odeps { position: absolute; left: 24vw; right: 4vw; top: 41vh; }
   #odeps.wide { left: 4vw; }
   .ode { display: flex; align-items: center; gap: 1.6vw; height: 12.6vh; margin-bottom: .6vh; padding: 0 1vw; border-radius: 1vh; }
-  .ode.sel { background: #2a3048; outline: .35vh solid #fff; }
+  .ode { outline: .35vh solid transparent; transition: background-color .12s, outline-color .12s; }
+  .ode.sel { background: #2a3048; outline-color: #fff; }
   .ode i { font-style: normal; flex: none; width: 3vw; text-align: center; font-size: 2.8vh; color: #8f98b0; }
   .ode img, .ode .odth { flex: none; width: 18.6vh; height: 10.5vh; border-radius: .9vh; object-fit: cover; background: #1d2433; }
   .ode div { flex: 1; min-width: 0; }

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.77",
-  "version": "0.45.77",
-  "code": 4577,
+  "name": "Alpha 0.45.78",
+  "version": "0.45.78",
+  "code": 4578,
   "date": "2026-11-13",
   "notes": [
-    "**Live view now reports performance.** While it is switched on, the page's text includes how long the screen takes to answer each button press (median, 90th percentile and worst, for the guide, On Demand and Options separately) and how many stalls over 50 ms there have been in the last five minutes. It only measures while Live view is on."
+    "**The guide no longer flashes through its themes.** With the theme on \"Match the channel\", scrolling down the guide changed the whole screen's look each time the cursor passed the 70's, 80's or 90's channel. It now follows the channel you are watching, and stays put while you browse."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.77",
+      "date": "2026-11-13",
+      "notes": [
+        "**Live view now reports performance.** While it is switched on, the page's text includes how long the screen takes to answer each button press (median, 90th percentile and worst, for the guide, On Demand and Options separately) and how many stalls over 50 ms there have been in the last five minutes. It only measures while Live view is on."
+      ]
+    },
     {
       "name": "Alpha 0.45.76",
       "date": "2026-11-13",
@@ -56,14 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Soaps can have a year as the season.** Episode codes such as `S1988E56` are now read everywhere (the guide, On Demand, next episode, link matching); before, only one or two digits were accepted for the season, so they would not have been recognised. In On Demand such a season is shown as just \"1988\"."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.69",
-      "date": "2026-11-13",
-      "notes": [
-        "**Quieter tuning hiss.** The static heard while a channel tunes in is now well under half as loud.",
-        "**Start-up TV shows backgrounds, not posters.** Its pictures are now the shows' wide backgrounds; a poster is only used for a show that has no background, or until the first backgrounds have loaded."
       ]
     }
   ]

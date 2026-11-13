@@ -279,7 +279,9 @@
   var DECADE_THEME = { tv70s: 'seventies', tv80s: 'eighties', tv90s: 'nineties' };
   function applyTheme(ch) {
     var id = THEMES[themeIdx].id;
-    if (id === 'auto') id = (ch && DECADE_THEME[ch.id]) || 'classic';
+    // "Match the channel" follows the channel being watched, not the row the cursor is on: otherwise scrolling down the
+    // guide re-dresses the whole screen each time it passes the 70's, 80's and 90's channels
+    if (id === 'auto') { var w = (cur && cur.ch) || ch; id = (w && DECADE_THEME[w.id]) || 'classic'; }
     if (id === themeNow) return;
     themeNow = id;
     THEMES.forEach(function (t) { document.body.classList.remove('gt-' + t.id); });

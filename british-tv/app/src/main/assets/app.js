@@ -4042,6 +4042,17 @@
       }
     }, 350);
   }
+  /** The show's clear logo (a transparent title picture the scraper found, art.json "l") in place of the plain title.
+   *  The text stays until the picture has loaded, and comes back if it fails. */
+  function odLogo(img, h1, g) {
+    var url = g && !g.film && g.art && g.art.l ? https(g.art.l) : '';
+    if (!url) { if (img.dataset.src) { img.dataset.src = ''; img.className = 'hidden'; img.removeAttribute('src'); } h1.style.display = ''; return; }
+    if (img.dataset.src === url) return;
+    img.dataset.src = url; img.className = 'hidden'; h1.style.display = '';
+    img.onload = function () { if (img.dataset.src === url) { img.className = ''; h1.style.display = 'none'; } };
+    img.onerror = function () { img.className = 'hidden'; h1.style.display = ''; };
+    img.src = url;
+  }
   function odInfoLine(g) {
     if (g.film) { var f = filmFor(g.eps[0].p) || {}; return [f.released ? String(f.released).slice(0, 4) : '', f.genres || '', f.mins ? f.mins + ' min' : '', g.eps[0].p.cert || ''].filter(Boolean).join('  \u00b7  '); }
     var x = g.art;
@@ -4105,6 +4116,7 @@
     var tc = g && g.chan || s.c;
     $('odch').textContent = tc ? (tc.n ? tc.n + '  \u00b7  ' : '') + tc.name : '';
     $('odh1').textContent = g ? g.name : (s.c ? s.c.name : '');
+    odLogo($('odlogo'), $('odh1'), g);
     $('odm').textContent = g ? (odInfoLine(g) || s.c.name) : '';
     $('odp').textContent = g ? (odDesc(g) || (g.film ? '' : g.eps.length + (g.eps.length === 1 ? ' video' : ' videos'))) : '';
     $('odhint').className = g ? '' : 'hidden';
@@ -4126,6 +4138,7 @@
     var k = odKnown(g), post = $('odpost');
     post.style.backgroundImage = k && (k.poster || k.back) ? 'url("' + (k.poster || k.back) + '")' : odTone(g.name);
     $('odst').textContent = g.name;
+    odLogo($('odlogo2'), $('odst'), g);
     var seasons = g.sea.filter(function (x) { return /^Season/.test(x.name); }).length;
     $('odsm').textContent = g.film ? odInfoLine(g) : [odInfoLine(g), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : '', g.eps.length + (g.eps.length === 1 ? ' video' : ' videos')].filter(Boolean).join('  ·  ');
     $('odsp').textContent = odDesc(g);

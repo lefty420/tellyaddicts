@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.42",
-  "version": "0.45.42",
-  "code": 4542,
+  "name": "Alpha 0.45.43",
+  "version": "0.45.43",
+  "code": 4543,
   "date": "2026-11-13",
   "notes": [
-    "**On Demand posters fill the row.** They are a little wider (and taller), so the seventh poster ends at the right edge instead of leaving a gap. The highlighted one still grows without touching its neighbours."
+    "**Clear logos in On Demand.** When the scraper's `art.json` gives a show a logo (`\"l\"`: the address of a transparent title picture), On Demand shows it instead of the plain title, on the home banner and on the show page. Until the picture has loaded, and for shows without one, the text title stays. Nothing changes until the scraper publishes logos."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.42",
+      "date": "2026-11-13",
+      "notes": [
+        "**On Demand posters fill the row.** They are a little wider (and taller), so the seventh poster ends at the right edge instead of leaving a gap. The highlighted one still grows without touching its neighbours."
+      ]
+    },
     {
       "name": "Alpha 0.45.41",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Long programme names in the Teletext, 1980s and Radio Times guides.** The big title above the grid was too large for those fonts, so a long name wrapped and its second line was cut off. Smaller title size in those three themes, so two lines fit."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.34",
-      "date": "2026-11-12",
-      "notes": [
-        "**Guide themes tidied.** Channel names fit in the guide (they were cut off), programme names no longer run into the line below, the arrow on a programme that carries on past the edge no longer sits on top of its title, and the 90s and Teletext colour-button row no longer touches the bottom channel. The same spacing fix applies to Classic Blue."
       ]
     }
   ]

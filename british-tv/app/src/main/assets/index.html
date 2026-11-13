@@ -515,6 +515,8 @@
   #odm, #odsm { font-size: 2.3vh; color: #c3cadb; margin-bottom: 1.2vh; }
   #odh1, #odst { font-size: 6.6vh; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; font-weight: 800; line-height: 1.02; margin: 0; }
   #odp, #odsp { font-size: 2.4vh; line-height: 1.4; color: #c3cadb; margin-top: 1.4vh; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  #odlogo, #odlogo2 { display: block; max-height: 13vh; max-width: 40vw; object-fit: contain; object-position: left center; }
+  #odlogo.hidden, #odlogo2.hidden { display: none; }
   #odhint { display: inline-block; margin-top: 2.4vh; font-size: 2.3vh; font-weight: 700; background: #fff; color: #000; padding: 1.1vh 2.2vw; border-radius: 1vh; }
   #odrows { position: absolute; left: 0; right: 0; top: 43vh; bottom: 0; overflow: hidden; }
   .odrow { padding: 0 4vw; margin-bottom: 1vh; contain: layout paint; }
@@ -672,11 +674,11 @@
   <div id="odbg"></div>
   <div id="odtag">ON DEMAND<span id="odsub"></span></div>
   <div id="odhome">
-    <div id="odhero"><div id="odch"></div><div id="odm"></div><h1 id="odh1"></h1><div id="odp"></div><div id="odhint">OK  Open</div></div>
+    <div id="odhero"><div id="odch"></div><div id="odm"></div><h1 id="odh1"></h1><img id="odlogo" class="hidden" alt=""><div id="odp"></div><div id="odhint">OK  Open</div></div>
     <div id="odrows"></div>
   </div>
   <div id="odshow" class="hidden">
-    <div id="odsh"><div id="odpost"></div><div><div id="odsm"></div><h1 id="odst"></h1><div id="odsp"></div><div id="odbtn"></div></div></div>
+    <div id="odsh"><div id="odpost"></div><div><div id="odsm"></div><h1 id="odst"></h1><img id="odlogo2" class="hidden" alt=""><div id="odsp"></div><div id="odbtn"></div></div></div>
     <div id="odrail"></div>
     <div id="odeps"></div>
   </div>

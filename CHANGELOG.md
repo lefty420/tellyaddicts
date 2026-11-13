@@ -7,6 +7,14 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.41 — 2026-11-13
+
+- **On Demand redesign.**
+  - **Opens faster.** Every channel's On Demand list is now built quietly in the background a little after start-up (one at a time, only when nothing else is loading), so opening On Demand finds them ready instead of building them while you wait.
+  - **Continue watching.** A new first row with the shows you were part-way through, with a progress bar on each poster. The show page's button says **Resume** and starts where you stopped (not if you left in the first 30 seconds or the last minute). A show drops out when you reach its last episode.
+  - **Bigger posters.** Seven across instead of nine, with the channel shown as a tag above the title.
+  - **Show page.** The seasons are a list down the left (up and down change season), the episodes sit beside it with their big pictures. Left goes onto the seasons, right comes back to the episodes. This replaces left/right changing season from 0.45.37.
+
 ## Alpha 0.45.40 — 2026-11-13
 
 - **ThunderCats** episodes from the 2011 remake (a Portuguese-dubbed upload) are left out, and so is anything whose file or item name says it is dubbed or foreign-language (Portuguese, Spanish, Hindi, Korean, German "Staffel", French "saison"). That also removes the Korean drama "Taxi Driver" that was turning up on Christmas TV.

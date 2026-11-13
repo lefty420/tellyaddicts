@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.40",
-  "version": "0.45.40",
-  "code": 4540,
+  "name": "Alpha 0.45.41",
+  "version": "0.45.41",
+  "code": 4541,
   "date": "2026-11-13",
   "notes": [
-    "**ThunderCats** episodes from the 2011 remake (a Portuguese-dubbed upload) are left out, and so is anything whose file or item name says it is dubbed or foreign-language (Portuguese, Spanish, Hindi, Korean, German \"Staffel\", French \"saison\"). That also removes the Korean drama \"Taxi Driver\" that was turning up on Christmas TV."
+    "**On Demand redesign.**"
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.40",
+      "date": "2026-11-13",
+      "notes": [
+        "**ThunderCats** episodes from the 2011 remake (a Portuguese-dubbed upload) are left out, and so is anything whose file or item name says it is dubbed or foreign-language (Portuguese, Spanish, Hindi, Korean, German \"Staffel\", French \"saison\"). That also removes the Korean drama \"Taxi Driver\" that was turning up on Christmas TV."
+      ]
+    },
     {
       "name": "Alpha 0.45.39",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**The Adverts channel is rebuilt and moved to the end.** It no longer searches archive.org for random compilations. It is now a run of commercial breaks, each filled from the checked advert catalogue (UK adverts only, nothing after 1999) and following the Adverts option in the OSD: All, 70s, 80s or 90s. With the option on Off the channel still plays, from every era. Drink and gambling adverts only come on after 9pm. It is now channel 30, so the channels that were after it (ITV and up) are each one number lower."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.32",
-      "date": "2026-11-12",
-      "notes": [
-        "**Guide themes.** Options > TV Guide > Guide theme: Classic Blue, Teletext, Radio Times (print), 1970s, 1980s and 1990s, with a live preview of each as you flick through. \"Match the channel\" (the default) gives the 70s, 80s and 90s channels a guide from their own decade and keeps Classic Blue everywhere else. The fancy fonts load from the internet; offline a theme falls back to a plain system font."
       ]
     }
   ]

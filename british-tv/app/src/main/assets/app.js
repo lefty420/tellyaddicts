@@ -3806,7 +3806,7 @@
   // it plays like a recording, with the usual bar to pause and skip, and carries on to the next episode.
   var odOpen = false, odFrom = '', odGuide = null, odData = {}, odArtFor = '', odBgFor = '';
   var odView = 'home', odRi = 0, odRc = null, odTop = 0, odPos = {}, odZone = 0, odSea = 0, odEi = 0;
-  var OD_VIS = 9;           // posters across a row
+  var OD_VIS = 7;           // posters across a row
   var OD_EPS = 3;           // episodes on screen at once
   var OD_SKIP = { xmasmusic: 1, tvarchive: 1 };         // songs and dated clips are not shows
   var OD_FILMS = { kidsmovies: 1, videoshop: 1 };       // the film channels: each film is its own one-video title
@@ -3864,6 +3864,7 @@
     return shows;
   }
   function odLoadChannel(ch) {
+    if (ch.id === '_cw') return Promise.resolve(odData._cw || { shows: [] });     // the Continue watching row is made from the others
     var rec = odData[ch.id];
     if (rec) return rec.p;
     rec = odData[ch.id] = { shows: null };
@@ -3872,6 +3873,7 @@
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
       rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);
+      rec.shows.forEach(function (g) { g.chan = ch; });
       return rec;
     }, function () { rec.shows = []; return rec; });
     return rec.p;
@@ -3931,8 +3933,52 @@
     });
     return g.metaP;
   }
+  // ---- Continue watching: the last few On Demand shows you were part-way through, newest first
+  var cwList = null, cwGen = 0, CW_MAX = 12;
+  function cwGet() { if (!cwList) cwList = store.get('cw1') || []; return cwList; }
+  function cwPut(name, chId, url, pos, dur) {
+    var l = cwGet().filter(function (e) { return e.n !== name; });
+    l.unshift({ n: name, ch: chId, url: url, pos: Math.round(pos), dur: Math.round(dur || 0), t: Date.now() });
+    cwList = l.slice(0, CW_MAX); cwGen++;
+    store.set('cw1', cwList);
+  }
+  function cwDrop(name) {
+    cwList = cwGet().filter(function (e) { return e.n !== name; }); cwGen++;
+    store.set('cw1', cwList);
+    Object.keys(odData).forEach(function (k) { var r = odData[k]; if (r && r.shows) r.shows.forEach(function (g) { if (g._cw && g._cw.n === name) g._cw = null; }); });
+  }
+  var cwLast = 0;
+  v.addEventListener('timeupdate', function () {         // every 10 s of an On Demand episode, remember where you are
+    var o = cur && cur.od;
+    if (!o || cur.ad || !o.name || v.paused || !(v.currentTime > 5)) return;
+    var now = Date.now();
+    if (now - cwLast < 10000) return;
+    cwLast = now;
+    cwPut(o.name, cur.ch.id, cur.prog.url, v.currentTime, isFinite(v.duration) ? v.duration : 0);
+  });
+  var cwPseudo = { id: '_cw', n: '', name: 'Continue watching' }, cwSig = '';
+  /** The Continue watching row, or null when there is nothing in it. It reuses the shows of the channel lists
+   *  (so posters and details come for free); a show whose channel list is not built yet simply is not in it yet. */
+  function odCwRow() {
+    var shows = [], sig = '';
+    cwGet().forEach(function (e) {
+      var rec = odData[e.ch], g = null;
+      if (rec && rec.shows) for (var i = 0; i < rec.shows.length; i++) if (rec.shows[i].name === e.n) { g = rec.shows[i]; break; }
+      if (g) { g._cw = e; shows.push(g); sig += e.n + e.pos + ','; }
+    });
+    if (!shows.length) return null;
+    if (sig !== cwSig || !odData._cw) { cwSig = sig; odData._cw = { shows: shows }; }
+    return cwPseudo;
+  }
+  /** Where to start an episode: where it was left, unless that was the first half-minute or the last minute. */
+  function odResumeAt(g, ep) {
+    var e = g && g._cw;
+    return e && ep && ep.p && e.url === ep.p.url && e.pos > 30 && (!e.dur || e.pos < e.dur - 60) ? e.pos : 0;
+  }
   function odRowList() {
-    return odChannels().filter(function (c) { var r = odData[c.id]; return !(r && r.shows && !odShowsOf(c).length); });
+    var rows = odChannels().filter(function (c) { var r = odData[c.id]; return !(r && r.shows && !odShowsOf(c).length); });
+    var cw = odCwRow();
+    return cw ? [cw].concat(rows) : rows;
   }
   /** On Demand has no clock, but films keep the watershed: family films all day, 15s from eight, the rest after nine,
    *  as on the film channels. Without a certificate a film counts as an 18. */
@@ -4004,13 +4050,16 @@
   function odRender() {
     if (odView === 'show') odRenderShow(); else odRenderHome();
     $('odfoot').textContent = odView === 'show'
-      ? '▲ ▼ move   ◀ ▶ season   OK play   Back'
+      ? '▲ ▼ move   ◀ seasons   ▶ episodes   OK play   Back'
       : '◀ ▶ browse   ▲ ▼ channels   OK open   Back';
   }
+  var rowIsCw = false;
   function odCard(g, sel) {
     var k = odKnown(g), d = odEl('div', 'odc' + (sel ? ' sel' : ''));
     if (k && (k.poster || k.back)) d.style.backgroundImage = 'url("' + (k.poster || k.back) + '")';
     else { d.style.backgroundImage = odTone(g.name); d.appendChild(odEl('b', '', g.name)); }
+    var w = g._cw && g._cw.dur ? Math.min(100, Math.round(100 * g._cw.pos / g._cw.dur)) : 0;
+    if (w > 1 && rowIsCw) { var pg = odEl('div', 'odpg'); var bar = odEl('i'); bar.style.width = w + '%'; pg.appendChild(bar); d.appendChild(pg); }
     return d;
   }
   var odDom = [];       // what the home rows on screen were built from: a key press that stays inside them only moves the highlight
@@ -4021,7 +4070,7 @@
     var want = [];
     for (var ri = odTop; ri < Math.min(rows.length, odTop + 2); ri++) {
       var c = rows[ri], sh = odShowsOf(c), n = sh ? sh.length : 0;
-      var pos = n ? Math.min(odPos[c.id] || 0, n - 1) : 0, start = n ? Math.max(0, Math.min(pos - 3, n - OD_VIS)) : 0;
+      var pos = n ? Math.min(odPos[c.id] || 0, n - 1) : 0, start = n ? Math.max(0, Math.min(pos - 2, n - OD_VIS)) : 0;
       want.push({ ri: ri, c: c, sh: sh, pos: pos, start: start, n: n });
     }
     var same = odDom.length === want.length && box.children.length === want.length;
@@ -4040,12 +4089,12 @@
       odDom = [];
       var frag = document.createDocumentFragment();
       want.forEach(function (x) {
-        var row = odEl('div', 'odrow'), h = odEl('h3', '', x.c.n + '   ' + x.c.name);
+        var row = odEl('div', 'odrow'), h = odEl('h3', '', (x.c.n ? x.c.n + '   ' : '') + x.c.name);
         if (x.sh) h.appendChild(odEl('span', '', x.n + (x.n === 1 ? ' show' : ' shows')));
         row.appendChild(h);
         var cards = odEl('div', 'odcards');
         if (!x.sh) cards.appendChild(odEl('div', 'odnone', 'Loading\u2026'));
-        else for (var i = x.start; i < Math.min(x.n, x.start + OD_VIS); i++) cards.appendChild(odCard(x.sh[i], x.ri === odRi && i === x.pos));
+        else { rowIsCw = x.c === cwPseudo; for (var i = x.start; i < Math.min(x.n, x.start + OD_VIS); i++) cards.appendChild(odCard(x.sh[i], x.ri === odRi && i === x.pos)); rowIsCw = false; }
         row.appendChild(cards); frag.appendChild(row);
         odDom.push({ c: x.c, sh: x.sh, start: x.start, n: x.n, gen: odKGen, sel: x.ri === odRi && x.n ? x.pos - x.start : -1 });
       });
@@ -4053,6 +4102,8 @@
     }
     var g = s.g;
     odSetBg(g);
+    var tc = g && g.chan || s.c;
+    $('odch').textContent = tc ? (tc.n ? tc.n + '  \u00b7  ' : '') + tc.name : '';
     $('odh1').textContent = g ? g.name : (s.c ? s.c.name : '');
     $('odm').textContent = g ? (odInfoLine(g) || s.c.name) : '';
     $('odp').textContent = g ? (odDesc(g) || (g.film ? '' : g.eps.length + (g.eps.length === 1 ? ' video' : ' videos'))) : '';
@@ -4079,11 +4130,19 @@
     $('odsm').textContent = g.film ? odInfoLine(g) : [odInfoLine(g), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : '', g.eps.length + (g.eps.length === 1 ? ' video' : ' videos')].filter(Boolean).join('  ·  ');
     $('odsp').textContent = odDesc(g);
     var first = g.flat[0], btn = $('odbtn'); btn.textContent = '';
-    btn.appendChild(odEl('div', 'odb' + (odZone === 0 ? ' sel' : ''), '▶  Play' + (first && first.s ? ' S' + odPad(first.s) + 'E' + odPad(first.e) : (g.film ? ' film' : ''))));
-    var chips = $('odchips'); chips.textContent = '';
-    if (g.sea.length > 1) {
-      var cs = Math.max(0, Math.min(odSea - 4, g.sea.length - 10));
-      for (var i = cs; i < Math.min(g.sea.length, cs + 10); i++) chips.appendChild(odEl('div', 'odchip' + (i === odSea ? ' on' : '') + (i === odSea && odZone === 1 ? ' sel' : ''), g.sea[i].name));
+    var rs = g._cw && g.flat.filter(function (e) { return odResumeAt(g, e); })[0];
+    var lead = rs || first;
+    btn.appendChild(odEl('div', 'odb' + (odZone === 0 ? ' sel' : ''), '▶  ' + (rs ? 'Resume' : 'Play') + (lead && lead.s ? ' S' + odPad(lead.s) + 'E' + odPad(lead.e) : (g.film ? ' film' : ''))));
+    var rail = $('odrail'); rail.textContent = '';
+    var multi = g.sea.length > 1;
+    $('odeps').className = multi ? '' : 'wide';
+    if (multi) {
+      var cs = Math.max(0, Math.min(odSea - 3, g.sea.length - 7));
+      for (var i = cs; i < Math.min(g.sea.length, cs + 7); i++) {
+        var sn = odEl('div', 'odsn' + (i === odSea ? ' on' : '') + (i === odSea && odZone === 1 ? ' sel' : ''), g.sea[i].name);
+        sn.appendChild(odEl('small', '', String(g.sea[i].eps.length)));
+        rail.appendChild(sn);
+      }
     }
     var list = (g.sea[odSea] || { eps: [] }).eps, box = $('odeps'); box.textContent = '';
     odEi = Math.max(0, Math.min(odEi, list.length - 1));
@@ -4181,6 +4240,20 @@
       odLoadChannel(c).then(function () { if (odOpen && odView === 'home') odRender(); setTimeout(next, 30); });
     })();
   }
+  /** Build every channel's On Demand list in the background after start-up, one at a time and only while nothing else
+   *  is loading, so opening On Demand later finds them ready instead of building them while you wait. */
+  var odWarmed = false;
+  function odWarm() {
+    if (odWarmed) return;
+    odWarmed = true;
+    var i = 0, list = odChannels().slice().sort(function (a, b) { return (a.id === store.get('last') ? -1 : b.id === store.get('last') ? 1 : 0); });
+    (function next() {
+      if (i >= list.length) return;
+      if (odOpen || !quiet()) { setTimeout(next, 4000); return; }   // never while On Demand is on screen (it loads its own) or channels are still loading
+      var c = list[i++];
+      odLoadChannel(c).then(function () { setTimeout(next, 1500); }, function () { setTimeout(next, 1500); });
+    })();
+  }
   /** Load the focused channel's shows first, then show them. */
   function odEnter() {
     var c = odSel().c;
@@ -4206,25 +4279,30 @@
     odRender();
     return true;
   }
+  /** The show page: the play button on top, the seasons down the left and the episodes beside them.
+   *  Zones: 0 play, 1 seasons, 2 episodes. Up and down change season in the list; left goes onto it, right comes back. */
   function odKeyShow(k) {
     var g = odSel().g;
     if (!g) { odShowView(false); odRender(); return true; }
-    var chips = g.sea.length > 1, list = (g.sea[odSea] || { eps: [] }).eps;
+    var multi = g.sea.length > 1, list = (g.sea[odSea] || { eps: [] }).eps;
     if (k === 'ArrowUp') {
-      if (odZone === 2) { if (odEi > 0) odEi--; else odZone = chips ? 1 : 0; }
-      else if (odZone === 1) odZone = 0;
+      if (odZone === 2) { if (odEi > 0) odEi--; else odZone = 0; }
+      else if (odZone === 1) { if (odSea > 0) { odSea--; odEi = 0; } else odZone = 0; }
     } else if (k === 'ArrowDown') {
-      if (odZone === 0) odZone = chips ? 1 : 2;
-      else if (odZone === 1) { odZone = 2; odEi = 0; }
+      if (odZone === 0) odZone = 2;
+      else if (odZone === 1) { if (odSea < g.sea.length - 1) { odSea++; odEi = 0; } }
       else odEi = Math.min(list.length - 1, odEi + 1);
-    } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
-      // left and right move through the seasons from the season strip or from the episode list
-      if ((odZone === 1 || odZone === 2) && g.sea.length > 1) { odSea = Math.max(0, Math.min(g.sea.length - 1, odSea + (k === 'ArrowLeft' ? -1 : 1))); odEi = 0; }
+    } else if (k === 'ArrowLeft') {
+      if (odZone === 2 && multi) odZone = 1;
+      else if (odZone === 1 || (odZone === 2 && !multi)) { odShowView(false); }      // nothing further left: back to the shows
+    } else if (k === 'ArrowRight') {
+      if (odZone === 1) { odZone = 2; }
+      else if (odZone === 0) odZone = 2;
     } else if (k === 'ChannelUp' || k === 'ChannelDown') {
       if (odZone === 2) odEi = Math.max(0, Math.min(list.length - 1, odEi + (k === 'ChannelUp' ? -OD_EPS + 1 : OD_EPS - 1)));
     } else if (k === 'Enter' || k === ' ') {
-      if (odZone === 0) { if (g.flat[0]) odPlay(g.flat[0]); return true; }
-      if (odZone === 1) { odZone = 2; odEi = 0; }
+      if (odZone === 0) { var rs0 = g._cw && g.flat.filter(function (e) { return odResumeAt(g, e); })[0]; if (rs0 || g.flat[0]) odPlay(rs0 || g.flat[0]); return true; }
+      if (odZone === 1) { odZone = 2; }
       else if (list[odEi]) { odPlay(list[odEi]); return true; }
     } else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odShowView(false); }
     odRender();
@@ -4395,14 +4473,16 @@
   function odPlay(ep) {
     var s = odSel(), g = s.g;
     if (!s.c || !g || !ep || !ep.p) return;
-    var i = g.flat.indexOf(ep);
+    var i = g.flat.indexOf(ep), c = g.chan || s.c;     // the Continue watching row is not a channel: the show knows its own
+    var at = odResumeAt(g, ep);
     odClose(false);
-    odStart(s.c, g.flat, i);
+    odStart(c, g.flat, i, at, g.name);
   }
-  function odStart(c, list, i) {
-    var info = { list: list, i: i };
-    playSlot(c, 0, 0, true, true, list[i].p);
+  function odStart(c, list, i, offset, name) {
+    var info = { list: list, i: i, name: name || '' };
+    playSlot(c, 0, offset || 0, true, true, list[i].p);
     if (cur) cur.od = info;
+    if (name) cwPut(name, c.id, list[i].p.url, offset || 0, 0);
     dlog('ON DEMAND ' + c.n + ' ' + c.name + ' | ' + (list[i].p.title || ''));
   }
   /** What comes after the episode playing, for the "Next" on the bar. */
@@ -4415,8 +4495,9 @@
     var o = cur && cur.od;
     if (!o) return;
     var n = o.i + d;
-    if (n < 0 || n >= o.list.length) { v.pause(); toast('That was the last episode', 3000); odOpenUi(); return; }
-    odStart(cur.ch, o.list, n);
+    if (n < 0 || n >= o.list.length) { if (o.name) cwDrop(o.name); v.pause(); toast('That was the last episode', 3000); odOpenUi(); return; }
+    if (o.name && n === 0) { /* first episode */ }
+    odStart(cur.ch, o.list, n, 0, o.name);
   }
 
   // ------------------------------------------------------------------ start up
@@ -4492,6 +4573,7 @@
         renderStatus();
         if (finished === channels.length) setTimeout(seedLinks, 4000);
         if (finished === channels.length) setTimeout(artScanStart, 60000);
+        if (finished === channels.length) setTimeout(odWarm, 20000);
         begin();
         if (guideOpen) renderGuide();
         if (finished === channels.length && !started) {

@@ -1,15 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.87",
-  "version": "0.45.87",
-  "code": 4587,
+  "name": "Alpha 0.45.88",
+  "version": "0.45.88",
+  "code": 4588,
   "date": "2026-11-13",
   "notes": [
-    "**YouTube is off by default for now.** On a first try, YouTube refused every lookup with a \"sign in to confirm you're not a bot\" check, so none of its videos played. They stay out of On Demand until that is sorted; Options > Play > YouTube videos turns them back on.",
-    "**One failed YouTube video no longer skips down the list.** A refusal that hits every video is reported once, and only a video YouTube calls gone or private is left out."
+    "**YouTube through public Piped and Invidious servers.** The app no longer asks YouTube's own player directly. It asks several community-run Piped and Invidious servers at once and plays the first good stream (no adverts, no sign-in); the last server that worked is asked first next time. If none answer, the debug log lists why. These servers come and go, so expect some days when it is patchy. YouTube videos are on again (Options > Play > YouTube videos turns them off).",
+    "The debug log now says which server and quality each YouTube video came from."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.87",
+      "date": "2026-11-13",
+      "notes": [
+        "**YouTube is off by default for now.** On a first try, YouTube refused every lookup with a \"sign in to confirm you're not a bot\" check, so none of its videos played. They stay out of On Demand until that is sorted; Options > Play > YouTube videos turns them back on.",
+        "**One failed YouTube video no longer skips down the list.** A refusal that hits every video is reported once, and only a video YouTube calls gone or private is left out."
+      ]
+    },
     {
       "name": "Alpha 0.45.86",
       "date": "2026-11-13",
@@ -62,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Hid two music uploads that had been matched to the BBC drama \"Angels\".** \"Angels in Heat\" is a band: the items are live concert recordings (\"Live from The Freight\") whose names happened to contain \"Angels\". They are hidden until the scraper drops them."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.79",
-      "date": "2026-11-13",
-      "notes": [
-        "**One Poirot, not two, on each channel.** The library names it both \"Poirot\" and \"Agatha Christies Poirot\", and On Demand listed each as a separate show with the same episodes (and one of them was missing an episode the other had). They are now one show, \"Agatha Christie's Poirot\", on every channel."
       ]
     }
   ]

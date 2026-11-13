@@ -4028,7 +4028,7 @@
 
   // ---- YouTube as a second source (data/yt.json from the scraper). The files are not on archive.org: the app's own
   // player looks the stream up when you press play (NativePlayer.java), so a video is stored here as "yt:<id>".
-  var ytOn = store.get('yt1') === 'on';      // off until YouTube playback works on the TV
+  var ytOn = store.get('yt1') !== 'off';
   var ytP = null, ytDead = store.get('ytdead2') || {};
   function ytAvailable() { try { return !!(window.NativeHttp && window.NativeHttp.npOpen); } catch (e) { return false; } }
   function ytLoad() {
@@ -4091,7 +4091,7 @@
     if (med && p.dur && (p.lenKnown || p.yt)) sc -= Math.min(30, Math.round(Math.abs(p.dur - med) / med * 60));
     return sc;
   }
-  function ytName() { return 'YouTube'; }
+  window.__ytNote = function (t) { dlog('YOUTUBE stream: ' + t); };
   function odSeasons(g) {
     var by = {}, other = [], list = [];
     var otherYt = [];

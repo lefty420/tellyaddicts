@@ -127,6 +127,8 @@
       } else if (type === 'ended') {
         st.playing = false; st.paused = true;
         fire('ended');
+      } else if (type === 'note') {
+        if (root.__ytNote) root.__ytNote(String(a || ''));
       } else if (type === 'error') {
         st.playing = false; st.err = { code: 4, message: String(a || '') };
         fire('error');

@@ -153,6 +153,7 @@ final class NativePlayer {
                             if (r.error != null) {
                                 send("error", "YouTube " + id + ": " + r.error);
                             } else {
+                                send("note", r.label);
                                 begin(r.video, r.audio, YoutubeResolver.UA, startMs, generation);
                             }
                         }

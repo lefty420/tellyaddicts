@@ -2454,12 +2454,12 @@
           var focused = (ch === list[gRow]) && b.startMs <= gFocus && gFocus < b.endMs;
           var frac = (e - s) / SPAN;
           var clipL = b.startMs < gWin, clipR = b.endMs > gWin + SPAN;
-          var base = 'blk' + (clipL ? ' cl' : '') + (clipR ? ' cr' : '');
+          var base = 'blk' + (clipL ? ' cl' : '') + (clipR ? ' cr' : '') + (frac < 0.07 ? ' nw' : '');
           var el = div(base + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : ''));
           el.style.left = ((s - gWin) / SPAN * 100) + '%';
           el.style.width = 'calc(' + (frac * 100) + '% - .4vw)';
           rec.blocks.push({ el: el, b: b, base: base });
-          if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text
+          if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text: no padding either, or it would stick out past the edge
           if (clipL) el.appendChild(div('arr l', '\u25c4'));
           if (clipR) el.appendChild(div('arr r', '\u25ba'));
           el.appendChild(div('t', b.prog.title));

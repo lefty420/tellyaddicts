@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.82",
-  "version": "0.45.82",
-  "code": 4582,
+  "name": "Alpha 0.45.83",
+  "version": "0.45.83",
+  "code": 4583,
   "date": "2026-11-13",
   "notes": [
-    "**Options tidied up.** The screen behind Options no longer shows through. \"Help & tools\" is split into **Help** (What's new, About) and **Debug** (Live view, Debug log, EPG debug, Missing episodes). The one-item \"Watch\" category is gone: On Demand is now the first line under TV Guide, and Options opens there. The Live view address is shown large and green so it can be read from across the room. \"Match the channel\" has been taken out of the guide themes, so the theme only ever changes when you change it."
+    "**The hold-OK menus match Options.** The menu on a programme in the guide and the one on a show in On Demand now use the same navy panel, yellow highlight and two-line rows as Options, with a short line under each choice saying what it does."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.82",
+      "date": "2026-11-13",
+      "notes": [
+        "**Options tidied up.** The screen behind Options no longer shows through. \"Help & tools\" is split into **Help** (What's new, About) and **Debug** (Live view, Debug log, EPG debug, Missing episodes). The one-item \"Watch\" category is gone: On Demand is now the first line under TV Guide, and Options opens there. The Live view address is shown large and green so it can be read from across the room. \"Match the channel\" has been taken out of the guide themes, so the theme only ever changes when you change it."
+      ]
+    },
     {
       "name": "Alpha 0.45.81",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Hid two home-video uploads on The Video Shop** (\"1992 Video Shop, Ted's Books, Adams Caining, Magic Mt\" and \"1993 The Video Shop 128 W Mission St\"). They are not films, they only have \"Video Shop\" in their names."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.74",
-      "date": "2026-11-13",
-      "notes": [
-        "**Hid a fake \"Sonic Underground\" upload.** The item \"Tamers12345 Sonic Underground All Episodes (In Order)\" is a fan-made collection with invented episode titles (\"…A Tragic Death On Christmas\"), not the cartoon. It is hidden on every channel until the scraper drops it."
       ]
     }
   ]

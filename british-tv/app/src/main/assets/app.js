@@ -2691,14 +2691,14 @@
       if (odChannels().indexOf(c) < 0) { toast('Nothing on demand for ' + c.name, 3000); return; }
       odOpenUi(); odJump(c, p);
     } });
-    if (live) items.push({ t: 'Watch now', f: function () { gmClose(); watchFromGuide(); } });
-    items.push({ t: 'Watch from the start', f: function () { gmClose(); watchFromGuide(true); } });
+    if (live) items.push({ t: 'Watch now', sub: 'Join it where it is now', f: function () { gmClose(); watchFromGuide(); } });
+    items.push({ t: 'Watch from the start', sub: 'Begin this programme at the beginning', f: function () { gmClose(); watchFromGuide(true); } });
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
-    if (ref) items.push({ t: 'Stream next episode', f: function () { gmClose(); gmNext(c, p); } });
-    if (ref || film) items.push({ t: 'Try another version', f: function () { gmClose(); gmAlt(c, p); } });
-    items.push({ t: 'Info', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
-    items.push({ t: film ? 'Scrape this film' : 'Scrape this show', f: function () { gmClose(); gmScrape(c, p, name, film); } });
-    items.push({ t: 'Options', f: function () { gmClose(); closeGuide(); openOpts(); } });
+    if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
+    if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
+    items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
+    items.push({ t: film ? 'Scrape this film' : 'Scrape this show', sub: 'Look its artwork and details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
+    items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); closeGuide(); openOpts(); } });
     gm = { items: items, i: 0, title: name, sub: c.n + '  ' + c.name };
     gmRender();
   }
@@ -4567,11 +4567,11 @@
     if (!g) return;
     if (g.film) { toast('Films use the poster that came with them', 2500); return; }
     odm = { mode: 'menu', g: g, i: 0, items: [
-      { t: 'Scrape artwork', f: function () { odmScrape(g); } },
-      { t: 'Choose the right show', f: function () { odmShows(g); } },
-      { t: 'Choose a poster', f: function () { odmPics(g, 'poster'); } },
-      { t: 'Choose a background', f: function () { odmPics(g, 'background'); } },
-      { t: 'Back to automatic', f: function () {
+      { t: 'Scrape artwork', sub: 'Look the show up again and use the best match', f: function () { odmScrape(g); } },
+      { t: 'Choose the right show', sub: 'Pick from the list if the wrong show was matched', f: function () { odmShows(g); } },
+      { t: 'Choose a poster', sub: 'Pick the picture shown on its card', f: function () { odmPics(g, 'poster'); } },
+      { t: 'Choose a background', sub: 'Pick the wide picture behind the show', f: function () { odmPics(g, 'background'); } },
+      { t: 'Back to automatic', sub: 'Forget the choices made for this show', f: function () {
         try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
         g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } }
     ], title: g.name };

@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.69",
-  "version": "0.45.69",
-  "code": 4569,
+  "name": "Alpha 0.45.70",
+  "version": "0.45.70",
+  "code": 4570,
   "date": "2026-11-13",
   "notes": [
-    "**Quieter tuning hiss.** The static heard while a channel tunes in is now well under half as loud.",
-    "**Start-up TV shows backgrounds, not posters.** Its pictures are now the shows' wide backgrounds; a poster is only used for a show that has no background, or until the first backgrounds have loaded."
+    "**Soaps can have a year as the season.** Episode codes such as `S1988E56` are now read everywhere (the guide, On Demand, next episode, link matching); before, only one or two digits were accepted for the season, so they would not have been recognised. In On Demand such a season is shown as just \"1988\"."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.69",
+      "date": "2026-11-13",
+      "notes": [
+        "**Quieter tuning hiss.** The static heard while a channel tunes in is now well under half as loud.",
+        "**Start-up TV shows backgrounds, not posters.** Its pictures are now the shows' wide backgrounds; a poster is only used for a show that has no background, or until the first backgrounds have loaded."
+      ]
+    },
     {
       "name": "Alpha 0.45.68",
       "date": "2026-11-13",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Snow falls at more varied speeds.** Each of the three depth layers is now two sheets of flakes falling at slightly different speeds (and swaying at different paces), so the snow no longer looks like it moves as one block. The number of flakes is unchanged."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.61",
-      "date": "2026-11-13",
-      "notes": [
-        "**Smoother snow.** The snow used to be redrawn 15 times a second and flakes could only move in whole steps, which looked jerky. Each layer of flakes is now painted once and slid down by the graphics chip at the screen's own refresh rate, with a gentle sway on top, so it moves smoothly and costs the TV almost no work. Still pixel-art, and it still holds still while you scroll the guide."
       ]
     }
   ]

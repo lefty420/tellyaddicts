@@ -10,7 +10,7 @@
 
   /** "Knightmare S01E03" -> {show:'Knightmare', s:1, e:3}; "Noel's House Party - Season 6 Episode 8" too; else null. */
   function parseEp(title) {
-    var t = String(title || '').trim(), m = /^(.*?)\s+S(\d{1,2})[ED](\d{1,3})\b/i.exec(t), show, s, e;
+    var t = String(title || '').trim(), m = /^(.*?)\s+S(\d{1,4})[ED](\d{1,3})\b/i.exec(t), show, s, e;
     if (m) { show = m[1]; s = +m[2]; e = +m[3]; }
     else if ((m = /^(.*?)\s*(?:[-\u2013]\s*)?(?:Season|Series)\s+(\d{1,2})\s*(?:[-\u2013,:]\s*)?Episode\s+(\d{1,3})\b/i.exec(t))) { show = m[1]; s = +m[2]; e = +m[3]; }
     else return null;

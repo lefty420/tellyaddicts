@@ -82,7 +82,7 @@
          .replace(/\bS(\d{1,2})[,\s]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')        // "S1, Ep 09"
          .replace(/\b(?:Season|Series)\s*(\d{1,2})[,\s\-\u2013:]+Ep(?:isode)?\.?\s*(\d{1,3})\b/ig, 'S$1E$2')   // "Series 3 Ep 4", "Season 5 - Episode 01"
          .replace(/(^|\s)(\d{1,2})x(\d{2,3})\b/g, '$1S$2E$3')
-         .replace(/\b(?:Season|Series)\s*\d{1,2}\s+(?=S\d{1,2}E\d{1,3}\b)/ig, '');   // "Show Season 3 S3E05" -> "Show S3E05"                               // "1x01"
+         .replace(/\b(?:Season|Series)\s*\d{1,2}\s+(?=S\d{1,4}E\d{1,3}\b)/ig, '');   // "Show Season 3 S3E05" -> "Show S3E05"                               // "1x01"
     return t.replace(/\bs\s?(\d{1,2})\s?e\s?(\d{1,3})\b/ig, function (_, a, b) { return 'S' + a + 'E' + b; })
       .replace(/(\bS\d+E\d+)\s+Episode\s+\d+\b\s*/ig, '$1 ').replace(/\s+$/, '')                                 // "S01E05 Episode 5"
       .replace(/(\bS\d+E\d+)\s*[-\u2013:]\s*(?=\S)/g, '$1 ')
@@ -135,7 +135,7 @@
       base = base.replace(/[._]+/g, ' ');                        // "Knightmare_-_1x01" -> words
       if (base.indexOf(' ') < 0 && (base.match(/-/g) || []).length >= 2) base = base.replace(/-+/g, ' ');
       if (base.indexOf(' ') < 0) {                               // "Bottom-S02E03", "bottom-s02e03-culture"
-        base = base.replace(/([A-Za-z])[-]+(?=S\d{1,2}[ED]\d{1,3}\b)/i, '$1 ').replace(/\b(S\d{1,2}[ED]\d{1,3})-+(?=[A-Za-z])/i, '$1 ');
+        base = base.replace(/([A-Za-z])[-]+(?=S\d{1,4}[ED]\d{1,3}\b)/i, '$1 ').replace(/\b(S\d{1,4}[ED]\d{1,3})-+(?=[A-Za-z])/i, '$1 ');
       }
     }
     base = stripRelease(base, slug);

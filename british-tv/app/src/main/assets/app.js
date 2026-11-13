@@ -538,7 +538,7 @@
           var t = window.LIBROUTE && LIBROUTE.titleFor(show, d);
           // no TVmaze name for it, and the file name has no episode code the app can read ("Show.S01E01.1080p..."):
           // the library's own code for the episode still says where it belongs
-          if (!t && d.c && show && /^S\d{1,2}E\d{1,3}$/i.test(d.c) && !(window.LINKS && LINKS.parseEp(p.title))) t = show + ' ' + d.c.toUpperCase();
+          if (!t && d.c && show && /^S\d{1,4}E\d{1,3}$/i.test(d.c) && !(window.LINKS && LINKS.parseEp(p.title))) t = show + ' ' + d.c.toUpperCase();
           if (t) p.title = t;
           if (d.a) p.aired = d.a;
           if (d.l > 60) { p.dur = d.l; p.lenKnown = 1; }
@@ -1140,7 +1140,7 @@
   function enrichNames(ch, progs) {
     var byShow = {};
     progs.forEach(function (p) {
-      var m = /^(.*?)\s+S(\d{1,2})([ED])(\d{1,3})(?:\s+(.*))?$/.exec(p.title || '');
+      var m = /^(.*?)\s+S(\d{1,4})([ED])(\d{1,3})(?:\s+(.*))?$/.exec(p.title || '');
       if (!m || p.tvDone) return;
       var show = m[1].replace(/[\s\-–:]+$/, '').trim();
       if (!show) return;
@@ -1157,7 +1157,7 @@
             var hit = it.disc ? map['a:' + it.e] : map[it.s + ':' + it.e];
             if (hit && it.disc && hit[2] !== it.s) hit = null;                 // overall number must fall in that series
             if (!hit || GENERIC_EP.test(hit[0].trim())) {
-              if (it.disc) it.p.title = it.p.title.replace(/\bS(\d{1,2})D(\d{1,3})\b/, 'S$1E$2');   // disc number shown as episode
+              if (it.disc) it.p.title = it.p.title.replace(/\bS(\d{1,4})D(\d{1,3})\b/, 'S$1E$2');   // disc number shown as episode
               return;
             }
             var y = /(\d{4})$/.exec(it.p.sub || '');
@@ -1217,7 +1217,7 @@
 
   function parseTitle(title) {
     var t = String(title || '').trim();
-    var m = /^(.*?)\s+S(\d{1,2})[ED](\d{1,3})\b/.exec(t);
+    var m = /^(.*?)\s+S(\d{1,4})[ED](\d{1,3})\b/.exec(t);
     var show, res = {};
     if (m) { show = m[1]; res.s = +m[2]; res.e = +m[3]; }
     else show = t.replace(/\s*\(.*$/, '').replace(/\s+(Series|Season)\s+\d+.*$/i, '').replace(/\s+[-\u2013]\s+.*$/, '');
@@ -3852,7 +3852,7 @@
   }
   function odPad(n) { return n < 10 ? '0' + n : String(n); }
   function odEpLabel(p, ref) {
-    var m = /^(.*?)\s+S\d{1,2}[ED]\d{1,3}\b\s*(.*)$/i.exec(p.title || '');
+    var m = /^(.*?)\s+S\d{1,4}[ED]\d{1,3}\b\s*(.*)$/i.exec(p.title || '');
     if (ref && m) return 'E' + odPad(ref.e) + (m[2] ? '   ' + m[2] : '');
     return p.title || '';
   }
@@ -3867,7 +3867,7 @@
   function odSeasons(g) {
     var by = {}, other = [], list = [];
     g.eps.forEach(function (ep) { if (ep.s > 0) (by[ep.s] = by[ep.s] || []).push(ep); else other.push(ep); });
-    Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (n) { list.push({ name: 'Season ' + n, eps: by[n] }); });
+    Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (n) { list.push({ name: n >= 1900 ? String(n) : 'Season ' + n, eps: by[n] }); });
     if (other.length) list.push({ name: list.length ? 'Other videos' : 'Videos', eps: other });
     var per = {};
     g.eps.forEach(function (ep) { var m = /\/download\/([^/]+)\//.exec(ep.p.url || ''); ep.item = m ? m[1] : ''; if (ep.item) per[ep.item] = (per[ep.item] || 0) + 1; });

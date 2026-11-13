@@ -1906,7 +1906,7 @@
   // ---- ad breaks (see ads.js): after a show, a short break of adverts that suit the channel and the era chosen in the OSD
   var adEra = (function () {
     var saved = store.get('adera');
-    return ADS.ERAS.some(function (e) { return e.id === saved; }) ? saved : 'all';
+    return saved === 'off' ? 'off' : 'all';      // adverts are simply on or off: each break picks adverts from the programme's own year (or the channel's decade)
   })();
   var adsRev = '', adCatP = null;        // the scraper's checked advert catalogue, when it has published one
   var adPools = {};                     // 'genre:era' -> filtered adverts (shared by every channel of that genre)
@@ -3332,7 +3332,7 @@
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
-    if (id === 'ads') return ADS.ERAS[ADS.eraIndex(adEra)].label + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
+    if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
     if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs a newer app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  (' + Object.keys(npKnown).length + ' files)' : '');
     if (id === 'span') return SPANS[spanIdx].label;
@@ -3417,7 +3417,7 @@
     ar: 'Auto, Smart, 4:3, 16:9, Zoom or Stretch. Auto shows each programme in the ratio it was made in. Smart keeps old 4:3 pictures the right shape and fills the sides with a soft copy of the picture.',
     fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness.',
     gart: 'Posters and backdrops in the guide and on the bar. Off keeps things plain.',
-    ads: 'Adverts between programmes, from the decade you choose. UK first, and never on the BBC.',
+    ads: 'Adverts between programmes, matched to the year of what you are watching. UK first, and never on the BBC.',
     player: 'Auto plays everything normally and switches to the app\u2019s own player for a file that has no sound or will not load (AC3/DTS sound, some MKVs). Always uses it for every file; Standard only never does. The VHS and Smart ratio looks do not apply to the backup player.',
     buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
     auto: 'Builds every channel from the scraper\u2019s whole library instead of the hand-picked lists.',
@@ -3440,7 +3440,7 @@
     if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };
     if (id === 'buf') return { l: BUF.map(function (x) { return x.label; }), i: bufIdx };
     if (id === 'ar') return { l: AR.map(function (x) { return x.label; }), i: arIdx };
-    if (id === 'ads') return { l: ADS.ERAS.map(function (x) { return x.label; }), i: ADS.eraIndex(adEra) };
+    if (id === 'ads') return { l: ['Off', 'On'], i: adEra === 'off' ? 0 : 1 };
     if (id === 'fx') { var ks = Object.keys(FXLABEL); return { l: ks.map(function (k) { return FXLABEL[k]; }), i: Math.max(0, ks.indexOf(fxMode)) }; }
     return null;
   }
@@ -3557,9 +3557,8 @@
 
   var ERA_SHORT = { off: 'Off', all: 'All', '70': '70s', '80': '80s', '90': '90s' };
   function changeAds(d) {
-    var ids = ADS.ERAS.map(function (e) { return e.id; });
     var wasOff = adEra === 'off';
-    adEra = ids[(ids.indexOf(adEra) + d + ids.length) % ids.length];
+    adEra = wasOff ? 'all' : 'off';
     store.set('adera', adEra);
     if (wasOff !== (adEra === 'off')) {              // the guide has breaks listed in it, or not: rebuild it
       renderOpts();

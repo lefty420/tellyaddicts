@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.50",
-  "version": "0.45.50",
-  "code": 4550,
+  "name": "Alpha 0.45.51",
+  "version": "0.45.51",
+  "code": 4551,
   "date": "2026-11-13",
   "notes": [
-    "**Skip adverts.** While an advert break is playing, open the on-screen bar and a new **Skip adverts** button appears next to Pause. Press OK on it (or the Next key on the remote) and the break ends and the next programme starts straight away. It only appears during a break, and not on the Adverts channel, which is all adverts."
+    "**Adverts are just On or Off.** The Options setting no longer asks for 1970s, 1980s or 1990s: each break now picks adverts from the year of the programme you are watching (or the middle of the decade on a 70s, 80s or 90s channel), falling back to the same decade, then any. Anyone who had Off keeps Off; everyone else is now On."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.50",
+      "date": "2026-11-13",
+      "notes": [
+        "**Skip adverts.** While an advert break is playing, open the on-screen bar and a new **Skip adverts** button appears next to Pause. Press OK on it (or the Next key on the remote) and the break ends and the next programme starts straight away. It only appears during a break, and not on the Adverts channel, which is all adverts."
+      ]
+    },
     {
       "name": "Alpha 0.45.49",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Clear logos in On Demand.** When the scraper's `art.json` gives a show a logo (`\"l\"`: the address of a transparent title picture), On Demand shows it instead of the plain title, on the home banner and on the show page. Until the picture has loaded, and for shows without one, the text title stays. Nothing changes until the scraper publishes logos."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.42",
-      "date": "2026-11-13",
-      "notes": [
-        "**On Demand posters fill the row.** They are a little wider (and taller), so the seventh poster ends at the right edge instead of leaving a gap. The highlighted one still grows without touching its neighbours."
       ]
     }
   ]

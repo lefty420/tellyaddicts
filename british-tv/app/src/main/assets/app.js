@@ -4172,6 +4172,7 @@
     var s = odSel(), g = s.g;
     if (!g) { odView = 'home'; $('odhome').className = ''; $('odshow').className = 'hidden'; odRenderHome(); return; }
     odSetBg(g);
+    odLookups(g);                                  // the show's details and clear logo, also when you go straight onto its page
     if (g.name !== odLastS) { odLastS = g.name; ['odpost', 'odst', 'odsm', 'odsp'].forEach(function (id) { odFade($(id)); }); }
     var k = odKnown(g), post = $('odpost');
     post.style.backgroundImage = k && (k.poster || k.back) ? 'url("' + (k.poster || k.back) + '")' : odTone(g.name);

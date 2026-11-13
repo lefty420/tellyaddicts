@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.53",
-  "version": "0.45.53",
-  "code": 4553,
+  "name": "Alpha 0.45.54",
+  "version": "0.45.54",
+  "code": 4554,
   "date": "2026-11-13",
   "notes": [
-    "**Japanese-language Sailor Moon is gone.** The 1992 1080p upload and the Japanese live-action series are hidden everywhere; the English-dubbed uploads (DIC and Cloverway) stay."
+    "**Clear logos now show on a show's page as well.** The scraper's clear logos (published in art.json from today) replace the plain title on On Demand. They were only picked up on the home rows after the highlight rested on a show, so going straight onto a show page, or opening On Demand on what is playing, never loaded them. The show page now looks them up itself."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.53",
+      "date": "2026-11-13",
+      "notes": [
+        "**Japanese-language Sailor Moon is gone.** The 1992 1080p upload and the Japanese live-action series are hidden everywhere; the English-dubbed uploads (DIC and Cloverway) stay."
+      ]
+    },
     {
       "name": "Alpha 0.45.52",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**On Demand loads only as long as it has to.** Opening it now builds just the channel you are on (or the show that is playing) and nothing else, so the loading screen goes away as soon as that one is ready. The other channels are built in the background afterwards, nearest first, instead of competing with it. If the lists were already built in the background after start-up, there is no loading screen at all."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.45",
-      "date": "2026-11-13",
-      "notes": [
-        "**No more half-empty On Demand while it loads.** If the lists are not ready when you open On Demand, you now get a plain loading screen (spinner, \"Getting your shows ready...\") that goes away the moment the first row is ready, instead of a page of \"Loading...\" text. Opening straight onto the show that is playing waits behind it too, so you never see the home screen flash first. A row further down that is still loading shows blank poster blocks, not text. The background build of the lists now starts four seconds after start-up instead of twenty, so it is usually ready before you open it."
       ]
     }
   ]

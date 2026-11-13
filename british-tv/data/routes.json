@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "38a245e2e5",
+ "rev": "9e57e37e76",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
@@ -34,6 +34,7 @@
     "kyTV",
     "Last of the Summer Wine",
     "Metal Mickey",
+    "Mr Bean",
     "Naked Video",
     "Never the Twain",
     "Next of Kin",

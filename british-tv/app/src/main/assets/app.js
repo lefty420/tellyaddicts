@@ -2345,7 +2345,7 @@
     if (cur.od && cur.prog && cur.prog.alts && cur.prog.alts.length) {       // another stored copy of this episode
       var o = cur.od, nx = cur.prog.alts[0], list = o.list.slice();
       dlog('FALLBACK ' + (cur.prog.title || '') + ': that copy would not play (' + String(cur.prog.url).slice(0, 60) + '), trying ' + String(nx.url).slice(0, 60));
-      if (cur.prog.yt) ytMarkDead(String(cur.prog.url).slice(3));
+      if (cur.prog.yt && ytGone(v.error && v.error.message)) ytMarkDead(String(cur.prog.url).slice(3));
       list[o.i] = Object.assign({}, list[o.i], { p: Object.assign({}, nx, { alts: cur.prog.alts.slice(1) }) });
       toast('That copy would not play, trying another', 3500);
       odStart(cur.ch, list, o.i, 0, o.name);
@@ -2353,9 +2353,9 @@
     }
     if (cur.prog && cur.prog.yt && cur.od) {
       dlog('YOUTUBE FAILED ' + (cur.prog.title || '') + ' ' + cur.prog.url + ': ' + (v.error && v.error.message || ''));
-      ytMarkDead(String(cur.prog.url).slice(3));
-      toast('That YouTube video would not play: ' + String((v.error && v.error.message) || 'no reason given').slice(0, 90), 6000);
-      odStep(1);
+      var why = String((v.error && v.error.message) || 'no reason given');
+      toast('That YouTube video would not play: ' + why.replace(/^YouTube \S+: /, '').slice(0, 110), 8000);
+      if (ytGone(why)) { ytMarkDead(String(cur.prog.url).slice(3)); odStep(1); }      // gone: on to the next; any other reason stays put, so one problem is not repeated down the whole list
       return;
     }
     if (cur.trial && revertTrial()) return;   // a Play Next episode that fails: back to the previous programme
@@ -4028,8 +4028,8 @@
 
   // ---- YouTube as a second source (data/yt.json from the scraper). The files are not on archive.org: the app's own
   // player looks the stream up when you press play (NativePlayer.java), so a video is stored here as "yt:<id>".
-  var ytOn = store.get('yt1') !== 'off';
-  var ytP = null, ytDead = store.get('ytdead1') || {};
+  var ytOn = store.get('yt1') === 'on';      // off until YouTube playback works on the TV
+  var ytP = null, ytDead = store.get('ytdead2') || {};
   function ytAvailable() { try { return !!(window.NativeHttp && window.NativeHttp.npOpen); } catch (e) { return false; } }
   function ytLoad() {
     if (!ytOn || !ytAvailable()) return Promise.resolve({});
@@ -4071,7 +4071,9 @@
     });
     return out;
   }
-  function ytMarkDead(id) { ytDead[id] = Date.now(); Object.keys(ytDead).forEach(function (k) { if (Date.now() - ytDead[k] > 86400000) delete ytDead[k]; }); store.set('ytdead1', ytDead); }
+  function ytMarkDead(id) { ytDead[id] = Date.now(); Object.keys(ytDead).forEach(function (k) { if (Date.now() - ytDead[k] > 86400000) delete ytDead[k]; }); store.set('ytdead2', ytDead); }
+  /** Only a video YouTube calls gone, private or blocked is left out; a refusal that hits every video (bot check, network) says nothing about this one. */
+  function ytGone(msg) { return /UNPLAYABLE|unavailable|private|removed|deleted|not available|copyright|terminated/i.test(String(msg || '')) && !/LOGIN_REQUIRED|bot/i.test(String(msg || '')); }
   /**
    * How good a stored copy of an episode is, to pick the one that plays first (the others are kept as fall-backs and
    * for "Try another version"). An archive.org file is a plain file with no lookup, so it leads; a YouTube copy is next.

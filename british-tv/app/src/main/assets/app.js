@@ -581,9 +581,15 @@
   var BAD_ITEMS = { 'AngelsinHeat2': 1, '00AIH1': 1, '1993TvsCounterCam': 1, '1992VideoShopTedsBooksAdamsCainingMagicMt': 1, 'tamers12345-sonic-underground': 1, 'the-goonies-1985_202510': 1, 'sailor-moon-1992-1080pcbr-': 1, 'bishoujo-senshi-sailor-moon-live': 1,
     'the-addams-family__season-2': 1, 'the-addams-family__season-1': 1,
     '20250604_20250604_0220': 1, '20250527_20250527_1334': 1, '20250601_20250601_0848': 1 };      // Russian first audio track, English second
+  // Shows hidden on this TV from the hold-OK menus (Options > TV Guide > Hidden shows brings them back).
+  var hid = store.get('hid1') || {}, hidCount = Object.keys(hid).length;
+  function hidKey(p) { return LIBROUTE.norm(p.filmKey ? (p.title || '') : (p.show || p.group || '')); }
+  function hidSave() { store.set('hid1', hid); hidCount = Object.keys(hid).length; }
+  function dropHidden(list) { return hidCount ? list.filter(function (p) { var k = hidKey(p); return !(k && hid[k]); }) : list; }
   function blocked(p) {
     if (!p) return false;
     if (p.id && BAD_ITEMS[String(p.id).split('/')[0]]) return true;
+    if (hidCount) { var hk = hidKey(p); if (hk && hid[hk]) return true; }
     var t = (p.show || p.group || '') + ' ' + (p.title || '') + ' ' + (p.sub || '') + ' ' +
             String(p.id || '').replace(/[-_]/g, ' ');
     return BLOCKED.test(t) || (!!p.filmKey && BLOCKED_FILM.test(t));
@@ -745,7 +751,7 @@
           ch.autoUsed = true;
           ch.report = [];
           ch.cacheT = dcached.t;
-          ch.plan = unpackPlan(dcached.p);
+          ch.plan = dropHidden(unpackPlan(dcached.p));
           return ch.plan;
         }
         return buildFromData(ch, noAuto, rev, dkey);
@@ -818,7 +824,7 @@
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < planTtl()) {
       ch.report = cached.r || [];
       ch.cacheT = cached.t;
-      ch.plan = unpackPlan(cached.p);
+      ch.plan = dropHidden(unpackPlan(cached.p));
       return Promise.resolve(ch.plan);
     }
     var ids = [];
@@ -2676,6 +2682,29 @@
 
   // ------------------------------------------------------------------ guide menu (hold OK on a programme)
 
+  /** Hide a show (or film) on this TV: it goes from On Demand now, and from the guide the next time the lists are built. */
+  function hideShow(name, film) {
+    var k = LIBROUTE.norm(name || '');
+    if (!k) { toast('Nothing to hide', 2000); return; }
+    hid[k] = name; hidSave();
+    Object.keys(odData).forEach(function (id) { var r = odData[id]; if (r && r.shows) r.shows = r.shows.filter(function (x) { return LIBROUTE.norm(x.name) !== k; }); });
+    odRowsMemo = null;
+    dlog('HIDDEN on this TV: ' + name);
+    toast('Hidden: ' + name + '. Gone from On Demand now, and from the guide after Refresh listings. Undo in Options > TV Guide.', 7000);
+    if (odOpen) { odmClose(); if (odView === 'show') { odView = 'home'; $('odhome').className = ''; $('odshow').className = 'hidden'; } odRenderHome(); }
+  }
+  var unhideArmed = false, unhideTimer = null;
+  function unhideAll() {
+    if (!hidCount) { toast('Nothing is hidden', 2000); return; }
+    if (!unhideArmed) {
+      unhideArmed = true; clearTimeout(unhideTimer);
+      unhideTimer = setTimeout(function () { unhideArmed = false; renderOpts(); }, 5000);
+      renderOpts(); toast('Press OK again to show all ' + hidCount + ' hidden again', 4500); return;
+    }
+    unhideArmed = false; clearTimeout(unhideTimer);
+    hid = {}; hidSave(); odData = {}; odRowsMemo = null; renderOpts();
+    toast('Everything is back. The guide catches up after Refresh listings.', 5000);
+  }
   var gm = null;
   function gmName(p) { return (p && (p.show || p.group || parseTitle(p.title || '').show || p.title)) || ''; }
   function gmOpen() {
@@ -2697,8 +2726,13 @@
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
-    items.push({ t: film ? 'Scrape this film' : 'Scrape this show', sub: 'Look its artwork and details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
-    items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); closeGuide(); openOpts(); } });
+    items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
+    items.push({ t: film ? 'Hide this film' : 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { gmClose(); hideShow(film ? p.title : name, film); } });
+    items.push({ t: 'Report a problem', sub: 'Note it in the debug log', f: function () {
+      gmClose();
+      dlog('REPORT (menu) ch ' + c.n + ' ' + c.name + ' | ' + (p.title || '') + ' | show: ' + name + ' | item: ' + String(p.id || '').split('/')[0] + ' | file: ' + decodeURIComponent(String(p.url || '').replace('https://archive.org/download/', '')));
+      toast('Noted in the debug log', 2500);
+    } });
     gm = { items: items, i: 0, title: name, sub: c.n + '  ' + c.name };
     gmRender();
   }
@@ -3374,7 +3408,7 @@
   // The categories down the left of Options, and the rows in each. OPTS is those rows in order.
   var OCATS = [
     { id: 'picture', rows: ['ar', 'fx'] },
-    { id: 'guide', rows: ['od', 'span', 'theme', 'season', 'keep', 'refresh'] },
+    { id: 'guide', rows: ['od', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads'] },
     { id: 'help', rows: ['rel', 'about'] },
@@ -3397,6 +3431,7 @@
     if (id === 'season') return seasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
+    if (id === 'unhide') return unhideArmed ? 'Press OK again to confirm' : hidCount ? hidCount + ' hidden  \u00b7  OK to show all' : 'None';
     if (id === 'rel') return relName();
     if (id === 'mkeep') return META_KEEP[metaIdx].label;
     if (id === 'mclear') return metaSizeText || '\u2026';
@@ -3466,7 +3501,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
@@ -3482,6 +3517,7 @@
     buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
     keep: 'How long a channel\u2019s line-up stays as it is before it is built afresh.',
+    unhide: 'Shows hidden from the hold-OK menu (Hide this show). OK twice brings them all back.',
     refresh: 'Throws away every line-up and builds them all again in a new running order.',
     rel: 'What changed in this version and the ones before it.',
     about: 'Where the programmes, artwork and details come from.',
@@ -3648,6 +3684,7 @@
     else if (id === 'mkeep') changeMetaKeep(d);
     else if (id === 'mclear') clearMeta();
     else if (id === 'refresh') refreshEpg();
+    else if (id === 'unhide') unhideAll();
     else if (id === 'rel') openRel('rel');
     else if (id === 'log') openRel('log');
     else if (id === 'live') liveToggle();
@@ -4567,10 +4604,12 @@
     if (!g) return;
     if (g.film) { toast('Films use the poster that came with them', 2500); return; }
     odm = { mode: 'menu', g: g, i: 0, items: [
+      { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = g.flat && g.flat[0]; if (e0) openInfo({ prog: e0.p, ch: g.chan }); } },
       { t: 'Scrape artwork', sub: 'Look the show up again and use the best match', f: function () { odmScrape(g); } },
       { t: 'Choose the right show', sub: 'Pick from the list if the wrong show was matched', f: function () { odmShows(g); } },
       { t: 'Choose a poster', sub: 'Pick the picture shown on its card', f: function () { odmPics(g, 'poster'); } },
       { t: 'Choose a background', sub: 'Pick the wide picture behind the show', f: function () { odmPics(g, 'background'); } },
+      { t: 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { hideShow(g.name, false); } },
       { t: 'Back to automatic', sub: 'Forget the choices made for this show', f: function () {
         try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
         g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } }

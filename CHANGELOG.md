@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.84 — 2026-11-13
+
+- **Hide a show you don't want.** Both hold-OK menus now have "Hide this show" (or film). It goes from On Demand straight away and from the guide after Refresh listings. Options > TV Guide > Hidden shows brings them all back (OK twice).
+- **Report a problem** in the guide menu writes the programme, show and file to the debug log, so a wrong video can be traced.
+- **Menu tidy.** "Scrape this show" is now "Fix artwork & details", the Options shortcut is gone from the guide menu, and the On Demand menu gains Info.
+
 ## Alpha 0.45.83 — 2026-11-13
 
 - **The hold-OK menus match Options.** The menu on a programme in the guide and the one on a show in On Demand now use the same navy panel, yellow highlight and two-line rows as Options, with a short line under each choice saying what it does.

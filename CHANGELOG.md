@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.75 — 2026-11-13
+
+- **Hid two home-video uploads on The Video Shop** ("1992 Video Shop, Ted's Books, Adams Caining, Magic Mt" and "1993 The Video Shop 128 W Mission St"). They are not films, they only have "Video Shop" in their names.
+
 ## Alpha 0.45.74 — 2026-11-13
 
 - **Hid a fake "Sonic Underground" upload.** The item "Tamers12345 Sonic Underground All Episodes (In Order)" is a fan-made collection with invented episode titles ("…A Tragic Death On Christmas"), not the cartoon. It is hidden on every channel until the scraper drops it.

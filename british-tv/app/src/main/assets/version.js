@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.74",
-  "version": "0.45.74",
-  "code": 4574,
+  "name": "Alpha 0.45.75",
+  "version": "0.45.75",
+  "code": 4575,
   "date": "2026-11-13",
   "notes": [
-    "**Hid a fake \"Sonic Underground\" upload.** The item \"Tamers12345 Sonic Underground All Episodes (In Order)\" is a fan-made collection with invented episode titles (\"…A Tragic Death On Christmas\"), not the cartoon. It is hidden on every channel until the scraper drops it."
+    "**Hid two home-video uploads on The Video Shop** (\"1992 Video Shop, Ted's Books, Adams Caining, Magic Mt\" and \"1993 The Video Shop 128 W Mission St\"). They are not films, they only have \"Video Shop\" in their names."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.74",
+      "date": "2026-11-13",
+      "notes": [
+        "**Hid a fake \"Sonic Underground\" upload.** The item \"Tamers12345 Sonic Underground All Episodes (In Order)\" is a fan-made collection with invented episode titles (\"…A Tragic Death On Christmas\"), not the cartoon. It is hidden on every channel until the scraper drops it."
+      ]
+    },
     {
       "name": "Alpha 0.45.73",
       "date": "2026-11-13",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**YouTube Poop remixes are gone from Disney.** Three uploads called \"Donald Duck Comedy vs ...\" (fan-made \"ytp\" remixes with crude filenames) had been filed under Donald Duck on the Disney channel and its guide, and in On Demand. Anything with \"ytp\", \"YouTube Poop\" or \"Donald Duck Comedy vs\" in its name is now blocked everywhere, and those three items are hidden by name."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.66",
-      "date": "2026-11-13",
-      "notes": [
-        "**No more block sticking out of the guide.** A programme that starts just before the right edge of the guide (a few minutes of a two-hour film, say) was drawn wider than its real length because of its padding, so it poked out past the grid as a yellow or blue stub. Slivers like this now have no padding and stay inside the grid."
       ]
     }
   ]

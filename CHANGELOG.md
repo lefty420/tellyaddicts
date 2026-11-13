@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.79 — 2026-11-13
+
+- **One Poirot, not two, on each channel.** The library names it both "Poirot" and "Agatha Christies Poirot", and On Demand listed each as a separate show with the same episodes (and one of them was missing an episode the other had). They are now one show, "Agatha Christie's Poirot", on every channel.
+
 ## Alpha 0.45.78 — 2026-11-13
 
 - **The guide no longer flashes through its themes.** With the theme on "Match the channel", scrolling down the guide changed the whole screen's look each time the cursor passed the 70's, 80's or 90's channel. It now follows the channel you are watching, and stays put while you browse.

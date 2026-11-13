@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.78",
-  "version": "0.45.78",
-  "code": 4578,
+  "name": "Alpha 0.45.79",
+  "version": "0.45.79",
+  "code": 4579,
   "date": "2026-11-13",
   "notes": [
-    "**The guide no longer flashes through its themes.** With the theme on \"Match the channel\", scrolling down the guide changed the whole screen's look each time the cursor passed the 70's, 80's or 90's channel. It now follows the channel you are watching, and stays put while you browse."
+    "**One Poirot, not two, on each channel.** The library names it both \"Poirot\" and \"Agatha Christies Poirot\", and On Demand listed each as a separate show with the same episodes (and one of them was missing an episode the other had). They are now one show, \"Agatha Christie's Poirot\", on every channel."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.78",
+      "date": "2026-11-13",
+      "notes": [
+        "**The guide no longer flashes through its themes.** With the theme on \"Match the channel\", scrolling down the guide changed the whole screen's look each time the cursor passed the 70's, 80's or 90's channel. It now follows the channel you are watching, and stays put while you browse."
+      ]
+    },
     {
       "name": "Alpha 0.45.77",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Start-up TV never repeats a picture.** Each background is shown once per start-up, picked at random from the whole art list. More are fetched in the background as they get used up, so the TV only starts over if it has genuinely shown every one."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.70",
-      "date": "2026-11-13",
-      "notes": [
-        "**Soaps can have a year as the season.** Episode codes such as `S1988E56` are now read everywhere (the guide, On Demand, next episode, link matching); before, only one or two digits were accepted for the season, so they would not have been recognised. In On Demand such a season is shown as just \"1988\"."
       ]
     }
   ]

@@ -3968,11 +3968,15 @@
     g.flat = [];
     list.forEach(function (sn) { g.flat = g.flat.concat(sn.eps); });
   }
+  // Shows the library names two ways ("Poirot" and "Agatha Christies Poirot" both turn up), so On Demand showed each twice,
+  // with the same episodes. Until the scraper settles on one name, these are brought together here.
+  var SHOW_ALIAS = { 'poirot': "Agatha Christie's Poirot", 'agatha christies poirot': "Agatha Christie's Poirot", 'agatha christie poirot': "Agatha Christie's Poirot" };
   /** A channel's programmes grouped into shows, each with its seasons and episodes in order. */
   function odGroup(progs, films) {          // films: a film channel, where every video is its own title
     var by = {}, shows = [];
     progs.forEach(function (p) {
       var name = (p.filmKey || films) ? (p.title || 'Film') : (p.show || p.group || (parseTitle(p.title || '').show) || 'Other');   // a film is its own title
+      if (!films && !p.filmKey && SHOW_ALIAS[LIBROUTE.norm(name)]) name = SHOW_ALIAS[LIBROUTE.norm(name)];       // two spellings of one show are one show
       var k = 'k' + LIBROUTE.norm(name);
       var g = by[k];
       if (!g) { g = by[k] = { name: name, eps: [], seen: {} }; shows.push(g); }

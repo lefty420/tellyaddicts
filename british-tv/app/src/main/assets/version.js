@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.41",
-  "version": "0.45.41",
-  "code": 4541,
+  "name": "Alpha 0.45.42",
+  "version": "0.45.42",
+  "code": 4542,
   "date": "2026-11-13",
   "notes": [
-    "**On Demand redesign.**"
+    "**On Demand posters fill the row.** They are a little wider (and taller), so the seventh poster ends at the right edge instead of leaving a gap. The highlighted one still grows without touching its neighbours."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.41",
+      "date": "2026-11-13",
+      "notes": [
+        "**On Demand redesign.**"
+      ]
+    },
     {
       "name": "Alpha 0.45.40",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Guide themes tidied.** Channel names fit in the guide (they were cut off), programme names no longer run into the line below, the arrow on a programme that carries on past the edge no longer sits on top of its title, and the 90s and Teletext colour-button row no longer touches the bottom channel. The same spacing fix applies to Classic Blue."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.33",
-      "date": "2026-11-12",
-      "notes": [
-        "**The Adverts channel is rebuilt and moved to the end.** It no longer searches archive.org for random compilations. It is now a run of commercial breaks, each filled from the checked advert catalogue (UK adverts only, nothing after 1999) and following the Adverts option in the OSD: All, 70s, 80s or 90s. With the option on Off the channel still plays, from every era. Drink and gambling adverts only come on after 9pm. It is now channel 30, so the channels that were after it (ITV and up) are each one number lower."
       ]
     }
   ]

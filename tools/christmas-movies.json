@@ -1,0 +1,540 @@
+{
+ "format": "telly-addicts-film-list",
+ "channel": "xmasmovies",
+ "show": "Christmas Movies",
+ "rules": [
+  "Christmas films and TV specials released 1970-1999 only",
+  "No Hallmark-style TV movies, and no horror (so no Gremlins, Black Christmas and the like)",
+  "English audio only: skip dubbed, subbed or dual-track copies with another language first",
+  "Films that merely happen at Christmas (Die Hard, Lethal Weapon, Trading Places) are wanted",
+  "Keep the film's real title and year; prefer the full-length original over clips, trailers and reviews"
+ ],
+ "films": [
+  {
+   "title": "Scrooge",
+   "year": 1970
+  },
+  {
+   "title": "Santa Claus Is Comin' to Town",
+   "year": 1970
+  },
+  {
+   "title": "The Night the Animals Talked",
+   "year": 1970
+  },
+  {
+   "title": "A Christmas Carol",
+   "year": 1971
+  },
+  {
+   "title": "The Homecoming: A Christmas Story",
+   "year": 1971
+  },
+  {
+   "title": "The House Without a Christmas Tree",
+   "year": 1972
+  },
+  {
+   "title": "A Dream for Christmas",
+   "year": 1973
+  },
+  {
+   "title": "The Year Without a Santa Claus",
+   "year": 1974
+  },
+  {
+   "title": "Twas the Night Before Christmas",
+   "year": 1974
+  },
+  {
+   "title": "Yes, Virginia, There Is a Santa Claus",
+   "year": 1974
+  },
+  {
+   "title": "The City That Forgot About Christmas",
+   "year": 1974
+  },
+  {
+   "title": "The Little Drummer Boy, Book II",
+   "year": 1976
+  },
+  {
+   "title": "Emmet Otter's Jug-Band Christmas",
+   "year": 1977
+  },
+  {
+   "title": "Nestor, the Long-Eared Christmas Donkey",
+   "year": 1977
+  },
+  {
+   "title": "A Cosmic Christmas",
+   "year": 1977
+  },
+  {
+   "title": "A Flintstone Christmas",
+   "year": 1977
+  },
+  {
+   "title": "The Fat Albert Christmas Special",
+   "year": 1977
+  },
+  {
+   "title": "It Happened One Christmas",
+   "year": 1977
+  },
+  {
+   "title": "The Gathering",
+   "year": 1977
+  },
+  {
+   "title": "The Stingiest Man in Town",
+   "year": 1978
+  },
+  {
+   "title": "Jack Frost",
+   "year": 1979
+  },
+  {
+   "title": "Rudolph and Frosty's Christmas in July",
+   "year": 1979
+  },
+  {
+   "title": "The Berenstain Bears' Christmas Tree",
+   "year": 1979
+  },
+  {
+   "title": "Casper's First Christmas",
+   "year": 1979
+  },
+  {
+   "title": "Pinocchio's Christmas",
+   "year": 1980
+  },
+  {
+   "title": "The Leprechauns' Christmas Gold",
+   "year": 1981
+  },
+  {
+   "title": "A Chipmunk Christmas",
+   "year": 1981
+  },
+  {
+   "title": "The Snowman",
+   "year": 1982
+  },
+  {
+   "title": "Smurfs' Christmas Special",
+   "year": 1982
+  },
+  {
+   "title": "Ziggy's Gift",
+   "year": 1982
+  },
+  {
+   "title": "A Christmas Story",
+   "year": 1983
+  },
+  {
+   "title": "Mickey's Christmas Carol",
+   "year": 1983
+  },
+  {
+   "title": "Merry Christmas, Mr. Lawrence",
+   "year": 1983
+  },
+  {
+   "title": "A Christmas Carol",
+   "year": 1984
+  },
+  {
+   "title": "The Night They Saved Christmas",
+   "year": 1984
+  },
+  {
+   "title": "It Came Upon the Midnight Clear",
+   "year": 1984
+  },
+  {
+   "title": "Santa Claus: The Movie",
+   "year": 1985
+  },
+  {
+   "title": "One Magic Christmas",
+   "year": 1985
+  },
+  {
+   "title": "The Life & Adventures of Santa Claus",
+   "year": 1985
+  },
+  {
+   "title": "He-Man & She-Ra: A Christmas Special",
+   "year": 1985
+  },
+  {
+   "title": "Babes in Toyland",
+   "year": 1986
+  },
+  {
+   "title": "The Christmas Toy",
+   "year": 1986
+  },
+  {
+   "title": "A Smoky Mountain Christmas",
+   "year": 1986
+  },
+  {
+   "title": "A Claymation Christmas Celebration",
+   "year": 1987
+  },
+  {
+   "title": "A Muppet Family Christmas",
+   "year": 1987
+  },
+  {
+   "title": "Garfield's Christmas Special",
+   "year": 1987
+  },
+  {
+   "title": "A Child's Christmas in Wales",
+   "year": 1987
+  },
+  {
+   "title": "Die Hard",
+   "year": 1988
+  },
+  {
+   "title": "Scrooged",
+   "year": 1988
+  },
+  {
+   "title": "Ernest Saves Christmas",
+   "year": 1988
+  },
+  {
+   "title": "Pee-wee's Playhouse Christmas Special",
+   "year": 1988
+  },
+  {
+   "title": "The Christmas Wife",
+   "year": 1988
+  },
+  {
+   "title": "National Lampoon's Christmas Vacation",
+   "year": 1989
+  },
+  {
+   "title": "Prancer",
+   "year": 1989
+  },
+  {
+   "title": "Home Alone",
+   "year": 1990
+  },
+  {
+   "title": "Die Hard 2",
+   "year": 1990
+  },
+  {
+   "title": "A Mom for Christmas",
+   "year": 1990
+  },
+  {
+   "title": "All I Want for Christmas",
+   "year": 1991
+  },
+  {
+   "title": "Father Christmas",
+   "year": 1991
+  },
+  {
+   "title": "A Wish for Wings That Work",
+   "year": 1991
+  },
+  {
+   "title": "Winnie the Pooh and Christmas Too",
+   "year": 1991
+  },
+  {
+   "title": "Bernard and the Genie",
+   "year": 1991
+  },
+  {
+   "title": "Home Alone 2: Lost in New York",
+   "year": 1992
+  },
+  {
+   "title": "The Muppet Christmas Carol",
+   "year": 1992
+  },
+  {
+   "title": "A Midnight Clear",
+   "year": 1992
+  },
+  {
+   "title": "Frosty Returns",
+   "year": 1992
+  },
+  {
+   "title": "Inspector Gadget Saves Christmas",
+   "year": 1992
+  },
+  {
+   "title": "Noel",
+   "year": 1992
+  },
+  {
+   "title": "To Grandmother's House We Go",
+   "year": 1992
+  },
+  {
+   "title": "The Nightmare Before Christmas",
+   "year": 1993
+  },
+  {
+   "title": "The Nutcracker",
+   "year": 1993
+  },
+  {
+   "title": "The Town Santa Forgot",
+   "year": 1993
+  },
+  {
+   "title": "The Santa Clause",
+   "year": 1994
+  },
+  {
+   "title": "Miracle on 34th Street",
+   "year": 1994
+  },
+  {
+   "title": "The Ref",
+   "year": 1994
+  },
+  {
+   "title": "Mixed Nuts",
+   "year": 1994
+  },
+  {
+   "title": "Trapped in Paradise",
+   "year": 1994
+  },
+  {
+   "title": "A Flintstones Christmas Carol",
+   "year": 1994
+  },
+  {
+   "title": "Ebbie",
+   "year": 1995
+  },
+  {
+   "title": "Smoke",
+   "year": 1995
+  },
+  {
+   "title": "Jingle All the Way",
+   "year": 1996
+  },
+  {
+   "title": "The Preacher's Wife",
+   "year": 1996
+  },
+  {
+   "title": "Unlikely Angel",
+   "year": 1996
+  },
+  {
+   "title": "Christmas Every Day",
+   "year": 1996
+  },
+  {
+   "title": "Home Alone 3",
+   "year": 1997
+  },
+  {
+   "title": "Beauty and the Beast: The Enchanted Christmas",
+   "year": 1997
+  },
+  {
+   "title": "Annabelle's Wish",
+   "year": 1997
+  },
+  {
+   "title": "Ms. Scrooge",
+   "year": 1997
+  },
+  {
+   "title": "Jack Frost",
+   "year": 1998
+  },
+  {
+   "title": "I'll Be Home for Christmas",
+   "year": 1998
+  },
+  {
+   "title": "Richie Rich's Christmas Wish",
+   "year": 1998
+  },
+  {
+   "title": "Buster & Chauncey's Silent Night",
+   "year": 1998
+  },
+  {
+   "title": "A Chance of Snow",
+   "year": 1998
+  },
+  {
+   "title": "Mickey's Once Upon a Christmas",
+   "year": 1999
+  },
+  {
+   "title": "Olive, the Other Reindeer",
+   "year": 1999
+  },
+  {
+   "title": "Robbie the Reindeer: Hooves of Fire",
+   "year": 1999
+  },
+  {
+   "title": "A Christmas Carol",
+   "year": 1999
+  },
+  {
+   "title": "Must Be Santa",
+   "year": 1999
+  },
+  {
+   "title": "One Special Night",
+   "year": 1999
+  },
+  {
+   "title": "Santa and the Three Bears",
+   "year": 1970,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Bear Who Slept Through Christmas",
+   "year": 1973,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Tiny Tree",
+   "year": 1975,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Christmas Messenger",
+   "year": 1975,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "John Denver and the Muppets: A Christmas Together",
+   "year": 1979,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Gift of the Magi",
+   "year": 1978,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Christmas Raccoons",
+   "year": 1980,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "A Christmas Without Snow",
+   "year": 1980,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Mr. Krueger's Christmas",
+   "year": 1980,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Christmas Star",
+   "year": 1986,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Christmas Snow",
+   "year": 1986,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Christmas Comes to Willow Creek",
+   "year": 1987,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Little Match Girl",
+   "year": 1987,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "A Very Brady Christmas",
+   "year": 1988,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Silent Mouse",
+   "year": 1988,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Trading Places",
+   "year": 1983,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Lethal Weapon",
+   "year": 1987,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Rocko's Modern Christmas",
+   "year": 1993,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "It's Christmas Time Again, Charlie Brown",
+   "year": 1992,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Christmas in Connecticut",
+   "year": 1992,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "While You Were Sleeping",
+   "year": 1995,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Mrs. Santa Claus",
+   "year": 1996,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Christmas Box",
+   "year": 1995,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Santa with Muscles",
+   "year": 1996,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "Fraggle Rock: The Christmas Special",
+   "year": 1984,
+   "suggested_by_claude": true
+  },
+  {
+   "title": "The Bells of Fraggle Rock",
+   "year": 1985,
+   "suggested_by_claude": true
+  }
+ ]
+}

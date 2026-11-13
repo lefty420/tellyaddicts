@@ -335,13 +335,21 @@ window.CHANNELS = [
   },
   {
     n: 18,
+    id: 'xmasmovies',
+    name: 'Christmas Movies',
+    // Christmas films and specials, 1970 to 1999, from the scraper's library (the list is in tools/christmas-movies.json).
+    maxItems: 120,
+    sources: [{ data: 'xmasmovies' }]
+  },
+  {
+    n: 19,
     id: 'xmasmusic',
     name: 'Christmas Music',
     maxItems: 150,
     sources: XMAS_VIDEOS
   },
   {
-    n: 19,
+    n: 20,
     id: 'offschool',
     name: "I'm Off School",
     // What was actually on in the morning and afternoon when you were off school: soaps, talk shows and morning TV.
@@ -364,14 +372,14 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 20,
+    n: 21,
     id: 'disney',
     name: 'Disney',
     maxItems: 100,
     sources: DISNEY
   },
   {
-    n: 21,
+    n: 22,
     id: 'tvarchive',
     name: 'TV Archive',
     // Television from today's date, whatever the year: programmes whose air date falls on today's day and month
@@ -385,7 +393,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 22,
+    n: 23,
     id: 'saturday',
     name: 'Saturday Night TV',
     // The Saturday evening line-up, kept to Saturday's shape every day: lighter shows at teatime, the shows the
@@ -394,7 +402,7 @@ window.CHANNELS = [
     sources: [{ data: 'saturday' }]
   },
   {
-    n: 23,
+    n: 24,
     id: 'videoshop',
     name: 'The Video Shop',
     // What you came home with on a Friday night: the rental shelf, mostly 15s and 18s. The certificate decides
@@ -403,7 +411,7 @@ window.CHANNELS = [
     sources: [{ data: 'videoshop' }]
   },
   {
-    n: 24,
+    n: 25,
     id: 'soaps',
     name: 'Soaps',
     // EastEnders, Coronation Street, Crossroads, Neighbours and the rest, from the scraper's library
@@ -411,7 +419,7 @@ window.CHANNELS = [
     sources: [{ data: 'soaps' }]
   },
   {
-    n: 25,
+    n: 26,
     id: 'cooking',
     name: 'Food & Cooking',
     // Delia, Floyd, Rick Stein, Ready Steady Cook and the rest, from the scraper's library (1970 to 1999)
@@ -419,7 +427,7 @@ window.CHANNELS = [
     sources: [{ data: 'cooking' }]
   },
   {
-    n: 26,
+    n: 27,
     id: 'entertainment',
     name: 'Entertainment',
     // a mix of the best of everything: light entertainment, sketch and panel shows, cult drama and sitcoms
@@ -427,7 +435,7 @@ window.CHANNELS = [
     sources: [{ data: 'entertainment' }]
   },
   {
-    n: 27,
+    n: 28,
     id: 'ussitcoms',
     name: 'US Sitcoms',
     // American sitcoms up to 1999 (Friends, Frasier, Cheers). Stays hidden until the scraper has found some.
@@ -435,7 +443,7 @@ window.CHANNELS = [
     sources: [{ data: 'ussitcoms' }]
   },
   {
-    n: 28,
+    n: 29,
     id: 'tv80s',
     name: "80's TV",
     decade: 1980,
@@ -443,7 +451,7 @@ window.CHANNELS = [
     sources: [{ data: 'tv80s' }]
   },
   {
-    n: 29,
+    n: 30,
     id: 'tv90s',
     name: "90's TV",
     decade: 1990,
@@ -451,7 +459,7 @@ window.CHANNELS = [
     sources: [{ data: 'tv90s' }]
   },
   {
-    n: 30,
+    n: 31,
     id: 'adbreak',
     name: 'Adverts',
     // built in the app from the checked advert catalogue (see loadPrograms), not searched for

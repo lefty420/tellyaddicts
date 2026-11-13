@@ -49,6 +49,7 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
     games: { t: ['gamesmaster', 'video games', 'bad influence', 'computer game show'], alt: ['games world', 'cge', 'sega saturn', 'nintendo', 'computer chronicles', 'GamesMaster', 'game on'], len: [300, 3600] },
     comedy: { t: ['comedy', 'sitcom', 'sketch show', 'stand up'], alt: ['the young ones', 'blackadder', 'bottom', 'harry enfield', 'french and saunders', 'the fast show', 'absolutely fabulous', 'spitting image', 'not the nine oclock news'], len: [900, 5400] },
     childrens: { t: ['childrens tv', 'kids tv', 'childrens programmes', 'cartoon series'], alt: ['swap shop', 'grange hill', 'jackanory', 'blue peter', 'newsround', 'byker grove', 'live and kicking', 'saturday superstore'], len: KIDS_LEN },
+    xmasmovies: { t: ['christmas movie', 'christmas film', 'christmas special', 'christmas carol'], alt: ['home alone', 'the muppet christmas carol', 'a christmas story', 'the snowman', 'scrooged', 'the santa clause', 'nightmare before christmas'], len: [1200, 9000] },
     kidsmovies: { t: ['childrens film', 'kids movie', 'animated film', 'family film'], alt: ['disney film', 'don bluth', 'animated feature', 'family movie', 'cartoon feature'], len: FILM_LEN },
     // Films as they went out on telly or were taped off it. Every film is filed under the one show name "Movies",
     // so the genre guard is deliberately left off this channel (ALLOWED has no entry): a film's own title says

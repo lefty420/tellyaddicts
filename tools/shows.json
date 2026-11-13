@@ -822,5 +822,12 @@
     "name": "90's TV",
     "decade": 1990,
     "shows": []
+  },
+  "xmasmovies": {
+    "name": "Christmas Movies",
+    "films": true,
+    "shows": [
+      "Christmas Movies"
+    ]
   }
 }

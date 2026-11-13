@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.55",
-  "version": "0.45.55",
-  "code": 4555,
+  "name": "Alpha 0.45.56",
+  "version": "0.45.56",
+  "code": 4556,
   "date": "2026-11-13",
   "notes": [
-    "**The exit menu no longer pops up by accident.** Back used to count towards quitting even when it was only closing something: pressing Back to close the guide, the on-screen bar, Options or a panel and then once more quickly opened the exit menu. Now only Backs pressed on the plain picture count, so you must press Back twice in a row while just watching (or in the guide with nothing playing)."
+    "**A new start-up screen.** The old TV set that showed each channel loading is gone. Now shows and films tune in one after another behind the logo, full screen, each arriving with a flick of static and a slow zoom, with \"Tuning in to the archives...\" and a gentle moving bar until the guide is ready. It no longer reports each channel as it loads. Pictures come from the artwork already saved on the TV (shows' backdrops, plus posters of films seen before), so the very first start after installing may show only the logo for a moment."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.55",
+      "date": "2026-11-13",
+      "notes": [
+        "**The exit menu no longer pops up by accident.** Back used to count towards quitting even when it was only closing something: pressing Back to close the guide, the on-screen bar, Options or a panel and then once more quickly opened the exit menu. Now only Backs pressed on the plain picture count, so you must press Back twice in a row while just watching (or in the guide with nothing playing)."
+      ]
+    },
     {
       "name": "Alpha 0.45.54",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**On Demand moves smoothly.** The highlighted poster now grows and its white outline fades in instead of snapping. Moving left or right slides the posters across by one place, and moving down the episode list slides the episodes up. The big title, details and background fade into the next show rather than cutting, and the episode and season highlights fade between rows. The slides get quicker while you hold a button so they keep up. Nothing else changed in how it works."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.47",
-      "date": "2026-11-13",
-      "notes": [
-        "**Smoother browsing on the On Demand home screen.** Moving along a row or between channels no longer rebuilds the posters from scratch each time: every poster is built once and reused, so the TV doesn't have to decode the pictures again on every press. The list of rows is also worked out once per key press instead of several times."
       ]
     }
   ]

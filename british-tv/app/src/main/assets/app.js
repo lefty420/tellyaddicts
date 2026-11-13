@@ -964,7 +964,7 @@
 
   var statusSig = null;
   var spNoiseImg = null, spNoiseTimer = null, spLockUntil = 0, spShown = 0, spKnobs = 0;
-  var doneSeen = {}, lastDone = null, spPics = [], spPicsTried = 0, spPhase = 0, spTick = 0, spPic = false, spJit = false;
+  var spPort = {}, spSlot = 0, spLast = 0, spUsed = 0, doneSeen = {}, lastDone = null, spPics = [], spPicsTried = 0, spPhase = 0, spTick = 0, spPic = false, spJit = false;
   /** Pull a handful of artwork from the scraper's art list so the set can flick through "channels" while it tunes. */
   function spLoadPics() {
     if (spPicsTried) return;
@@ -974,7 +974,7 @@
     function use(idx) {
       if (!idx) return;
       var keys = Object.keys(idx), tries = 0, n = 0;
-      while (n < 24 && tries++ < 150 && keys.length) {
+      while (n < 30 && tries++ < 200 && keys.length) {
         var e = idx[keys[(Math.random() * keys.length) | 0]];
         var u = (e && (e.b || e.p)) || '';
         if (!u || spPics.indexOf(u) >= 0) continue;
@@ -983,6 +983,15 @@
         (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) spPics.push(url); }; im.src = url; })(u);
       }
     }
+    try {                                          // films seen on earlier runs: their posters join the shows
+      var fk = kv.keys().filter(function (k) { return k && k.indexOf('film1:') === 0; }).sort(function () { return Math.random() - 0.5; }).slice(0, 40), fn = 0;
+      fk.forEach(function (k) {
+        var f = store.get(k), u = f && f.poster;
+        if (!u || fn >= 14) return;
+        fn++; u = u.replace('/original/', '/w500/');
+        (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) { spPort[url] = 1; spPics.push(url); } }; im.src = url; })(u);
+      });
+    } catch (e) { /* no films saved yet */ }
     var cachedIdx = null;
     try {
       kv.keys().forEach(function (k) { if (!cachedIdx && k && k.indexOf('artdb1:') === 0) { var c = store.get(k); if (c && c.idx) cachedIdx = c.idx; } });
@@ -993,6 +1002,24 @@
       Object.keys((j && j.shows) || {}).forEach(function (n) { idx[n] = j.shows[n]; });
       use(idx);
     }).then(null, function () { /* static only */ });
+  }
+  /** Start-up: a show or film tunes in behind the logo every few seconds (a flick of static, then the picture settles). */
+  function spStep() {
+    if ($('splash').className === 'hidden') { clearInterval(spNoiseTimer); spNoiseTimer = 0; return; }
+    var now = Date.now();
+    if (!spPics.length || now - spLast < (spUsed ? 3600 : 0)) return;
+    spLast = now;
+    var url = spPics[(spUsed++ * 7 + ((Math.random() * spPics.length) | 0)) % spPics.length], port = !!spPort[url];
+    var prev = $('spsl' + spSlot), nxt = $('spsl' + (spSlot ^ 1));
+    spSlot ^= 1;
+    nxt.className = 'spsl' + (port ? ' port' : '');
+    var kids = nxt.children;
+    kids[0].style.backgroundImage = 'url("' + url + '")';
+    kids[1].style.backgroundImage = port ? 'url("' + url + '")' : 'none';
+    void nxt.offsetWidth;
+    var show = $('spshow'); show.className = 'tune';
+    nxt.className += ' on'; prev.className = prev.className.replace(' on', '');
+    setTimeout(function () { show.className = ''; }, 320);
   }
   // The set hunts like a real one: static, a picture flicks up for a moment, static again, another picture ...
   function spNoise() {
@@ -1047,7 +1074,7 @@
     }
     spLoadPics();
     spApply();
-    if (!spNoiseTimer) spNoiseTimer = setInterval(spNoise, 110);
+    if (!spNoiseTimer) spNoiseTimer = setInterval(spStep, 400);
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;
     for (var i = 0; i < bars.length; i++) {

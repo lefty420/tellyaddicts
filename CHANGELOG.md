@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.74 — 2026-11-13
+
+- **Hid a fake "Sonic Underground" upload.** The item "Tamers12345 Sonic Underground All Episodes (In Order)" is a fan-made collection with invented episode titles ("…A Tragic Death On Christmas"), not the cartoon. It is hidden on every channel until the scraper drops it.
+
 ## Alpha 0.45.73 — 2026-11-13
 
 - **Smoother navigation while the app is still setting up.** Pressing buttons in the guide was already instant, but for the first minute after start-up the app was quietly building each channel's On Demand list in the background, and the big channels (BBC, ITV, Music, CITV) each froze the screen for a moment. That work is now done in tiny slices, and it waits while you are pressing buttons. In a test the number of freezes over 50 ms in the first 40 seconds went from 13 to 1.

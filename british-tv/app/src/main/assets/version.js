@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.73",
-  "version": "0.45.73",
-  "code": 4573,
+  "name": "Alpha 0.45.74",
+  "version": "0.45.74",
+  "code": 4574,
   "date": "2026-11-13",
   "notes": [
-    "**Smoother navigation while the app is still setting up.** Pressing buttons in the guide was already instant, but for the first minute after start-up the app was quietly building each channel's On Demand list in the background, and the big channels (BBC, ITV, Music, CITV) each froze the screen for a moment. That work is now done in tiny slices, and it waits while you are pressing buttons. In a test the number of freezes over 50 ms in the first 40 seconds went from 13 to 1."
+    "**Hid a fake \"Sonic Underground\" upload.** The item \"Tamers12345 Sonic Underground All Episodes (In Order)\" is a fan-made collection with invented episode titles (\"…A Tragic Death On Christmas\"), not the cartoon. It is hidden on every channel until the scraper drops it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.73",
+      "date": "2026-11-13",
+      "notes": [
+        "**Smoother navigation while the app is still setting up.** Pressing buttons in the guide was already instant, but for the first minute after start-up the app was quietly building each channel's On Demand list in the background, and the big channels (BBC, ITV, Music, CITV) each froze the screen for a moment. That work is now done in tiny slices, and it waits while you are pressing buttons. In a test the number of freezes over 50 ms in the first 40 seconds went from 13 to 1."
+      ]
+    },
     {
       "name": "Alpha 0.45.72",
       "date": "2026-11-13",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**No more block sticking out of the guide.** A programme that starts just before the right edge of the guide (a few minutes of a two-hour film, say) was drawn wider than its real length because of its padding, so it poked out past the grid as a yellow or blue stub. Slivers like this now have no padding and stay inside the grid."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.65",
-      "date": "2026-11-13",
-      "notes": [
-        "**\"Auto EPG (experimental)\" is gone from Options > TV Guide.** The switch was already unused since Auto EPG became the only guide, but its empty row was still left on the page; it has been removed."
       ]
     }
   ]

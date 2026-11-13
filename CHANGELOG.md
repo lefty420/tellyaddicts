@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.67 — 2026-11-13
+
+- **YouTube Poop remixes are gone from Disney.** Three uploads called "Donald Duck Comedy vs ..." (fan-made "ytp" remixes with crude filenames) had been filed under Donald Duck on the Disney channel and its guide, and in On Demand. Anything with "ytp", "YouTube Poop" or "Donald Duck Comedy vs" in its name is now blocked everywhere, and those three items are hidden by name.
+
 ## Alpha 0.45.66 — 2026-11-13
 
 - **No more block sticking out of the guide.** A programme that starts just before the right edge of the guide (a few minutes of a two-hour film, say) was drawn wider than its real length because of its padding, so it poked out past the grid as a yellow or blue stub. Slivers like this now have no padding and stay inside the grid.

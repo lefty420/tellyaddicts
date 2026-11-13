@@ -568,7 +568,8 @@
   var BLOCKED = new RegExp([
     'adult footage', 'adult film', 'adult movie', 'adult version',
     '\\bxxx\\b', 'hardcore', 'softcore', 'sexual techniques',
-    '\\bemanuelle\\b', '\\bemmanuelle\\b'
+    '\\bemanuelle\\b', '\\bemmanuelle\\b',
+    '\\bytp\\b', 'youtube poop', 'donald duck comedy vs'      // fan-made YouTube Poop remixes, some of them crude
   ].join('|'), 'i');
   // Single words that mean one thing in a film's title and quite another in a programme's: "Porn Yesterday" is a
   // Steptoe and Son episode from 1974, and this list was throwing it away.
@@ -576,7 +577,8 @@
   /** Keep adult material off every channel, whichever list it came in on. */
   // single archive.org items found to be the wrong thing (a dubbed or foreign-language copy, say), hidden until the scraper drops them
   var BAD_ITEMS = { 'the-goonies-1985_202510': 1, 'sailor-moon-1992-1080pcbr-': 1, 'bishoujo-senshi-sailor-moon-live': 1,
-    'the-addams-family__season-2': 1, 'the-addams-family__season-1': 1 };      // Russian first audio track, English second
+    'the-addams-family__season-2': 1, 'the-addams-family__season-1': 1,
+    '20250604_20250604_0220': 1, '20250527_20250527_1334': 1, '20250601_20250601_0848': 1 };      // Russian first audio track, English second
   function blocked(p) {
     if (!p) return false;
     if (p.id && BAD_ITEMS[String(p.id).split('/')[0]]) return true;

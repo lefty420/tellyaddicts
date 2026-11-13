@@ -4058,7 +4058,9 @@
     var x = g.art;
     return x ? [x.n || '', x.y ? x.y + (x.e && x.e !== x.y ? '–' + x.e : '') : '', x.g || ''].filter(Boolean).join('  ·  ') : '';
   }
+  var odBusy = false;     // opening straight onto the show that is playing: nothing to show until it is found
   function odRender() {
+    $('odload').className = odOpen && (odBusy || (odView === 'home' && odSel().sh == null)) ? '' : 'hidden';
     if (odView === 'show') odRenderShow(); else odRenderHome();
     $('odfoot').textContent = odView === 'show'
       ? '▲ ▼ move   ◀ seasons   ▶ episodes   OK play   Back'
@@ -4103,7 +4105,7 @@
         if (x.sh) h.appendChild(odEl('span', '', x.n + (x.n === 1 ? ' show' : ' shows')));
         row.appendChild(h);
         var cards = odEl('div', 'odcards');
-        if (!x.sh) cards.appendChild(odEl('div', 'odnone', 'Loading\u2026'));
+        if (!x.sh) { for (var q = 0; q < OD_VIS; q++) cards.appendChild(odEl('div', 'odc odsk')); }     // no list yet: plain blocks where the posters will be
         else { rowIsCw = x.c === cwPseudo; for (var i = x.start; i < Math.min(x.n, x.start + OD_VIS); i++) cards.appendChild(odCard(x.sh[i], x.ri === odRi && i === x.pos)); rowIsCw = false; }
         row.appendChild(cards); frag.appendChild(row);
         odDom.push({ c: x.c, sh: x.sh, start: x.start, n: x.n, gen: odKGen, sel: x.ri === odRi && x.n ? x.pos - x.start : -1 });
@@ -4202,6 +4204,7 @@
     odRi = Math.max(0, at); odRc = rows[odRi] || null;
     $('od').className = '';
     v.muted = true;
+    odBusy = !!(odFrom === 'watch' && cur && cur.prog && !cur.ad && at >= 0);
     odEnter();
     odPreload(chs);
     if (odFrom === 'watch' && cur && cur.prog && !cur.ad && at >= 0) odJump(cur.ch, cur.prog);
@@ -4209,11 +4212,12 @@
   /** Opened while something is playing: go straight to that show's page, on the season and episode that is on. */
   function odJump(c, prog) {
     odLoadChannel(c).then(function () {
+      odBusy = false;
       if (!odOpen || odView !== 'home') return;
       var rows = odRowList(), ri = rows.indexOf(c), sh = odShowsOf(c) || [];
       var name = prog.show || prog.group || (parseTitle(prog.title || '').show) || '', key = LIBROUTE.norm(name), si = -1;
       sh.forEach(function (g, i) { if (si < 0 && (LIBROUTE.norm(g.name) === key || g.eps.some(function (ep) { return ep.p.url === prog.url; }))) si = i; });
-      if (ri < 0 || si < 0) return;
+      if (ri < 0 || si < 0) { odRender(); return; }
       odRi = ri; odRc = c; odPos[c.id] = si;
       if (sh[si].film) { odRender(); return; }      // a film is one video: land on its poster, don't start it again
       odOpenShow();
@@ -4585,7 +4589,7 @@
         renderStatus();
         if (finished === channels.length) setTimeout(seedLinks, 4000);
         if (finished === channels.length) setTimeout(artScanStart, 60000);
-        if (finished === channels.length) setTimeout(odWarm, 20000);
+        if (finished === channels.length) setTimeout(odWarm, 4000);
         begin();
         if (guideOpen) renderGuide();
         if (finished === channels.length && !started) {

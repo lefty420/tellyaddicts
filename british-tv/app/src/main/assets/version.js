@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.44",
-  "version": "0.45.44",
-  "code": 4544,
+  "name": "Alpha 0.45.45",
+  "version": "0.45.45",
+  "code": 4545,
   "date": "2026-11-13",
   "notes": [
-    "**On Demand: the highlighted row is always the top one.** Moving down to the second row used to leave its posters half off the bottom of the screen, so the highlight was cut off. Now the row you move onto slides up to the top and the next one peeks below it."
+    "**No more half-empty On Demand while it loads.** If the lists are not ready when you open On Demand, you now get a plain loading screen (spinner, \"Getting your shows ready...\") that goes away the moment the first row is ready, instead of a page of \"Loading...\" text. Opening straight onto the show that is playing waits behind it too, so you never see the home screen flash first. A row further down that is still loading shows blank poster blocks, not text. The background build of the lists now starts four seconds after start-up instead of twenty, so it is usually ready before you open it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.44",
+      "date": "2026-11-13",
+      "notes": [
+        "**On Demand: the highlighted row is always the top one.** Moving down to the second row used to leave its posters half off the bottom of the screen, so the highlight was cut off. Now the row you move onto slides up to the top and the next one peeks below it."
+      ]
+    },
     {
       "name": "Alpha 0.45.43",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**On Demand: left and right change season** while you are in the episode list (they already did on the season strip). The episode pictures are 50% bigger, so three episodes show at a time instead of four."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.36",
-      "date": "2026-11-12",
-      "notes": [
-        "**No colour-button bar at the bottom of the guide, on every theme.** The grid now shows seven channels instead of six. The coloured remote buttons still work (red Now, green Later, yellow Earlier, blue Watch)."
       ]
     }
   ]

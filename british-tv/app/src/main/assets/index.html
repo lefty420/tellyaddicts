@@ -529,6 +529,11 @@
   .odc.sel { outline: .45vh solid #fff; transform: scale(1.06); z-index: 2; }
   .odpg { position: absolute; left: 0; right: 0; bottom: 0; height: .7vh; background: rgba(255,255,255,.3); z-index: 1; }
   .odpg i { display: block; height: 100%; background: #ffcb6b; }
+  #odload { position: absolute; inset: 0; z-index: 8; background: #0b0d12; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3vh; font-size: 2.8vh; color: #aab3cc; }
+  #odload.hidden { display: none; }
+  .odspin { width: 8vh; height: 8vh; border-radius: 50%; border: 1vh solid rgba(255,255,255,.18); border-top-color: #fff; animation: spin .9s linear infinite; }
+  .odc.odsk { background: #151a26; }
+  .odc.odsk::after { display: none; }
   .odnone { color: #8f98b0; font-size: 2.4vh; padding: 3vh 0; }
   #odshow { position: absolute; inset: 0; }
   #odsh { position: absolute; left: 4vw; top: 7vh; display: flex; gap: 2.6vw; width: 92vw; }
@@ -673,6 +678,7 @@
 <div id="od" class="hidden">
   <div id="odbg"></div>
   <div id="odtag">ON DEMAND<span id="odsub"></span></div>
+  <div id="odload" class="hidden"><div class="odspin"></div><div>Getting your shows ready…</div></div>
   <div id="odhome">
     <div id="odhero"><div id="odch"></div><div id="odm"></div><h1 id="odh1"></h1><img id="odlogo" class="hidden" alt=""><div id="odp"></div><div id="odhint">OK  Open</div></div>
     <div id="odrows"></div>

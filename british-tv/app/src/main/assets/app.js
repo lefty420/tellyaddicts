@@ -2393,6 +2393,7 @@
 
   /** light = the highlight moved; rebuild the grid only when the rows or the time window actually change. */
   function renderGuide(light) {
+    if (seasonOv) seasonOv.touch();
     var list = guideList();
     if (!list.length) return;
     var now = Date.now();
@@ -2473,6 +2474,17 @@
     paintSelection(list);
   }
 
+  // ---- seasonal effects (seasons.js): a decorative overlay over the guide, only while it is open and a season is on
+  var seasonOn = store.get('seasonal') !== 'off', seasonOv = null;
+  function seasonUpdate() {
+    if (!window.SEASONS) return;
+    var want = seasonOn && guideOpen && !!SEASONS.current();
+    if (want && !seasonOv) seasonOv = SEASONS.snow($('gsnow'), function () {
+      var rows = document.querySelectorAll('#guide .grow'), last = rows.length ? rows[rows.length - 1] : null;
+      return last ? window.innerHeight - last.getBoundingClientRect().bottom : 40;
+    });
+    if (want) seasonOv.start(); else if (seasonOv) seasonOv.stop();
+  }
   function openGuide() {
     closeOsd();
     gOdSet(false);
@@ -2489,6 +2501,7 @@
     $('guide').className = '';
     $('banner').className = 'off';
     renderGuide();
+    seasonUpdate();
     clearInterval(guideTimer);
     guideTimer = setInterval(function () {
       var t = Date.now();
@@ -2503,6 +2516,7 @@
     document.body.classList.remove('guide-open');
     $('guide').className = 'hidden';
     clearInterval(guideTimer);
+    if (seasonOv) seasonOv.stop();
   }
 
   var gOd = false;
@@ -3323,7 +3337,7 @@
   var OCATS = [
     { id: 'watch', rows: ['od'] },
     { id: 'picture', rows: ['ar', 'fx'] },
-    { id: 'guide', rows: ['span', 'theme', 'keep', 'refresh'] },
+    { id: 'guide', rows: ['span', 'theme', 'season', 'keep', 'refresh'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads'] },
     { id: 'tools', rows: ['rel', 'about', 'gaps', 'epg', 'log'] }
@@ -3342,6 +3356,7 @@
     if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs a newer app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  (' + Object.keys(npKnown).length + ' files)' : '');
     if (id === 'span') return SPANS[spanIdx].label;
     if (id === 'theme') return THEMES[themeIdx].label;
+    if (id === 'season') return seasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'rel') return relName();
@@ -3415,6 +3430,7 @@
   var ACTION = { epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
+    season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
     theme: 'How the TV guide looks. Match the channel gives the 70s, 80s and 90s channels a guide from their own decade; the rest keep Classic Blue.',
     mkeep: 'How long artwork and episode details are remembered before they are looked up again. Permanent keeps them until you clear them.',
     mclear: 'Forgets the saved artwork, episode details and downloaded pictures, so they are fetched again fresh. Shows what is stored now.',
@@ -3439,6 +3455,7 @@
   function optChoices(id) {
     if (id === 'player') return { l: PLAYERS.map(function (x) { return x.label; }), i: playerIdx };
     if (id === 'theme') return { l: THEMES.map(function (x) { return x.label; }), i: themeIdx };
+    if (id === 'season') return { l: ['Auto', 'Off'], i: seasonOn ? 0 : 1 };
     if (id === 'span') return { l: SPANS.map(function (x) { return x.label; }), i: spanIdx };
     if (id === 'keep') return { l: KEEP.map(function (x) { return x.label; }), i: keepIdx };
     if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };
@@ -3522,6 +3539,7 @@
     else if (id === 'fx') changeFx(d);
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
+    else if (id === 'season') { seasonOn = !seasonOn; store.set('seasonal', seasonOn ? 'auto' : 'off'); seasonUpdate(); renderOpts(); }
     else if (id === 'player') changePlayer(d);
     else if (id === 'buf') changeBuf(d);
     else if (id === 'span') changeSpan(d);

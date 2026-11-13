@@ -301,6 +301,8 @@
     position: fixed; inset: 0; z-index: 40; color: var(--gtx, #fff); font-family: var(--gfont, inherit);
     background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%);
   }
+  #gsnow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: pixelated; }
+  #gsnow.hidden { display: none; }
   #gart { position: absolute; top: 0; right: 0; width: 68vw; height: 42vh; background-size: cover; background-position: center 25%; opacity: 0; transition: opacity .6s; pointer-events: none; }
   #gart.on { opacity: .5; }
   #gart::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--g1) 0%, rgba(0,0,0,0) 55%), linear-gradient(0deg, var(--g2) 0%, rgba(0,0,0,0) 45%); }
@@ -726,6 +728,7 @@
           <div class="grow"><div class="gch sel"><div class="n">7</div><div class="name">Drama</div></div><div class="tline"><div class="blk" style="left:0;width:48%"><div class="t">The Bill</div><div class="s">S05E16</div></div><div class="blk foc" style="left:50%;width:48%"><div class="t">Poirot</div><div class="s">S03E02</div></div></div></div>
           <div class="grow"><div class="gch"><div class="n">13</div><div class="name">CITV</div></div><div class="tline"><div class="blk now" style="left:0;width:98%"><div class="t">SuperTed</div><div class="s">S01E03</div></div></div></div>
         </div></div></div>
+      <div class="orow" id="or-season"><div class="oline"><b>Seasonal effects</b><span id="ov-season"></span></div><div class="ochips" id="oc-season"></div></div>
       <div class="orow" id="or-keep"><div class="oline"><b>Keep listings for</b><span id="ov-keep"></span></div><div class="ochips" id="oc-keep"></div></div>
       <div class="orow" id="or-auto"><div class="oline"><b>Auto EPG (experimental)</b><span id="ov-auto"></span></div><div class="ochips" id="oc-auto"></div></div>
       <div class="orow act" id="or-refresh"><div class="oline"><b>Refresh listings</b><span id="ov-refresh"></span></div><div class="ochips" id="oc-refresh"></div></div>
@@ -806,6 +809,7 @@
 <div id="toast" class="off"></div>
 
 <div id="guide" class="hidden">
+  <canvas id="gsnow" class="hidden" aria-hidden="true"></canvas>
   <div id="gart"></div>
   <div id="ginfo">
     <div id="gtop"><span>TV Guide</span><span id="godbtn">On Demand &#9654;</span><span id="gclock"></span></div>
@@ -863,6 +867,7 @@
 <script src="dayparts.js"></script>
 <script src="onthisday.js"></script>
 <script src="adverts.js"></script>
+<script src="seasons.js"></script>
 <script src="channels.js"></script>
 <script src="app.js"></script>
 </body>

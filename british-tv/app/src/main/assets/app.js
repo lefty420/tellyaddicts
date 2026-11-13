@@ -3572,11 +3572,45 @@
   // Debug Live view: shows this screen, the debug text and a remote on a browser on the home network. Off until switched
   // on here, and off again each time the app starts.
   var liveAddr = '', liveTimer = null;
+  // While Live view is on: how long the screen takes to answer a button (press to the next painted frame) and every
+  // stall over 50 ms, so how smooth the guide feels can be read off without being in the room.
+  var perfKeys = [], perfStalls = [], perfObs = null;
+  function perfStart() {
+    if (perfObs || !window.PerformanceObserver) return;
+    try {
+      perfObs = new PerformanceObserver(function (l) {
+        l.getEntries().forEach(function (e) { perfStalls.push([Date.now(), Math.round(e.duration)]); });
+        if (perfStalls.length > 200) perfStalls.splice(0, perfStalls.length - 200);
+      });
+      perfObs.observe({ entryTypes: ['longtask'] });
+    } catch (e) { perfObs = null; }
+  }
+  function perfKey(k) {
+    if (!liveAddr) return;
+    var t0 = performance.now();
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      perfKeys.push([Date.now(), Math.round(performance.now() - t0), k, optsOpen ? 'options' : odOpen ? 'ondemand' : guideOpen ? 'guide' : 'play']);
+      if (perfKeys.length > 300) perfKeys.splice(0, perfKeys.length - 300);
+    }); });
+  }
+  function perfText() {
+    function pct(a, p) { if (!a.length) return 0; var s = a.slice().sort(function (x, y) { return x - y; }); return s[Math.min(s.length - 1, Math.floor(s.length * p))]; }
+    var out = ['PERFORMANCE (since Live view was switched on)'], now = Date.now();
+    ['guide', 'ondemand', 'options', 'play'].forEach(function (scr) {
+      var r = perfKeys.filter(function (x) { return x[3] === scr; }).map(function (x) { return x[1]; });
+      if (r.length) out.push(scr + ': ' + r.length + ' button presses, press-to-picture p50 ' + pct(r, 0.5) + ' ms, p90 ' + pct(r, 0.9) + ' ms, worst ' + Math.max.apply(null, r) + ' ms');
+    });
+    var st = perfStalls.filter(function (x) { return now - x[0] < 300000; }).map(function (x) { return x[1]; });
+    out.push('stalls over 50 ms in the last 5 minutes: ' + st.length + (st.length ? ', worst ' + Math.max.apply(null, st) + ' ms, total ' + st.reduce(function (a, b) { return a + b; }, 0) + ' ms' : ''));
+    var slow = perfKeys.slice(-40).filter(function (x) { return x[1] > 100; }).slice(-6).map(function (x) { return x[2] + ' on ' + x[3] + ' took ' + x[1] + ' ms'; });
+    if (slow.length) out.push('slowest recent presses: ' + slow.join('; '));
+    return out.join('\n');
+  }
   function liveText() {
     var o = ['Telly Addicts live view', 'Version: ' + relName(), 'Written: ' + new Date().toString(),
       'Channel: ' + (cur && cur.ch ? cur.ch.n + ' ' + cur.ch.name : '(none)'), 'Programme: ' + (cur && cur.prog ? cur.prog.title : '(none)'),
       'Playing: ' + (v && !v.paused && v.currentTime > 0 ? 'yes at ' + Math.round(v.currentTime) + 's' : 'no'),
-      'Screen: ' + (optsOpen ? 'Options' : odOpen ? 'On Demand' : guideOpen ? 'Guide' : 'Playing'), ''];
+      'Screen: ' + (optsOpen ? 'Options' : odOpen ? 'On Demand' : guideOpen ? 'Guide' : 'Playing'), '', perfText(), ''];
     return o.concat(DLOG.slice(-80)).join('\n');
   }
   function liveToggle() {
@@ -3587,7 +3621,7 @@
     } else {
       try { liveAddr = NativeHttp.liveStart() || ''; } catch (e) { liveAddr = ''; }
       if (!liveAddr) toast('No home network found', 2500);
-      else { liveTimer = setInterval(function () { try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }, 2000); try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }
+      else { perfStart(); liveTimer = setInterval(function () { try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }, 2000); try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }
     }
     renderOpts();
   }
@@ -3812,6 +3846,7 @@
   var lastKeyAt = 0;
   window.addEventListener('keydown', function (e) {
     lastKeyAt = Date.now();
+    perfKey(e.key);
     if (!started) {
       if (e.key === 'GoBack' || e.key === 'Escape' || e.key === 'Backspace') { exitApp(); e.preventDefault(); }
       return;

@@ -1004,24 +1004,6 @@
       use(idx);
     }).then(null, function () { /* static only */ });
   }
-  /** Start-up: a show or film tunes in behind the logo every few seconds (a flick of static, then the picture settles). */
-  function spStep() {
-    if ($('splash').className === 'hidden') { clearInterval(spNoiseTimer); spNoiseTimer = 0; return; }
-    var now = Date.now();
-    if (!spPics.length || now - spLast < (spUsed ? 3600 : 0)) return;
-    spLast = now;
-    var url = spPics[(spUsed++ * 7 + ((Math.random() * spPics.length) | 0)) % spPics.length], port = !!spPort[url];
-    var prev = $('spsl' + spSlot), nxt = $('spsl' + (spSlot ^ 1));
-    spSlot ^= 1;
-    nxt.className = 'spsl' + (port ? ' port' : '');
-    var kids = nxt.children;
-    kids[0].style.backgroundImage = 'url("' + url + '")';
-    kids[1].style.backgroundImage = port ? 'url("' + url + '")' : 'none';
-    void nxt.offsetWidth;
-    var show = $('spshow'); show.className = 'tune';
-    nxt.className += ' on'; prev.className = prev.className.replace(' on', '');
-    setTimeout(function () { show.className = ''; }, 320);
-  }
   // The set hunts like a real one: static, a picture flicks up for a moment, static again, another picture ...
   function spNoise() {
     var c = $('spnoise'); if (!c || $('splash').className === 'hidden') return;
@@ -1031,9 +1013,12 @@
     for (var i = 0; i < d.length; i += 4) { var v = (Math.random() * 255) | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
     x.putImageData(spNoiseImg, 0, 0);
     if (--spTick <= 0) {
-      if (spPic || !spPics.length) { spPic = false; spTick = 2 + ((Math.random() * 3) | 0); }
+      if (spPic || !spPics.length) { spPic = false; spTick = 2 + ((Math.random() * 3) | 0); if (spPics.length && Math.random() < 0.3) spLockUntil = Date.now() + 300; }
       else {
         spPic = true; spJit = true; spTick = 7 + ((Math.random() * 6) | 0);
+        spKnobs += 55 + ((Math.random() * 60) | 0);                     // the knobs turn as each one is tuned in
+        $('spk1').style.transform = 'rotate(' + spKnobs + 'deg)'; $('spk2').style.transform = 'rotate(' + (-spKnobs * 0.6) + 'deg)';
+        var pn = 1 + ((Math.random() * 40) | 0); $('spnum').textContent = 'P' + (pn < 10 ? '0' : '') + pn;
         $('sppic').style.backgroundImage = 'url("' + spPics[(Math.random() * spPics.length) | 0] + '")';
       }
     } else if (spJit && spTick < 4) spJit = false;
@@ -1064,18 +1049,10 @@
         box.appendChild(line);
       });
       if (lastDone) $('spcount').textContent = lastDone.n + '  ' + lastDone.name;
-      // a channel just locked in: show colour bars for a moment, then back to static on the next one
-      if (done > spShown) { spLockUntil = Math.max(spLockUntil, Date.now() + 350); spKnobs += 70; $('spk1').style.transform = 'rotate(' + spKnobs + 'deg)'; $('spk2').style.transform = 'rotate(' + (-spKnobs * 0.6) + 'deg)'; }
-      spShown = done;
-      var shown = firstWait || channels[channels.length - 1];
-      if (shown) {
-        $('spnum').textContent = 'P' + (shown.n < 10 ? '0' : '') + shown.n;
-        $('spname').textContent = firstWait ? shown.name : 'All set';
-      }
     }
     spLoadPics();
     spApply();
-    if (!spNoiseTimer) spNoiseTimer = setInterval(spStep, 400);
+    if (!spNoiseTimer) spNoiseTimer = setInterval(spNoise, 110);
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;
     for (var i = 0; i < bars.length; i++) {

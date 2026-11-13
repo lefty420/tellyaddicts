@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.57",
-  "version": "0.45.57",
-  "code": 4557,
+  "name": "Alpha 0.45.58",
+  "version": "0.45.58",
+  "code": 4558,
   "date": "2026-11-13",
   "notes": [
-    "**The Addams Family with Russian audio is hidden.** The two big uploads (season 1 and season 2) have Russian as the first sound track and English second, so they played in Russian. They no longer appear; the few single English episodes stay."
+    "**The old TV is back on the start-up screen.** It no longer reports each channel loading (no channel names, counts or progress bars). Instead the set just tunes around: static, then a show's picture or a film's poster, the knobs turning and the channel number changing with each one, with a flash of colour bars now and then, until the guide is ready. This replaces the full-screen picture version from 0.45.56."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.57",
+      "date": "2026-11-13",
+      "notes": [
+        "**The Addams Family with Russian audio is hidden.** The two big uploads (season 1 and season 2) have Russian as the first sound track and English second, so they played in Russian. They no longer appear; the few single English episodes stay."
+      ]
+    },
     {
       "name": "Alpha 0.45.56",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Skip adverts.** While an advert break is playing, open the on-screen bar and a new **Skip adverts** button appears next to Pause. Press OK on it (or the Next key on the remote) and the break ends and the next programme starts straight away. It only appears during a break, and not on the Adverts channel, which is all adverts."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.49",
-      "date": "2026-11-13",
-      "notes": [
-        "**The foreign-language \"The Goonies\" is gone.** That archive.org copy of The Goonies (1985) turned out not to be the English film, so it no longer shows on the Kids Movies channel, the guide or On Demand. A single hidden-items list in the app now makes it easy to drop any other wrong copy the same way."
       ]
     }
   ]

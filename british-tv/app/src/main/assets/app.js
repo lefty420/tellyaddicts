@@ -967,7 +967,7 @@
 
   var statusSig = null;
   var spNoiseImg = null, spNoiseTimer = null, spLockUntil = 0, spShown = 0, spKnobs = 0;
-  var spPort = {}, spSlot = 0, spLast = 0, spUsed = 0, doneSeen = {}, lastDone = null, spPics = [], spPicsTried = 0, spPhase = 0, spTick = 0, spPic = false, spJit = false;
+  var spPort = {}, spSlot = 0, spLast = 0, spUsed = 0, doneSeen = {}, lastDone = null, spPics = [], spPosters = [], spPicsTried = 0, spPhase = 0, spTick = 0, spPic = false, spJit = false;
   /** Pull a handful of artwork from the scraper's art list so the set can flick through "channels" while it tunes. */
   function spLoadPics() {
     if (spPicsTried) return;
@@ -980,10 +980,11 @@
       while (n < 30 && tries++ < 200 && keys.length) {
         var e = idx[keys[(Math.random() * keys.length) | 0]];
         var u = (e && (e.b || e.p)) || '';
-        if (!u || spPics.indexOf(u) >= 0) continue;
-        u = u.replace('/original_untouched/', e.b ? '/medium_landscape/' : '/medium_portrait/');
+        if (!u || spPics.indexOf(u) >= 0 || spPosters.indexOf(u) >= 0) continue;
+        var isBack = !!e.b, pool = isBack ? spPics : spPosters;       // a backdrop when the show has one; its poster only when it has none
+        u = u.replace('/original_untouched/', isBack ? '/medium_landscape/' : '/medium_portrait/');
         n++;
-        (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) { spPics.push(url); spFill(); } }; im.src = url; })(u);
+        (function (url, pl) { var im = new Image(); im.onload = function () { if (pl.indexOf(url) < 0) { pl.push(url); spFill(); } }; im.src = url; })(u, pool);
       }
     }
     try {                                          // films seen on earlier runs: their posters join the shows
@@ -992,7 +993,7 @@
         var f = store.get(k), u = f && f.poster;
         if (!u || fn >= 14) return;
         fn++; u = u.replace('/original/', '/w500/');
-        (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) { spPort[url] = 1; spPics.push(url); spFill(); } }; im.src = url; })(u);
+        (function (url) { var im = new Image(); im.onload = function () { if (spPosters.indexOf(url) < 0) { spPosters.push(url); spFill(); } }; im.src = url; })(u);
       });
     } catch (e) { /* no films saved yet */ }
     var cachedIdx = null;
@@ -1026,8 +1027,9 @@
     spFill();
   }
   function spSet(el) {
-    if (!spPics.length) return;
-    var u = spPics[(Math.random() * spPics.length) | 0], pn = 1 + ((Math.random() * 40) | 0);
+    var pool = spPics.length ? spPics : spPosters;                   // backdrops only; posters just until a backdrop has loaded
+    if (!pool.length) return;
+    var u = pool[(Math.random() * pool.length) | 0], pn = 1 + ((Math.random() * 40) | 0);
     el.style.backgroundImage = 'url("' + u + '")'; el.className = 'spslot has';
     el.setAttribute('data-ch', 'P' + (pn < 10 ? '0' : '') + pn);
   }
@@ -1687,7 +1689,7 @@
         noiseNode.start();
       }
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      noiseGain.gain.value = 0.08;
+      noiseGain.gain.value = 0.03;
     } catch (e) { /* audio is optional */ }
   }
 

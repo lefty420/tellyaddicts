@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.68",
-  "version": "0.45.68",
-  "code": 4568,
+  "name": "Alpha 0.45.69",
+  "version": "0.45.69",
+  "code": 4569,
   "date": "2026-11-13",
   "notes": [
-    "**The start-up TV keeps tuning until the guide is ready.** It used to freeze on static while the app was busy building the guides, because the picture changes and the knobs were driven by the same thread that was doing the building. Now everything that moves (the static, twelve pictures taking turns, the turning knobs, the channel number and the occasional flash of colour bars) is a pure animation that carries on whatever the app is doing. Each time a picture comes round again it is a different show or film."
+    "**Quieter tuning hiss.** The static heard while a channel tunes in is now well under half as loud.",
+    "**Start-up TV shows backgrounds, not posters.** Its pictures are now the shows' wide backgrounds; a poster is only used for a show that has no background, or until the first backgrounds have loaded."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.68",
+      "date": "2026-11-13",
+      "notes": [
+        "**The start-up TV keeps tuning until the guide is ready.** It used to freeze on static while the app was busy building the guides, because the picture changes and the knobs were driven by the same thread that was doing the building. Now everything that moves (the static, twelve pictures taking turns, the turning knobs, the channel number and the occasional flash of colour bars) is a pure animation that carries on whatever the app is doing. Each time a picture comes round again it is a different show or film."
+      ]
+    },
     {
       "name": "Alpha 0.45.67",
       "date": "2026-11-13",
@@ -56,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Smoother snow.** The snow used to be redrawn 15 times a second and flakes could only move in whole steps, which looked jerky. Each layer of flakes is now painted once and slid down by the graphics chip at the screen's own refresh rate, with a gentle sway on top, so it moves smoothly and costs the TV almost no work. Still pixel-art, and it still holds still while you scroll the guide."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.60",
-      "date": "2026-11-13",
-      "notes": [
-        "**Seasonal effects: Christmas snow on the guide.** A light pixel-art snowfall and snowdrifts drawn over the TV guide from 1 November to 6 January. It cannot be focused and does not touch the remote. It runs at about 15 frames a second, holds still while the guide is being scrolled, and keeps the drifts off the last row of programmes. Options > TV Guide > Seasonal effects: Auto (follows the date) or Off."
       ]
     }
   ]

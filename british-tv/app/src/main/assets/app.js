@@ -318,7 +318,7 @@
   }
 
   // experimental Auto EPG (OSD toggle): programmes come from keyword searches instead of channels.js, and are re-picked daily
-  var autoEpg = store.get('autoepg') === 'on';
+  var autoEpg = true;   // Auto EPG is how every guide is built now; the hand-picked lists in channels.js are only a fallback for a channel it has nothing for
   var AUTO_MIN = 8;   // fewer programmes than this from Auto EPG and the channel is topped up from its normal sources
 
   /** The same programme often sits in several uploads: keep one of each title. */
@@ -3318,7 +3318,7 @@
   var OCATS = [
     { id: 'watch', rows: ['od'] },
     { id: 'picture', rows: ['ar', 'fx'] },
-    { id: 'guide', rows: ['span', 'theme', 'keep', 'auto', 'refresh'] },
+    { id: 'guide', rows: ['span', 'theme', 'keep', 'refresh'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads'] },
     { id: 'tools', rows: ['rel', 'about', 'gaps', 'epg', 'log'] }
@@ -3344,7 +3344,7 @@
     if (id === 'mclear') return metaSizeText || '\u2026';
     if (id === 'gaps') return gapState.report ? gapState.report.summary.gaps + ' shows with gaps' : '';
     if (id === 'about' || id === 'log' || id === 'od' || id === 'epg') return '';
-    return autoEpg ? 'On' : 'Off';
+    return '';
   }
 
   /** Picking longer keeps the lists already stored; picking shorter lets them run out. Links are never thrown away. */
@@ -3420,7 +3420,6 @@
     ads: 'Adverts between programmes, matched to the year of what you are watching. UK first, and never on the BBC.',
     player: 'Auto plays everything normally and switches to the app\u2019s own player for a file that has no sound or will not load (AC3/DTS sound, some MKVs). Always uses it for every file; Standard only never does. The VHS and Smart ratio looks do not apply to the backup player.',
     buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
-    auto: 'Builds every channel from the scraper\u2019s whole library instead of the hand-picked lists.',
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
     keep: 'How long a channel\u2019s line-up stays as it is before it is built afresh.',
     refresh: 'Throws away every line-up and builds them all again in a new running order.',
@@ -3531,7 +3530,6 @@
     else if (id === 'gaps') openRel('gaps');
     else if (id === 'epg') openRel('epg');
     else if (id === 'about') openRel('about');
-    else toggleAuto();
   }
   function optsKey(k) {
     optsTouch();
@@ -3570,14 +3568,6 @@
     if (cur) loadAds(cur.ch, true);
     renderOpts();
   }
-  function toggleAuto() {
-    autoEpg = !autoEpg;
-    store.set('autoepg', autoEpg ? 'on' : 'off');
-    toast(autoEpg ? 'Auto EPG on (experimental): rebuilding the guide...' : 'Auto EPG off: back to the normal guide...', 4000);
-    renderOpts();
-    setTimeout(function () { location.reload(); }, 1200);   // the start-up loading screen does the rebuild
-  }
-
   function fmtPos(t) {
     if (!isFinite(t) || t < 0) t = 0;
     var h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = Math.floor(t % 60);

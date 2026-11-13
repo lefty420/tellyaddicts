@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-13T02:40:03Z",
+ "updated": "2026-11-13T02:57:31Z",
  "channels": {
   "bbc": "32739331ac",
   "childrens": "770ffb880c",
@@ -54,11 +54,11 @@
   "videoshop": 322,
   "xmasmusic": 68
  },
- "library": "8463192c42",
+ "library": "f71be01e01",
  "library_counts": {
   "shows": 523,
   "episodes": 41710,
-  "copies": 112615
+  "copies": 112783
  },
  "routes": "111d13e512",
  "art": "f52ef3a474",

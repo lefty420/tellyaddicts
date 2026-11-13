@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.43",
-  "version": "0.45.43",
-  "code": 4543,
+  "name": "Alpha 0.45.44",
+  "version": "0.45.44",
+  "code": 4544,
   "date": "2026-11-13",
   "notes": [
-    "**Clear logos in On Demand.** When the scraper's `art.json` gives a show a logo (`\"l\"`: the address of a transparent title picture), On Demand shows it instead of the plain title, on the home banner and on the show page. Until the picture has loaded, and for shows without one, the text title stays. Nothing changes until the scraper publishes logos."
+    "**On Demand: the highlighted row is always the top one.** Moving down to the second row used to leave its posters half off the bottom of the screen, so the highlight was cut off. Now the row you move onto slides up to the top and the next one peeks below it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.43",
+      "date": "2026-11-13",
+      "notes": [
+        "**Clear logos in On Demand.** When the scraper's `art.json` gives a show a logo (`\"l\"`: the address of a transparent title picture), On Demand shows it instead of the plain title, on the home banner and on the show page. Until the picture has loaded, and for shows without one, the text title stays. Nothing changes until the scraper publishes logos."
+      ]
+    },
     {
       "name": "Alpha 0.45.42",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**No colour-button bar at the bottom of the guide, on every theme.** The grid now shows seven channels instead of six. The coloured remote buttons still work (red Now, green Later, yellow Earlier, blue Watch)."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.35",
-      "date": "2026-11-12",
-      "notes": [
-        "**Long programme names in the Teletext, 1980s and Radio Times guides.** The big title above the grid was too large for those fonts, so a long name wrapped and its second line was cut off. Smaller title size in those three themes, so two lines fit."
       ]
     }
   ]

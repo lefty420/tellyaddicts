@@ -4076,8 +4076,7 @@
   var odDom = [];       // what the home rows on screen were built from: a key press that stays inside them only moves the highlight
   function odRenderHome() {
     var s = odSel(), rows = s.rows, box = $('odrows');
-    if (odRi < odTop) odTop = odRi;
-    if (odRi > odTop + 1) odTop = odRi - 1;
+    odTop = odRi;                                  // the highlighted row is always the first on screen; the next one peeks below it
     var want = [];
     for (var ri = odTop; ri < Math.min(rows.length, odTop + 2); ri++) {
       var c = rows[ri], sh = odShowsOf(c), n = sh ? sh.length : 0;

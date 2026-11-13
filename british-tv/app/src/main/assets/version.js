@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.48",
-  "version": "0.45.48",
-  "code": 4548,
+  "name": "Alpha 0.45.49",
+  "version": "0.45.49",
+  "code": 4549,
   "date": "2026-11-13",
   "notes": [
-    "**On Demand moves smoothly.** The highlighted poster now grows and its white outline fades in instead of snapping. Moving left or right slides the posters across by one place, and moving down the episode list slides the episodes up. The big title, details and background fade into the next show rather than cutting, and the episode and season highlights fade between rows. The slides get quicker while you hold a button so they keep up. Nothing else changed in how it works."
+    "**The foreign-language \"The Goonies\" is gone.** That archive.org copy of The Goonies (1985) turned out not to be the English film, so it no longer shows on the Kids Movies channel, the guide or On Demand. A single hidden-items list in the app now makes it easy to drop any other wrong copy the same way."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.48",
+      "date": "2026-11-13",
+      "notes": [
+        "**On Demand moves smoothly.** The highlighted poster now grows and its white outline fades in instead of snapping. Moving left or right slides the posters across by one place, and moving down the episode list slides the episodes up. The big title, details and background fade into the next show rather than cutting, and the episode and season highlights fade between rows. The slides get quicker while you hold a button so they keep up. Nothing else changed in how it works."
+      ]
+    },
     {
       "name": "Alpha 0.45.47",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**On Demand redesign.**"
-      ]
-    },
-    {
-      "name": "Alpha 0.45.40",
-      "date": "2026-11-13",
-      "notes": [
-        "**ThunderCats** episodes from the 2011 remake (a Portuguese-dubbed upload) are left out, and so is anything whose file or item name says it is dubbed or foreign-language (Portuguese, Spanish, Hindi, Korean, German \"Staffel\", French \"saison\"). That also removes the Korean drama \"Taxi Driver\" that was turning up on Christmas TV."
       ]
     }
   ]

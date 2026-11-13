@@ -574,8 +574,11 @@
   // Steptoe and Son episode from 1974, and this list was throwing it away.
   var BLOCKED_FILM = /\bporn\b|\bporno\b|\berotica?\b|\badults?\b|\bplayboy\b|\bpenthouse\b/i;
   /** Keep adult material off every channel, whichever list it came in on. */
+  // single archive.org items found to be the wrong thing (a dubbed or foreign-language copy, say), hidden until the scraper drops them
+  var BAD_ITEMS = { 'the-goonies-1985_202510': 1 };
   function blocked(p) {
     if (!p) return false;
+    if (p.id && BAD_ITEMS[String(p.id).split('/')[0]]) return true;
     var t = (p.show || p.group || '') + ' ' + (p.title || '') + ' ' + (p.sub || '') + ' ' +
             String(p.id || '').replace(/[-_]/g, ' ');
     return BLOCKED.test(t) || (!!p.filmKey && BLOCKED_FILM.test(t));

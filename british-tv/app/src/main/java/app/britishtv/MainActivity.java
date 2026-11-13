@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
     private final Handler main = new Handler(Looper.getMainLooper());
     private MediaCache cache;
     private final LogServer logs = new LogServer();
+    private LiveView live;
     private KvStore kv;
     /** All requests share a small pool: one thread per request used to leave 50+ threads competing during start-up. */
     private final ExecutorService http = Executors.newFixedThreadPool(HTTP_THREADS, new ThreadFactory() {
@@ -296,6 +297,9 @@ public class MainActivity extends Activity {
         np.stop();
         http.shutdownNow();
         logs.stop();
+        if (live != null) {
+            live.stop();
+        }
         if (cache != null) {
             cache.shutdown();
             cache = null;
@@ -462,6 +466,35 @@ public class MainActivity extends Activity {
         public String cacheLog() {
             MediaCache c = cache;
             return c != null ? c.log() : "";
+        }
+
+        /** Debug Live view on: returns the address to open (with its code), or "". */
+        @JavascriptInterface
+        public String liveStart() {
+            if (live == null) {
+                live = new LiveView(MainActivity.this, root, new LiveView.Keys() {
+                    @Override
+                    public void press(String key) {
+                        sendKey(key, false);
+                    }
+                });
+            }
+            return live.start();
+        }
+
+        @JavascriptInterface
+        public void liveStop() {
+            if (live != null) {
+                live.stop();
+            }
+        }
+
+        /** The debug text the Live view page shows beside the picture. */
+        @JavascriptInterface
+        public void liveState(String text) {
+            if (live != null) {
+                live.setState(text);
+            }
         }
 
         /** Put the debug log on the home network. Returns the address to open on a phone or computer, or "". */

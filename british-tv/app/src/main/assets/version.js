@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.71",
-  "version": "0.45.71",
-  "code": 4571,
+  "name": "Alpha 0.45.72",
+  "version": "0.45.72",
+  "code": 4572,
   "date": "2026-11-13",
   "notes": [
-    "**Start-up TV never repeats a picture.** Each background is shown once per start-up, picked at random from the whole art list. More are fetched in the background as they get used up, so the TV only starts over if it has genuinely shown every one."
+    "**Live view (debug).** Options > Tools > Live view (debug), off until switched on and off again each time the app starts. When on it shows an address with a four-digit code; open it in a browser on the same Wi-Fi to see what the TV is showing (updating a few times a second, including video), press the remote's buttons from the page or the keyboard's arrows, and read the app's current screen, programme and recent debug log. It only sends a picture, text and button presses; nothing on the page can run code in the app. This one changes the Android app itself, so it needs a full build."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.71",
+      "date": "2026-11-13",
+      "notes": [
+        "**Start-up TV never repeats a picture.** Each background is shown once per start-up, picked at random from the whole art list. More are fetched in the background as they get used up, so the TV only starts over if it has genuinely shown every one."
+      ]
+    },
     {
       "name": "Alpha 0.45.70",
       "date": "2026-11-13",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**A Santa hat on the guide clock.** A little 16-bit Santa hat sits centred on the clock in the TV guide while Seasonal effects is on and Christmas is on (1 November to 6 January), on every guide theme. It goes with the snow: Seasonal effects set to Off removes both."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.63",
-      "date": "2026-11-13",
-      "notes": [
-        "**The snow falls again.** In the last two versions it drifted upwards from the bottom; it now falls from the top of the screen as intended."
       ]
     }
   ]

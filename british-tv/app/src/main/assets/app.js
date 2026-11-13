@@ -3359,7 +3359,7 @@
     { id: 'guide', rows: ['span', 'theme', 'season', 'keep', 'refresh'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads'] },
-    { id: 'tools', rows: ['rel', 'about', 'gaps', 'epg', 'log'] }
+    { id: 'tools', rows: ['rel', 'about', 'gaps', 'epg', 'log', 'live'] }
   ];
   var OPTS = [];
   OCATS.forEach(function (c) { OPTS = OPTS.concat(c.rows); });
@@ -3382,6 +3382,7 @@
     if (id === 'mkeep') return META_KEEP[metaIdx].label;
     if (id === 'mclear') return metaSizeText || '\u2026';
     if (id === 'gaps') return gapState.report ? gapState.report.summary.gaps + ' shows with gaps' : '';
+    if (id === 'live') return liveAddr ? 'On: ' + liveAddr : 'Off';
     if (id === 'about' || id === 'log' || id === 'od' || id === 'epg') return '';
     return '';
   }
@@ -3551,6 +3552,29 @@
     setTimeout(function () { location.reload(); }, 1200);   // the start-up loading screen does the rebuild
   }
 
+  // Debug Live view: shows this screen, the debug text and a remote on a browser on the home network. Off until switched
+  // on here, and off again each time the app starts.
+  var liveAddr = '', liveTimer = null;
+  function liveText() {
+    var o = ['Telly Addicts live view', 'Version: ' + relName(), 'Written: ' + new Date().toString(),
+      'Channel: ' + (cur && cur.ch ? cur.ch.n + ' ' + cur.ch.name : '(none)'), 'Programme: ' + (cur && cur.prog ? cur.prog.title : '(none)'),
+      'Playing: ' + (v && !v.paused && v.currentTime > 0 ? 'yes at ' + Math.round(v.currentTime) + 's' : 'no'),
+      'Screen: ' + (optsOpen ? 'Options' : odOpen ? 'On Demand' : guideOpen ? 'Guide' : 'Playing'), ''];
+    return o.concat(DLOG.slice(-80)).join('\n');
+  }
+  function liveToggle() {
+    if (!window.NativeHttp || !NativeHttp.liveStart) { toast('Needs a newer app', 2500); return; }
+    if (liveAddr) {
+      try { NativeHttp.liveStop(); } catch (e) { /* ignore */ }
+      liveAddr = ''; clearInterval(liveTimer); liveTimer = null;
+    } else {
+      try { liveAddr = NativeHttp.liveStart() || ''; } catch (e) { liveAddr = ''; }
+      if (!liveAddr) toast('No home network found', 2500);
+      else { liveTimer = setInterval(function () { try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }, 2000); try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }
+    }
+    renderOpts();
+  }
+
   function optsChange(d) {
     var id = OPTS[optsSel];
     if (id === 'od') odOpenUi();
@@ -3569,6 +3593,7 @@
     else if (id === 'refresh') refreshEpg();
     else if (id === 'rel') openRel('rel');
     else if (id === 'log') openRel('log');
+    else if (id === 'live') liveToggle();
     else if (id === 'gaps') openRel('gaps');
     else if (id === 'epg') openRel('epg');
     else if (id === 'about') openRel('about');

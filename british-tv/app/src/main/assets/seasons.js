@@ -103,7 +103,7 @@
         var amp = L.sway * px * 2.2;                                    // side to side, slow, a different pace for each depth
         anims.push(wrap.animate([{ transform: 'translateX(' + (-amp) + 'px)' }, { transform: 'translateX(' + amp + 'px)' }],
           { duration: 5200 / (L.v / 5) * 1.6 * (dir > 0 ? 1 : 1.3), iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }));
-        anims.push(c.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(' + (-H * px) + 'px)' }],
+        anims.push(c.animate([{ transform: 'translateY(' + (-H * px) + 'px)' }, { transform: 'translateY(0)' }],      // downwards: the sheet is two screens tall and slides from its lower half to its upper
           { duration: H / (L.v * vf) * 1000, iterations: Infinity, easing: 'linear' }));
       });
       var d = paintDrifts(W, H);

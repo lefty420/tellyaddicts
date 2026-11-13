@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.62",
-  "version": "0.45.62",
-  "code": 4562,
+  "name": "Alpha 0.45.63",
+  "version": "0.45.63",
+  "code": 4563,
   "date": "2026-11-13",
   "notes": [
-    "**Snow falls at more varied speeds.** Each of the three depth layers is now two sheets of flakes falling at slightly different speeds (and swaying at different paces), so the snow no longer looks like it moves as one block. The number of flakes is unchanged."
+    "**The snow falls again.** In the last two versions it drifted upwards from the bottom; it now falls from the top of the screen as intended."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.62",
+      "date": "2026-11-13",
+      "notes": [
+        "**Snow falls at more varied speeds.** Each of the three depth layers is now two sheets of flakes falling at slightly different speeds (and swaying at different paces), so the snow no longer looks like it moves as one block. The number of flakes is unchanged."
+      ]
+    },
     {
       "name": "Alpha 0.45.61",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**The exit menu no longer pops up by accident.** Back used to count towards quitting even when it was only closing something: pressing Back to close the guide, the on-screen bar, Options or a panel and then once more quickly opened the exit menu. Now only Backs pressed on the plain picture count, so you must press Back twice in a row while just watching (or in the guide with nothing playing)."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.54",
-      "date": "2026-11-13",
-      "notes": [
-        "**Clear logos now show on a show's page as well.** The scraper's clear logos (published in art.json from today) replace the plain title on On Demand. They were only picked up on the home rows after the highlight rested on a show, so going straight onto a show page, or opening On Demand on what is playing, never loaded them. The show page now looks them up itself."
       ]
     }
   ]

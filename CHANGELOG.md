@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.63 — 2026-11-13
+
+- **The snow falls again.** In the last two versions it drifted upwards from the bottom; it now falls from the top of the screen as intended.
+
 ## Alpha 0.45.62 — 2026-11-13
 
 - **Snow falls at more varied speeds.** Each of the three depth layers is now two sheets of flakes falling at slightly different speeds (and swaying at different paces), so the snow no longer looks like it moves as one block. The number of flakes is unchanged.

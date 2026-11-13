@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "111d13e512",
+ "rev": "e642dcd038",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
@@ -9,6 +9,51 @@
    "shows": [
     "C.O.P.S.",
     "super gran"
+   ]
+  },
+  "comedy": {
+   "name": "90s Alternative & Sketch Comedy",
+   "shows": [
+    "2point4 Children",
+    "A Fine Romance",
+    "Allo Allo",
+    "Chelmsford 123",
+    "Chewin the Fat",
+    "Clive Anderson Talks Back",
+    "Down to Earth",
+    "Duty Free",
+    "Fairly Secret Army",
+    "Filthy Rich and Catflap",
+    "Get Back",
+    "Gimme Gimme Gimme",
+    "Hi-de-Hi",
+    "How Do You Want Me",
+    "In Sickness and in Health",
+    "Jeeves and Wooster",
+    "Kiss Me Kate",
+    "Knowing Me Knowing You with Alan Partridge",
+    "kyTV",
+    "Last of the Summer Wine",
+    "Metal Mickey",
+    "Naked Video",
+    "Never the Twain",
+    "Next of Kin",
+    "No Place Like Home",
+    "Oh Doctor Beeching",
+    "People Like Us",
+    "Room 101",
+    "Second Thoughts",
+    "So Haunt Me",
+    "Sorry",
+    "The Detectives",
+    "The Mistress",
+    "The Piglet Files",
+    "The Real McCoy",
+    "The Thin Blue Line",
+    "The Young Ones",
+    "TV Offal",
+    "Watching",
+    "Whoops Apocalypse"
    ]
   },
   "disney": {

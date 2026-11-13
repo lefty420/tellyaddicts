@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.75",
-  "version": "0.45.75",
-  "code": 4575,
+  "name": "Alpha 0.45.76",
+  "version": "0.45.76",
+  "code": 4576,
   "date": "2026-11-13",
   "notes": [
-    "**Hid two home-video uploads on The Video Shop** (\"1992 Video Shop, Ted's Books, Adams Caining, Magic Mt\" and \"1993 The Video Shop 128 W Mission St\"). They are not films, they only have \"Video Shop\" in their names."
+    "**Faster start-up.** Working out which channel a programme belongs on (the genre check, and routing the library to channels) searched every programme's name against thousands of known show names, one by one. It now looks each run of words up in a table. The results are identical (checked against all 877,000 genre checks and the whole routed library) but the genre check is about 6 times quicker and the routing about twice as quick. In a test the guide appeared after 3.1 seconds instead of 5.4. A slow TV will gain more in seconds, and this is also the work behind Refresh EPG."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.75",
+      "date": "2026-11-13",
+      "notes": [
+        "**Hid two home-video uploads on The Video Shop** (\"1992 Video Shop, Ted's Books, Adams Caining, Magic Mt\" and \"1993 The Video Shop 128 W Mission St\"). They are not films, they only have \"Video Shop\" in their names."
+      ]
+    },
     {
       "name": "Alpha 0.45.74",
       "date": "2026-11-13",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**The start-up TV keeps tuning until the guide is ready.** It used to freeze on static while the app was busy building the guides, because the picture changes and the knobs were driven by the same thread that was doing the building. Now everything that moves (the static, twelve pictures taking turns, the turning knobs, the channel number and the occasional flash of colour bars) is a pure animation that carries on whatever the app is doing. Each time a picture comes round again it is a different show or film."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.67",
-      "date": "2026-11-13",
-      "notes": [
-        "**YouTube Poop remixes are gone from Disney.** Three uploads called \"Donald Duck Comedy vs ...\" (fan-made \"ytp\" remixes with crude filenames) had been filed under Donald Duck on the Disney channel and its guide, and in On Demand. Anything with \"ytp\", \"YouTube Poop\" or \"Donald Duck Comedy vs\" in its name is now blocked everywhere, and those three items are hidden by name."
       ]
     }
   ]

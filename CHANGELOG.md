@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.76 — 2026-11-13
+
+- **Faster start-up.** Working out which channel a programme belongs on (the genre check, and routing the library to channels) searched every programme's name against thousands of known show names, one by one. It now looks each run of words up in a table. The results are identical (checked against all 877,000 genre checks and the whole routed library) but the genre check is about 6 times quicker and the routing about twice as quick. In a test the guide appeared after 3.1 seconds instead of 5.4. A slow TV will gain more in seconds, and this is also the work behind Refresh EPG.
+
 ## Alpha 0.45.75 — 2026-11-13
 
 - **Hid two home-video uploads on The Video Shop** ("1992 Video Shop, Ted's Books, Adams Caining, Magic Mt" and "1993 The Video Shop 128 W Mission St"). They are not films, they only have "Video Shop" in their names.

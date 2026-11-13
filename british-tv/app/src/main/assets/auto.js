@@ -124,6 +124,8 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
     SHOWS[cat].forEach(function (name) { var k = norm(name); (SHOW_CATS[k] = SHOW_CATS[k] || {})[cat] = true; });
   });
   var SHOW_KEYS = Object.keys(SHOW_CATS);
+  var KEY_OF = {}, MAX_WORDS = 1;                        // the name without its padding -> the padded name; and the most words any name has
+  SHOW_KEYS.forEach(function (k) { var tk = k.trim(); KEY_OF[tk] = k; MAX_WORDS = Math.max(MAX_WORDS, tk.split(' ').length); });
   var ALL = Object.keys(SHOWS);
   function except(list) { return ALL.filter(function (c) { return list.indexOf(c) < 0; }); }
   var KIDS = ['citv', 'childrens'];
@@ -166,13 +168,18 @@ var KIDS_LEN = [240, 2400], SHOW_LEN = [600, 7200], MUSIC_LEN = [90, 3600], FILM
   function genreOk(channelId, text) {
     var allow = ALLOWED[channelId];
     if (!allow) return true;
-    var t = norm(text), hit = false;
-    for (var i = 0; i < SHOW_KEYS.length; i++) {
-      var key = SHOW_KEYS[i].trim();
-      if (t.indexOf(' ' + key + ' ') < 0 || !okAfter(t, key)) continue;
-      hit = true;
-      var cats = SHOW_CATS[SHOW_KEYS[i]];
-      for (var j = 0; j < allow.length; j++) if (cats[allow[j]]) return true;
+    var t = norm(text), hit = false, words = t.trim().split(' ');
+    // look each run of words up in a table of the known names, rather than searching the text for every name in turn
+    for (var s = 0; s < words.length; s++) {
+      var gram = '';
+      for (var n = 0; n < MAX_WORDS && s + n < words.length; n++) {
+        gram = n ? gram + ' ' + words[s + n] : words[s];
+        var full = KEY_OF[gram];
+        if (!full || !okAfter(t, gram)) continue;
+        hit = true;
+        var cats = SHOW_CATS[full];
+        for (var j = 0; j < allow.length; j++) if (cats[allow[j]]) return true;
+      }
     }
     return !hit;
   }

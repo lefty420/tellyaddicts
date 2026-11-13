@@ -65,10 +65,15 @@
       if (!texts[i]) continue;
       var n = norm(texts[i]);
       if (smap[n]) return uniqSorted(smap[n]);
-      var padded = ' ' + n + ' ', hit = [];
-      for (var j = 0; j < keys.length; j++) {
-        var k = keys[j];
-        if (k.length > 4 && padded.indexOf(' ' + k + ' ') >= 0 && okAfter(padded, k)) hit = hit.concat(smap[k]);
+      var padded = ' ' + n + ' ', hit = [], words = n.split(' ');
+      if (!keys.mw) { keys.mw = 1; for (var j = 0; j < keys.length; j++) keys.mw = Math.max(keys.mw, keys[j].split(' ').length); }
+      // each run of words is looked up in the table of names, instead of searching the text for every name in turn
+      for (var a = 0; a < words.length; a++) {
+        var gram = '';
+        for (var b = 0; b < keys.mw && a + b < words.length; b++) {
+          gram = b ? gram + ' ' + words[a + b] : words[a];
+          if (gram.length > 4 && smap.hasOwnProperty(gram) && okAfter(padded, gram)) hit = hit.concat(smap[gram]);
+        }
       }
       if (hit.length) return uniqSorted(hit);
     }

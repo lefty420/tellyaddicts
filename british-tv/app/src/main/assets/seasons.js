@@ -60,7 +60,7 @@
     var anims = [], resumeT = 0, running = false;
 
     function paintLayer(L, W, H) {
-      var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * L.share);
+      var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * L.share / 2);   // half of the layer's flakes: each layer is two sheets at different speeds
       x.imageSmoothingEnabled = false; x.globalAlpha = L.a;
       for (var i = 0; i < n; i++) {
         var s = SPR[pick(L.spr)], fx = Math.round(rnd(4, W - 8)), fy = Math.round(rnd(0, H - 6));
@@ -95,14 +95,16 @@
     function build() {
       var px = CFG.PIXEL, sw = window.innerWidth || 1920, sh = window.innerHeight || 1080, W = Math.ceil(sw / px), H = Math.ceil(sh / px);
       box.textContent = ''; anims = [];
-      LAYERS.forEach(function (L) {
-        var wrap = document.createElement('div'), c = paintLayer(L, W, H);
+      var sheets = [];
+      LAYERS.forEach(function (L) { sheets.push([L, 0.8, 1], [L, 1.25, -1]); });
+      sheets.forEach(function (sh) {
+        var L = sh[0], vf = sh[1], dir = sh[2], wrap = document.createElement('div'), c = paintLayer(L, W, H);
         wrap.className = 'sn-wrap'; c.style.height = (H * 2 * px) + 'px'; wrap.appendChild(c); box.appendChild(wrap);
         var amp = L.sway * px * 2.2;                                    // side to side, slow, a different pace for each depth
         anims.push(wrap.animate([{ transform: 'translateX(' + (-amp) + 'px)' }, { transform: 'translateX(' + amp + 'px)' }],
-          { duration: 5200 / (L.v / 5) * 1.6, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }));
+          { duration: 5200 / (L.v / 5) * 1.6 * (dir > 0 ? 1 : 1.3), iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }));
         anims.push(c.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(' + (-H * px) + 'px)' }],
-          { duration: H * px / (L.v * px) * 1000, iterations: Infinity, easing: 'linear' }));
+          { duration: H / (L.v * vf) * 1000, iterations: Infinity, easing: 'linear' }));
       });
       var d = paintDrifts(W, H);
       d[0].style.opacity = '0.85'; box.appendChild(d[0]); box.appendChild(d[1]);

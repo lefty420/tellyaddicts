@@ -96,11 +96,14 @@
    *  has a name in front of its season/episode code that shares no word with the show, and the show's name only
    *  turns up after the code. (Checked over the whole library: it catches the wrong ones and nothing else.) */
   // Shows where the library holds a different programme of the same name: the file names give it away
-  var OTHER_VERSION = { 'mr bean': /animated/i };      // the 1990s sitcom, not the 2002 cartoon
+  var OTHER_VERSION = { 'mr bean': /animated/i, 'thundercats': /2011|completo|paixaoflix/i };      // the 1990s sitcom, not the 2002 cartoon
   // Game-play channels from YouTube that share a name with a cartoon or series ("Donkey Kong Country" by Super Beard Bros.)
   var PLAYER_CHANNELS = /super\s*beard\s*bros|game\s*grumps|achievement\s*hunter|yogscast|let'?s\s*play|dunkey/i;
+  // Dubbed or foreign-language uploads and modern remakes that share a name with a British-TV-era show
+  var FOREIGN = /dublado|legendado|completo|portugu[eê]s|castellano|latino|paixaoflix|\bhin[- ]kor\b|\bhindi\b|\bkorean\b|\btemporada\b|\bstaffel\b|\bsaison\b/i;
   function wrongShow(sh, ep) {
     if (sh.film || sh.song) return false;
+    if (FOREIGN.test(String(ep.f || '') + ' ' + String(ep.id || ''))) return true;
     if (PLAYER_CHANNELS.test(String(ep.f || '') + ' ' + String(ep.id || '') + ' ' + String(ep.t || ''))) return true;
     var ov = OTHER_VERSION[String(sh.n || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()];
     if (ov && ov.test(String(ep.f || '') + ' ' + String(ep.id || ''))) return true;

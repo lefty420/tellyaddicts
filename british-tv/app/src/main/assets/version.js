@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.39",
-  "version": "0.45.39",
-  "code": 4539,
+  "name": "Alpha 0.45.40",
+  "version": "0.45.40",
+  "code": 4540,
   "date": "2026-11-13",
   "notes": [
-    "**Christmas adverts.** The scraper's catalogue now flags 121 Christmas adverts (about 72 minutes: 5 from the 70s, 32 from the 80s, 84 from the 90s). The four Christmas channels (Christmas TV, Noel, Kids Christmas, Christmas Music) play those in their breaks, topped up with their usual kind when an era has few. Every other channel, and the Adverts channel, leaves them out until December, when they join every break."
+    "**ThunderCats** episodes from the 2011 remake (a Portuguese-dubbed upload) are left out, and so is anything whose file or item name says it is dubbed or foreign-language (Portuguese, Spanish, Hindi, Korean, German \"Staffel\", French \"saison\"). That also removes the Korean drama \"Taxi Driver\" that was turning up on Christmas TV."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.39",
+      "date": "2026-11-13",
+      "notes": [
+        "**Christmas adverts.** The scraper's catalogue now flags 121 Christmas adverts (about 72 minutes: 5 from the 70s, 32 from the 80s, 84 from the 90s). The four Christmas channels (Christmas TV, Noel, Kids Christmas, Christmas Music) play those in their breaks, topped up with their usual kind when an era has few. Every other channel, and the Adverts channel, leaves them out until December, when they join every break."
+      ]
+    },
     {
       "name": "Alpha 0.45.38",
       "date": "2026-11-12",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Guide themes.** Options > TV Guide > Guide theme: Classic Blue, Teletext, Radio Times (print), 1970s, 1980s and 1990s, with a live preview of each as you flick through. \"Match the channel\" (the default) gives the 70s, 80s and 90s channels a guide from their own decade and keeps Classic Blue everywhere else. The fancy fonts load from the internet; offline a theme falls back to a plain system font."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.31",
-      "date": "2026-11-12",
-      "notes": [
-        "**Mr. Bean is the sitcom again.** The 134 episodes of the 2002 cartoon (Mr. Bean: The Animated Series) that the library filed under Mr. Bean are left out; the live-action episodes and specials stay."
       ]
     }
   ]

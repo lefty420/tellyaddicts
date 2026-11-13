@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "e642dcd038",
+ "rev": "38a245e2e5",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
@@ -19,7 +19,6 @@
     "Allo Allo",
     "Chelmsford 123",
     "Chewin the Fat",
-    "Clive Anderson Talks Back",
     "Down to Earth",
     "Duty Free",
     "Fairly Secret Army",

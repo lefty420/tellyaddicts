@@ -967,8 +967,16 @@
 
   var statusSig = null;
   var spNoiseImg = null, spNoiseTimer = null, spLockUntil = 0, spShown = 0, spKnobs = 0;
-  var spPort = {}, spSlot = 0, spLast = 0, spUsed = 0, doneSeen = {}, lastDone = null, spPics = [], spPosters = [], spPicsTried = 0, spPhase = 0, spTick = 0, spPic = false, spJit = false;
+  var spPort = {}, spSlot = 0, spLast = 0, spUsed = 0, doneSeen = {}, lastDone = null, spPics = [], spPosters = [], spCand = [], spSeen = {}, spPicsTried = 0, spPhase = 0, spTick = 0, spPic = false, spJit = false;
   /** Pull a handful of artwork from the scraper's art list so the set can flick through "channels" while it tunes. */
+  /** Load the next few pictures from the shuffled list (each one is used once per start-up while there are any left). */
+  function spMore(n) {
+    while (n-- > 0 && spCand.length) {
+      var c = spCand.shift();
+      if (spPics.indexOf(c.u) >= 0 || spPosters.indexOf(c.u) >= 0) continue;
+      (function (url, pl) { var im = new Image(); im.onload = function () { if (pl.indexOf(url) < 0) { pl.push(url); spFill(); } }; im.src = url; })(c.u, c.back ? spPics : spPosters);
+    }
+  }
   function spLoadPics() {
     if (spPicsTried) return;
     spPicsTried = 1;
@@ -976,16 +984,15 @@
     // and only if there is none ask for art.json on its own.
     function use(idx) {
       if (!idx) return;
-      var keys = Object.keys(idx), tries = 0, n = 0;
-      while (n < 30 && tries++ < 200 && keys.length) {
-        var e = idx[keys[(Math.random() * keys.length) | 0]];
-        var u = (e && (e.b || e.p)) || '';
-        if (!u || spPics.indexOf(u) >= 0 || spPosters.indexOf(u) >= 0) continue;
-        var isBack = !!e.b, pool = isBack ? spPics : spPosters;       // a backdrop when the show has one; its poster only when it has none
-        u = u.replace('/original_untouched/', isBack ? '/medium_landscape/' : '/medium_portrait/');
-        n++;
-        (function (url, pl) { var im = new Image(); im.onload = function () { if (pl.indexOf(url) < 0) { pl.push(url); spFill(); } }; im.src = url; })(u, pool);
-      }
+      var keys = Object.keys(idx).sort(function () { return Math.random() - 0.5; });
+      keys.forEach(function (k) {                                  // every show once, in a random order: backdrops first, posters only for shows with none
+        var e = idx[k], u = e && (e.b || e.p);
+        if (!u) return;
+        var isBack = !!e.b;
+        spCand.push({ u: u.replace('/original_untouched/', isBack ? '/medium_landscape/' : '/medium_portrait/'), back: isBack });
+      });
+      spCand.sort(function (x, y) { return (y.back ? 1 : 0) - (x.back ? 1 : 0); });    // stable enough: backdrops come before posters
+      spMore(30);
     }
     try {                                          // films seen on earlier runs: their posters join the shows
       var fk = kv.keys().filter(function (k) { return k && k.indexOf('film1:') === 0; }).sort(function () { return Math.random() - 0.5; }).slice(0, 40), fn = 0;
@@ -1029,7 +1036,11 @@
   function spSet(el) {
     var pool = spPics.length ? spPics : spPosters;                   // backdrops only; posters just until a backdrop has loaded
     if (!pool.length) return;
-    var u = pool[(Math.random() * pool.length) | 0], pn = 1 + ((Math.random() * 40) | 0);
+    var fresh = pool.filter(function (u) { return !spSeen[u]; });    // never one already shown, while there is a new one to show
+    if (fresh.length < 8) spMore(10);                                // and keep fetching so there always is
+    if (!fresh.length) { spSeen = {}; fresh = pool.slice(); }        // only when every one has been seen does it start over
+    var u = fresh[(Math.random() * fresh.length) | 0], pn = 1 + ((Math.random() * 40) | 0);
+    spSeen[u] = 1;
     el.style.backgroundImage = 'url("' + u + '")'; el.className = 'spslot has';
     el.setAttribute('data-ch', 'P' + (pn < 10 ? '0' : '') + pn);
   }

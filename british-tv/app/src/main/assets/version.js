@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.70",
-  "version": "0.45.70",
-  "code": 4570,
+  "name": "Alpha 0.45.71",
+  "version": "0.45.71",
+  "code": 4571,
   "date": "2026-11-13",
   "notes": [
-    "**Soaps can have a year as the season.** Episode codes such as `S1988E56` are now read everywhere (the guide, On Demand, next episode, link matching); before, only one or two digits were accepted for the season, so they would not have been recognised. In On Demand such a season is shown as just \"1988\"."
+    "**Start-up TV never repeats a picture.** Each background is shown once per start-up, picked at random from the whole art list. More are fetched in the background as they get used up, so the TV only starts over if it has genuinely shown every one."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.70",
+      "date": "2026-11-13",
+      "notes": [
+        "**Soaps can have a year as the season.** Episode codes such as `S1988E56` are now read everywhere (the guide, On Demand, next episode, link matching); before, only one or two digits were accepted for the season, so they would not have been recognised. In On Demand such a season is shown as just \"1988\"."
+      ]
+    },
     {
       "name": "Alpha 0.45.69",
       "date": "2026-11-13",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**The snow falls again.** In the last two versions it drifted upwards from the bottom; it now falls from the top of the screen as intended."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.62",
-      "date": "2026-11-13",
-      "notes": [
-        "**Snow falls at more varied speeds.** Each of the three depth layers is now two sheets of flakes falling at slightly different speeds (and swaying at different paces), so the snow no longer looks like it moves as one block. The number of flakes is unchanged."
       ]
     }
   ]

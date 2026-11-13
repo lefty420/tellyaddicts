@@ -659,8 +659,12 @@
   #odfoot { position: absolute; right: 4vw; top: 4vh; font-size: 2.1vh; color: #aab3cc; }
   /* Options: a category list on the left, the settings of the chosen category on the right */
   #opts { position: fixed; inset: 0; z-index: 60; color: #fff;
-    background: linear-gradient(180deg, rgba(12,47,154,.95) 0%, rgba(7,29,102,.96) 46%, rgba(3,13,54,.98) 100%); }
+    background: linear-gradient(180deg, #0c2f9a 0%, #071d66 46%, #030d36 100%); }          /* solid: nothing of the guide shows through */
   #opts.hidden { display: none; }
+  #oc-cat-help { margin-top: 2.2vh; position: relative; }
+  #oc-cat-help::before { content: ''; position: absolute; left: 1.3vw; right: 1.3vw; top: -1.6vh; height: .2vh; background: rgba(255,255,255,.16); }
+  #oaddr { margin: .6vh 0 1.2vh 1.2vw; padding: 1.4vh 1.2vw; border-radius: 1.4vh; background: #02082a; color: #7dffa0; font: 700 3.6vh ui-monospace, Menlo, Consolas, monospace; letter-spacing: .02em; word-break: break-all; }
+  #oaddr.hidden { display: none; }
   #ohead { position: absolute; left: 4.4vw; right: 4.4vw; top: 5vh; display: flex; align-items: baseline; justify-content: space-between; }
   #ohead h2 { margin: 0; font-size: 5.2vh; font-weight: 800; letter-spacing: -.01em; }
   #over { font-size: 2.1vh; color: rgba(255,255,255,.55); font-weight: 600; }
@@ -670,7 +674,7 @@
   .ocat.cur { background: rgba(255,255,255,.14); color: #fff; }
   .ocat.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); font-weight: 800; box-shadow: 0 .8vh 2.6vh rgba(0,0,0,.4); }
   #opane { position: absolute; left: 31vw; right: 4.4vw; top: 16vh; bottom: 12vh; box-sizing: border-box; padding: 3.4vh 2.4vw 2.4vh; border-radius: 2.8vh;
-    background: rgba(7,20,74,.72); border: .14vh solid rgba(255,255,255,.14); display: flex; flex-direction: column; }
+    background: #061450; border: .14vh solid rgba(255,255,255,.14); display: flex; flex-direction: column; }
   .ogrp { display: none; flex-direction: column; gap: .6vh; }
   .ogrp.on { display: flex; }
   .ogrp h3 { margin: 0 0 1vh; font-size: 2vh; letter-spacing: .24em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
@@ -778,18 +782,14 @@
 <div id="opts" class="hidden">
   <div id="ohead"><h2>Options</h2><span id="over"></span></div>
   <div id="orail">
-    <div class="ocat" id="oc-cat-watch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Watch</div>
     <div class="ocat" id="oc-cat-picture"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8"/></svg>Picture</div>
     <div class="ocat" id="oc-cat-guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>TV Guide</div>
     <div class="ocat" id="oc-cat-art"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Artwork</div>
     <div class="ocat" id="oc-cat-play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>Playback</div>
-    <div class="ocat" id="oc-cat-tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>Help &amp; tools</div>
+    <div class="ocat" id="oc-cat-help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>Help</div>
+    <div class="ocat" id="oc-cat-debug"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6l-4 6 4 6M16 6l4 6-4 6M14 4l-4 16"/></svg>Debug</div>
   </div>
   <div id="opane">
-    <div class="ogrp" id="og-watch">
-      <h3>Watch</h3>
-      <div class="orow act" id="or-od"><div class="oline"><b>On Demand</b><span id="ov-od"></span></div><div class="ochips" id="oc-od"></div></div>
-    </div>
     <div class="ogrp" id="og-picture">
       <h3>Picture</h3>
       <div class="orow" id="or-ar"><div class="oline"><b>Aspect ratio</b><span id="ov-ar"></span></div><div class="ochips" id="oc-ar"></div></div>
@@ -797,6 +797,7 @@
     </div>
     <div class="ogrp" id="og-guide">
       <h3>TV Guide</h3>
+      <div class="orow act" id="or-od"><div class="oline"><b>On Demand</b><span id="ov-od"></span></div><div class="ochips" id="oc-od"></div></div>
       <div class="orow" id="or-span"><div class="oline"><b>Guide length</b><span id="ov-span"></span></div><div class="ochips" id="oc-span"></div></div>
       <div class="orow" id="or-theme"><div class="oline"><b>Guide theme</b><span id="ov-theme"></span></div><div class="ochips" id="oc-theme"></div>
         <div class="otpv" id="otpv"><div class="otpv-in">
@@ -821,14 +822,18 @@
       <div class="orow" id="or-buf"><div class="oline"><b>Buffer</b><span id="ov-buf"></span></div><div class="ochips" id="oc-buf"></div></div>
       <div class="orow" id="or-ads"><div class="oline"><b>Adverts</b><span id="ov-ads"></span></div><div class="ochips" id="oc-ads"></div></div>
     </div>
-    <div class="ogrp" id="og-tools">
-      <h3>Help &amp; tools</h3>
+    <div class="ogrp" id="og-help">
+      <h3>Help</h3>
       <div class="orow act" id="or-rel"><div class="oline"><b>What&rsquo;s new</b><span id="ov-rel"></span></div><div class="ochips" id="oc-rel"></div></div>
       <div class="orow act" id="or-about"><div class="oline"><b>About &amp; credits</b><span id="ov-about"></span></div><div class="ochips" id="oc-about"></div></div>
-      <div class="orow act" id="or-gaps"><div class="oline"><b>Missing episodes report</b><span id="ov-gaps"></span></div><div class="ochips" id="oc-gaps"></div></div>
-      <div class="orow act" id="or-epg"><div class="oline"><b>EPG debug</b><span id="ov-epg"></span></div><div class="ochips" id="oc-epg"></div></div>
+    </div>
+    <div class="ogrp" id="og-debug">
+      <h3>Debug</h3>
+      <div class="orow" id="or-live"><div class="oline"><b>Live view</b><span id="ov-live"></span></div><div class="ochips" id="oc-live"></div></div>
+      <div id="oaddr" class="hidden"></div>
       <div class="orow act" id="or-log"><div class="oline"><b>Debug log</b><span id="ov-log"></span></div><div class="ochips" id="oc-log"></div></div>
-      <div class="orow act" id="or-live"><div class="oline"><b>Live view (debug)</b><span id="ov-live"></span></div><div class="ochips" id="oc-live"></div></div>
+      <div class="orow act" id="or-epg"><div class="oline"><b>EPG debug</b><span id="ov-epg"></span></div><div class="ochips" id="oc-epg"></div></div>
+      <div class="orow act" id="or-gaps"><div class="oline"><b>Missing episodes report</b><span id="ov-gaps"></span></div><div class="ochips" id="oc-gaps"></div></div>
     </div>
     <div id="ohelp"></div>
   </div>

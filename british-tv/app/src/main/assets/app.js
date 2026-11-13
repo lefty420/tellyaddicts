@@ -271,10 +271,10 @@
   ];
   // Guide themes: a class on <body> (gt-<id>) restyles the guide. 'auto' follows the channel: the decade channels get their own decade.
   var THEMES = [
-    { id: 'auto', label: 'Match the channel' }, { id: 'classic', label: 'Classic Blue' }, { id: 'teletext', label: 'Teletext' },
+    { id: 'classic', label: 'Classic Blue' }, { id: 'teletext', label: 'Teletext' },
     { id: 'paper', label: 'Radio Times' }, { id: 'seventies', label: '1970s' }, { id: 'eighties', label: '1980s' }, { id: 'nineties', label: '1990s' }
   ];
-  var themeIdx = 1, themeNow = '';             // Classic Blue unless one was picked: the look only changes when it is changed in Options
+  var themeIdx = 0, themeNow = '';             // Classic Blue unless one was picked: the look only changes when it is changed in Options
   (function () { var id = store.get('gtheme1'); for (var i = 0; i < THEMES.length; i++) if (THEMES[i].id === id) themeIdx = i; })();
   var DECADE_THEME = { tv70s: 'seventies', tv80s: 'eighties', tv90s: 'nineties' };
   function applyTheme(ch) {
@@ -3373,12 +3373,12 @@
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept
   // The categories down the left of Options, and the rows in each. OPTS is those rows in order.
   var OCATS = [
-    { id: 'watch', rows: ['od'] },
     { id: 'picture', rows: ['ar', 'fx'] },
-    { id: 'guide', rows: ['span', 'theme', 'season', 'keep', 'refresh'] },
+    { id: 'guide', rows: ['od', 'span', 'theme', 'season', 'keep', 'refresh'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads'] },
-    { id: 'tools', rows: ['rel', 'about', 'gaps', 'epg', 'log', 'live'] }
+    { id: 'help', rows: ['rel', 'about'] },
+    { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
   OCATS.forEach(function (c) { OPTS = OPTS.concat(c.rows); });
@@ -3401,7 +3401,7 @@
     if (id === 'mkeep') return META_KEEP[metaIdx].label;
     if (id === 'mclear') return metaSizeText || '\u2026';
     if (id === 'gaps') return gapState.report ? gapState.report.summary.gaps + ' shows with gaps' : '';
-    if (id === 'live') return liveAddr ? 'On: ' + liveAddr : 'Off';
+    if (id === 'live') return liveAddr ? 'On' : 'Off';
     if (id === 'about' || id === 'log' || id === 'od' || id === 'epg') return '';
     return '';
   }
@@ -3466,11 +3466,11 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
-    theme: 'How the TV guide looks. Match the channel gives the 70s, 80s and 90s channels a guide from their own decade; the rest keep Classic Blue.',
+    theme: 'How the TV guide looks. It only changes when you change it here.',
     mkeep: 'How long artwork and episode details are remembered before they are looked up again. Permanent keeps them until you clear them.',
     mclear: 'Forgets the saved artwork, episode details and downloaded pictures, so they are fetched again fresh. Shows what is stored now.',
     od: 'Browse every channel\u2019s shows, series and episodes, and play any of them from the start.',
@@ -3486,7 +3486,9 @@
     rel: 'What changed in this version and the ones before it.',
     about: 'Where the programmes, artwork and details come from.',
     epg: 'What each channel\u2019s guide is built from and what it will show for the next 24 hours, with any problems such as the same show three times in a row.',
-    log: 'What failed to play and why, ready to send when something goes wrong.'
+    log: 'What failed to play and why, ready to send when something goes wrong.',
+    live: 'Shows this screen, the debug text and a remote on a browser on the same Wi-Fi: open the address shown here. It switches itself off when the app closes.',
+    gaps: 'Shows with episodes or seasons missing, set against the episode guide.'
   };
   var optsShown = {};     // what each row last said, so a key press only touches the rows that changed
   function setIf(el, prop, val) { if (el[prop] !== val) el[prop] = val; }
@@ -3530,6 +3532,8 @@
     applyTheme(gChan || (cur && cur.ch));
     var pv = $('otpv'), pc = 'otpv' + (themeNow === 'classic' || !themeNow ? '' : ' gt-' + themeNow);
     if (pv && pv.className !== pc) pv.className = pc;
+    var ad = $('oaddr'), at = liveAddr || '';
+    if (ad && optsShown._a !== at) { ad.textContent = at; ad.className = at ? '' : 'hidden'; optsShown._a = at; }
     var help = optsZone ? (OPT_HELP[OPTS[optsSel]] || '') : '', ver = relName();
     if (optsShown._h !== help) { $('ohelp').textContent = help; optsShown._h = help; }
     if (optsShown._r !== ver) { $('over').textContent = ver; optsShown._r = ver; }
@@ -3538,7 +3542,7 @@
   }
   function openOpts() {
     closeOsd();
-    optsOpen = true; optsCat = 0; optsZone = 0; optsSel = OPTS.indexOf(OCATS[0].rows[0]);
+    optsOpen = true; optsCat = catOfRow('od'); optsZone = 0; optsSel = OPTS.indexOf(OCATS[optsCat].rows[0]);
     renderOpts();
     $('opts').className = '';
     optsTouch();

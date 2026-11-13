@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.81",
-  "version": "0.45.81",
-  "code": 4581,
+  "name": "Alpha 0.45.82",
+  "version": "0.45.82",
+  "code": 4582,
   "date": "2026-11-13",
   "notes": [
-    "**The guide only changes theme when you change it.** Until a theme is chosen in Options, the guide is now Classic Blue (before, it was \"Match the channel\", which dressed the guide as the 70's, 80's or 90's whenever one of those channels was involved). \"Match the channel\" is still there in Options for anyone who wants it. If it was picked on purpose it stays picked."
+    "**Options tidied up.** The screen behind Options no longer shows through. \"Help & tools\" is split into **Help** (What's new, About) and **Debug** (Live view, Debug log, EPG debug, Missing episodes). The one-item \"Watch\" category is gone: On Demand is now the first line under TV Guide, and Options opens there. The Live view address is shown large and green so it can be read from across the room. \"Match the channel\" has been taken out of the guide themes, so the theme only ever changes when you change it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.81",
+      "date": "2026-11-13",
+      "notes": [
+        "**The guide only changes theme when you change it.** Until a theme is chosen in Options, the guide is now Classic Blue (before, it was \"Match the channel\", which dressed the guide as the 70's, 80's or 90's whenever one of those channels was involved). \"Match the channel\" is still there in Options for anyone who wants it. If it was picked on purpose it stays picked."
+      ]
+    },
     {
       "name": "Alpha 0.45.80",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Hid a fake \"Sonic Underground\" upload.** The item \"Tamers12345 Sonic Underground All Episodes (In Order)\" is a fan-made collection with invented episode titles (\"…A Tragic Death On Christmas\"), not the cartoon. It is hidden on every channel until the scraper drops it."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.73",
-      "date": "2026-11-13",
-      "notes": [
-        "**Smoother navigation while the app is still setting up.** Pressing buttons in the guide was already instant, but for the first minute after start-up the app was quietly building each channel's On Demand list in the background, and the big channels (BBC, ITV, Music, CITV) each froze the screen for a moment. That work is now done in tiny slices, and it waits while you are pressing buttons. In a test the number of freezes over 50 ms in the first 40 seconds went from 13 to 1."
       ]
     }
   ]

@@ -2152,6 +2152,12 @@
     });
   }
 
+  /** End the advert break that is playing and go straight on to the next programme. */
+  function skipAds() {
+    if (!cur || !cur.ad || isAdChan(cur.ch)) return;
+    toast('Adverts skipped', 1500);
+    nextInChannel();
+  }
   function nextInChannel() {
     if (!cur) return;
     if (cur.od) return odStep(1);               // On Demand: the next episode of the show, not the channel's running order
@@ -2757,7 +2763,9 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB = ['guide', 'pp', 'next', 'restart', 'info', 'od', 'options'];   // buttons on the bar, left to right
+  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'info', 'od', 'options'];   // buttons on the bar, left to right
+  /** The buttons showing now: Skip adverts is only there while a break is playing (and never on the Adverts channel, which is all adverts). */
+  function obList() { return OB_ALL.filter(function (id) { return id !== 'skipad' || (cur && cur.ad && !isAdChan(cur.ch)); }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
   // The progress bar is a scrubber: Left / Right on it wind through the video (hold to go faster), Down reaches the buttons.
   var osdZone = 'btn', scrubT = null, scrubTimer = null, scrubLast = 0, scrubHold = 0, scrubDir = 0;
@@ -3605,7 +3613,9 @@
       (secs > 1 ? '   ·   ' + fmtPos(secs) + ' ahead' + (playingLocally() ? ' on this device' : '') : '');
     $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
     $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
-    OB.forEach(function (id, i) { $('ob-' + id).className = 'ob' + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
+    var ob = obList();
+    if (osdSel > ob.length - 1) osdSel = ob.length - 1;
+    OB_ALL.forEach(function (id) { var i = ob.indexOf(id), e = $('ob-' + id); e.className = 'ob' + (i < 0 ? ' hidden' : '') + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
   }
 
   function osdTouch() {
@@ -3649,7 +3659,7 @@
     if (!cur) { openGuide(); return; }
     osdOpen = true;
     osdArt();
-    osdSel = OB.indexOf('pp');      // start on play/pause
+    osdSel = obList().indexOf('pp');      // start on play/pause
     osdZone = 'btn'; scrubT = null;
     clearTimeout(bannerTimer);
     $('banner').className = 'off';
@@ -3692,7 +3702,8 @@
 
   function osdAct(id) {
     if (id === 'pp') togglePlay();
-    else if (id === 'next') { closeOsd(); playNext(); return; }
+    else if (id === 'next') { closeOsd(); if (cur && cur.ad && !isAdChan(cur.ch)) skipAds(); else playNext(); return; }
+    else if (id === 'skipad') { closeOsd(); skipAds(); return; }
     else if (id === 'restart') { restartShow(); return; }
     else if (id === 'options') { openOpts(); return; }
     else if (id === 'od') { closeOsd(); odOpenUi(); return; }
@@ -3705,9 +3716,9 @@
     osdTouch();
     if (k === 'ArrowLeft' || k === 'ArrowRight') {
       if (osdZone === 'bar') scrubKey(k === 'ArrowLeft' ? -1 : 1);
-      else { osdSel = Math.max(0, Math.min(OB.length - 1, osdSel + (k === 'ArrowLeft' ? -1 : 1))); renderOsd(); }
+      else { osdSel = Math.max(0, Math.min(obList().length - 1, osdSel + (k === 'ArrowLeft' ? -1 : 1))); renderOsd(); }
     }
-    else if (k === 'Enter') { if (osdZone === 'bar') { if (scrubT !== null) scrubApply(); else osdAct('pp'); } else osdAct(OB[osdSel]); }
+    else if (k === 'Enter') { if (osdZone === 'bar') { if (scrubT !== null) scrubApply(); else osdAct('pp'); } else osdAct(obList()[osdSel]); }
     else if (k === 'MediaRewind') scrubKey(-1);
     else if (k === 'MediaFastForward') scrubKey(1);
     else if (k === 'MediaNext') osdAct('next');

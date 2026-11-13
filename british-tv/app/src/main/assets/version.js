@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.49",
-  "version": "0.45.49",
-  "code": 4549,
+  "name": "Alpha 0.45.50",
+  "version": "0.45.50",
+  "code": 4550,
   "date": "2026-11-13",
   "notes": [
-    "**The foreign-language \"The Goonies\" is gone.** That archive.org copy of The Goonies (1985) turned out not to be the English film, so it no longer shows on the Kids Movies channel, the guide or On Demand. A single hidden-items list in the app now makes it easy to drop any other wrong copy the same way."
+    "**Skip adverts.** While an advert break is playing, open the on-screen bar and a new **Skip adverts** button appears next to Pause. Press OK on it (or the Next key on the remote) and the break ends and the next programme starts straight away. It only appears during a break, and not on the Adverts channel, which is all adverts."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.49",
+      "date": "2026-11-13",
+      "notes": [
+        "**The foreign-language \"The Goonies\" is gone.** That archive.org copy of The Goonies (1985) turned out not to be the English film, so it no longer shows on the Kids Movies channel, the guide or On Demand. A single hidden-items list in the app now makes it easy to drop any other wrong copy the same way."
+      ]
+    },
     {
       "name": "Alpha 0.45.48",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**On Demand posters fill the row.** They are a little wider (and taller), so the seventh poster ends at the right edge instead of leaving a gap. The highlighted one still grows without touching its neighbours."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.41",
-      "date": "2026-11-13",
-      "notes": [
-        "**On Demand redesign.**"
       ]
     }
   ]

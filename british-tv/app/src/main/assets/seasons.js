@@ -7,7 +7,7 @@
   // When each season runs: [month, day] from and to, inclusive. Months count from 0 (0 = January, 10 = November).
   // A season whose end is earlier in the year than its start runs over the new year.
   var SEASONS = [
-    { id: 'xmas', label: 'Christmas snow', from: [10, 1], to: [0, 6] }
+    { id: 'xmas', label: 'Christmas snow', from: [10, 1], to: [0, 6], hat: 'santa' }
   ];
 
   // How it looks. PIXEL = screen pixels per canvas pixel (2 = 16-bit, 3 = chunkier). DRIFT is 0 to 10.
@@ -121,5 +121,28 @@
     };
   }
 
-  window.SEASONS = { list: SEASONS, cfg: CFG, current: current, snow: snow };
+
+  // A little hat for the guide clock, drawn from a sprite and handed to the stylesheet as a picture (#gclock::before in
+  // index.html shows it while body has the class "season-hat"). R red, r shaded red, W white fur, w shaded fur.
+  var HATS = {
+    santa: ['..........WW..', '.........WWWW.', '........RRWWW.', '.......RRRRR..', '......RRRRRrr.', '.....RRRRRRrr.',
+            '....RRRRRRRrr.', '...RRRRRRRrr..', '.WWWWWWWWWWWW.', 'WWWWWWWWWWWWWw', 'WWWWWWWWWWWwww'],
+    pal: { R: '#d8232a', r: '#8f1118', W: '#ffffff', w: '#c9d6f2' }
+  };
+  var hatURL = {};
+  /** Show (or, with null, hide) the hat that belongs to a season. */
+  function hat(season) {
+    var kind = season && season.hat, b = document.body;
+    if (!kind || !HATS[kind]) { b.classList.remove('season-hat'); return; }
+    if (!hatURL[kind]) {
+      var rows = HATS[kind], c = document.createElement('canvas'), x = c.getContext('2d');
+      c.width = rows[0].length; c.height = rows.length;
+      rows.forEach(function (row, y) { for (var i = 0; i < row.length; i++) { var ch = row.charAt(i); if (ch !== '.') { x.fillStyle = HATS.pal[ch]; x.fillRect(i, y, 1, 1); } } });
+      hatURL[kind] = c.toDataURL();
+    }
+    document.documentElement.style.setProperty('--hat', 'url(' + hatURL[kind] + ')');
+    b.classList.add('season-hat');
+  }
+
+  window.SEASONS = { list: SEASONS, cfg: CFG, current: current, snow: snow, hat: hat };
 })();

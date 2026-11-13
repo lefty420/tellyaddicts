@@ -315,6 +315,9 @@
   #godbtn { margin-left: auto; margin-right: 2.4vw; padding: .5vh 1.4vw; border-radius: 3vh; font-size: 2.4vh; font-weight: 700; letter-spacing: .06em;
     border: .25vh solid var(--gsoft, rgba(185,209,255,.55)); color: var(--gsoft2, #dbe7ff); }
   #godbtn.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); border-color: transparent; box-shadow: 0 .4vh 1.4vh rgba(0,0,0,.45); }
+  /* the seasonal hat (seasons.js) sits centred on the clock, one sprite pixel = 3 screen pixels at 1080 lines */
+  body.season-hat #gclock { position: relative; }
+  body.season-hat #gclock::before { content: ""; position: absolute; left: 50%; top: -2.1vh; width: 3.889vh; height: 3.056vh; margin-left: -1.944vh; background: var(--hat) center / 100% 100% no-repeat; image-rendering: pixelated; pointer-events: none; z-index: 35; }
   #gclock { font-size: 4.4vh; color: var(--gtx2, #fff); font-weight: 700; letter-spacing: .04em; }
   #ginfo { text-shadow: var(--gshadow, 0 .2vh .8vh rgba(0,0,0,.7)); }
   #gtitle { font-size: 5.4vh; font-weight: 700; margin: 2.6vh 0 .8vh; line-height: 1.12; max-height: 12.5vh; overflow: hidden; }

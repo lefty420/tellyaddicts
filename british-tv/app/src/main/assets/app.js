@@ -2484,6 +2484,7 @@
       return last ? window.innerHeight - last.getBoundingClientRect().bottom : 40;
     });
     if (want) seasonOv.start(); else if (seasonOv) seasonOv.stop();
+    SEASONS.hat(want ? SEASONS.current() : null);
   }
   function openGuide() {
     closeOsd();
@@ -2517,6 +2518,7 @@
     $('guide').className = 'hidden';
     clearInterval(guideTimer);
     if (seasonOv) seasonOv.stop();
+    document.body.classList.remove('season-hat');
   }
 
   var gOd = false;

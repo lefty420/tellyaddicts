@@ -1,14 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.85",
-  "version": "0.45.85",
-  "code": 4585,
+  "name": "Alpha 0.45.86",
+  "version": "0.45.86",
+  "code": 4586,
   "date": "2026-11-13",
   "notes": [
-    "**No more empty Dragon Ball Z.** It had no videos but was still listed under Children's, so it showed as an empty show. Removed."
+    "**YouTube as a second source (trial).** Episodes the scraper found on YouTube (Telly Addicts, Big Break, Gladiators, Blind Date and more) now show in On Demand, from `data/yt.json`. They play through the app's own player with no adverts and no sign-in; the stream is looked up when you press play. Episodes with no season or number sit under \"More from YouTube\". Needs the TV app, not a browser.",
+    "**Best copy first.** Where an episode exists more than once, the app now ranks the copies: archive.org first, then YouTube; a copy of the right running time beats one that is far off, and a copy that keeps adverts or is an .mkv ranks lower. The rest stay behind it: if the first will not play, the next is tried by itself, and \"Try another version\" now offers the YouTube copies too.",
+    "**Options > Play > YouTube videos** turns the source off. A video that fails to play is left out for a day.",
+    "If a YouTube video will not play, the debug log says why (YouTube changes this from time to time)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.85",
+      "date": "2026-11-13",
+      "notes": [
+        "**No more empty Dragon Ball Z.** It had no videos but was still listed under Children's, so it showed as an empty show. Removed."
+      ]
+    },
     {
       "name": "Alpha 0.45.84",
       "date": "2026-11-13",
@@ -58,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**The guide no longer flashes through its themes.** With the theme on \"Match the channel\", scrolling down the guide changed the whole screen's look each time the cursor passed the 70's, 80's or 90's channel. It now follows the channel you are watching, and stays put while you browse."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.77",
-      "date": "2026-11-13",
-      "notes": [
-        "**Live view now reports performance.** While it is switched on, the page's text includes how long the screen takes to answer each button press (median, 90th percentile and worst, for the guide, On Demand and Options separately) and how many stalls over 50 ms there have been in the last five minutes. It only measures while Live view is on."
       ]
     }
   ]

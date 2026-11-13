@@ -14,6 +14,9 @@ import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
+import androidx.media3.exoplayer.source.MediaSource;
+import androidx.media3.exoplayer.source.MergingMediaSource;
+import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
 import org.json.JSONObject;
 
@@ -120,6 +123,7 @@ final class NativePlayer {
         main.post(new Runnable() {
             @Override
             public void run() {
+                gen = -1;      // a YouTube lookup still under way must not start playing after this
                 release();
             }
         });
@@ -127,17 +131,46 @@ final class NativePlayer {
 
     // ---------------------------------------------------------------- main thread
 
-    private void start(String url, long startMs, int generation) {
+    private void start(final String url, final long startMs, final int generation) {
         release();
         gen = generation;
         readySent = false;
         width = 0;
         height = 0;
+        if (url.startsWith("yt:")) {
+            // a YouTube video: look the stream up first (off the main thread), then play it
+            final String id = url.substring(3);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    final YoutubeResolver.Result r = YoutubeResolver.resolve(id);
+                    main.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (generation != gen) {
+                                return;      // another programme was chosen while this was being looked up
+                            }
+                            if (r.error != null) {
+                                send("error", "YouTube " + id + ": " + r.error);
+                            } else {
+                                begin(r.video, r.audio, YoutubeResolver.UA, startMs, generation);
+                            }
+                        }
+                    });
+                }
+            }, "yt-resolve").start();
+            return;
+        }
+        begin(url, null, "TellyAddicts", startMs, generation);
+    }
+
+    /** Opens a stream: one address, or a picture file and a sound file joined together (audioUrl may be null). */
+    private void begin(String url, String audioUrl, String userAgent, long startMs, int generation) {
         try {
             DefaultRenderersFactory renderers = new DefaultRenderersFactory(ctx)
                     .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON);
             DefaultHttpDataSource.Factory http = new DefaultHttpDataSource.Factory()
-                    .setUserAgent("TellyAddicts")
+                    .setUserAgent(userAgent)
                     .setConnectTimeoutMs(20000)
                     .setReadTimeoutMs(30000)
                     .setAllowCrossProtocolRedirects(true);
@@ -147,7 +180,14 @@ final class NativePlayer {
             player.setVideoSurfaceView(surface);
             player.setVolume(muted ? 0f : 1f);
             player.addListener(new Listener(generation));
-            player.setMediaItem(MediaItem.fromUri(url), Math.max(0, startMs));
+            if (audioUrl != null) {
+                ProgressiveMediaSource.Factory pf = new ProgressiveMediaSource.Factory(http);
+                MediaSource pic = pf.createMediaSource(MediaItem.fromUri(url));
+                MediaSource snd = pf.createMediaSource(MediaItem.fromUri(audioUrl));
+                player.setMediaSource(new MergingMediaSource(pic, snd), Math.max(0, startMs));
+            } else {
+                player.setMediaItem(MediaItem.fromUri(url), Math.max(0, startMs));
+            }
             player.setPlayWhenReady(true);
             player.prepare();
             surface.setVisibility(View.VISIBLE);

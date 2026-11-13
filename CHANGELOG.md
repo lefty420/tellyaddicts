@@ -7,6 +7,13 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.86 — 2026-11-13
+
+- **YouTube as a second source (trial).** Episodes the scraper found on YouTube (Telly Addicts, Big Break, Gladiators, Blind Date and more) now show in On Demand, from `data/yt.json`. They play through the app's own player with no adverts and no sign-in; the stream is looked up when you press play. Episodes with no season or number sit under "More from YouTube". Needs the TV app, not a browser.
+- **Best copy first.** Where an episode exists more than once, the app now ranks the copies: archive.org first, then YouTube; a copy of the right running time beats one that is far off, and a copy that keeps adverts or is an .mkv ranks lower. The rest stay behind it: if the first will not play, the next is tried by itself, and "Try another version" now offers the YouTube copies too.
+- **Options > Play > YouTube videos** turns the source off. A video that fails to play is left out for a day.
+- If a YouTube video will not play, the debug log says why (YouTube changes this from time to time).
+
 ## Alpha 0.45.85 — 2026-11-13
 
 - **No more empty Dragon Ball Z.** It had no videos but was still listed under Children's, so it showed as an empty show. Removed.

@@ -126,7 +126,7 @@
     dlog('  ARCHIVE.ORG ' + json + (url ? '  ' + url : ''));
   };
   function diagnose(url) {
-    if (!url || !window.NativeHttp || !NativeHttp.probe) return;
+    if (!url || /^yt:/.test(url) || !window.NativeHttp || !NativeHttp.probe) return;
     var id = ++probeId;
     probes[id] = url;
     try { NativeHttp.probe(id, url); } catch (e) { delete probes[id]; }
@@ -1795,7 +1795,8 @@
   var playerIdx = (function () { var s = store.get('player1'); for (var i = 0; i < PLAYERS.length; i++) if (PLAYERS[i].id === s) return i; return 0; })();
   var npKnown = store.get('np1') || {};                // file -> when it needed the backup player
   function playerMode() { return PLAYERS[playerIdx].id; }
-  v.wantNative = function () {
+  v.wantNative = function (u) {
+    if (/^yt:/.test(u || '')) return true;                 // YouTube videos are looked up and played by the app's own player
     var m = playerMode();
     if (m === 'off') return false;
     if (m === 'always') return true;
@@ -2341,6 +2342,22 @@
   v.addEventListener('error', function () {
     if (!cur) return;
     if (backupSwitch('would not load')) return;     // the web view cannot play this file: the app's own player can try
+    if (cur.od && cur.prog && cur.prog.alts && cur.prog.alts.length) {       // another stored copy of this episode
+      var o = cur.od, nx = cur.prog.alts[0], list = o.list.slice();
+      dlog('FALLBACK ' + (cur.prog.title || '') + ': that copy would not play (' + String(cur.prog.url).slice(0, 60) + '), trying ' + String(nx.url).slice(0, 60));
+      if (cur.prog.yt) ytMarkDead(String(cur.prog.url).slice(3));
+      list[o.i] = Object.assign({}, list[o.i], { p: Object.assign({}, nx, { alts: cur.prog.alts.slice(1) }) });
+      toast('That copy would not play, trying another', 3500);
+      odStart(cur.ch, list, o.i, 0, o.name);
+      return;
+    }
+    if (cur.prog && cur.prog.yt && cur.od) {
+      dlog('YOUTUBE FAILED ' + (cur.prog.title || '') + ' ' + cur.prog.url + ': ' + (v.error && v.error.message || ''));
+      ytMarkDead(String(cur.prog.url).slice(3));
+      toast('That YouTube video would not play: ' + String((v.error && v.error.message) || 'no reason given').slice(0, 90), 6000);
+      odStep(1);
+      return;
+    }
     if (cur.trial && revertTrial()) return;   // a Play Next episode that fails: back to the previous programme
     cur.errors++;
     if (cur.errors >= MAX_ERRORS) {
@@ -2770,7 +2787,7 @@
             if (rows && rows.length) all = all.concat(progsFromData(rows, ch.id, true));
           }, function () { /* that channel has no data */ });
         });
-      }, Promise.resolve()).then(function () { return all; });
+      }, Promise.resolve()).then(function () { return ytLoad().then(function (yt) { return all.concat(ytProgs(yt, null)); }); });
     }).then(function (all) {
       var seen = {}, cands = [];
       all.forEach(function (q) {
@@ -2779,6 +2796,7 @@
           : (function () { var r = LINKS.parseEp(q.title); return r && ref && r.s === ref.s && r.e === ref.e && LIBROUTE.norm(gmName(q)) === name; })();
         if (same) { seen[q.url] = 1; cands.push(q); }
       });
+      cands.sort(function (a, b) { return copyScore(b, p.dur) - copyScore(a, p.dur); });     // the likeliest good copy first
       return (ref ? LINKS.get(LINKS.key(gmName(p), ref.s, ref.e)) : Promise.resolve(null)).then(function (row) {
         if (row && row.url && !seen[row.url] && row.url !== p.url) cands.push({ id: row.id || row.url, item: row.item, url: row.url, title: row.title || p.title, dur: row.dur || p.dur, show: p.show, group: p.group });
         var tried = altTried[tk] = altTried[tk] || [p.url];
@@ -2996,7 +3014,7 @@
   function bufferAvailable() { return !!(window.NativeHttp && NativeHttp.buffer); }
   /** The address to play: the buffered copy when that is on and possible, otherwise archive.org itself. */
   function playUrl(url) {
-    if (!url || !bufferAvailable() || !BUF[bufIdx].mb) return url;
+    if (!url || /^yt:/.test(url) || !bufferAvailable() || !BUF[bufIdx].mb) return url;
     try { return NativeHttp.buffer(url, BUF[bufIdx].mb) || url; } catch (e) { return url; }
   }
   function releaseBuffer() {
@@ -3410,7 +3428,7 @@
     { id: 'picture', rows: ['ar', 'fx'] },
     { id: 'guide', rows: ['od', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
-    { id: 'play', rows: ['player', 'buf', 'ads'] },
+    { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
@@ -3423,6 +3441,7 @@
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
+    if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
     if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
     if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs a newer app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  (' + Object.keys(npKnown).length + ' files)' : '');
@@ -3463,6 +3482,12 @@
       metaSizeText = metaSize();
       if (optsOpen) renderOpts();
     }, 400);
+  }
+  function changeYt() {
+    ytOn = !ytOn; store.set('yt1', ytOn ? 'on' : 'off');
+    ytP = null; odData = {}; odRowsMemo = null; odKGen++;
+    renderOpts();
+    toast(ytOn ? 'YouTube videos are on in On Demand' : 'YouTube videos are off', 3000);
   }
   function changeMetaKeep(d) {
     metaIdx = (metaIdx + (d < 0 ? META_KEEP.length - 1 : 1)) % META_KEEP.length;
@@ -3506,6 +3531,7 @@
   var OPT_HELP = {
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
     theme: 'How the TV guide looks. It only changes when you change it here.',
+    yt: 'Episodes that are not on archive.org but are on YouTube, shown in On Demand. They play without adverts or a sign-in, through the app\u2019s own player, and where an episode has more than one copy the best plays first. Turn this off if they cause trouble.',
     mkeep: 'How long artwork and episode details are remembered before they are looked up again. Permanent keeps them until you clear them.',
     mclear: 'Forgets the saved artwork, episode details and downloaded pictures, so they are fetched again fresh. Shows what is stored now.',
     od: 'Browse every channel\u2019s shows, series and episodes, and play any of them from the start.',
@@ -3539,6 +3565,7 @@
     if (id === 'buf') return { l: BUF.map(function (x) { return x.label; }), i: bufIdx };
     if (id === 'ar') return { l: AR.map(function (x) { return x.label; }), i: arIdx };
     if (id === 'ads') return { l: ['Off', 'On'], i: adEra === 'off' ? 0 : 1 };
+    if (id === 'yt') return { l: ['Off', 'On'], i: ytOn ? 1 : 0 };
     if (id === 'fx') { var ks = Object.keys(FXLABEL); return { l: ks.map(function (k) { return FXLABEL[k]; }), i: Math.max(0, ks.indexOf(fxMode)) }; }
     return null;
   }
@@ -3675,6 +3702,7 @@
     else if (id === 'fx') changeFx(d);
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
+    else if (id === 'yt') changeYt();
     else if (id === 'season') { seasonOn = !seasonOn; store.set('seasonal', seasonOn ? 'auto' : 'off'); seasonUpdate(); renderOpts(); }
     else if (id === 'player') changePlayer(d);
     else if (id === 'buf') changeBuf(d);
@@ -3997,11 +4025,78 @@
   }
   /** A show's episodes in seasons: every real season in order, then everything that does not fit one
    *  (specials, unnumbered files, odd names) in "Other videos" at the end. A show with no seasons at all is one list. */
+
+  // ---- YouTube as a second source (data/yt.json from the scraper). The files are not on archive.org: the app's own
+  // player looks the stream up when you press play (NativePlayer.java), so a video is stored here as "yt:<id>".
+  var ytOn = store.get('yt1') !== 'off';
+  var ytP = null, ytDead = store.get('ytdead1') || {};
+  function ytAvailable() { try { return !!(window.NativeHttp && window.NativeHttp.npOpen); } catch (e) { return false; } }
+  function ytLoad() {
+    if (!ytOn || !ytAvailable()) return Promise.resolve({});
+    if (ytP) return ytP;
+    var c = store.get('yt2');
+    ytP = (c && c.d && Date.now() - c.t < 6 * 3600000 ? Promise.resolve(c.d)
+      : getJSON(DATA_BASE + 'yt.json?' + Math.floor(Date.now() / 3600000)).then(function (d) { store.set('yt2', { t: Date.now(), d: d }); return d; }))
+      .then(function (d) { return d && typeof d === 'object' ? d : {}; }, function () { return (c && c.d) || {}; });
+    return ytP;
+  }
+  var YT_JUNK = /\b(best of|compilation|highlights?|reaction|reacts?|review|live ?stream|live:|music video|official video|trailer|behind the scenes|interview|bloopers?)\b/i;
+  /** After the cut-off year, or a title and air date that disagree, so the scraper's match to the guide was wrong. */
+  function ytLate(x) {
+    var ys = String(x.title || '').match(/\b(?:19|20)\d\d\b/g) || [];
+    for (var i = 0; i < ys.length; i++) if (+ys[i] > ERA_END) return true;
+    var a = parseInt(String(x.airdate || '').slice(0, 4), 10);
+    return a > ERA_END;
+  }
+  function ytAired(x) {
+    var a = String(x.airdate || ''), y = parseInt(a.slice(0, 4), 10), ys = (String(x.title || '').match(/\b(?:19|20)\d\d\b/g) || []).map(Number);
+    if (!y) return '';
+    for (var i = 0; i < ys.length; i++) if (Math.abs(ys[i] - y) > 1) return '';     // the title's year says otherwise: leave the date out
+    return a;
+  }
+  /** The stored videos as programmes, for one channel (or for every channel when chId is null). */
+  function ytProgs(data, chId) {
+    var out = [];
+    Object.keys(data || {}).forEach(function (name) {
+      var sh = data[name];
+      if (!sh || !sh.videos || (chId && (sh.channel || 'gameshows') !== chId)) return;
+      var show = name === name.toLowerCase() ? name.replace(/\b[a-z]/g, function (m) { return m.toUpperCase(); }) : name;
+      sh.videos.forEach(function (x) {
+        if (!x || !x.id || !(x.dur > 120) || ytDead[x.id] || YT_JUNK.test(x.title || '') || ytLate(x)) return;
+        var sn = +x.season || 0, ep = +x.ep || 0, coded = sn > 0 && ep > 0;
+        var et = x.epTitle && !/^(?:episode|show|series \d+,? show)\s*\d*$/i.test(x.epTitle) ? ' ' + x.epTitle : '';
+        out.push({ id: 'yt/' + x.id, item: 'yt', url: 'yt:' + x.id, title: coded ? show + ' S' + pad2(sn) + 'E' + pad2(ep) + et : (x.title || show),
+          sub: '', dur: x.dur, lenKnown: 1, show: show, group: show, aired: ytAired(x), yt: 1, by: x.by || '', ytTitle: x.title || '' });
+      });
+    });
+    return out;
+  }
+  function ytMarkDead(id) { ytDead[id] = Date.now(); Object.keys(ytDead).forEach(function (k) { if (Date.now() - ytDead[k] > 86400000) delete ytDead[k]; }); store.set('ytdead1', ytDead); }
+  /**
+   * How good a stored copy of an episode is, to pick the one that plays first (the others are kept as fall-backs and
+   * for "Try another version"). An archive.org file is a plain file with no lookup, so it leads; a YouTube copy is next.
+   * Copies of the right running time beat ones that are far off it (a part, a stitched pair, a clip), and a copy that
+   * keeps the adverts, or is a file the web view often cannot play, ranks below a clean one.
+   */
+  function copyScore(p, med) {
+    var sc = p.yt ? 20 : 60, u = String(p.url || '');
+    if (!p.yt) { if (/\.mkv$/i.test(u)) sc -= 8; }
+    else {
+      var t = p.ytTitle || '';
+      if (/\bads?\b|adverts?|commercials?/i.test(t)) sc -= 8;
+      if (/\b(?:hd|hq|1080p|720p|remaster(?:ed)?)\b/i.test(t)) sc += 4;
+    }
+    if (med && p.dur && (p.lenKnown || p.yt)) sc -= Math.min(30, Math.round(Math.abs(p.dur - med) / med * 60));
+    return sc;
+  }
+  function ytName() { return 'YouTube'; }
   function odSeasons(g) {
     var by = {}, other = [], list = [];
-    g.eps.forEach(function (ep) { if (ep.s > 0) (by[ep.s] = by[ep.s] || []).push(ep); else other.push(ep); });
+    var otherYt = [];
+    g.eps.forEach(function (ep) { if (ep.s > 0) (by[ep.s] = by[ep.s] || []).push(ep); else if (ep.p.yt) otherYt.push(ep); else other.push(ep); });
     Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (n) { list.push({ name: n >= 1900 ? String(n) : 'Season ' + n, eps: by[n] }); });
     if (other.length) list.push({ name: list.length ? 'Other videos' : 'Videos', eps: other });
+    if (otherYt.length) list.push({ name: 'More from YouTube', eps: otherYt });
     var per = {};
     g.eps.forEach(function (ep) { var m = /\/download\/([^/]+)\//.exec(ep.p.url || ''); ep.item = m ? m[1] : ''; if (ep.item) per[ep.item] = (per[ep.item] || 0) + 1; });
     g.eps.forEach(function (ep) { ep.thumb = ep.item && per[ep.item] === 1 ? 'https://archive.org/services/img/' + ep.item : ''; });   // a shared item would repeat one picture
@@ -4023,8 +4118,29 @@
       if (!g) { g = by[k] = { name: name, eps: [], seen: {} }; shows.push(g); }
       var ref = window.LINKS && LINKS.parseEp(p.title);
       var key = ref ? ref.s + 'x' + ref.e : '';
-      if (key) { if (g.seen[key]) return; g.seen[key] = 1; }
-      g.eps.push({ p: p, s: ref ? ref.s : 0, e: ref ? ref.e : 0, label: odEpLabel(p, ref), year: p.aired ? String(p.aired).slice(0, 4) : '' });
+      if (key && g.seen[key]) { g.seen[key].cands.push(p); return; }       // another copy of the same episode
+      var ent = { p: p, s: ref ? ref.s : 0, e: ref ? ref.e : 0, label: odEpLabel(p, ref), year: p.aired ? String(p.aired).slice(0, 4) : '', cands: [p], ref: ref };
+      if (key) g.seen[key] = ent;
+      g.eps.push(ent);
+    });
+    // where an episode has several copies, the best plays and the rest stay behind it as fall-backs
+    shows.forEach(function (g) {
+      var ds = [];
+      g.eps.forEach(function (en) { var q = en.cands[0]; if (q.dur && (q.lenKnown || q.yt)) ds.push(q.dur); });
+      ds.sort(function (a, b) { return a - b; });
+      var med = ds.length ? ds[Math.floor(ds.length / 2)] : 0;
+      g.eps.forEach(function (en) {
+        if (en.cands.length > 1) {
+          var sc = en.cands.map(function (q, i) { return { q: q, s: copyScore(q, med), i: i }; });
+          sc.sort(function (a, b) { return (b.s - a.s) || (a.i - b.i); });          // ties keep the order the files were found in
+          var rest = sc.slice(1).map(function (x) { return x.q; });
+          en.p = sc[0].q === en.cands[0] && !rest.length ? sc[0].q : Object.assign({}, sc[0].q, { alts: rest });
+          en.label = odEpLabel(en.p, en.ref);
+          en.year = en.p.aired ? String(en.p.aired).slice(0, 4) : en.year;
+        }
+        delete en.cands; delete en.ref;
+      });
+      delete g.seen;
     });
     shows.sort(function (a, b) { var x = LIBROUTE.norm(a.name), y = LIBROUTE.norm(b.name); return x < y ? -1 : x > y ? 1 : 0; });
     shows.forEach(function (g) {
@@ -4044,6 +4160,8 @@
     rec = odData[ch.id] = { shows: null };
     rec.p = loadDataIndex().then(function (idx) { return loadChannelData(ch.id, idx[ch.id] || ''); }).then(function (rows) {
       return rows && rows.length ? progsFromDataSliced(rows, ch.id, true) : [];
+    }).then(function (all) {
+      return ytLoad().then(function (yt) { var y = ytProgs(yt, ch.id); return y.length ? all.concat(y) : all; });
     }).then(function (all) {
       var progs = all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); });
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels

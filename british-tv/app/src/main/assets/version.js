@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.38",
-  "version": "0.45.38",
-  "code": 4538,
-  "date": "2026-11-12",
+  "name": "Alpha 0.45.39",
+  "version": "0.45.39",
+  "code": 4539,
+  "date": "2026-11-13",
   "notes": [
-    "**Donkey Kong Country** episodes that were really the \"Super Beard Bros.\" game-play videos are left out (the cartoon stays). Other YouTube game-play series (Game Grumps, Achievement Hunter, Yogscast, \"Let's Play\") are turned away from every channel the same way."
+    "**Christmas adverts.** The scraper's catalogue now flags 121 Christmas adverts (about 72 minutes: 5 from the 70s, 32 from the 80s, 84 from the 90s). The four Christmas channels (Christmas TV, Noel, Kids Christmas, Christmas Music) play those in their breaks, topped up with their usual kind when an era has few. Every other channel, and the Adverts channel, leaves them out until December, when they join every break."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.38",
+      "date": "2026-11-12",
+      "notes": [
+        "**Donkey Kong Country** episodes that were really the \"Super Beard Bros.\" game-play videos are left out (the cartoon stays). Other YouTube game-play series (Game Grumps, Achievement Hunter, Yogscast, \"Let's Play\") are turned away from every channel the same way."
+      ]
+    },
     {
       "name": "Alpha 0.45.37",
       "date": "2026-11-12",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-12",
       "notes": [
         "**Mr. Bean is the sitcom again.** The 134 episodes of the 2002 cartoon (Mr. Bean: The Animated Series) that the library filed under Mr. Bean are left out; the live-action episodes and specials stay."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.30",
-      "date": "2026-11-12",
-      "notes": [
-        "**Episodes filed under the wrong show are dropped.** When the file clearly belongs to a different show and only the episode's title matches (Mobile Suit Gundam Wing's \"Eternal Flame of the Shooting Stars\" listed as Shooting Stars; Community's \"Advanced Dungeons & Dragons\"; Sooty & Co's \"Surprise Surprise\" and \"Blind Date\"), it no longer appears on any channel or On Demand. Checked against the whole library: 18 episodes, all wrong."
       ]
     }
   ]

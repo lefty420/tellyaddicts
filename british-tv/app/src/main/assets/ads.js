@@ -123,16 +123,25 @@
     daytime: ['household', 'food', 'retail', 'health', 'finance', 'telecoms', 'charity', 'sweets', 'cars']
   };
   /** The checked catalogue (adverts.json) -> adverts for one kind of channel and the era chosen. */
-  function fromCatalogue(list, cat, eraId) {
-    var fits = CAT_FITS[cat], out = [];
+  // The Christmas channels play Christmas adverts; every other channel keeps them out until December.
+  var XMAS_CHANNELS = { christmas: 1, noel: 1, kidsxmas: 1, xmasmusic: 1 };
+  function isXmasChannel(id) { return !!XMAS_CHANNELS[id]; }
+  /** xmas: 'only' = a Christmas channel (the Christmas adverts, topped up with its usual kind when there are few),
+   *  'off' = a channel that leaves them out, 'on' (December) = no distinction. */
+  function fromCatalogue(list, cat, eraId, xmas) {
+    var fits = CAT_FITS[cat], out = [], xm = [];
     (list || []).forEach(function (a) {
       if (!a || !a.url || !a.year || !(a.dur > 0) || a.dur >= 300 || (a.region && a.region !== 'uk')) return;
-      if (fits && !(a.cat || []).some(function (c) { return fits.indexOf(c) >= 0; })) return;
+      if (fits && !(a.cat || []).some(function (c) { return fits.indexOf(c) >= 0 || c === 'christmas'; })) return;
       var p = { id: a.url, item: a.brand || '', url: a.url, title: a.title, sub: '', dur: a.dur, year: a.year,
                 restricted: !!a.restricted, brand: a.brand || '', group: 'uk-c' };
-      if (accept(p, eraId)) out.push(p);
+      if (!accept(p, eraId)) return;
+      var isX = (a.cat || []).indexOf('christmas') >= 0;
+      if (xmas === 'off' && isX) return;
+      (isX ? xm : out).push(p);
     });
-    return out;
+    if (xmas === 'only') return xm.length >= 8 ? xm : xm.concat(out);   // few of them in this era: top up with the usual kind
+    return xmas === 'off' ? out : out.concat(xm);
   }
 
   /** Hand-picked adverts (adverts.js) for one channel, checked the same way as the ones found by searching. */
@@ -191,7 +200,7 @@
     return from[i];
   }
 
-  var Ads = { ERAS: ERAS, CATS: CATS, categoryFor: categoryFor, fixedFor: fixedFor, eraIndex: eraIndex, buildQuery: buildQuery,
+  var Ads = { ERAS: ERAS, CATS: CATS, categoryFor: categoryFor, isXmasChannel: isXmasChannel, fixedFor: fixedFor, eraIndex: eraIndex, buildQuery: buildQuery,
     sourcesFor: sourcesFor, fromCatalogue: fromCatalogue, eraOf: eraOf, yearOf: yearOf, allowedAt: allowedAt, accept: accept, filterPool: filterPool, pickNext: pickNext };
   if (typeof module !== 'undefined' && module.exports) module.exports = Ads; else root.ADS = Ads;
 })(typeof window !== 'undefined' ? window : this);

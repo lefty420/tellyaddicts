@@ -1936,7 +1936,9 @@
   /** The Adverts channel is all adverts, so with the break setting Off it still plays them, from every era. */
   function isAdChan(ch) { return !!ch && ch.id === 'adbreak'; }
   function eraFor(ch) { return isAdChan(ch) && adEra === 'off' ? 'all' : adEra; }
-  function adKey(ch) { var cat = ADS.categoryFor(ch.id), era = eraFor(ch); return cat && era !== 'off' ? cat + ':' + era : null; }
+  /** 'only' on a Christmas channel, 'off' elsewhere until December (then they join every break). */
+  function xmasMode(ch) { return ADS.isXmasChannel(ch.id) ? 'only' : (new Date().getMonth() === 11 ? 'on' : 'off'); }
+  function adKey(ch) { var cat = ADS.categoryFor(ch.id), era = eraFor(ch); return cat && era !== 'off' ? cat + ':' + era + ':' + xmasMode(ch) : null; }
   function loadAdCatalogue() {
     if (adCatP) return adCatP;
     var ck = 'adcat1:' + adsRev, hit = store.get(ck);
@@ -1960,7 +1962,7 @@
     adPools[key] = [];                  // being fetched (or nothing found): breaks are skipped, and it is not retried until the next launch
     if (adsRev) {                       // the checked catalogue: one small file, no searching
       loadAdCatalogue().then(function (list) {
-        var p = ADS.fromCatalogue(list, cat, era);
+        var p = ADS.fromCatalogue(list, cat, era, xmasMode(ch));
         if (p.length) { adPools[key] = p; return; }
         adsRev = '';                    // an empty or unreadable catalogue: fall back to searching, once
         adPools[key] = null; loadAds(ch, soon);

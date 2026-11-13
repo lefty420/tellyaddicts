@@ -1,5 +1,5 @@
 /* Seasonal effects: a decorative pixel-art overlay drawn over the TV guide (first season: Christmas snow).
- * One transparent canvas, never focusable, no input handling. It is drawn small and scaled up with no smoothing
+ * One transparent layer, never focusable, no input handling. It is drawn small and scaled up with no smoothing
  * for the 16-bit look. Other seasons (Halloween, New Year) can be added to SEASONS and drawn by their own painter. */
 (function () {
   'use strict';
@@ -11,7 +11,7 @@
   ];
 
   // How it looks. PIXEL = screen pixels per canvas pixel (2 = 16-bit, 3 = chunkier). DRIFT is 0 to 10.
-  var CFG = { PIXEL: 2, FLAKES: 55, DRIFT: 5, FPS: 15, PAUSE_MS: 180 };
+  var CFG = { PIXEL: 2, FLAKES: 55, DRIFT: 5, PAUSE_MS: 180 };
 
   function inSeason(s, d) {
     var v = d.getMonth() * 100 + d.getDate(), a = s.from[0] * 100 + s.from[1], b = s.to[0] * 100 + s.to[1];
@@ -46,38 +46,35 @@
 
   function rnd(a, b) { return a + Math.random() * (b - a); }
   function pick(l) { return l[(Math.random() * l.length) | 0]; }
+  function mk(cls, w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; c.className = cls; return c; }
 
   /**
-   * canvas: the overlay canvas. bottomClear(): screen pixels free under the last row of the guide, so the drifts can be
-   * kept off it. Returns { start, stop, touch }.
+   * box: the overlay element (a div). bottomClear(): screen pixels free under the last row of the guide, so the drifts can
+   * be kept off it. Returns { start, stop, touch }.
+   *
+   * Nothing is redrawn while it runs: each depth layer is painted once onto a tall canvas (two screens high, the flakes
+   * repeated in both halves) and the browser slides it down on the graphics chip, round and round, with a slow side to side
+   * sway on top. That keeps the movement smooth at the screen's own frame rate and costs the TV almost no work.
    */
-  function snow(canvas, bottomClear) {
-    var ctx = canvas.getContext('2d'), W = 0, H = 0, flakes = [], drift = null, sparkles = [], timer = 0, last = 0, touched = 0;
+  function snow(box, bottomClear) {
+    var anims = [], resumeT = 0, running = false;
 
-    function layout() {
-      var px = CFG.PIXEL;
-      W = Math.ceil((window.innerWidth || 1920) / px); H = Math.ceil((window.innerHeight || 1080) / px);
-      canvas.width = W; canvas.height = H;
-      ctx.imageSmoothingEnabled = false;
-      flakes = [];
-      LAYERS.forEach(function (L, li) {
-        var n = Math.round(CFG.FLAKES * L.share);
-        for (var i = 0; i < n; i++) {
-          var s = SPR[pick(L.spr)];
-          flakes.push({ L: L, s: s, c: pick(L.col), x: rnd(0, W), y: rnd(-8, H), v: L.v * rnd(0.7, 1.3), ph: rnd(0, 6.28), sp: rnd(0.4, 1.1) });
-        }
-      });
-      drift = makeDrifts();
+    function paintLayer(L, W, H) {
+      var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * L.share);
+      x.imageSmoothingEnabled = false; x.globalAlpha = L.a;
+      for (var i = 0; i < n; i++) {
+        var s = SPR[pick(L.spr)], fx = Math.round(rnd(4, W - 8)), fy = Math.round(rnd(0, H - 6));
+        x.fillStyle = pick(L.col);
+        for (var h = 0; h < 2; h++)                                  // the same flake again one screen lower, so the loop has no seam
+          for (var r = 0; r < s.length; r++) for (var q = 0; q < s[r].length; q++) if (s[r].charAt(q) === '#') x.fillRect(fx + q, fy + r + h * H, 1, 1);
+      }
+      return c;
     }
 
-    /** The drifts are the same every frame, so they are painted once into their own canvas. */
-    function makeDrifts() {
-      var c = document.createElement('canvas'); c.width = W; c.height = H;
-      var x = c.getContext('2d'), px = CFG.PIXEL, k = Math.max(0, Math.min(10, CFG.DRIFT)) / 10 * 2;
-      var clear = bottomClear ? Math.max(0, bottomClear()) : 40;
-      var cap = Math.max(8, Math.round((clear + 14) / px));     // keep off the last programme row
-      sparkles = [];
-      DRIFTS.forEach(function (D, di) {
+    function paintDrifts(W, H) {
+      var c = mk('sn-drift', W, H), x = c.getContext('2d'), px = CFG.PIXEL, k = Math.max(0, Math.min(10, CFG.DRIFT)) / 10 * 2;
+      var clear = bottomClear ? Math.max(0, bottomClear()) : 40, cap = Math.max(8, Math.round((clear + 14) / px)), tops = [];
+      DRIFTS.forEach(function (D) {
         var base = D.h * 5 * k, prev = -1;
         for (var i = 0; i < W; i++) {
           var h = base + base * 0.35 * Math.sin(i * D.f[0] + D.seed) + base * 0.18 * Math.sin(i * D.f[1] + D.seed * 2);
@@ -85,41 +82,40 @@
           x.fillStyle = D.body; x.fillRect(i, H - h, 1, h);
           x.fillStyle = D.top; x.fillRect(i, H - h, 1, 1);
           if (D.shade && prev > h) { x.fillStyle = D.shade; x.fillRect(i, H - h + 1, 1, Math.min(2, prev - h)); }
-          if (D.shade && h > 3 && Math.random() < 0.012) sparkles.push({ x: i, y: H - h - 1, ph: rnd(0, 6.28) });
+          if (D.shade && h > 3 && Math.random() < 0.012) tops.push([i, H - h - 1]);
           prev = h;
         }
       });
-      return c;
+      var sp = mk('sn-sparkle', W, H), sx = sp.getContext('2d');
+      sx.fillStyle = '#ffffff';
+      tops.forEach(function (t) { sx.fillRect(t[0], t[1], 1, 1); });
+      return [c, sp];
     }
 
-    function sprite(f, t) {
-      var s = f.s, sw = Math.round(Math.sin(t * f.sp + f.ph) * f.L.sway), x0 = Math.round(f.x) + sw, y0 = Math.round(f.y);
-      ctx.fillStyle = f.c;
-      for (var r = 0; r < s.length; r++) for (var q = 0; q < s[r].length; q++) if (s[r].charAt(q) === '#') ctx.fillRect(x0 + q, y0 + r, 1, 1);
+    function build() {
+      var px = CFG.PIXEL, sw = window.innerWidth || 1920, sh = window.innerHeight || 1080, W = Math.ceil(sw / px), H = Math.ceil(sh / px);
+      box.textContent = ''; anims = [];
+      LAYERS.forEach(function (L) {
+        var wrap = document.createElement('div'), c = paintLayer(L, W, H);
+        wrap.className = 'sn-wrap'; c.style.height = (H * 2 * px) + 'px'; wrap.appendChild(c); box.appendChild(wrap);
+        var amp = L.sway * px * 2.2;                                    // side to side, slow, a different pace for each depth
+        anims.push(wrap.animate([{ transform: 'translateX(' + (-amp) + 'px)' }, { transform: 'translateX(' + amp + 'px)' }],
+          { duration: 5200 / (L.v / 5) * 1.6, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }));
+        anims.push(c.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(' + (-H * px) + 'px)' }],
+          { duration: H * px / (L.v * px) * 1000, iterations: Infinity, easing: 'linear' }));
+      });
+      var d = paintDrifts(W, H);
+      d[0].style.opacity = '0.85'; box.appendChild(d[0]); box.appendChild(d[1]);
+      anims.push(d[1].animate([{ opacity: 0.1 }, { opacity: 1 }, { opacity: 0.1 }], { duration: 2400, iterations: Infinity, easing: 'steps(4)' }));
     }
 
-    function frame() {
-      var now = Date.now();
-      if (now - last < 1000 / CFG.FPS - 4) return;
-      if (now - touched < CFG.PAUSE_MS) return;            // the guide is being scrolled: leave it alone
-      var dt = Math.min(0.2, (now - last) / 1000); last = now;
-      ctx.clearRect(0, 0, W, H);
-      var t = now / 1000;
-      for (var i = 0; i < flakes.length; i++) {
-        var f = flakes[i];
-        f.y += f.v * dt;
-        if (f.y > H) { f.y = -6; f.x = rnd(0, W); }
-        ctx.globalAlpha = f.L.a; sprite(f, t);
-      }
-      ctx.globalAlpha = 0.85; ctx.drawImage(drift, 0, 0);
-      ctx.globalAlpha = 1; ctx.fillStyle = '#ffffff';
-      for (var j = 0; j < sparkles.length; j++) if (Math.sin(t * 2 + sparkles[j].ph) > 0.8) ctx.fillRect(sparkles[j].x, sparkles[j].y, 1, 1);
-    }
+    function setPlay(on) { anims.forEach(function (a) { try { if (on) a.play(); else a.pause(); } catch (e) { /* ignore */ } }); }
 
     return {
-      start: function () { if (timer) return; layout(); canvas.className = ''; last = Date.now(); timer = setInterval(frame, 1000 / CFG.FPS); },
-      stop: function () { clearInterval(timer); timer = 0; canvas.className = 'hidden'; if (W) ctx.clearRect(0, 0, W, H); },
-      touch: function () { touched = Date.now(); }
+      start: function () { if (running) return; running = true; build(); box.className = ''; },
+      stop: function () { running = false; clearTimeout(resumeT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; },
+      // the guide is being scrolled: hold the snow still until it has settled
+      touch: function () { if (!running) return; setPlay(false); clearTimeout(resumeT); resumeT = setTimeout(function () { if (running) setPlay(true); }, CFG.PAUSE_MS); }
     };
   }
 

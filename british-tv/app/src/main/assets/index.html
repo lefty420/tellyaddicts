@@ -301,8 +301,12 @@
     position: fixed; inset: 0; z-index: 40; color: var(--gtx, #fff); font-family: var(--gfont, inherit);
     background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%);
   }
-  #gsnow { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 30; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: pixelated; }
+  #gsnow { position: absolute; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; }
   #gsnow.hidden { display: none; }
+  #gsnow canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }
+  #gsnow .sn-wrap { position: absolute; inset: 0; will-change: transform; }
+  #gsnow .sn-wrap canvas { will-change: transform; }
+  #gsnow .sn-drift, #gsnow .sn-sparkle { top: auto; bottom: 0; height: 100%; }
   #gart { position: absolute; top: 0; right: 0; width: 68vw; height: 42vh; background-size: cover; background-position: center 25%; opacity: 0; transition: opacity .6s; pointer-events: none; }
   #gart.on { opacity: .5; }
   #gart::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--g1) 0%, rgba(0,0,0,0) 55%), linear-gradient(0deg, var(--g2) 0%, rgba(0,0,0,0) 45%); }
@@ -809,7 +813,7 @@
 <div id="toast" class="off"></div>
 
 <div id="guide" class="hidden">
-  <canvas id="gsnow" class="hidden" aria-hidden="true"></canvas>
+  <div id="gsnow" class="hidden" aria-hidden="true"></div>
   <div id="gart"></div>
   <div id="ginfo">
     <div id="gtop"><span>TV Guide</span><span id="godbtn">On Demand &#9654;</span><span id="gclock"></span></div>

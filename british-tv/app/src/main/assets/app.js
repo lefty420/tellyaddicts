@@ -575,7 +575,8 @@
   var BLOCKED_FILM = /\bporn\b|\bporno\b|\berotica?\b|\badults?\b|\bplayboy\b|\bpenthouse\b/i;
   /** Keep adult material off every channel, whichever list it came in on. */
   // single archive.org items found to be the wrong thing (a dubbed or foreign-language copy, say), hidden until the scraper drops them
-  var BAD_ITEMS = { 'the-goonies-1985_202510': 1, 'sailor-moon-1992-1080pcbr-': 1, 'bishoujo-senshi-sailor-moon-live': 1 };
+  var BAD_ITEMS = { 'the-goonies-1985_202510': 1, 'sailor-moon-1992-1080pcbr-': 1, 'bishoujo-senshi-sailor-moon-live': 1,
+    'the-addams-family__season-2': 1, 'the-addams-family__season-1': 1 };      // Russian first audio track, English second
   function blocked(p) {
     if (!p) return false;
     if (p.id && BAD_ITEMS[String(p.id).split('/')[0]]) return true;

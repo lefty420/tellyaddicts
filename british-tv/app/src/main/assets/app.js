@@ -3736,8 +3736,11 @@
     if (quitOpen) { quitKey(k); e.preventDefault(); return; }
     if (!odOpen && (k === 'GoBack' || k === 'Escape' || k === 'Backspace')) {
       var nowT = Date.now();
-      if (!e.repeat && nowT - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); e.preventDefault(); return; }
-      if (!e.repeat) lastBack = nowT;
+      // only a Back pressed on the plain picture (or the guide with nothing playing) counts towards quitting:
+      // one that closes the guide, the bar, the options or a panel never does
+      if (relOpen || infoOpen || optsOpen || osdOpen || gm || (guideOpen && cur)) lastBack = 0;
+      else if (!e.repeat && nowT - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); e.preventDefault(); return; }
+      else if (!e.repeat) lastBack = nowT;
     }
 
     if (relOpen) {                        // What's new sits above the options panel it was opened from

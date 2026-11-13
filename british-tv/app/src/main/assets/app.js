@@ -983,7 +983,7 @@
         if (!u || spPics.indexOf(u) >= 0) continue;
         u = u.replace('/original_untouched/', e.b ? '/medium_landscape/' : '/medium_portrait/');
         n++;
-        (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) spPics.push(url); }; im.src = url; })(u);
+        (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) { spPics.push(url); spFill(); } }; im.src = url; })(u);
       }
     }
     try {                                          // films seen on earlier runs: their posters join the shows
@@ -992,7 +992,7 @@
         var f = store.get(k), u = f && f.poster;
         if (!u || fn >= 14) return;
         fn++; u = u.replace('/original/', '/w500/');
-        (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) { spPort[url] = 1; spPics.push(url); } }; im.src = url; })(u);
+        (function (url) { var im = new Image(); im.onload = function () { if (spPics.indexOf(url) < 0) { spPort[url] = 1; spPics.push(url); spFill(); } }; im.src = url; })(u);
       });
     } catch (e) { /* no films saved yet */ }
     var cachedIdx = null;
@@ -1006,30 +1006,33 @@
       use(idx);
     }).then(null, function () { /* static only */ });
   }
-  // The set hunts like a real one: static, a picture flicks up for a moment, static again, another picture ...
-  function spNoise() {
-    var c = $('spnoise'); if (!c || $('splash').className === 'hidden') return;
-    var x = c.getContext('2d');
-    if (!spNoiseImg) spNoiseImg = x.createImageData(c.width, c.height);
-    var d = spNoiseImg.data;
+  // Start-up TV, all moved by CSS animations (see index.html): this only makes the pieces and keeps the pictures topped up.
+  var spSlots = [], spInited = false;
+  function spInit() {
+    if (spInited) return;
+    spInited = true;
+    var c = $('spnoise'), x = c.getContext('2d'), img = x.createImageData(c.width, c.height), d = img.data;     // four frames of static in one tall picture
     for (var i = 0; i < d.length; i += 4) { var v = (Math.random() * 255) | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
-    x.putImageData(spNoiseImg, 0, 0);
-    if (--spTick <= 0) {
-      if (spPic || !spPics.length) { spPic = false; spTick = 2 + ((Math.random() * 3) | 0); if (spPics.length && Math.random() < 0.3) spLockUntil = Date.now() + 300; }
-      else {
-        spPic = true; spJit = true; spTick = 7 + ((Math.random() * 6) | 0);
-        spKnobs += 55 + ((Math.random() * 60) | 0);                     // the knobs turn as each one is tuned in
-        $('spk1').style.transform = 'rotate(' + spKnobs + 'deg)'; $('spk2').style.transform = 'rotate(' + (-spKnobs * 0.6) + 'deg)';
-        var pn = 1 + ((Math.random() * 40) | 0); $('spnum').textContent = 'P' + (pn < 10 ? '0' : '') + pn;
-        $('sppic').style.backgroundImage = 'url("' + spPics[(Math.random() * spPics.length) | 0] + '")';
-      }
-    } else if (spJit && spTick < 4) spJit = false;
-    spApply();
+    x.putImageData(img, 0, 0);
+    var box = $('spslides');
+    for (var n = 0; n < 12; n++) {
+      var el = document.createElement('div');
+      el.className = 'spslot'; el.style.animationDelay = (n * 1.7) + 's'; el.setAttribute('data-ch', 'P--');
+      // each time a picture comes round again it is a different one, on a different "channel"
+      el.addEventListener('animationiteration', function (e) { if (e.animationName === 'spslot') spSet(e.target); });
+      el.addEventListener('animationstart', function (e) { if (e.animationName === 'spslot') spSet(e.target); });
+      box.appendChild(el); spSlots.push(el);
+    }
+    spFill();
   }
-  function spApply() {
-    var scr = $('spscreen'), want = Date.now() < spLockUntil ? 'lock' : spPic ? 'pic' + (spJit ? ' jit' : '') : '';
-    if (scr.className !== want) scr.className = want;
+  function spSet(el) {
+    if (!spPics.length) return;
+    var u = spPics[(Math.random() * spPics.length) | 0], pn = 1 + ((Math.random() * 40) | 0);
+    el.style.backgroundImage = 'url("' + u + '")'; el.className = 'spslot has';
+    el.setAttribute('data-ch', 'P' + (pn < 10 ? '0' : '') + pn);
   }
+  /** A picture has loaded: any slot still empty can use it. */
+  function spFill() { spSlots.forEach(function (el) { if (el.className.indexOf('has') < 0) spSet(el); }); }
   function renderStatus() {
     var lines = channels.map(function (c) {
       var mark = c.status === 'ready' ? '✓' : c.status === 'empty' ? '–' : '…';
@@ -1053,8 +1056,7 @@
       if (lastDone) $('spcount').textContent = lastDone.n + '  ' + lastDone.name;
     }
     spLoadPics();
-    spApply();
-    if (!spNoiseTimer) spNoiseTimer = setInterval(spNoise, 110);
+    spInit();
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;
     for (var i = 0; i < bars.length; i++) {

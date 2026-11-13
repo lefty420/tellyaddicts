@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.67",
-  "version": "0.45.67",
-  "code": 4567,
+  "name": "Alpha 0.45.68",
+  "version": "0.45.68",
+  "code": 4568,
   "date": "2026-11-13",
   "notes": [
-    "**YouTube Poop remixes are gone from Disney.** Three uploads called \"Donald Duck Comedy vs ...\" (fan-made \"ytp\" remixes with crude filenames) had been filed under Donald Duck on the Disney channel and its guide, and in On Demand. Anything with \"ytp\", \"YouTube Poop\" or \"Donald Duck Comedy vs\" in its name is now blocked everywhere, and those three items are hidden by name."
+    "**The start-up TV keeps tuning until the guide is ready.** It used to freeze on static while the app was busy building the guides, because the picture changes and the knobs were driven by the same thread that was doing the building. Now everything that moves (the static, twelve pictures taking turns, the turning knobs, the channel number and the occasional flash of colour bars) is a pure animation that carries on whatever the app is doing. Each time a picture comes round again it is a different show or film."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.67",
+      "date": "2026-11-13",
+      "notes": [
+        "**YouTube Poop remixes are gone from Disney.** Three uploads called \"Donald Duck Comedy vs ...\" (fan-made \"ytp\" remixes with crude filenames) had been filed under Donald Duck on the Disney channel and its guide, and in On Demand. Anything with \"ytp\", \"YouTube Poop\" or \"Donald Duck Comedy vs\" in its name is now blocked everywhere, and those three items are hidden by name."
+      ]
+    },
     {
       "name": "Alpha 0.45.66",
       "date": "2026-11-13",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Seasonal effects: Christmas snow on the guide.** A light pixel-art snowfall and snowdrifts drawn over the TV guide from 1 November to 6 January. It cannot be focused and does not touch the remote. It runs at about 15 frames a second, holds still while the guide is being scrolled, and keeps the drifts off the last row of programmes. Options > TV Guide > Seasonal effects: Auto (follows the date) or Off."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.59",
-      "date": "2026-11-13",
-      "notes": [
-        "**New channel: Christmas Movies (18).** Christmas films and specials from 1970 to 1999 (Home Alone, Scrooged, The Snowman, The Muppet Christmas Carol and the rest of a 125-title list in `tools/christmas-movies.json`). It stays hidden until the scraper has found some of them, then appears by itself and also shows in On Demand as a film row. The channels after it moved up one number; the Adverts channel is now 31."
       ]
     }
   ]

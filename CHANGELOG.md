@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.45.85 — 2026-11-13
+
+- **No more empty Dragon Ball Z.** It had no videos but was still listed under Children's, so it showed as an empty show. Removed.
+
 ## Alpha 0.45.84 — 2026-11-13
 
 - **Hide a show you don't want.** Both hold-OK menus now have "Hide this show" (or film). It goes from On Demand straight away and from the guide after Refresh listings. Options > TV Guide > Hidden shows brings them all back (OK twice).

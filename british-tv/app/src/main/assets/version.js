@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.84",
-  "version": "0.45.84",
-  "code": 4584,
+  "name": "Alpha 0.45.85",
+  "version": "0.45.85",
+  "code": 4585,
   "date": "2026-11-13",
   "notes": [
-    "**Hide a show you don't want.** Both hold-OK menus now have \"Hide this show\" (or film). It goes from On Demand straight away and from the guide after Refresh listings. Options > TV Guide > Hidden shows brings them all back (OK twice).",
-    "**Report a problem** in the guide menu writes the programme, show and file to the debug log, so a wrong video can be traced.",
-    "**Menu tidy.** \"Scrape this show\" is now \"Fix artwork & details\", the Options shortcut is gone from the guide menu, and the On Demand menu gains Info."
+    "**No more empty Dragon Ball Z.** It had no videos but was still listed under Children's, so it showed as an empty show. Removed."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.84",
+      "date": "2026-11-13",
+      "notes": [
+        "**Hide a show you don't want.** Both hold-OK menus now have \"Hide this show\" (or film). It goes from On Demand straight away and from the guide after Refresh listings. Options > TV Guide > Hidden shows brings them all back (OK twice).",
+        "**Report a problem** in the guide menu writes the programme, show and file to the debug log, so a wrong video can be traced.",
+        "**Menu tidy.** \"Scrape this show\" is now \"Fix artwork & details\", the Options shortcut is gone from the guide menu, and the On Demand menu gains Info."
+      ]
+    },
     {
       "name": "Alpha 0.45.83",
       "date": "2026-11-13",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Live view now reports performance.** While it is switched on, the page's text includes how long the screen takes to answer each button press (median, 90th percentile and worst, for the guide, On Demand and Options separately) and how many stalls over 50 ms there have been in the last five minutes. It only measures while Live view is on."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.76",
-      "date": "2026-11-13",
-      "notes": [
-        "**Faster start-up.** Working out which channel a programme belongs on (the genre check, and routing the library to channels) searched every programme's name against thousands of known show names, one by one. It now looks each run of words up in a table. The results are identical (checked against all 877,000 genre checks and the whole routed library) but the genre check is about 6 times quicker and the routing about twice as quick. In a test the guide appeared after 3.1 seconds instead of 5.4. A slow TV will gain more in seconds, and this is also the work behind Refresh EPG."
       ]
     }
   ]

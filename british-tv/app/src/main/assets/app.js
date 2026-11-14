@@ -4748,13 +4748,20 @@
   function odmOpen() {
     var g = odSel().g;
     if (!g) return;
-    if (g.film) { toast('Films use the poster that came with them', 2500); return; }
+    var optsItem = { t: 'Options', sub: 'Settings, help and debug', f: function () { odmClose(); openOpts(); } };
+    var infoItem = { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = (g.flat && g.flat[0]) || (g.eps && g.eps[0]); if (e0) openInfo({ prog: e0.p, ch: g.chan }); } };
+    if (g.film) {                                            // a film keeps the poster that came with it: nothing to scrape or choose
+      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [infoItem, optsItem,
+        { t: 'Hide this film', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { hideShow(g.name, true); } }] };
+      odmRender(); return;
+    }
     odm = { mode: 'menu', g: g, i: 0, items: [
       { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = g.flat && g.flat[0]; if (e0) openInfo({ prog: e0.p, ch: g.chan }); } },
       { t: 'Scrape artwork', sub: 'Look the show up again and use the best match', f: function () { odmScrape(g); } },
       { t: 'Choose the right show', sub: 'Pick from the list if the wrong show was matched', f: function () { odmShows(g); } },
       { t: 'Choose a poster', sub: 'Pick the picture shown on its card', f: function () { odmPics(g, 'poster'); } },
       { t: 'Choose a background', sub: 'Pick the wide picture behind the show', f: function () { odmPics(g, 'background'); } },
+      optsItem,
       { t: 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { hideShow(g.name, false); } },
       { t: 'Back to automatic', sub: 'Forget the choices made for this show', f: function () {
         try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }

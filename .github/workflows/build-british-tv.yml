@@ -33,15 +33,16 @@ jobs:
           echo "name=$(python3 -c "import json,re;s=open('british-tv/app/src/main/assets/version.js').read();print(json.loads(s[s.index('{'):s.rindex('}')+1])['name'])")" >> "$GITHUB_OUTPUT"
           echo "version=$(grep -oP 'versionName = \"\K[^\"]+' british-tv/app/build.gradle.kts)" >> "$GITHUB_OUTPUT"
 
-      - name: Build debug APK
+      - name: Build debug APKs (TV and Mobile)
         working-directory: british-tv
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleTvDebug assembleMobileDebug
 
       - name: Gather the release
         run: |
-          cp british-tv/app/build/outputs/apk/debug/app-debug.apk british-tv/tellyaddicts.apk
+          cp british-tv/app/build/outputs/apk/tv/debug/app-tv-debug.apk british-tv/tellyaddicts-tv.apk
+          cp british-tv/app/build/outputs/apk/mobile/debug/app-mobile-debug.apk british-tv/tellyaddicts-mobile.apk
           cp CHANGELOG.md british-tv/CHANGELOG.md
           echo "${{ steps.version.outputs.name }}" > british-tv/VERSION.txt
 
@@ -49,6 +50,7 @@ jobs:
         with:
           name: tellyaddicts-${{ steps.version.outputs.version }}
           path: |
-            british-tv/tellyaddicts.apk
+            british-tv/tellyaddicts-tv.apk
+            british-tv/tellyaddicts-mobile.apk
             british-tv/CHANGELOG.md
             british-tv/VERSION.txt

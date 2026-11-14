@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.14",
-  "version": "0.46.14",
-  "code": 4614,
+  "name": "Alpha 0.46.15",
+  "version": "0.46.15",
+  "code": 4615,
   "date": "2026-11-14",
   "notes": [
-    "**Blocked shows really disappear now**: two wrong versions you reported (Mr and Mrs North, the American Wheel of Fortune) were already on the block list but kept playing, because the TV was still using lineups it had saved earlier. The saved lineups are now rebuilt whenever the block list changes, so a block takes effect straight away.",
-    "Blocked the American Shining Time Station episodes that were showing as Thomas and Friends."
+    "**Two apps from one build**: each build now gives you `tellyaddicts-tv.apk` (the TV app, unchanged) and `tellyaddicts-mobile.apk` (called \"Telly Addicts Mobile\", for phones). They install side by side, keep separate data and have separate settings, so nothing done on the phone version can affect the TV. For now the mobile one is the same app; the touch controls and phone layout come next."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.14",
+      "date": "2026-11-14",
+      "notes": [
+        "**Blocked shows really disappear now**: two wrong versions you reported (Mr and Mrs North, the American Wheel of Fortune) were already on the block list but kept playing, because the TV was still using lineups it had saved earlier. The saved lineups are now rebuilt whenever the block list changes, so a block takes effect straight away.",
+        "Blocked the American Shining Time Station episodes that were showing as Thomas and Friends."
+      ]
+    },
     {
       "name": "Alpha 0.46.13",
       "date": "2026-11-14",
@@ -60,15 +67,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**YouTube episodes no longer play behind a frozen picture.** Starting a YouTube episode (or anything else in the app's own player) straight after a normal programme left that programme's last frame stuck on screen, with the new one playing behind it. The old picture is now let go and hidden whenever the app's own player is showing."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.6",
-      "date": "2026-11-14",
-      "notes": [
-        "**Films get backdrops and an artwork menu** (needs a TheTVDB key). Hold OK on a film in On Demand: Scrape artwork finds its backdrop on TheTVDB, Choose the right film lists the matches when it picked the wrong one, and Choose a poster / Choose a background list its pictures. Back to automatic forgets the choices. A film keeps the poster it came with unless you pick another.",
-        "**Scan my artwork now covers films too**: with a key it looks up a backdrop for every film that has none, after the shows.",
-        "The backdrop is used wherever a show's is: the loading screen, On Demand and the guide."
       ]
     }
   ]

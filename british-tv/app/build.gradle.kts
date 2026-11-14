@@ -10,8 +10,22 @@ android {
         applicationId = "app.britishtv"
         minSdk = 22
         targetSdk = 34
-        versionCode = 4614
-        versionName = "0.46.14"
+        versionCode = 4615
+        versionName = "0.46.15"
+    }
+
+    // Two builds from the one codebase: "tv" (the TV app, exactly as before) and "mobile" (for phones). They have different
+    // application ids, so they install side by side and keep separate data: nothing done on a phone can touch the TV app.
+    // Both share everything in src/main; src/mobile holds anything that is only for phones.
+    flavorDimensions += "device"
+    productFlavors {
+        create("tv") {
+            dimension = "device"
+        }
+        create("mobile") {
+            dimension = "device"
+            applicationIdSuffix = ".mobile"
+        }
     }
 
     // A fixed key, so every build is signed the same and installs over the last one

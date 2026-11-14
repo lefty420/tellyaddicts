@@ -578,7 +578,7 @@
   var BLOCKED_FILM = /\bporn\b|\bporno\b|\berotica?\b|\badults?\b|\bplayboy\b|\bpenthouse\b/i;
   /** Keep adult material off every channel, whichever list it came in on. */
   // single archive.org items found to be the wrong thing (a dubbed or foreign-language copy, say), hidden until the scraper drops them
-  var BAD_ITEMS = { 'AngelsinHeat2': 1, '00AIH1': 1, '1993TvsCounterCam': 1, '1992VideoShopTedsBooksAdamsCainingMagicMt': 1, 'tamers12345-sonic-underground': 1, 'the-goonies-1985_202510': 1, 'sailor-moon-1992-1080pcbr-': 1, 'bishoujo-senshi-sailor-moon-live': 1,
+  var BAD_ITEMS = { 'budgie-the-little-helicopter-series-2-episode-8-surprise-surprise': 1, 'mr-and-mrs-is-the-name-1935-restored': 1, 'the-busy-world-of-richard-scarry-s-01-e-07-the-snowstorm-professor-dig-and-his-e': 1, 'AngelsinHeat2': 1, '00AIH1': 1, '1993TvsCounterCam': 1, '1992VideoShopTedsBooksAdamsCainingMagicMt': 1, 'tamers12345-sonic-underground': 1, 'the-goonies-1985_202510': 1, 'sailor-moon-1992-1080pcbr-': 1, 'bishoujo-senshi-sailor-moon-live': 1,
     'the-addams-family__season-2': 1, 'the-addams-family__season-1': 1,
     '20250604_20250604_0220': 1, '20250527_20250527_1334': 1, '20250601_20250601_0848': 1 };      // Russian first audio track, English second
   // Shows hidden on this TV from the hold-OK menus (Options > TV Guide > Hidden shows brings them back).

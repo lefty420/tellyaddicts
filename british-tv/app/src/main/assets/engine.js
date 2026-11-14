@@ -569,7 +569,7 @@
       var block = marks[i], next = marks[i + 1];
       var ends = next ? next.at : marks[0].at + span;         // the cycle has to close on its own start time
       var mustEnd = next ? next.exact : true;
-      if (at < block.at) padTo(block.at);                     // run up to an exact start
+      if (at < block.at && !(block.cursor && i > 0)) padTo(block.at);   // run up to an exact start (an ordered block just follows on)
       else if (at > block.at && block.exact && order.length) {
         var over = order.length - 1, keep = block.at - starts[over];
         if (keep >= 60) { order[over] = clone(order[over], keep); at = block.at; }   // the news waits for nobody
@@ -593,14 +593,14 @@
         if (!mustEnd) {
           if (block.cursor && p.dur - (ends - at) > 600) {   // an ordered block lets a programme run over by ten minutes, no more:
             cursors[block.cursor]--; used[p.url || p.id] = 0;  //  it goes back for the next block, and continuity runs up to the mark
-            padTo(ends); break;
+            break;
           }
           put(p, p.dur); break;
         }
         padTo(ends);
         break;
       }
-      if (at < ends) padTo(ends);
+      if (at < ends && !(block.cursor && next)) padTo(ends);      // an ordered block never pads: the next one starts when this ends
     }
     var total = at - starts[0];
     if (total <= 0) return null;

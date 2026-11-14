@@ -302,7 +302,7 @@
       days.forEach(function (slots, d) {
         slots.forEach(function (sl) {
           var l = listFor(sl[2]);
-          blocks.push({ at: d * DAY + sl[0], exact: !!sl[1], items: l.items, ordered: true, cursor: l.key, round: 300 });
+          blocks.push({ at: d * DAY + sl[0], exact: !!sl[1], items: l.items, ordered: true, cursor: l.key });
         });
       });
       return blocks;

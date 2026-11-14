@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.91",
-  "version": "0.45.91",
-  "code": 4591,
+  "name": "Alpha 0.45.92",
+  "version": "0.45.92",
+  "code": 4592,
   "date": "2026-11-14",
   "notes": [
-    "**Fixed: anything playing in the app's own player was skipped after about five seconds.** The check for \"sound but no picture\" counted frames, which the app's own player cannot report, so it always decided there was no picture and moved on to the next programme. It now takes a known picture size as a picture. This hit YouTube videos, and any file that had been handed to the backup player."
+    "**No more small gaps in the guide with Real time EPG on.** Programmes now simply follow one another in the ordered week; the short clips used to pad out start times are gone, so the guide has no tiny boxes between programmes. Start times drift a few minutes off the round marks instead.",
+    "**Three wrong matches hidden:** a Budgie the Little Helicopter episode listed as Surprise Surprise, a Richard Scarry episode listed as Treasure Hunt, and a 1935 film listed as Mr and Mrs."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.91",
+      "date": "2026-11-14",
+      "notes": [
+        "**Fixed: anything playing in the app's own player was skipped after about five seconds.** The check for \"sound but no picture\" counted frames, which the app's own player cannot report, so it always decided there was no picture and moved on to the next programme. It now takes a known picture size as a picture. This hit YouTube videos, and any file that had been handed to the backup player."
+      ]
+    },
     {
       "name": "Alpha 0.45.90",
       "date": "2026-11-14",
@@ -63,13 +71,6 @@ window.RELEASE = {
         "**Hide a show you don't want.** Both hold-OK menus now have \"Hide this show\" (or film). It goes from On Demand straight away and from the guide after Refresh listings. Options > TV Guide > Hidden shows brings them all back (OK twice).",
         "**Report a problem** in the guide menu writes the programme, show and file to the debug log, so a wrong video can be traced.",
         "**Menu tidy.** \"Scrape this show\" is now \"Fix artwork & details\", the Options shortcut is gone from the guide menu, and the On Demand menu gains Info."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.83",
-      "date": "2026-11-13",
-      "notes": [
-        "**The hold-OK menus match Options.** The menu on a programme in the guide and the one on a show in On Demand now use the same navy panel, yellow highlight and two-line rows as Options, with a short line under each choice saying what it does."
       ]
     }
   ]

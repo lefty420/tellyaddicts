@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.37",
-  "version": "0.46.37",
-  "code": 4637,
+  "name": "Alpha 0.46.38",
+  "version": "0.46.38",
+  "code": 4638,
   "date": "2026-11-14",
   "notes": [
-    "**Start-up TV moves again, and shows the real tuning**: the last change drove the needle, knobs and picture from the page itself, which is frozen while the guides are being built, so on the TV nothing moved. The needle, knobs, static and pictures are back on their own animations (they keep going while the app is busy), and the real progress is added on top: a green bar fills along the scale and the label counts the channels that have finished (TUNING 7 / 16), with a flash of colour bars as each locks on."
+    "**PLAYING marker made small**: the red tag on the programme you are watching took up most of a narrow guide cell and hid its title. It is now just a small red ▶ badge; the red outline and the channel marker stay."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.37",
+      "date": "2026-11-14",
+      "notes": [
+        "**Start-up TV moves again, and shows the real tuning**: the last change drove the needle, knobs and picture from the page itself, which is frozen while the guides are being built, so on the TV nothing moved. The needle, knobs, static and pictures are back on their own animations (they keep going while the app is busy), and the real progress is added on top: a green bar fills along the scale and the label counts the channels that have finished (TUNING 7 / 16), with a flash of colour bars as each locks on."
+      ]
+    },
     {
       "name": "Alpha 0.46.36",
       "date": "2026-11-14",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Channel schedule fixes**: OK on any programme in the schedule now plays it (a later one starts from the beginning, like the guide does); before, only what was on right now did anything. \"Channel schedule\" also moves up to sit straight under On Demand in the guide's hold-OK menu."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.29",
-      "date": "2026-11-14",
-      "notes": [
-        "**Smoother On Demand**: the big backdrop behind a show is now decoded in the background before it is shown, so moving along the rows no longer stalls while a large picture loads."
       ]
     }
   ]

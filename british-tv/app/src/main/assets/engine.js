@@ -521,13 +521,15 @@
     marks.sort(function (a, b) { return a.at - b.at; });
 
     var order = [], starts = [], at = marks[0].at, fillAt = 0;
-    function put(prog, dur) { order.push(prog.dur === dur ? prog : clone(prog, dur)); starts.push(at); at += dur; }
+    var lastKey = '';                         // what was put last, so nothing is ever shown twice running while there is anything else
+    function put(prog, dur) { order.push(prog.dur === dur ? prog : clone(prog, dur)); starts.push(at); at += dur; lastKey = prog.url || prog.id || ''; }
 
     /** Reach a time exactly: short filler, the last of it cut to fit. With no filler left, hold the previous
      *  programme on screen for the remainder, which is still better than dead air. */
     function padTo(target) {
       for (var guard = 0; at < target && fill.length && guard < fill.length * 4; guard++) {
         var f = fill[fillAt++ % fill.length];
+        if ((f.url || f.id) === lastKey && fill.length > 1) continue;             // not the one that has just finished
         put(f, Math.min(f.dur, target - at));
       }
       if (at < target && order.length) {
@@ -555,15 +557,18 @@
           cand = block.items[ci % len];
           if (!used[cand.url || cand.id]) { used[cand.url || cand.id] = 1; return cand; }
         }
-        return cand;
+        return cand && (cand.url || cand.id) === lastKey ? null : cand;       // only the one just shown is left: filler instead
       }
       block.i = block.i || 0;
       for (var t = 0; t < len; t++) {
         cand = block.items[block.i++ % len];
         if (!used[cand.url || cand.id]) { used[cand.url || cand.id] = 1; return cand; }
       }
-      cand = block.items[block.i++ % len];
-      return cand;
+      for (var t2 = 0; t2 < len; t2++) {                                  // all been on today: go round again, but never the same one twice running
+        cand = block.items[block.i++ % len];
+        if ((cand.url || cand.id) !== lastKey) return cand;
+      }
+      return null;                                                        // the block has only the one just shown: filler instead
     }
     for (var i = 0; i < marks.length; i++) {
       var block = marks[i], next = marks[i + 1];
@@ -576,6 +581,7 @@
       }
       for (var k = 0; at < ends && k <= block.items.length * 40; k++) {
         var p = nextItem(block, mustEnd ? ends - at : 0);
+        if (!p) { padTo(ends); break; }
         if (p.dur <= ends - at) {
           put(p, p.dur);
           if (block.round) {                                  // start the next one on a round time: a little continuity first

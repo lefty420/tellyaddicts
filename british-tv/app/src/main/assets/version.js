@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.39",
-  "version": "0.46.39",
-  "code": 4639,
+  "name": "Alpha 0.46.40",
+  "version": "0.46.40",
+  "code": 4640,
   "date": "2026-11-14",
   "notes": [
-    "**The guide comes back where you left it**: press Back to go to the picture, then open the guide again, and it opens on the same channel, rows and time you had selected instead of jumping back to what is playing and scrolling the list. If you started something else, or it was more than ten minutes ago, it opens on what is playing as before."
+    "**Experimental: Stremio addons (first version)**: Options > Experimental. Turn it on, then Addons > Add an addon and type the link of a Stremio addon (it ends in manifest.json; stremio:// links work too). The app ships with no addons and recommends none. Addons can be turned on or off, moved up or down, tested and removed. On Demand's hold-OK menu gets **Find sources**: your addons are asked, with only the title's IMDb number, for streams, listed best first (1080p, then 720p). OK plays a direct web link or YouTube video. Torrents, usenet, archives and website links are shown greyed and never start. Only https addresses (http on your own network), adult-flagged addons are refused, and \"Only before 2000\" keeps it to what this app is about. Films need an addon with a film search to find their number. Not yet: addon catalogs in On Demand, auto-play, subtitles, special-header streams."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.39",
+      "date": "2026-11-14",
+      "notes": [
+        "**The guide comes back where you left it**: press Back to go to the picture, then open the guide again, and it opens on the same channel, rows and time you had selected instead of jumping back to what is playing and scrolling the list. If you started something else, or it was more than ten minutes ago, it opens on what is playing as before."
+      ]
+    },
     {
       "name": "Alpha 0.46.38",
       "date": "2026-11-14",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Realistic TV schedule is on by default**: new installs, and anyone who had never touched the setting, now get the real-week layout. If you had switched it off yourself it stays off. The guides rebuild once after the update."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.31",
-      "date": "2026-11-14",
-      "notes": [
-        "**Clearer Options**: confusing settings now say what they do. *Video player* is now **Videos that won't play** (Automatic / Never / Always, and \"rescued 5 videos so far\" instead of \"(5 files)\"), *Buffer* is **Download ahead**, *Enhancements* is **Picture style**, *Real time EPG* is **Realistic TV schedule**, *Keep listings for* is **Shuffle guide every** and *EPG debug* is **Guide check (debug)**. The help line under each is rewritten in plain English."
       ]
     }
   ]

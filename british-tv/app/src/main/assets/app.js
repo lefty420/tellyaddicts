@@ -3496,6 +3496,229 @@
     csRender();
   }
 
+
+  // ------------------------------------------------------------------ Experimental: Stremio addons (phase 1)
+  // Addons are paste-in links to a Stremio addon (…/manifest.json). They are asked, with the title's IMDb id only,
+  // for streams; only plain web links and YouTube are played. Torrents, usenet and archives are never started.
+
+  var expOn = store.get('exp1') === 'on';
+  var adCut = store.get('adcut1') !== 'off';                 // only titles from before 2000
+  var addons = store.get('addons1') || [];
+  var ad = null, adTimer = null;
+  function adSave() { store.set('addons1', addons); }
+  function adLive() { return expOn ? addons.filter(function (a) { return a.on; }) : []; }
+  function adTmo(p, ms) { return new Promise(function (res, rej) { var t = setTimeout(function () { rej(new Error('timeout')); }, ms); p.then(function (x) { clearTimeout(t); res(x); }, function (e) { clearTimeout(t); rej(e); }); }); }
+  function adLan(h) { return /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h) || /\.local$/.test(h); }
+  /** What was pasted -> the addon's base web address, or { err }. */
+  function adBase(s) {
+    s = String(s || '').trim();
+    if (!s) return { err: 'Nothing entered' };
+    if (s.charAt(0) === '{') return { err: 'Paste the addon’s link (it ends in manifest.json), not the JSON itself' };
+    s = s.replace(/^stremio:\/\//i, 'https://');
+    if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+    var m = /^(https?):\/\/([^\/?#]+)([^?#]*)/i.exec(s);
+    if (!m) return { err: 'That is not a web address' };
+    if (m[1].toLowerCase() === 'http' && !adLan(m[2].split(':')[0])) return { err: 'Only https:// addresses are allowed (http only on your own network)' };
+    var path = m[3].replace(/\/manifest\.json$/i, '').replace(/\/+$/, '');
+    return { base: m[1].toLowerCase() + '://' + m[2] + path };
+  }
+  function adRes(a, name) {        // the types / id prefixes an addon offers for one resource, or null
+    var out = null;
+    (a.resources || []).forEach(function (r) {
+      if (typeof r === 'string') { if (r === name) out = { types: a.types || [], pre: a.idPrefixes || null }; }
+      else if (r && r.name === name) out = { types: r.types || a.types || [], pre: r.idPrefixes || a.idPrefixes || null };
+    });
+    return out;
+  }
+  function adFetch(base) {
+    return adTmo(http(base + '/manifest.json'), 10000).then(function (t) {
+      var m; try { m = JSON.parse(t); } catch (e) { throw new Error('That address did not give an addon'); }
+      if (!m || !m.id || !m.name || !Array.isArray(m.resources)) throw new Error('That address did not give an addon');
+      return m;
+    });
+  }
+  function adOpen(o) { ad = o; ad.i = o.i || 0; ad.top = 0; adRender(); $('csched').className = ''; }
+  function adClose() { ad = null; $('csched').className = 'hidden'; }
+  function adRender() {
+    var N = window.PHONE ? 4 : 9, n = ad.rows.length;
+    $('csnum').textContent = ''; $('csname').textContent = ad.title; $('csdate').textContent = ad.sub || ''; $('cstabs').textContent = '';
+    if (ad.i < ad.top) ad.top = ad.i; else if (ad.i >= ad.top + N) ad.top = ad.i - N + 1;
+    ad.top = Math.max(0, Math.min(ad.top, Math.max(0, n - N)));
+    var box = $('cslist'); box.textContent = '';
+    if (!n) { var e0 = document.createElement('div'); e0.className = 'csr'; e0.textContent = ad.empty || 'Nothing here'; box.appendChild(e0); }
+    ad.rows.forEach(function (b, i) {
+      if (i < ad.top || i >= ad.top + N) return;
+      var r = document.createElement('div');
+      r.className = 'csr' + (b.dim ? ' past' : '') + (i === ad.i ? ' sel' : '');
+      var t = document.createElement('span'); t.className = 't'; t.textContent = b.t || ''; r.appendChild(t);
+      var nm = document.createElement('span'); nm.className = 'n'; nm.textContent = b.n || '';
+      if (b.s) { var s = document.createElement('i'); s.textContent = b.s; nm.appendChild(s); }
+      r.appendChild(nm);
+      var dd = document.createElement('span'); dd.className = 'd'; dd.textContent = b.d || ''; r.appendChild(dd);
+      r.addEventListener('click', function () { if (ad.i === i) adAct(); else { ad.i = i; adRender(); } });
+      box.appendChild(r);
+    });
+    $('csfoot').textContent = '';
+    (ad.foot || ['OK Choose', 'Back']).forEach(function (x) { var s = document.createElement('span'); s.textContent = x; $('csfoot').appendChild(s); });
+  }
+  function adAct() {
+    var b = ad.rows[ad.i]; if (!b) return;
+    if (b.why) { toast(b.why, 4000); return; }
+    if (b.f) b.f();
+  }
+  function adBack() { if (ad && ad.back) ad.back(); else adClose(); }
+  function adnKey(k) {
+    var n = ad.rows.length;
+    if (k === 'ArrowUp') { if (n) ad.i = (ad.i + n - 1) % n; }
+    else if (k === 'ArrowDown') { if (n) ad.i = (ad.i + 1) % n; }
+    else if (k === 'Enter' || k === ' ') { adAct(); return; }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide' || k === 'Red' || k === 'Info') { adBack(); return; }
+    adRender();
+  }
+
+  // ---- the addon list (Options > Experimental > Addons)
+  function adList(keep) {
+    var rows = addons.map(function (a, i) {
+      return { t: !a.on ? 'Off' : a.bad ? 'Offline' : 'On', n: a.name, s: a.version ? 'v' + a.version : '', d: i === 0 ? 'First' : '#' + (i + 1), f: function () { adMenu(i); } };
+    });
+    rows.push({ t: '+', n: 'Add an addon', s: 'paste its link', d: '', f: adAsk });
+    adOpen({ title: 'Addons', sub: expOn ? 'Asked in this order' : 'Experimental is off', rows: rows, i: keep == null ? 0 : keep, foot: ['OK Choose', 'Back'], empty: '',
+      back: function () { adClose(); if (!optsOpen) openOpts(); else renderOpts(); } });
+  }
+  function adAsk() {
+    adClose();
+    kbOpen({ title: 'Addon link', label: 'Paste or type the link ending in manifest.json', value: '', save: function (txt) {
+      if (!txt) { adList(addons.length); return; }
+      var b = adBase(txt);
+      if (b.err) { toast(b.err, 5000); adList(addons.length); return; }
+      adOpen({ title: 'Checking the addon…', sub: b.base, rows: [], empty: 'Asking it for its details…', back: function () { adList(addons.length); } });
+      adFetch(b.base).then(function (m) { adPreview(b.base, m); }, function (e) { toast(e.message === 'timeout' ? 'The addon did not answer' : e.message, 5000); adList(addons.length); });
+    } });
+  }
+  function adPreview(base, m) {
+    var dup = addons.filter(function (a) { return a.base === base; })[0];
+    var strm = adRes(m, 'stream'), flags = m.behaviorHints || {};
+    var rows = [];
+    var why = dup ? 'Already installed' : flags.adult ? 'This addon says it is for adults only; those are not allowed here' : !strm ? 'It has no stream source, so there is nothing to play' : flags.configurationRequired ? 'This addon needs setting up on its own website first' : '';
+    rows.push({ t: 'Add', n: 'Install “' + m.name + '”', s: m.version ? 'v' + m.version : '', d: '', dim: !!why, why: why, f: function () {
+      addons.push({ base: base, name: m.name, version: m.version || '', on: true, resources: m.resources, types: m.types || [], idPrefixes: m.idPrefixes || null, catalogs: (m.catalogs || []).length });
+      adSave(); toast(m.name + ' added', 3000); adList(addons.length - 1); } });
+    rows.push({ t: 'Gives', n: strm ? 'Streams for ' + (strm.types.join(', ') || 'anything') : 'No streams', s: '', d: '', dim: true, f: function () {} });
+    if (m.description) rows.push({ t: 'About', n: String(m.description).replace(/\s+/g, ' ').slice(0, 140), s: '', d: '', dim: true, f: function () {} });
+    rows.push({ t: 'Note', n: 'Only direct web links and YouTube play; torrents never start', s: '', d: '', dim: true, f: function () {} });
+    rows.push({ t: 'Back', n: 'Cancel', s: '', d: '', f: function () { adList(addons.length); } });
+    adOpen({ title: 'Add this addon?', sub: base, rows: rows, foot: ['OK Choose', 'Back'], back: function () { adList(addons.length); } });
+  }
+  function adMenu(i) {
+    var a = addons[i], mv = function (d) { return function () { var j = i + d; var x = addons.splice(i, 1)[0]; addons.splice(j, 0, x); adSave(); adList(j); }; };
+    var rows = [
+      { t: a.on ? 'Off' : 'On', n: a.on ? 'Turn off' : 'Turn on', f: function () { a.on = !a.on; adSave(); adList(i); } },
+      { t: 'Up', n: 'Ask it earlier', dim: i === 0, f: i === 0 ? null : mv(-1) },
+      { t: 'Down', n: 'Ask it later', dim: i === addons.length - 1, f: i === addons.length - 1 ? null : mv(1) },
+      { t: 'Test', n: 'Check it answers', f: function () {
+        adTmo(adFetch(a.base), 10000).then(function (m) { a.bad = false; a.version = m.version || a.version; a.resources = m.resources; a.types = m.types || []; a.idPrefixes = m.idPrefixes || null; adSave(); toast(a.name + ' is working', 3000); }, function () { a.bad = true; adSave(); toast(a.name + ' did not answer', 4000); }); } },
+      { t: 'Remove', n: 'Remove this addon', f: function () { addons.splice(i, 1); adSave(); adList(Math.max(0, i - 1)); } },
+      { t: 'Back', n: 'Back to the list', f: function () { adList(i); } }
+    ];
+    adOpen({ title: a.name, sub: a.base, rows: rows.map(function (r) { if (r.dim) r.why = 'Not possible'; return r; }), back: function () { adList(i); } });
+  }
+
+  // ---- finding a title's streams
+  var adIds = store.get('adid1') || {};
+  function adResolve(name, film) {
+    var key = normShow(name) + (film ? '|f' : '');
+    if (adIds[key]) return Promise.resolve(adIds[key]);
+    var done = function (r) { if (r && r.imdb) { adIds[key] = r; var ks = Object.keys(adIds); if (ks.length > 300) delete adIds[ks[0]]; store.set('adid1', adIds); } return r; };
+    if (!film) {
+      return adTmo(getJSON('https://api.tvmaze.com/singlesearch/shows?q=' + encodeURIComponent(name)), 10000).then(function (s) {
+        return done({ imdb: (s.externals && s.externals.imdb) || '', year: s.premiered ? +String(s.premiered).slice(0, 4) : 0 });
+      }, function () { return null; });
+    }
+    var srch = adLive().filter(function (a) { return (a.catalogs || 0) > 0; });
+    return pool(srch, 3, function (a) {
+      return adTmo(http(a.base + '/manifest.json'), 8000).then(function (t) {
+        var m = JSON.parse(t), cat = (m.catalogs || []).filter(function (c) { return c.type === 'movie' && (c.extra || []).some(function (x) { return x.name === 'search'; }); })[0];
+        if (!cat) return null;
+        return adTmo(http(a.base + '/catalog/movie/' + encodeURIComponent(cat.id) + '/search=' + encodeURIComponent(name) + '.json'), 8000).then(function (t2) {
+          var l = (JSON.parse(t2).metas || []).filter(function (x) { return /^tt\d+/.test(x.id || ''); });
+          var w = normShow(name), hit = l.filter(function (x) { return normShow(x.name || '') === w; })[0] || l[0];
+          return hit ? { imdb: hit.id, year: +String(hit.releaseInfo || hit.year || '').slice(0, 4) || 0 } : null;
+        });
+      }).catch(function () { return null; });
+    }).then(function (l) { return done((l || []).filter(Boolean)[0] || null); });
+  }
+  function adQuality(s) { var t = (s.name || '') + ' ' + (s.title || '') + ' ' + (s.description || ''); return /2160p|\b4k\b|uhd/i.test(t) ? 2160 : /1080/.test(t) ? 1080 : /720/.test(t) ? 720 : /480|\bsd\b/i.test(t) ? 480 : 0; }
+  function adSize(s) {
+    var t = (s.title || '') + ' ' + (s.description || ''), m = /(\d+(?:\.\d+)?)\s*(GB|MB)/i.exec(t);
+    if (m) return m[2].toUpperCase() === 'GB' ? +m[1] * 1024 : +m[1];
+    var b = s.behaviorHints && s.behaviorHints.videoSize; return b ? b / 1048576 : 0;
+  }
+  /** Can this stream be played here? '' = yes, otherwise why not. */
+  function adWhy(s) {
+    if (s.url && /^https?:\/\//i.test(s.url)) return (s.behaviorHints && s.behaviorHints.proxyHeaders) ? 'Needs special request headers (not supported yet)' : '';
+    if (s.ytId) return '';
+    if (s.infoHash) return 'Torrent: not supported here';
+    if (s.nzbUrl) return 'Usenet: not supported here';
+    if (s.rarUrls || s.zipUrls || s.tgzUrls || s.tarUrls || s['7zipUrls']) return 'Archive: not supported here';
+    if (s.externalUrl) return 'Opens a website: not supported here';
+    return 'Not something this TV can play';
+  }
+  function adSources(g, ep) {
+    var name = g.name, film = !!g.film, ch = odSel().c;
+    var live = adLive();
+    if (!live.length) { toast('No addon is on (Options > Experimental > Addons)', 4000); return; }
+    adOpen({ title: name, sub: film ? 'Finding sources…' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  finding sources…', rows: [], empty: 'Looking up the title…', back: adClose });
+    adResolve(odArtName ? odArtName(g) : name, film).then(function (r) {
+      if (!ad) return;
+      if (!r || !r.imdb) { ad.rows = []; ad.empty = film ? 'Could not find this film. It needs an addon with a film search.' : 'Could not find this show’s IMDb number'; ad.sub = ''; adRender(); return; }
+      if (adCut && r.year && r.year >= 2000) { ad.rows = []; ad.empty = 'From ' + r.year + ': not allowed while “Only before 2000” is on'; ad.sub = ''; adRender(); return; }
+      var id = film ? r.imdb : r.imdb + ':' + (ep.s || 1) + ':' + (ep.e || 1), type = film ? 'movie' : 'series';
+      var all = [], asked = 0, answered = 0;
+      var targets = live.filter(function (a) { var s = adRes(a, 'stream'); return s && s.types.indexOf(type) >= 0 && (!s.pre || s.pre.some(function (p) { return id.indexOf(p) === 0; })); });
+      if (!targets.length) { ad.rows = []; ad.empty = 'None of your addons give streams for ' + (film ? 'films' : 'shows'); adRender(); return; }
+      var show = function (final) {
+        if (!ad) return;
+        var pref = function (q) { return q === 1080 ? 3 : q === 720 ? 2 : 1; };
+        var list = all.map(function (x, k) { x.k = k; return x; }).sort(function (a, b) {
+          if (!!a.why !== !!b.why) return a.why ? 1 : -1;
+          return pref(b.q) - pref(a.q) || a.k - b.k;
+        });
+        ad.rows = list.map(function (x) {
+          return { t: x.q ? x.q + 'p' : '—', n: x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
+            f: function () { adPlay(ch, g, ep, x); } };
+        });
+        ad.sub = (film ? '' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  ') + (final ? list.length + ' found' : 'asking ' + (targets.length - answered) + ' addon' + (targets.length - answered === 1 ? '' : 's') + '…');
+        ad.empty = final ? 'Nothing found. Try another addon.' : 'Asking your addons…';
+        adRender();
+      };
+      targets.forEach(function (a) {
+        adTmo(http(a.base + '/stream/' + type + '/' + encodeURIComponent(id).replace(/%3A/g, ':') + '.json'), 8000).then(function (t) {
+          var ss = (JSON.parse(t).streams || []);
+          a.bad = false;
+          ss.slice(0, 40).forEach(function (s) {
+            var label = String(s.title || s.description || s.name || 'Stream').split('\n')[0].slice(0, 90);
+            all.push({ s: s, q: adQuality(s), size: adSize(s), why: adWhy(s), label: label, addon: a.name });
+          });
+        }).catch(function () { a.bad = true; }).then(function () { answered++; adSave(); show(answered >= targets.length); });
+      });
+    });
+  }
+  function adPlay(ch, g, ep, x) {
+    var s = x.s, url = s.ytId ? 'yt:' + s.ytId : s.url;
+    var prog = { id: 'addon/' + x.addon + '/' + (g.name || ''), item: 'addon', url: url, title: g.name + (g.film ? '' : ' S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1)), sub: x.addon, dur: 0, lenKnown: 0, show: g.name, group: g.name, addon: 1 };
+    adClose(); if (odm) odmClose();
+    dlog('ADDON PLAY ' + x.addon + ' | ' + x.label + ' | ' + url);
+    odStart(ch, [{ p: prog, s: 0, e: 0 }], 0, 0, '');
+  }
+  /** On Demand's hold-OK menu: add "Find sources" when Experimental is on and an addon is on. */
+  function adOdm(g) {
+    if (!odm || !adLive().length) return;
+    var ep = (odView === 'show' && g.sea && g.sea[odSea] && g.sea[odSea].eps[odEi] && g.sea[odSea].eps[odEi].p) || (g.flat && g.flat[0] && g.flat[0].p) || {};
+    odm.items.splice(2, 0, { t: 'Find sources', sub: 'Ask your addons for streams (experimental)', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }); } });
+  }
+  function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
+  function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
+
   // ------------------------------------------------------------------ OSD bar (OK while watching)
 
   var AR = [
@@ -4064,6 +4287,7 @@
     { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
+    { id: 'exp', rows: ['exp', 'addons', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -4072,6 +4296,9 @@
   function catOfRow(id) { for (var i = 0; i < OCATS.length; i++) if (OCATS[i].rows.indexOf(id) >= 0) return i; return 0; }
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
+    if (id === 'exp') return expOn ? 'On' : 'Off';
+    if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
+    if (id === 'adcut') return adCut ? 'On' : 'Off';
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
@@ -4170,9 +4397,12 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { scan: 1, tvdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { scan: 1, tvdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1, addons: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
+    exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
+    addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
+    adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
     theme: 'How the TV guide looks. It only changes when you change it here.',
     yt: 'Episodes that are not on archive.org but are on YouTube, shown in On Demand. They play without adverts or a sign-in, through the app\u2019s own player, and where an episode has more than one copy the best plays first. Turn this off if they cause trouble.',
@@ -4359,6 +4589,9 @@
   function optsChange(d) {
     var id = OPTS[optsSel];
     if (id === 'od') odOpenUi();
+    else if (id === 'exp') changeExp();
+    else if (id === 'adcut') changeAdcut();
+    else if (id === 'addons') { if (!expOn) toast('Turn Experimental on first', 3000); else { adList(0); } }
     else if (id === 'sched') csOpen((cur && cur.ch) || gChan, 'opts');
     else if (id === 'ar') changeAr(d);
     else if (id === 'fx') changeFx(d);
@@ -4695,6 +4928,7 @@
     }
 
     if (kbShown) { kbKey(e); e.preventDefault(); return; }
+    if (ad) { adnKey(k); e.preventDefault(); return; }
     if (cs) { csKey(k); e.preventDefault(); return; }
 
     if (relOpen) {                        // What's new sits above the options panel it was opened from
@@ -5546,7 +5780,7 @@
       if (fixed && fixed.a) odm.items.push({ t: 'Back to automatic', sub: 'Forget the choices made for this film', f: function () {
         try { kv.removeItem('artfix:' + normShow(odArtName(g))); } catch (e) { /* ignore */ }
         g._k = null; odArtFor = ''; odBgFor = ''; odKGen++; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } });
-      odmRender(); return;
+      adOdm(g); odmRender(); return;
     }
     odm = { mode: 'menu', g: g, i: 0, items: [
       { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = g.flat && g.flat[0]; if (e0) openInfo({ prog: e0.p, ch: g.chan }); } },
@@ -5561,7 +5795,7 @@
         try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
         g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } }
     ], title: g.name };
-    odmRender();
+    adOdm(g); odmRender();
   }
   function odmClose() { odm = null; $('odmenu').className = 'hidden'; }
   function odmWait(text) { if (odm) { odm.mode = 'wait'; odm.items = []; odm.note = text; odmRender(); } }

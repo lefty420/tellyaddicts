@@ -1058,14 +1058,20 @@
     }
     spFill();
   }
+  var spRecent = [];
   function spSet(el) {
     var pool = spPics.length ? spPics : spPosters;                   // backdrops only; posters just until a backdrop has loaded
     if (!pool.length) return;
     var fresh = pool.filter(function (u) { return !spSeen[u]; });    // never one already shown, while there is a new one to show
     if (fresh.length < 8) spMore(10);                                // and keep fetching so there always is
-    if (!fresh.length) { spSeen = {}; fresh = pool.slice(); }        // only when every one has been seen does it start over
+    if (!fresh.length) {                                             // only when every one has been seen does it start over, and then
+      spSeen = {};                                                   // never with one of the last few shown (or the very last one, at least)
+      fresh = pool.filter(function (u) { return spRecent.indexOf(u) < 0; });
+      if (!fresh.length) fresh = pool.filter(function (u) { return u !== spRecent[spRecent.length - 1]; });
+      if (!fresh.length) fresh = pool.slice();
+    }
     var u = fresh[(Math.random() * fresh.length) | 0], pn = 1 + ((Math.random() * 40) | 0);
-    spSeen[u] = 1;
+    spSeen[u] = 1; spRecent.push(u); if (spRecent.length > 6) spRecent.shift();
     el.style.backgroundImage = 'url("' + u + '")'; el.className = 'spslot has';
     el.setAttribute('data-ch', 'P' + (pn < 10 ? '0' : '') + pn);
   }

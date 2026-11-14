@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.88",
-  "version": "0.45.88",
-  "code": 4588,
-  "date": "2026-11-13",
+  "name": "Alpha 0.45.89",
+  "version": "0.45.89",
+  "code": 4589,
+  "date": "2026-11-14",
   "notes": [
-    "**YouTube through public Piped and Invidious servers.** The app no longer asks YouTube's own player directly. It asks several community-run Piped and Invidious servers at once and plays the first good stream (no adverts, no sign-in); the last server that worked is asked first next time. If none answer, the debug log lists why. These servers come and go, so expect some days when it is patchy. YouTube videos are on again (Options > Play > YouTube videos turns them off).",
-    "The debug log now says which server and quality each YouTube video came from."
+    "**Start-up pictures no longer repeat.** When the pictures flicking by on the tuning screen had all been shown once (more likely on a slow start, when new ones arrive slowly) it started over and could pick the one it had just shown, or one of the last few. It now skips the last six shown, and never picks the very last one again."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.88",
+      "date": "2026-11-13",
+      "notes": [
+        "**YouTube through public Piped and Invidious servers.** The app no longer asks YouTube's own player directly. It asks several community-run Piped and Invidious servers at once and plays the first good stream (no adverts, no sign-in); the last server that worked is asked first next time. If none answer, the debug log lists why. These servers come and go, so expect some days when it is patchy. YouTube videos are on again (Options > Play > YouTube videos turns them off).",
+        "The debug log now says which server and quality each YouTube video came from."
+      ]
+    },
     {
       "name": "Alpha 0.45.87",
       "date": "2026-11-13",
@@ -63,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**The guide only changes theme when you change it.** Until a theme is chosen in Options, the guide is now Classic Blue (before, it was \"Match the channel\", which dressed the guide as the 70's, 80's or 90's whenever one of those channels was involved). \"Match the channel\" is still there in Options for anyone who wants it. If it was picked on purpose it stays picked."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.80",
-      "date": "2026-11-13",
-      "notes": [
-        "**Hid two music uploads that had been matched to the BBC drama \"Angels\".** \"Angels in Heat\" is a band: the items are live concert recordings (\"Live from The Freight\") whose names happened to contain \"Angels\". They are hidden until the scraper drops them."
       ]
     }
   ]

@@ -270,6 +270,11 @@
   .csr.sel { background: linear-gradient(180deg, var(--hi1) 0%, var(--hi2) 100%); color: var(--ink); border-color: #fff; opacity: 1; }
   .csr.sel .t, .csr.sel .n i, .csr.sel .d { color: var(--ink); }
   .csr.more { justify-content: center; height: 3.4vh; background: none; border: 0; box-shadow: none; font-size: 2.4vh; color: var(--gsoft, #b9d1ff); }
+  #csqr { position: absolute; right: 5vw; top: 16vh; width: 44vh; height: 44vh; padding: 2vh; background: #fff; border-radius: 1.6vh; image-rendering: pixelated; box-sizing: border-box; display: none; }
+  #csched.qr #csqr { display: block; } #csched.qr #cslist { right: calc(5vw + 48vh); }
+  #csqrnote { position: absolute; right: 5vw; top: calc(16vh + 45vh); width: 44vh; text-align: center; font-size: 2.4vh; color: var(--gsoft, #b9d1ff); display: none; }
+  #csched.qr #csqrnote { display: block; }
+  html.phone #csqr { width: 38vh; height: 38vh; } html.phone #csqrnote { top: calc(17vh + 39vh); }
   #csfoot { position: absolute; left: 5vw; right: 5vw; bottom: 3.4vh; font-size: 2.5vh; color: var(--gsoft, #b9d1ff); display: flex; gap: 2.4vw; }
   .gt-teletext #csched { text-transform: uppercase; } .gt-teletext .csr { border-left-width: .6vh; } .gt-teletext .csr.sel { background: #00ffff; }
   .gt-paper .csr { border: .2vh solid #1c1a17; } .gt-paper .csr.now { box-shadow: none; }
@@ -1096,6 +1101,7 @@
 <div id="csched" class="hidden" data-own="1">
   <div id="cshd"><span id="csnum"></span><span id="csname"></span><span id="csdate"></span><div id="cstabs"></div></div>
   <div id="cslist"></div>
+  <canvas id="csqr" width="29" height="29"></canvas><div id="csqrnote">Scan with your phone's camera</div>
   <div id="csfoot"></div>
 </div>
 <div id="gmenu" class="hidden"><div id="gmbox"><h2 id="gmt"></h2><div id="gms"></div><div id="gml"></div></div></div>
@@ -1106,6 +1112,7 @@
 </div>
 
 <script src="version.js"></script>
+<script src="qr.js"></script>
 <script src="engine.js"></script>
 <script src="player.js"></script>
 <script src="links.js"></script>

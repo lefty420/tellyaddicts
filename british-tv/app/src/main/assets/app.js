@@ -3552,8 +3552,17 @@
       return m;
     });
   }
-  function adOpen(o) { ad = o; ad.i = o.i || 0; ad.top = 0; adRender(); $('csched').className = ''; }
-  function adClose() { ad = null; $('csched').className = 'hidden'; }
+  function adOpen(o) { ad = o; ad.i = o.i || 0; ad.top = 0; adQr(o.qr || ''); $('csched').classList.remove('hidden'); adRender(); }
+  function adQr(text) {          // draw a QR code of this text, or hide it
+    var cv = $('csqr'), m = text && window.QR ? QR.make(text) : null;
+    $('csched').classList.toggle('qr', !!m);
+    if (!m) return;
+    var n = m.length, q = 2, k = 8, ctx;
+    cv.width = cv.height = (n + 2 * q) * k;
+    ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height); ctx.fillStyle = '#000';
+    for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) if (m[r][c]) ctx.fillRect((c + q) * k, (r + q) * k, k, k);
+  }
+  function adClose() { ad = null; adQr(''); $('csched').className = 'hidden'; }
   function adRender() {
     var N = window.PHONE ? 4 : 9, n = ad.rows.length;
     $('csnum').textContent = ''; $('csname').textContent = ad.title; $('csdate').textContent = ad.sub || ''; $('cstabs').textContent = '';
@@ -3609,12 +3618,11 @@
     try { addr = NativeHttp.addonInbox(code) || ''; } catch (e) { addr = ''; }
     if (!addr) { toast('The TV is not on a network', 4000); return; }
     var back = function () { adPhoneStop(); adList(addons.length); };
-    adOpen({ title: 'Add from your phone', sub: 'on the same Wi-Fi', back: back, foot: ['Back'], rows: [
-      { t: '1', n: 'Open this on your phone', s: '', d: '', dim: true, f: function () {} },
-      { t: '', n: addr.replace(/^http:\/\//, ''), s: '', d: '', f: function () {} },
-      { t: '2', n: 'Type this code', s: '', d: '', dim: true, f: function () {} },
-      { t: '', n: code, s: '', d: '', f: function () {} },
-      { t: '3', n: 'Paste the addon link and press Send to TV', s: '', d: '', dim: true, f: function () {} }], i: 1 });
+    adOpen({ title: 'Add from your phone', sub: 'same Wi-Fi', back: back, foot: ['Back'], qr: addr + '/?c=' + code, rows: [
+      { t: '1', n: 'Scan the code', s: '', d: '', dim: true, f: function () {} },
+      { t: '', n: 'or open ' + addr.replace(/^http:\/\//, ''), s: '', d: '', dim: true, f: function () {} },
+      { t: '2', n: 'Paste the link, press Send', s: '', d: '', dim: true, f: function () {} },
+      { t: '', n: 'Code ' + code + ' is filled in', s: '', d: '', dim: true, f: function () {} }], i: 0 });
     clearInterval(adPoll);
     adPoll = setInterval(function () {
       var l = ''; try { l = NativeHttp.addonTake() || ''; } catch (e) { l = ''; }

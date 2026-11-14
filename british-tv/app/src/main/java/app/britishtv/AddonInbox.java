@@ -29,6 +29,7 @@ final class AddonInbox {
             + "<form id=f><input name=code inputmode=numeric maxlength=4 placeholder='Code on the TV' autocomplete=off>"
             + "<textarea name=url placeholder='Paste the addon link here' autocapitalize=off autocorrect=off spellcheck=false></textarea>"
             + "<button>Send to TV</button></form><div id=m></div><script>"
+            + "var c=location.search.match(/c=(\\d+)/);if(c){f.code.value=c[1]}"
             + "f.onsubmit=function(e){e.preventDefault();var b='code='+encodeURIComponent(f.code.value)+'&url='+encodeURIComponent(f.url.value);"
             + "fetch('/add',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:b}).then(function(r){return r.text()}).then(function(t){m.textContent=t;if(t.indexOf('Sent')==0)f.url.value=''})"
             + ".catch(function(){m.textContent='Could not reach the TV'})}</script></body></html>";

@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.23 — 2026-11-14
+
+- **Fake Thomas episode blocked**: a fan-made "A Very Evil Christmas" upload was playing as a real Thomas and Friends episode on Children's Christmas. That upload is now blocked everywhere.
+
 ## Alpha 0.46.22 — 2026-11-14
 
 - **Not Seinfeld**: "Comedians in Cars Getting Coffee" was turning up on US Sitcoms as Seinfeld episodes. That upload is now blocked everywhere.

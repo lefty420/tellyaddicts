@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.22",
-  "version": "0.46.22",
-  "code": 4622,
+  "name": "Alpha 0.46.23",
+  "version": "0.46.23",
+  "code": 4623,
   "date": "2026-11-14",
   "notes": [
-    "**Not Seinfeld**: \"Comedians in Cars Getting Coffee\" was turning up on US Sitcoms as Seinfeld episodes. That upload is now blocked everywhere."
+    "**Fake Thomas episode blocked**: a fan-made \"A Very Evil Christmas\" upload was playing as a real Thomas and Friends episode on Children's Christmas. That upload is now blocked everywhere."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.22",
+      "date": "2026-11-14",
+      "notes": [
+        "**Not Seinfeld**: \"Comedians in Cars Getting Coffee\" was turning up on US Sitcoms as Seinfeld episodes. That upload is now blocked everywhere."
+      ]
+    },
     {
       "name": "Alpha 0.46.21",
       "date": "2026-11-14",
@@ -61,14 +68,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Two apps from one build**: each build now gives you `tellyaddicts-tv.apk` (the TV app, unchanged) and `tellyaddicts-mobile.apk` (called \"Telly Addicts Mobile\", for phones). They install side by side, keep separate data and have separate settings, so nothing done on the phone version can affect the TV. For now the mobile one is the same app; the touch controls and phone layout come next."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.14",
-      "date": "2026-11-14",
-      "notes": [
-        "**Blocked shows really disappear now**: two wrong versions you reported (Mr and Mrs North, the American Wheel of Fortune) were already on the block list but kept playing, because the TV was still using lineups it had saved earlier. The saved lineups are now rebuilt whenever the block list changes, so a block takes effect straight away.",
-        "Blocked the American Shining Time Station episodes that were showing as Thomas and Friends."
       ]
     }
   ]

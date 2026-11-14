@@ -1117,18 +1117,16 @@
     }
     spLoadPics();
     spInit();
-    // the little TV follows the real tuning: the needle moves along its scale and the knobs click round one step for every channel that has finished
+    // the little TV shows the real tuning: a green bar fills along the scale and the label counts the channels that have finished;
+    // the needle, knobs and pictures keep going on their own (CSS), so something moves even while the guides are being built
     var settled = channels.filter(function (c) { return c.status === 'ready' || c.status === 'empty'; }).length;
     if (settled !== spDone && channels.length) {
       var first = spDone < 0;
       spDone = settled;
-      var frac = settled / channels.length;
-      $('spneedle').style.transform = 'translateX(' + (2 + 96 * frac).toFixed(1) + '%)';
-      $('spk1').style.transform = 'rotate(' + (settled * 47) + 'deg)';
-      $('spk2').style.transform = 'rotate(' + (-settled * 31) + 'deg)';
+      $('sptrack').style.setProperty('--p', Math.round(100 * settled / channels.length) + '%');
+      $('spscale').firstChild.textContent = 'TUNING  ' + settled + ' / ' + channels.length;
       var scr = $('spscreen');
-      if (!first && settled < channels.length) { scr.classList.add('lock'); setTimeout(function () { scr.classList.remove('lock'); }, 140); }   // a flash of colour bars as it locks on
-      if (settled >= channels.length) scr.classList.add('lock');                                                                          // all tuned in
+      if (!first) { scr.classList.add('lock'); setTimeout(function () { scr.classList.remove('lock'); }, 180); }   // a flash of colour bars as a channel locks on
     }
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;

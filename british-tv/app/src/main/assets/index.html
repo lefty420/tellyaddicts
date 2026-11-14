@@ -99,6 +99,8 @@
   /* the backup player draws on a surface behind the page: let it show through (the guide covers it as usual) */
   html.np, body.np:not(.guide-open) { background: transparent !important; }
   body.np:not(.guide-open) #v { background: transparent; }
+  body.np #v { opacity: 0; }                       /* the app's own player is showing the picture: nothing of the web video may sit over it */
+  body.np #amb { display: none !important; }
 
   /* mini TV window while the guide is open */
   body.guide-open #v {

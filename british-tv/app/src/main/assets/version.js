@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.6",
-  "version": "0.46.6",
-  "code": 4606,
+  "name": "Alpha 0.46.7",
+  "version": "0.46.7",
+  "code": 4607,
   "date": "2026-11-14",
   "notes": [
-    "**Films get backdrops and an artwork menu** (needs a TheTVDB key). Hold OK on a film in On Demand: Scrape artwork finds its backdrop on TheTVDB, Choose the right film lists the matches when it picked the wrong one, and Choose a poster / Choose a background list its pictures. Back to automatic forgets the choices. A film keeps the poster it came with unless you pick another.",
-    "**Scan my artwork now covers films too**: with a key it looks up a backdrop for every film that has none, after the shows.",
-    "The backdrop is used wherever a show's is: the loading screen, On Demand and the guide."
+    "**YouTube episodes no longer play behind a frozen picture.** Starting a YouTube episode (or anything else in the app's own player) straight after a normal programme left that programme's last frame stuck on screen, with the new one playing behind it. The old picture is now let go and hidden whenever the app's own player is showing."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.6",
+      "date": "2026-11-14",
+      "notes": [
+        "**Films get backdrops and an artwork menu** (needs a TheTVDB key). Hold OK on a film in On Demand: Scrape artwork finds its backdrop on TheTVDB, Choose the right film lists the matches when it picked the wrong one, and Choose a poster / Choose a background list its pictures. Back to automatic forgets the choices. A film keeps the poster it came with unless you pick another.",
+        "**Scan my artwork now covers films too**: with a key it looks up a backdrop for every film that has none, after the shows.",
+        "The backdrop is used wherever a show's is: the loading screen, On Demand and the guide."
+      ]
+    },
     {
       "name": "Alpha 0.46.5",
       "date": "2026-11-14",
@@ -61,13 +68,6 @@ window.RELEASE = {
         "**TheTVDB for artwork and details.** There is a new **TheTVDB key** row in Options > Artwork. OK opens an on-screen keyboard (arrows to move, OK to type, Shift for capitals; the number keys on the remote type digits). Save checks the key with TheTVDB and says whether it was accepted.",
         "With a key, posters, backdrops, summaries, episode details and the cast on the Info screen come from TheTVDB first, and TVmaze fills in whatever TheTVDB has no match for. The scraper's own artwork list still comes before both. With no key, or a key TheTVDB will not accept, nothing changes. Clear the key to go back to TVmaze alone.",
         "Needs the new app build (it adds a network call for TheTVDB), so install this version rather than just reloading the page."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.98",
-      "date": "2026-11-14",
-      "notes": [
-        "**Options is in the On Demand hold-OK menu.** Hold OK on a show and you can open Options without leaving On Demand. Films now get a small menu of their own: Info, Options and Hide this film."
       ]
     }
   ]

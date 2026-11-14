@@ -41,6 +41,7 @@
     def('src', function () { return st.native ? st.src : el.src; }, function (u) {
       if (hasNative() && u && shim.wantNative(u)) {
         el.removeAttribute('src');
+        try { el.load(); } catch (e) { /* nothing loaded */ }      // let go of the last programme, or its final frame stays on screen over the app's player
         open(u, 0);
       } else {
         closeNative();

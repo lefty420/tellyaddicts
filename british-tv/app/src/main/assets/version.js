@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.4",
-  "version": "0.46.4",
-  "code": 4604,
+  "name": "Alpha 0.46.5",
+  "version": "0.46.5",
+  "code": 4605,
   "date": "2026-11-14",
   "notes": [
-    "**Wrong matches from your reports are blocked.** The Comic Strip Presents (was playing a Get Smart episode), The Word (a Bible study talk on Music), Wheel of Fortune S02E06 (the American version) and Mr and Mrs (Mr and Mrs North, a 1950s American detective show) no longer play those files. Also out: three unrelated clips that Soaps had picked up for \"Angels\" (one of them repeated all day)."
+    "**The library is no longer downloaded on every start.** The app fetched the whole 10 MB library a few seconds after every launch, even when nothing had changed. It now keeps the copy on the TV with its revision and only downloads when the scraper publishes a new one. Saving it is also lighter (the text is stored as it came instead of being wrapped a second time).",
+    "**VHS looks stop dropping frames at the start of every programme.** When two programmes in a row needed the blur taken off, the rest of the session starts without it instead of finding out again each time. Choosing a look in Options gives it a fresh try."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.4",
+      "date": "2026-11-14",
+      "notes": [
+        "**Wrong matches from your reports are blocked.** The Comic Strip Presents (was playing a Get Smart episode), The Word (a Bible study talk on Music), Wheel of Fortune S02E06 (the American version) and Mr and Mrs (Mr and Mrs North, a 1950s American detective show) no longer play those files. Also out: three unrelated clips that Soaps had picked up for \"Angels\" (one of them repeated all day)."
+      ]
+    },
     {
       "name": "Alpha 0.46.3",
       "date": "2026-11-14",
@@ -58,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**The start-up tuning screen no longer repeats a picture early on.** While only a few pictures had loaded, the same ones came round again and again. Until there are plenty, a gap now stays empty until a new picture arrives. Each load also starts afresh, so a picture is never shown twice in one load."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.96",
-      "date": "2026-11-14",
-      "notes": [
-        "**Films now use their backdrop on the loading screen.** A film such as Dogma showed only its poster before it started, even when a backdrop was on file for it. The loading screen now looks the film up by title, so the backdrop is used when there is one, and the poster only when there isn't."
       ]
     }
   ]

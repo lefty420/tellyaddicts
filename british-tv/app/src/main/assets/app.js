@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:|adcat1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:|libtxt2:|adcat1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   var kv = {
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
@@ -404,23 +404,31 @@
 
   /** The 8 MB library is the one file a slow TV connection can fail to get. Try up to three times, keep the last good
    *  copy on the TV, and use that copy when the download still fails, so shows keep their episode details. */
+  var libWant = '';        // index.json "library": the revision now published
   function fetchLibrary(libRev) {
-    var url = DATA_BASE + 'library.json', tries = 0;
-    function cached() {
-      var t = null; try { t = store.get('libtxt1:main'); } catch (e) { /* ignore */ }
-      if (!t || typeof t !== 'string') throw new Error('no library');
-      dlog('library.json: using the copy saved on this TV');
+    var url = DATA_BASE + 'library.json', tries = 0, want = libRev || libWant;
+    // The text is kept as it came (not wrapped in JSON again: that doubled the work for a 10 MB file), with the
+    // revision it belongs to beside it, so an unchanged library is read from this TV and never downloaded again.
+    function saved() { var t = null; try { t = kv.getItem('libtxt2:main'); } catch (e) { /* none */ } return t && typeof t === 'string' ? t : null; }
+    function cached(why) {
+      var t = saved();
+      if (!t) throw new Error('no library');
+      dlog('library.json: using the copy saved on this TV' + (why ? ' (' + why + ')' : ''));
       return JSON.parse(t);
     }
     function go() {
       return http(url).then(function (txt) {
         var j = JSON.parse(txt);
-        try { store.set('libtxt1:main', txt); } catch (e) { /* too big to keep: fine */ }
+        try { kv.setItem('libtxt2:main', txt); store.set('librev1', (j && j.rev) || want || ''); } catch (e) { /* too big to keep: fine */ }
+        try { kv.removeItem('libtxt1:main'); } catch (e) { /* the old double-wrapped copy */ }
         return j;
       }, function (err) {
         if (++tries < 3) return new Promise(function (r) { setTimeout(r, 3000 * tries); }).then(go);
-        return cached();
+        return cached('download failed');
       });
+    }
+    if (want && store.get('librev1') === want && saved()) {
+      try { var j0 = cached('unchanged'); if (j0 && j0.shows && (!j0.rev || j0.rev === want)) return Promise.resolve(j0); } catch (e) { /* damaged: download it */ }
     }
     return go();
   }
@@ -451,6 +459,7 @@
       removedRev = (j && j.removed) ? String(j.removed) : '';
       adsRev = (j && j.adverts) ? String(j.adverts) : '';
       var chans = (j && j.channels) || {};
+      libWant = (j && j.library) ? String(j.library) : '';
       if (!j || !j.library || !window.LIBROUTE) return chans;
       // Which channels changed only shows once the library is routed, so remember the answer per library and
       // shows.json revision: an unchanged library costs one small download, not the whole file.
@@ -3241,9 +3250,10 @@
 
   // VHS and VHS 2 filter the video itself, which a TV cannot always do for heavy live-action files. If frames are
   // being dropped, only the blur is taken off (the rest of the look stays); the next programme starts with it on again.
-  var fxTimer = null, fxLast = null;
+  var fxTimer = null, fxLast = null, fxLiteCount = 0;      // after two programmes in a row needed it, the rest of the session starts light
   function fxGuardStart() {
     clearInterval(fxTimer); fxLast = null;
+    if (fxLiteCount >= 2) { document.body.classList.add('fx-lite'); return; }      // this TV cannot keep up with the blur: no point dropping frames to find out again
     document.body.classList.remove('fx-lite');
     if ((fxMode !== 'vhs' && fxMode !== 'vhs2') || !v.getVideoPlaybackQuality) return;
     fxTimer = setInterval(function () {
@@ -3253,12 +3263,12 @@
       if (!p || document.body.classList.contains('fx-lite')) return;
       var total = fxLast.t - p.t, dropped = fxLast.d - p.d;
       if (total >= 60 && dropped / total > 0.2) {
-        document.body.classList.add('fx-lite');
+        document.body.classList.add('fx-lite'); fxLiteCount++;
         dlog('VIDEO EFFECT lightened: ' + dropped + ' of ' + total + ' frames dropped with ' + FXLABEL[fxMode] + ' on  ' + String(v.currentSrc || '').split('/').slice(-2).join('/'));
       }
     }, 4000);
   }
-  v.addEventListener('loadstart', function () { fxLast = null; document.body.classList.remove('fx-lite'); });
+  v.addEventListener('loadstart', function () { fxLast = null; if (fxLiteCount < 2) document.body.classList.remove('fx-lite'); });
   function applyFx() {
     FXMODES.forEach(function (m) { document.body.classList.remove('fx-' + m); });
     document.body.classList.add('fx-' + fxMode);
@@ -3323,6 +3333,7 @@
 
   function changeFx(d) {
     fxMode = FXMODES[(FXMODES.indexOf(fxMode) + d + FXMODES.length) % FXMODES.length];
+    fxLiteCount = 0;                       // a look chosen afresh gets a fair try
     applyFx();
     renderOpts();
   }

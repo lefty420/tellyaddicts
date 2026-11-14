@@ -2826,16 +2826,24 @@
   }
 
   /** light = the highlight moved; rebuild the grid only when the rows or the time window actually change. */
+  /** Phone: a programme that is mostly off the side of the guide is scrolled back so it can be read. */
+  function bringIntoView(b) {
+    var base = floorHalf(Date.now()), vis = Math.min(b.endMs, gWin + SPAN) - Math.max(b.startMs, gWin);
+    if (b.startMs < gWin || vis < Math.min(b.endMs - b.startMs, SPAN) * 0.6) gWin = Math.max(base, floorHalf(b.startMs));
+  }
   /** Phone: a tap on a channel or programme in the guide selects it; a tap on what is already selected watches it. */
   function tapGuide(el, ch, b) {
     el.setAttribute('data-tap', '1');
-    el.addEventListener('phoneselect', function () { gOdSet(false); gChan = ch; if (b) { var n0 = Date.now(); gFocus = b.startMs <= n0 && n0 < b.endMs ? n0 : Math.min(b.startMs + 1000, b.endMs - 1); } renderGuide(true); });
+    el.addEventListener('phoneselect', function () { gOdSet(false); gChan = ch; if (b) { var n0 = Date.now(); gFocus = b.startMs <= n0 && n0 < b.endMs ? n0 : Math.min(b.startMs + 1000, b.endMs - 1); bringIntoView(b); } renderGuide(true); });
     el.addEventListener('click', function () {
       var now = Date.now(), same = gChan === ch && (!b || (b.startMs <= gFocus && gFocus < b.endMs));
       if (same && (b || gChan === ch)) { gOdSet(false); watchFromGuide(); return; }
       gOdSet(false);
       gChan = ch;
-      if (b) gFocus = b.startMs <= now && now < b.endMs ? now : Math.min(b.startMs + 1000, b.endMs - 1);
+      if (b) {
+        gFocus = b.startMs <= now && now < b.endMs ? now : Math.min(b.startMs + 1000, b.endMs - 1);
+        bringIntoView(b);
+      }
       renderGuide(true);
     });
   }
@@ -2918,6 +2926,10 @@
           var el = div(base + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : ''));
           el.style.left = ((s - gWin) / SPAN * 100) + '%';
           el.style.width = 'calc(' + (frac * 100) + '% - .4vw)';
+          if (PH && b.startMs < gWin && b.endMs > gWin) {            // runs in from the left: its words start at the edge you can see
+            var padPct = Math.min((gWin - s) / SPAN * 100, frac * 100 - 14);
+            if (padPct > 0) el.style.paddingLeft = 'calc(' + padPct.toFixed(2) + '% + 1.4vw)';
+          }
           if (window.PHONE) tapGuide(el, ch, b);
           rec.blocks.push({ el: el, b: b, base: base });
           if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text: no padding either, or it would stick out past the edge

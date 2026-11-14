@@ -43,8 +43,56 @@
   addRow([['Info', 'Info', 'sm'], ['▼', 'ArrowDown'], ['Play', 'MediaPlayPause', 'sm']]);
   addRow([['Ch +', 'ChannelUp', 'sm'], ['Ch −', 'ChannelDown', 'sm'], ['⏪', 'MediaRewind'], ['⏩', 'MediaFastForward']]);
   addRow([['', 'Red', 'r'], ['', 'Green', 'g'], ['Search', 'Yellow', 'y sm'], ['', 'Blue', 'b']]);
-  btn.addEventListener('click', function (e) { e.stopPropagation(); var on = !pad.classList.contains('on'); pad.classList.toggle('on', on); btn.classList.toggle('on', on); });
   document.body.appendChild(pad); document.body.appendChild(btn);
+  btn.style.touchAction = 'none';
+
+  // the round button can be dragged anywhere (it remembers where), and the remote opens beside it
+  function placePad() {
+    var r = btn.getBoundingClientRect(), W = window.innerWidth, H = window.innerHeight, pw = pad.offsetWidth, ph = pad.offsetHeight, gap = 8;
+    var left = Math.max(4, Math.min(W - pw - 4, r.right - pw));
+    var top = r.top - ph - gap; if (top < 4) top = Math.min(H - ph - 4, r.bottom + gap);
+    pad.style.left = left + 'px'; pad.style.top = Math.max(4, top) + 'px'; pad.style.right = 'auto'; pad.style.bottom = 'auto';
+  }
+  function moveBtn(x, y) {
+    var W = window.innerWidth, H = window.innerHeight, w = btn.offsetWidth, h = btn.offsetHeight;
+    x = Math.max(4, Math.min(W - w - 4, x)); y = Math.max(4, Math.min(H - h - 4, y));
+    btn.style.left = x + 'px'; btn.style.top = y + 'px'; btn.style.right = 'auto'; btn.style.bottom = 'auto';
+    return { x: x, y: y };
+  }
+  try {
+    var saved = JSON.parse(localStorage.getItem('prpos') || 'null');
+    if (saved && typeof saved.x === 'number') moveBtn(saved.x * window.innerWidth, saved.y * window.innerHeight);
+  } catch (e) { /* no storage: it starts bottom right */ }
+  var drag = null;
+  btn.addEventListener('pointerdown', function (e) {
+    var r = btn.getBoundingClientRect();
+    drag = { px: e.clientX, py: e.clientY, bx: r.left, by: r.top, moved: false };
+    try { btn.setPointerCapture(e.pointerId); } catch (x) { /* ignore */ }
+    e.stopPropagation();
+  });
+  btn.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var dx = e.clientX - drag.px, dy = e.clientY - drag.py;
+    if (!drag.moved && Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+    drag.moved = true;
+    moveBtn(drag.bx + dx, drag.by + dy);
+    if (pad.classList.contains('on')) placePad();
+  });
+  function endDrag(e) {
+    if (!drag) return;
+    var d = drag; drag = null;
+    if (d.moved) {
+      var r = btn.getBoundingClientRect();
+      try { localStorage.setItem('prpos', JSON.stringify({ x: r.left / window.innerWidth, y: r.top / window.innerHeight })); } catch (x) { /* ignore */ }
+      return;
+    }
+    var on = !pad.classList.contains('on');
+    pad.classList.toggle('on', on); btn.classList.toggle('on', on);
+    if (on) placePad();
+  }
+  btn.addEventListener('pointerup', endDrag);
+  btn.addEventListener('pointercancel', function () { drag = null; });
+  window.addEventListener('resize', function () { var r = btn.getBoundingClientRect(); moveBtn(r.left, r.top); if (pad.classList.contains('on')) placePad(); });
 
   // ---- gestures on the rest of the screen
   // drag = move the cursor the way the finger goes (a row's worth of drag moves one step), tap = OK on what was touched,

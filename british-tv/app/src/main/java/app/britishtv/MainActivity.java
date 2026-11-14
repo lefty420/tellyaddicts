@@ -347,6 +347,25 @@ public class MainActivity extends Activity {
             np.mute(muted);
         }
 
+        /** Put the backup player's picture in a window (the guide's little TV), or back to full screen when w is 0. */
+        @JavascriptInterface
+        public void npRect(final int left, final int top, final int w, final int h) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    FrameLayout.LayoutParams lp = w > 0 && h > 0
+                            ? new FrameLayout.LayoutParams(w, h)
+                            : new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+                    if (w > 0 && h > 0) {
+                        lp.gravity = android.view.Gravity.TOP | android.view.Gravity.START;
+                        lp.leftMargin = left;
+                        lp.topMargin = top;
+                    }
+                    videoSurface.setLayoutParams(lp);
+                }
+            });
+        }
+
         @JavascriptInterface
         public void npStop() {
             np.stop();

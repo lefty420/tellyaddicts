@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.25",
-  "version": "0.46.25",
-  "code": 4625,
+  "name": "Alpha 0.46.26",
+  "version": "0.46.26",
+  "code": 4626,
   "date": "2026-11-14",
   "notes": [
-    "**Channel schedule**: a full list of everything on a channel with its start time and length, like a real EPG. Open it from the guide's hold-OK menu (Channel schedule), from the new Schedule button on the OSD, or from Options > TV Guide. Left/Right change the day (yesterday to a week ahead), Channel +/- change channel, OK watches what is on or plays an earlier programme from its start. It uses the colours of whichever guide theme you have, and on the phone the rows are tappable."
+    "**YouTube picture in the guide's little TV**: videos played by the app's own player (all the YouTube ones, and some files) disappeared from the preview window when the guide opened, because that player draws behind the page. The picture now moves into the little TV and goes back to full screen when the guide closes. Needs the new app, not just a refresh."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.25",
+      "date": "2026-11-14",
+      "notes": [
+        "**Channel schedule**: a full list of everything on a channel with its start time and length, like a real EPG. Open it from the guide's hold-OK menu (Channel schedule), from the new Schedule button on the OSD, or from Options > TV Guide. Left/Right change the day (yesterday to a week ahead), Channel +/- change channel, OK watches what is on or plays an earlier programme from its start. It uses the colours of whichever guide theme you have, and on the phone the rows are tappable."
+      ]
+    },
     {
       "name": "Alpha 0.46.24",
       "date": "2026-11-14",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Telly Addicts Mobile, better touch** (the TV app is unchanged):"
-      ]
-    },
-    {
-      "name": "Alpha 0.46.17",
-      "date": "2026-11-14",
-      "notes": [
-        "**Telly Addicts Mobile gets touch controls** (the TV app is unchanged):"
       ]
     }
   ]

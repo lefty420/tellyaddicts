@@ -2950,6 +2950,33 @@
     paintSelection(list);
   }
 
+
+  // The backup player (YouTube and some files) draws on a surface behind the page, so the guide's little TV was blank. While the
+  // guide is open over it, the surface is shrunk into the little TV's place and a hole is cut in the guide to show it through.
+  var npWin = false;
+  function npMini() {
+    if (!window.NativeHttp || !NativeHttp.npRect) return;
+    var b = document.body.classList, want = b.contains('np') && b.contains('guide-open') && !$('guide').classList.contains('hidden');
+    if (want) {
+      var r = $('v').getBoundingClientRect(), d = window.devicePixelRatio || 1, W = window.innerWidth, H = window.innerHeight;
+      if (r.width < 10) return;
+      var l = Math.round(r.left), t = Math.round(r.top), rr = Math.round(r.right), bb = Math.round(r.bottom);
+      try { NativeHttp.npRect(Math.round(l * d), Math.round(t * d), Math.round((rr - l) * d), Math.round((bb - t) * d)); } catch (e) { /* older app */ }
+      $('guide').style.clipPath = 'polygon(evenodd, 0 0, ' + W + 'px 0, ' + W + 'px ' + H + 'px, 0 ' + H + 'px, 0 0, ' +
+        l + 'px ' + t + 'px, ' + l + 'px ' + bb + 'px, ' + rr + 'px ' + bb + 'px, ' + rr + 'px ' + t + 'px, ' + l + 'px ' + t + 'px)';
+      npWin = true;
+    } else if (npWin) {
+      npWin = false;
+      $('guide').style.clipPath = '';
+      try { NativeHttp.npRect(0, 0, 0, 0); } catch (e) { /* older app */ }
+    }
+  }
+  try {
+    var npMo = new MutationObserver(function () { npMini(); });
+    npMo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    npMo.observe($('guide'), { attributes: true, attributeFilter: ['class'] });
+  } catch (e) { /* no observer */ }
+
   // ---- seasonal effects (seasons.js): a decorative overlay over the guide, only while it is open and a season is on
   var seasonOn = store.get('seasonal') !== 'off', seasonOv = null;
   function seasonUpdate() {

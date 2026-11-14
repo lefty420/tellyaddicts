@@ -1064,6 +1064,7 @@
     if (!pool.length) return;
     var fresh = pool.filter(function (u) { return !spSeen[u]; });    // never one already shown, while there is a new one to show
     if (fresh.length < 8) spMore(10);                                // and keep fetching so there always is
+    if (!fresh.length && pool.length < 40) { el.className = 'spslot'; return; }   // few pictures loaded so far: show nothing rather than the same one again (spFill gives it a new one as they arrive)
     if (!fresh.length) {                                             // only when every one has been seen does it start over, and then
       spSeen = {};                                                   // never with one of the last few shown (or the very last one, at least)
       fresh = pool.filter(function (u) { return spRecent.indexOf(u) < 0; });

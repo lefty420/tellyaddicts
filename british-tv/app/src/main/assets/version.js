@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.96",
-  "version": "0.45.96",
-  "code": 4596,
+  "name": "Alpha 0.45.97",
+  "version": "0.45.97",
+  "code": 4597,
   "date": "2026-11-14",
   "notes": [
-    "**Films now use their backdrop on the loading screen.** A film such as Dogma showed only its poster before it started, even when a backdrop was on file for it. The loading screen now looks the film up by title, so the backdrop is used when there is one, and the poster only when there isn't."
+    "**The start-up tuning screen no longer repeats a picture early on.** While only a few pictures had loaded, the same ones came round again and again. Until there are plenty, a gap now stays empty until a new picture arrives."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.96",
+      "date": "2026-11-14",
+      "notes": [
+        "**Films now use their backdrop on the loading screen.** A film such as Dogma showed only its poster before it started, even when a backdrop was on file for it. The loading screen now looks the film up by title, so the backdrop is used when there is one, and the poster only when there isn't."
+      ]
+    },
     {
       "name": "Alpha 0.45.95",
       "date": "2026-11-14",
@@ -57,14 +64,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Start-up pictures no longer repeat.** When the pictures flicking by on the tuning screen had all been shown once (more likely on a slow start, when new ones arrive slowly) it started over and could pick the one it had just shown, or one of the last few. It now skips the last six shown, and never picks the very last one again."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.88",
-      "date": "2026-11-13",
-      "notes": [
-        "**YouTube through public Piped and Invidious servers.** The app no longer asks YouTube's own player directly. It asks several community-run Piped and Invidious servers at once and plays the first good stream (no adverts, no sign-in); the last server that worked is asked first next time. If none answer, the debug log lists why. These servers come and go, so expect some days when it is patchy. YouTube videos are on again (Options > Play > YouTube videos turns them off).",
-        "The debug log now says which server and quality each YouTube video came from."
       ]
     }
   ]

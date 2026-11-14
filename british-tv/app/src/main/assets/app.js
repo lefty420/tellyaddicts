@@ -3989,6 +3989,15 @@
     });
     var bar = $('ob-scan'), pct = scanUi.running && scanUi.n ? Math.round(100 * (scanUi.i - 1) / scanUi.n) : 0;
     if (bar) { var w = pct + '%'; if (optsShown._p !== w) { bar.style.width = w; optsShown._p = w; } var bc = 'obar' + (scanUi.running ? ' on' : ''); if ($('obar-scan').className !== bc) $('obar-scan').className = bc; }
+    {                                                // keep the chosen row fully inside the panel (the panel clips; it scrolls to follow)
+      var pn = $('opane'), rw = optsZone ? $('or-' + OPTS[optsSel]) : null;
+      if (!rw) pn.scrollTop = 0;
+      else if (rw.offsetHeight) {
+        var rt = rw.offsetTop, rb = rt + rw.offsetHeight, gap = Math.round(window.innerHeight * 0.02);
+        if (rb + gap > pn.scrollTop + pn.clientHeight) pn.scrollTop = rb + gap - pn.clientHeight;
+        if (rt - gap < pn.scrollTop) pn.scrollTop = Math.max(0, rt - gap);
+      }
+    }
     applyTheme(gChan || (cur && cur.ch));
     var pv = $('otpv'), pc = 'otpv' + (themeNow === 'classic' || !themeNow ? '' : ' gt-' + themeNow);
     if (pv && pv.className !== pc) pv.className = pc;

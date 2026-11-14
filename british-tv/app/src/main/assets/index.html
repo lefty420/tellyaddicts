@@ -434,7 +434,7 @@
   /* ---- guide themes (Options > TV Guide > Guide theme). A theme is a class on <body> ("gt-teletext") that sets the
      guide's colours through the variables above and adds a few rules of its own. The same class on the little
      preview in Options shows it before it is chosen. Classic Blue is the plain variables, so it needs none. */
-  .otpv { display: none; margin-top: 1.4vh; height: 13.5vh; overflow: hidden; border-radius: 1.2vh; position: relative;
+  .otpv { display: none; margin-top: 1.4vh; height: 18.2vh; overflow: hidden; border-radius: 1.2vh; position: relative;
     background: linear-gradient(180deg, var(--g1), var(--g3)); color: var(--gtx, #fff); font-family: var(--gfont, inherit); }
   .orow.sel .otpv { display: block; }
   .otpv-in { position: absolute; left: 1vw; top: 1vh; width: 182%; transform: scale(.55); transform-origin: 0 0; }
@@ -526,6 +526,17 @@
   .gt-nineties #glegend { bottom: 1.4vh; }
   .gt-nineties #glegend div { font-size: 2.1vh; padding: .2vh .6vw; line-height: 1.1; }
   .gt-nineties #glegend div { color: #000; border: .3vh solid; border-color: #fff #404040 #404040 #fff; border-radius: 0; }
+
+  /* Classic Blue: gradient channel tiles, glowing "now" cells, darker later cells: gradient channel tiles, glowing now-cells, bright accents */
+  body:not([class*="gt-"]) { --g1:#1646d0; --g2:#0b2a8c; --g3:#050f45; --cell:#2a63e0; --cell2:#173fa8; --cellnow:#3b86ff; --cellnow2:#1c52cf; --hi1:#fff6c2; --hi2:#ffb800; }
+  body:not([class*="gt-"]) .gch { background: linear-gradient(90deg, #0d2a8f 0%, #1b4ac8 100%); border-left: .8vh solid #ffb800; border-radius: 0 1vh 1vh 0; box-shadow: 0 .3vh .8vh rgba(0,0,0,.45); }
+  body:not([class*="gt-"]) .gch .n { color: #ffd34d; text-shadow: 0 0 .8vh rgba(255,200,40,.6); }
+  body:not([class*="gt-"]) .gch.sel { background: linear-gradient(90deg, #ff9a1a 0%, #ffd23a 100%); color: #0a1a55; border-left-color: #fff; box-shadow: 0 0 1.6vh rgba(255,190,40,.8); }
+  body:not([class*="gt-"]) .gch.sel .n { color: #0a1a55; text-shadow: none; }
+  body:not([class*="gt-"]) .blk { border-radius: .8vh; border-top-color: rgba(255,255,255,.45); box-shadow: 0 .3vh .8vh rgba(0,0,0,.4); }
+  body:not([class*="gt-"]) .blk.now { background: linear-gradient(180deg, #4a96ff 0%, #1f58d8 100%); border-top-color: #bfe0ff; box-shadow: 0 0 1.2vh rgba(90,160,255,.7); border-left: .8vh solid #ffd34d; }
+  body:not([class*="gt-"]) .blk:not(.now):not(.foc) { background: linear-gradient(180deg, #1b4cc0 0%, #0f2f8c 100%); }
+  body:not([class*="gt-"]) .blk.foc { background: linear-gradient(180deg, #fff6c2 0%, #ffb800 100%); box-shadow: 0 0 2vh rgba(255,190,40,.9); border-color: #fff; }
 
   /* a programme cut off at either edge keeps room for its arrow, whatever the theme's own padding says */
   body[class*="gt-"] .blk.cl { padding-left: 2.6vw; } body[class*="gt-"] .blk.cr { padding-right: 2.6vw; }
@@ -694,7 +705,7 @@
   .ocat.cur { background: rgba(255,255,255,.14); color: #fff; }
   .ocat.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); font-weight: 800; box-shadow: 0 .8vh 2.6vh rgba(0,0,0,.4); }
   #opane { position: absolute; left: 31vw; right: 4.4vw; top: 16vh; bottom: 12vh; box-sizing: border-box; padding: 3.4vh 2.4vw 2.4vh; border-radius: 2.8vh;
-    background: #061450; border: .14vh solid rgba(255,255,255,.14); display: flex; flex-direction: column; }
+    background: #061450; border: .14vh solid rgba(255,255,255,.14); display: flex; flex-direction: column; overflow: hidden; }
   .ogrp { display: none; flex-direction: column; gap: .6vh; }
   .ogrp.on { display: flex; }
   .ogrp h3 { margin: 0 0 1vh; font-size: 2vh; letter-spacing: .24em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }

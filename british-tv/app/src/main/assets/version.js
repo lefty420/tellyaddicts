@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.46",
-  "version": "0.46.46",
-  "code": 4646,
+  "name": "Alpha 0.46.47",
+  "version": "0.46.47",
+  "code": 4647,
   "date": "2026-11-14",
   "notes": [
-    "**Clear message when an addon cannot be added**: instead of a brief pop-up that was easy to miss, a screen now says why (could not reach it, or the address answered with an error) and stays until you press Back. The reason is also written to the debug log."
+    "**Fix: an addon file played behind the On Demand screen**: choosing a source started the video but left On Demand covering it, so it looked as if nothing played. On Demand now closes first. Addon files also always use the app's own player, since they are often mkv files with Dolby audio that the web view cannot play."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.46",
+      "date": "2026-11-14",
+      "notes": [
+        "**Clear message when an addon cannot be added**: instead of a brief pop-up that was easy to miss, a screen now says why (could not reach it, or the address answered with an error) and stays until you press Back. The reason is also written to the debug log."
+      ]
+    },
     {
       "name": "Alpha 0.46.45",
       "date": "2026-11-14",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**The guide comes back where you left it**: press Back to go to the picture, then open the guide again, and it opens on the same channel, rows and time you had selected instead of jumping back to what is playing and scrolling the list. If you started something else, or it was more than ten minutes ago, it opens on what is playing as before."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.38",
-      "date": "2026-11-14",
-      "notes": [
-        "**PLAYING marker made small**: the red tag on the programme you are watching took up most of a narrow guide cell and hid its title. It is now just a small red ▶ badge; the red outline and the channel marker stay."
       ]
     }
   ]

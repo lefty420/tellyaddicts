@@ -2184,6 +2184,7 @@
   var npKnown = store.get('np1') || {};                // file -> when it needed the backup player
   function playerMode() { return PLAYERS[playerIdx].id; }
   v.wantNative = function (u) {
+    if (cur && cur.prog && cur.prog.addon) return true;     // addon files are often mkv with Dolby audio: the app's own player
     if (/^yt:/.test(u || '')) return true;                 // YouTube videos are looked up and played by the app's own player
     var m = playerMode();
     if (m === 'off') return false;
@@ -3791,6 +3792,7 @@
     var lk = Object.keys(adLast); if (lk.length > 60) { lk.sort(function (a, b) { return adLast[a].t - adLast[b].t; }); delete adLast[lk[0]]; }
     store.set('adlast1', adLast);
     adClose(); if (odm) odmClose();
+    if (odOpen) odClose(false);                               // the picture must not stay hidden behind On Demand
     dlog('ADDON PLAY ' + x.addon + ' | ' + x.label + ' | ' + url);
     odStart(ch, [{ p: prog, s: 0, e: 0 }], 0, 0, '');
   }

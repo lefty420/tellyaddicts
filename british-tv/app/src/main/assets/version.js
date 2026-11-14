@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.45",
-  "version": "0.46.45",
-  "code": 4645,
+  "name": "Alpha 0.46.46",
+  "version": "0.46.46",
+  "code": 4646,
   "date": "2026-11-14",
   "notes": [
-    "**Fix: adding a Stremio addon failed with \"no answer\"**: the app only let its page reach a short list of sites (archive.org, TVmaze and so on), so an addon's own address was blocked before it was ever asked. The app now makes addon requests itself: https only, never to a private or local address, at most 3 MB back. This needs the new app version. Plain http addon links are no longer accepted. The phone add page now uses its own port (8767) so it cannot clash with Live view (8766)."
+    "**Clear message when an addon cannot be added**: instead of a brief pop-up that was easy to miss, a screen now says why (could not reach it, or the address answered with an error) and stays until you press Back. The reason is also written to the debug log."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.45",
+      "date": "2026-11-14",
+      "notes": [
+        "**Fix: adding a Stremio addon failed with \"no answer\"**: the app only let its page reach a short list of sites (archive.org, TVmaze and so on), so an addon's own address was blocked before it was ever asked. The app now makes addon requests itself: https only, never to a private or local address, at most 3 MB back. This needs the new app version. Plain http addon links are no longer accepted. The phone add page now uses its own port (8767) so it cannot clash with Live view (8766)."
+      ]
+    },
     {
       "name": "Alpha 0.46.44",
       "date": "2026-11-14",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**PLAYING marker made small**: the red tag on the programme you are watching took up most of a narrow guide cell and hid its title. It is now just a small red ▶ badge; the red outline and the channel marker stay."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.37",
-      "date": "2026-11-14",
-      "notes": [
-        "**Start-up TV moves again, and shows the real tuning**: the last change drove the needle, knobs and picture from the page itself, which is frozen while the guides are being built, so on the TV nothing moved. The needle, knobs, static and pictures are back on their own animations (they keep going while the app is busy), and the real progress is added on top: a green bar fills along the scale and the label counts the channels that have finished (TUNING 7 / 16), with a flash of colour bars as each locks on."
       ]
     }
   ]

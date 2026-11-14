@@ -3641,7 +3641,7 @@
       var b = adBase(l);
       if (b.err) { toast(b.err, 5000); adList(addons.length); return; }
       adOpen({ title: 'Checking the addon\u2026', sub: '', rows: [], empty: 'Asking it for its details\u2026', back: function () { adList(addons.length); } });
-      adFetch(b.base).then(function (m) { adPreview(b.base, m); }, function (e) { toast(e.message === 'timeout' ? 'The addon did not answer' : e.message, 5000); adList(addons.length); });
+      adFetch(b.base).then(function (m) { adPreview(b.base, m); }, function (e) { adFail(b.base, e); });
     }, 1500);
   }
   function adAsk() {
@@ -3651,8 +3651,14 @@
       var b = adBase(txt);
       if (b.err) { toast(b.err, 5000); adList(addons.length); return; }
       adOpen({ title: 'Checking the addon…', sub: b.base, rows: [], empty: 'Asking it for its details…', back: function () { adList(addons.length); } });
-      adFetch(b.base).then(function (m) { adPreview(b.base, m); }, function (e) { toast(e.message === 'timeout' ? 'The addon did not answer' : e.message, 5000); adList(addons.length); });
+      adFetch(b.base).then(function (m) { adPreview(b.base, m); }, function (e) { adFail(b.base, e); });
     } });
+  }
+  /** Say plainly why an addon could not be added, and stay on screen until Back. */
+  function adFail(base, e) {
+    var msg = /^HTTP (0|undefined)$/.test(e.message) || e.message === 'timeout' ? 'Could not reach it. Check the link, and that the TV is online.' : /^HTTP \d+/.test(e.message) ? 'The address answered with an error (' + e.message.slice(5) + ')' : e.message;
+    dlog('ADDON ADD FAILED ' + base + ' | ' + e.message);
+    adOpen({ title: 'Could not add it', sub: base.replace(/^https?:\/\//, '').split('/')[0], rows: [{ t: '!', n: msg, s: '', d: '', dim: true, f: function () {} }, { t: 'Back', n: 'Back to the list', s: '', d: '', f: function () { adList(addons.length); } }], i: 1, back: function () { adList(addons.length); } });
   }
   function adPreview(base, m) {
     var dup = addons.filter(function (a) { return a.base === base; })[0];

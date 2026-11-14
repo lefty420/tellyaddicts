@@ -3241,12 +3241,12 @@
       if (odChannels().indexOf(c) < 0) { toast('Nothing on demand for ' + c.name, 3000); return; }
       odOpenUi(); odJump(c, p);
     } });
+    items.push({ t: 'Channel schedule', sub: 'Everything on ' + c.name + ', with times', f: function () { gmClose(); csOpen(c, 'guide'); } });
     if (live) items.push({ t: 'Watch now', sub: 'Join it where it is now', f: function () { gmClose(); watchFromGuide(); } });
     items.push({ t: 'Watch from the start', sub: 'Begin this programme at the beginning', f: function () { gmClose(); watchFromGuide(true); } });
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
-    items.push({ t: 'Channel schedule', sub: 'Everything on ' + c.name + ', with times', f: function () { gmClose(); csOpen(c, 'guide'); } });
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
     items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
     items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); closeGuide(); openOpts(); } });
@@ -3432,14 +3432,13 @@
       box.appendChild(r);
     });
     $('csfoot').textContent = '';
-    ['\u25c4 \u25ba Day', 'Ch +/\u2212 Channel', 'OK ' + (n && cs.rows[cs.i] && cs.rows[cs.i].startMs > now ? 'Starts ' + fmtTime(cs.rows[cs.i].startMs) : 'Watch'), 'Back'].forEach(function (x) {
+    ['\u25c4 \u25ba Day', 'Ch +/\u2212 Channel', 'OK ' + (n && cs.rows[cs.i] && cs.rows[cs.i].startMs <= now && cs.rows[cs.i].endMs > now ? 'Watch now' : 'Play from the start'), 'Back'].forEach(function (x) {
       var s = document.createElement('span'); s.textContent = x; $('csfoot').appendChild(s);
     });
   }
   function csAct() {
     var b = cs.rows[cs.i]; if (!b) return;
     var c = cs.c, now = Date.now();
-    if (b.startMs > now) { toast(b.prog.title + ' starts at ' + fmtTime(b.startMs), 3000); return; }
     csClose();
     if (osdOpen) closeOsd();
     if (optsOpen) closeOpts();

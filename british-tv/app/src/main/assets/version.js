@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.29",
-  "version": "0.46.29",
-  "code": 4629,
+  "name": "Alpha 0.46.30",
+  "version": "0.46.30",
+  "code": 4630,
   "date": "2026-11-14",
   "notes": [
-    "**Smoother On Demand**: the big backdrop behind a show is now decoded in the background before it is shown, so moving along the rows no longer stalls while a large picture loads."
+    "**Channel schedule fixes**: OK on any programme in the schedule now plays it (a later one starts from the beginning, like the guide does); before, only what was on right now did anything. \"Channel schedule\" also moves up to sit straight under On Demand in the guide's hold-OK menu."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.29",
+      "date": "2026-11-14",
+      "notes": [
+        "**Smoother On Demand**: the big backdrop behind a show is now decoded in the background before it is shown, so moving along the rows no longer stalls while a large picture loads."
+      ]
+    },
     {
       "name": "Alpha 0.46.28",
       "date": "2026-11-14",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Not Seinfeld**: \"Comedians in Cars Getting Coffee\" was turning up on US Sitcoms as Seinfeld episodes. That upload is now blocked everywhere."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.21",
-      "date": "2026-11-14",
-      "notes": [
-        "**Telly Addicts Mobile: On Demand on the remote.** A purple On Demand button at the top of the on-screen remote opens On Demand from the guide or while watching."
       ]
     }
   ]

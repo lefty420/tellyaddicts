@@ -2800,11 +2800,17 @@
   var gPaint = null;        // what the grid currently shows, so moving the highlight need not rebuild it
 
   /** Highlight, "on now" marks, clock and the details line: everything that changes without the grid changing. */
+  /** The block of what is being watched right now: marked in the guide like the NOW tag in the channel schedule. */
+  function isPlayingBlock(ch, b, now) {
+    if (!cur || cur.ad || cur.od || cur.ch !== ch || !(b.startMs <= now && now < b.endMs)) return false;
+    var g = ch.sched && ch.sched.groups && ch.sched.groups[b.gi];
+    return !!g && cur.index >= g.first && cur.index < g.first + g.count;
+  }
   function paintSelection(list) {
     var now = Date.now();
     $('gclock').textContent = fmtTime(now);
     gPaint.rows.forEach(function (row, i) {
-      var want = 'gch' + ((gPaint.first || 0) + i === gRow ? ' sel' : '');
+      var want = 'gch' + ((gPaint.first || 0) + i === gRow ? ' sel' : '') + (cur && !cur.ad && cur.ch === row.ch ? ' on' : '');
       if (row.cell.className !== want) row.cell.className = want;
       if (row.ld) {                                 // channel still loading: one wide block, highlighted or not
         var lw = 'blk ld' + (row.ch === list[gRow] ? ' foc' : '');
@@ -2813,7 +2819,8 @@
       row.blocks.forEach(function (bl) {
         var w = bl.base +
           ((row.ch === list[gRow] && bl.b.startMs <= gFocus && gFocus < bl.b.endMs) ? ' foc' : '') +
-          ((bl.b.startMs <= now && now < bl.b.endMs) ? ' now' : '');
+          ((bl.b.startMs <= now && now < bl.b.endMs) ? ' now' : '') +
+          (isPlayingBlock(row.ch, bl.b, now) ? ' play' : '');
         if (bl.el.className !== w) bl.el.className = w;
       });
     });

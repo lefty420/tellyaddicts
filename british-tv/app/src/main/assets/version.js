@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.35",
-  "version": "0.46.35",
-  "code": 4635,
+  "name": "Alpha 0.46.36",
+  "version": "0.46.36",
+  "code": 4636,
   "date": "2026-11-14",
   "notes": [
-    "**American Thomas blocked**: the \"Model Series (US Restored)\" upload (and the other US Thomas uploads: George Carlin, Ringo Starr US, US VHS, US CGI) were playing as the real Thomas and Friends. All ten are now hidden; the UK ones stay."
+    "**What's playing is marked in the guide**: the programme you are watching now carries a red PLAYING tag (like NOW in the channel schedule), and its channel has a red marker, so it stands out from everything else that is on right now."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.35",
+      "date": "2026-11-14",
+      "notes": [
+        "**American Thomas blocked**: the \"Model Series (US Restored)\" upload (and the other US Thomas uploads: George Carlin, Ringo Starr US, US VHS, US CGI) were playing as the real Thomas and Friends. All ten are now hidden; the UK ones stay."
+      ]
+    },
     {
       "name": "Alpha 0.46.34",
       "date": "2026-11-14",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**More American game shows blocked**: the MVG Productions Archive uploads (Joker's Wild, Sale of the Century, Big Jon's Price Is Right and Wheel of Fortune) are all US versions and were showing as the UK shows. All of them are now hidden."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.27",
-      "date": "2026-11-14",
-      "notes": [
-        "**Back from On Demand goes to the TV guide**: it used to drop you on the picture when On Demand had been opened from the remote or the OSD. Now Back always takes you to the guide."
       ]
     }
   ]

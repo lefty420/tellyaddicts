@@ -600,7 +600,7 @@
   var US_TPIR = /price\s*is\s*right|\btpir|barker\s*era/i;
   function blocked(p) {
     if (!p) return false;
-    if (p.id && BAD_ITEMS[String(p.id).split('/')[0]]) return true;
+    if (p.id && (BAD_ITEMS[String(p.id).split('/')[0]] || /^mvgproductions/i.test(String(p.id)))) return true;   // MVG Productions Archive = Big Jon's American game shows
     if (hidCount) { var hk = hidKey(p); if (hk && hid[hk]) return true; }
     var t = (p.show || p.group || '') + ' ' + (p.title || '') + ' ' + (p.sub || '') + ' ' +
             String(p.id || '').replace(/[-_]/g, ' ');

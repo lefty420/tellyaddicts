@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.27",
-  "version": "0.46.27",
-  "code": 4627,
+  "name": "Alpha 0.46.28",
+  "version": "0.46.28",
+  "code": 4628,
   "date": "2026-11-14",
   "notes": [
-    "**Back from On Demand goes to the TV guide**: it used to drop you on the picture when On Demand had been opened from the remote or the OSD. Now Back always takes you to the guide."
+    "**More American game shows blocked**: the MVG Productions Archive uploads (Joker's Wild, Sale of the Century, Big Jon's Price Is Right and Wheel of Fortune) are all US versions and were showing as the UK shows. All of them are now hidden."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.27",
+      "date": "2026-11-14",
+      "notes": [
+        "**Back from On Demand goes to the TV guide**: it used to drop you on the picture when On Demand had been opened from the remote or the OSD. Now Back always takes you to the guide."
+      ]
+    },
     {
       "name": "Alpha 0.46.26",
       "date": "2026-11-14",
@@ -57,17 +64,6 @@ window.RELEASE = {
       "notes": [
         "**Telly Addicts Mobile: move the remote button.** Drag the round button anywhere on the screen. The on-screen remote opens beside it, and the app remembers where you put it. A tap still opens and closes the remote.",
         "**A selected programme you can read**: a programme that runs in from the left edge of the guide now starts its words at the edge you can see, and tapping a programme that is mostly off the side scrolls it back into view."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.19",
-      "date": "2026-11-14",
-      "notes": [
-        "**Telly Addicts Mobile: the guide now scrolls like a phone** (the TV app is unchanged). It follows your finger smoothly, up and down through the channels and sideways through the time line, and glides to rest when you let go. Scrolling no longer moves the highlight, so a tap picks what you touch.",
-        "**Fixed overlapping**: the small TV window no longer sits over the time line and the first channel.",
-        "**The bar over the picture can be touched**: tap its buttons (TV Guide, Play, Next, Restart, Info, On Demand, Options), tap or drag along the progress line to jump around, and tap anywhere else to close it. The buttons and text are bigger.",
-        "In lists and menus, dragging now moves the way the list is dragged (finger up shows the next items).",
-        "The remote button in the bottom right stays on every screen."
       ]
     }
   ]

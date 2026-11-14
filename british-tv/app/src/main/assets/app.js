@@ -5343,9 +5343,9 @@
     clearTimeout(odMetaTimer);
     $('od').className = 'hidden';
     v.muted = false;
-    if (restore && odFrom === 'guide') {
+    if (restore) {                                    // Back from On Demand always lands on the TV guide, wherever On Demand was opened from
       openGuide();
-      if (odGuide && guideList().indexOf(odGuide.chan) >= 0) {
+      if (odFrom === 'guide' && odGuide && guideList().indexOf(odGuide.chan) >= 0) {
         var now = Date.now();
         gChan = odGuide.chan;
         gWin = Math.max(odGuide.win, floorHalf(now));

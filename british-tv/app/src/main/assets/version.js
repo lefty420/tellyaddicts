@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.26",
-  "version": "0.46.26",
-  "code": 4626,
+  "name": "Alpha 0.46.27",
+  "version": "0.46.27",
+  "code": 4627,
   "date": "2026-11-14",
   "notes": [
-    "**YouTube picture in the guide's little TV**: videos played by the app's own player (all the YouTube ones, and some files) disappeared from the preview window when the guide opened, because that player draws behind the page. The picture now moves into the little TV and goes back to full screen when the guide closes. Needs the new app, not just a refresh."
+    "**Back from On Demand goes to the TV guide**: it used to drop you on the picture when On Demand had been opened from the remote or the OSD. Now Back always takes you to the guide."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.26",
+      "date": "2026-11-14",
+      "notes": [
+        "**YouTube picture in the guide's little TV**: videos played by the app's own player (all the YouTube ones, and some files) disappeared from the preview window when the guide opened, because that player draws behind the page. The picture now moves into the little TV and goes back to full screen when the guide closes. Needs the new app, not just a refresh."
+      ]
+    },
     {
       "name": "Alpha 0.46.25",
       "date": "2026-11-14",
@@ -61,13 +68,6 @@ window.RELEASE = {
         "**The bar over the picture can be touched**: tap its buttons (TV Guide, Play, Next, Restart, Info, On Demand, Options), tap or drag along the progress line to jump around, and tap anywhere else to close it. The buttons and text are bigger.",
         "In lists and menus, dragging now moves the way the list is dragged (finger up shows the next items).",
         "The remote button in the bottom right stays on every screen."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.18",
-      "date": "2026-11-14",
-      "notes": [
-        "**Telly Addicts Mobile, better touch** (the TV app is unchanged):"
       ]
     }
   ]

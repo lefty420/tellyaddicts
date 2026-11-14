@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.24",
-  "version": "0.46.24",
-  "code": 4624,
+  "name": "Alpha 0.46.25",
+  "version": "0.46.25",
+  "code": 4625,
   "date": "2026-11-14",
   "notes": [
-    "**American Price Is Right blocked**: the US game show (hundreds of Barker-era episodes) was filling the TV. All of it is now hidden everywhere; Bruce's Price Is Right (the UK one) stays."
+    "**Channel schedule**: a full list of everything on a channel with its start time and length, like a real EPG. Open it from the guide's hold-OK menu (Channel schedule), from the new Schedule button on the OSD, or from Options > TV Guide. Left/Right change the day (yesterday to a week ahead), Channel +/- change channel, OK watches what is on or plays an earlier programme from its start. It uses the colours of whichever guide theme you have, and on the phone the rows are tappable."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.24",
+      "date": "2026-11-14",
+      "notes": [
+        "**American Price Is Right blocked**: the US game show (hundreds of Barker-era episodes) was filling the TV. All of it is now hidden everywhere; Bruce's Price Is Right (the UK one) stays."
+      ]
+    },
     {
       "name": "Alpha 0.46.23",
       "date": "2026-11-14",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Telly Addicts Mobile gets touch controls** (the TV app is unchanged):"
-      ]
-    },
-    {
-      "name": "Alpha 0.46.16",
-      "date": "2026-11-14",
-      "notes": [
-        "**The Telly Addict Builder keeps working**: splitting the build into TV and Mobile moved the TV app's APK, which the Builder looks for. The TV build now also leaves its APK where the Builder expects it. The Builder installs the TV app only; the Mobile APK comes from the GitHub build for now."
       ]
     }
   ]

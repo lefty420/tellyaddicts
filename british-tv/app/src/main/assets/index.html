@@ -239,6 +239,42 @@
   }
 
   /* the hold-OK menus (guide and On Demand) share the look of Options: the same navy panel, yellow highlight and two-line rows */
+
+  /* ---- channel schedule: every programme on one channel with its time, in the guide theme's own colours */
+  #csched { position: fixed; inset: 0; z-index: 60; color: var(--gtx, #fff); font-family: var(--gfont, inherit);
+    background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%); }
+  #csched.hidden { display: none; }
+  #cshd { position: absolute; left: 5vw; right: 5vw; top: 4vh; height: 9vh; display: flex; align-items: center; gap: 1.4vw; }
+  #csnum { font-size: 6vh; font-weight: 800; color: var(--hi2); }
+  #csname { font-size: 6vh; font-weight: 800; white-space: nowrap; }
+  #csdate { font-size: 3.2vh; color: var(--gsoft, #b9d1ff); margin-left: .6vw; white-space: nowrap; }
+  #cstabs { margin-left: auto; display: flex; gap: .7vw; }
+  #cstabs b { padding: .8vh 1.5vw; border-radius: 4vh; font-size: 2.8vh; font-weight: 600; background: rgba(255,255,255,.1); color: var(--gsoft2, #dbe7ff); white-space: nowrap; }
+  #cstabs b.on { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
+  #cslist { position: absolute; left: 5vw; right: 5vw; top: 16vh; }
+  .csr { display: flex; align-items: center; height: 7.4vh; margin-bottom: .8vh; padding: 0 1.6vw; font-size: 3.4vh;
+    background: linear-gradient(180deg, var(--cell) 0%, var(--cell2) 100%); color: var(--celltx, inherit);
+    border-left: .8vh solid var(--chanb, #3a6fe0); border-radius: var(--rad, 0);
+    border-top: .3vh solid var(--bt, rgba(255,255,255,.25)); }
+  .csr .t { width: 15vw; flex: none; font-weight: 800; color: var(--hi2); white-space: nowrap; }
+  .csr .n { flex: 1; min-width: 0; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .csr .n i { font-style: normal; font-weight: 400; font-size: 2.7vh; margin-left: 1.2vw; color: var(--subtx, #c7dbff); }
+  .csr .d { width: 9vw; flex: none; text-align: right; font-size: 2.7vh; color: var(--subtx, #c7dbff); }
+  .csr.past { opacity: .5; }
+  .csr.now { background: linear-gradient(180deg, var(--cellnow) 0%, var(--cellnow2, #1a4cb5) 100%); border-left-color: var(--hi1); box-shadow: 0 0 2.2vh rgba(120,170,255,.45); }
+  .csr.now .t::after { content: "NOW"; margin-left: .8vw; padding: .2vh .6vw; border-radius: .6vh; background: #e4202c; color: #fff; font-size: 1.9vh; font-weight: 800; vertical-align: .3vh; }
+  .csr.sel { background: linear-gradient(180deg, var(--hi1) 0%, var(--hi2) 100%); color: var(--ink); border-color: #fff; opacity: 1; }
+  .csr.sel .t, .csr.sel .n i, .csr.sel .d { color: var(--ink); }
+  .csr.more { justify-content: center; height: 3.4vh; background: none; border: 0; box-shadow: none; font-size: 2.4vh; color: var(--gsoft, #b9d1ff); }
+  #csfoot { position: absolute; left: 5vw; right: 5vw; bottom: 3.4vh; font-size: 2.5vh; color: var(--gsoft, #b9d1ff); display: flex; gap: 2.4vw; }
+  .gt-teletext #csched { text-transform: uppercase; } .gt-teletext .csr { border-left-width: .6vh; } .gt-teletext .csr.sel { background: #00ffff; }
+  .gt-paper .csr { border: .2vh solid #1c1a17; } .gt-paper .csr.now { box-shadow: none; }
+  .gt-eighties .csr { border: .25vh solid #00f0ff; box-shadow: 0 0 1vh rgba(0,240,255,.4); } .gt-eighties .csr.now { border-color: #ff2e97; }
+  .gt-nineties .csr, .gt-nineties #cstabs b { border: .3vh solid; border-color: #fff #404040 #404040 #fff; border-radius: 0; }
+  html.phone #cshd { top: 2vh; height: 12vh; } html.phone #csnum, html.phone #csname { font-size: 7vh; } html.phone #csdate { font-size: 3.6vh; }
+  html.phone #cstabs b { font-size: 3.4vh; padding: 1.4vh 2.2vw; } html.phone #cslist { top: 17vh; }
+  html.phone .csr { height: 14vh; font-size: 4.6vh; margin-bottom: 1.2vh; } html.phone .csr .n i, html.phone .csr .d { font-size: 3.2vh; }
+  html.phone #csfoot { display: none; }
   #gmenu { position: fixed; inset: 0; z-index: 55; background: rgba(2,6,28,.82); display: flex; align-items: center; justify-content: center; }
   #gmenu.hidden { display: none; }
   #gmbox { width: 38vw; background: #061450; border: .14vh solid rgba(255,255,255,.16); border-radius: 2.8vh; padding: 3.4vh 2vw 2.2vh; box-shadow: 0 2vh 6vh rgba(0,0,0,.7); }
@@ -852,6 +888,7 @@
     <div class="ob" id="ob-next"><span class="ic">&#9654;&#10072;</span><span>Play Next</span></div>
     <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
     <div class="ob" id="ob-info"><span>Info</span></div>
+    <div class="ob" id="ob-sched"><span>Schedule</span></div>
     <div class="ob" id="ob-od"><span>On Demand</span></div>
     <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
   </div>
@@ -898,6 +935,7 @@
     </div>
     <div class="ogrp" id="og-guide">
       <h3>TV Guide</h3>
+      <div class="orow act" id="or-sched"><div class="oline"><b>Channel schedule</b><span id="ov-sched"></span></div><div class="ochips" id="oc-sched"></div></div>
       <div class="orow act" id="or-od"><div class="oline"><b>On Demand</b><span id="ov-od"></span></div><div class="ochips" id="oc-od"></div></div>
       <div class="orow" id="or-real"><div class="oline"><b>Real time EPG</b><span id="ov-real"></span></div><div class="ochips" id="oc-real"></div></div>
       <div class="orow" id="or-span"><div class="oline"><b>Guide length</b><span id="ov-span"></span></div><div class="ochips" id="oc-span"></div></div>
@@ -1038,6 +1076,11 @@
     <div id="spcount"></div>
     <div id="chstatus"></div>
   </div>
+</div>
+<div id="csched" class="hidden" data-own="1">
+  <div id="cshd"><span id="csnum"></span><span id="csname"></span><span id="csdate"></span><div id="cstabs"></div></div>
+  <div id="cslist"></div>
+  <div id="csfoot"></div>
 </div>
 <div id="gmenu" class="hidden"><div id="gmbox"><h2 id="gmt"></h2><div id="gms"></div><div id="gml"></div></div></div>
 <div id="nosignal" class="hidden">

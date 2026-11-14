@@ -3219,6 +3219,7 @@
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
+    items.push({ t: 'Channel schedule', sub: 'Everything on ' + c.name + ', with times', f: function () { gmClose(); csOpen(c, 'guide'); } });
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
     items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
     items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); closeGuide(); openOpts(); } });
@@ -3347,6 +3348,95 @@
     gmRender();
   }
 
+
+  // ------------------------------------------------------------------ channel schedule (guide menu, OSD, Options)
+  // Every programme on one channel for a day, with its start time, like the schedule pages of a real EPG. Day by day:
+  // Left / Right change the day, Channel +/- the channel, OK joins what is on or plays a programme from its start.
+  var cs = null, csTimer = null;
+  function csDayStart(off) { var d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + off); return d.getTime(); }
+  function csLen(ms) { var m = Math.round(ms / 60000); return m >= 60 ? Math.floor(m / 60) + ' h' + (m % 60 ? ' ' + (m % 60) : '') : m + ' min'; }
+  function csDayName(off) {
+    if (off === -1) return 'Yesterday'; if (off === 0) return 'Today'; if (off === 1) return 'Tomorrow';
+    return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(csDayStart(off)).getDay()];
+  }
+  function csLoad() {
+    var from = csDayStart(cs.day), to = csDayStart(cs.day + 1), now = Date.now();
+    cs.rows = cs.c.status === 'ready' ? E.blocks(cs.c.sched, from, to).filter(function (b) { return b.endMs > from && b.startMs < to; }) : [];
+    cs.i = 0;
+    for (var i = 0; i < cs.rows.length; i++) if (cs.rows[i].startMs <= now && now < cs.rows[i].endMs) { cs.i = i; break; }
+    if (cs.day !== 0 && cs.rows.length) cs.i = 0;
+  }
+  function csOpen(c, from) {
+    c = c || (cur && cur.ch) || gChan;
+    if (!c) return;
+    if (c.status !== 'ready') { toast(c.name + ' is still loading', 2000); return; }
+    cs = { c: c, day: 0, from: from || '', rows: [], i: 0, top: 0 };
+    csLoad(); csRender();
+    $('csched').className = '';
+    clearInterval(csTimer); csTimer = setInterval(function () { if (cs) csRender(); }, 30000);
+  }
+  function csClose() { cs = null; clearInterval(csTimer); $('csched').className = 'hidden'; }
+  function csRender() {
+    var c = cs.c, now = Date.now(), N = window.PHONE ? 4 : 9, n = cs.rows.length;
+    $('csnum').textContent = c.n; $('csname').textContent = c.name;
+    var d = new Date(csDayStart(cs.day));
+    $('csdate').textContent = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][d.getDay()] + ' ' + d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
+    var tabs = $('cstabs'); tabs.textContent = '';
+    [-1, 0, 1].forEach(function (o) {
+      var t = document.createElement('b'); t.textContent = csDayName(o); t.className = o === cs.day ? 'on' : '';
+      t.addEventListener('click', function () { cs.day = o; csLoad(); csRender(); }); tabs.appendChild(t);
+    });
+    if (cs.day > 1 || cs.day < -1) { var t2 = document.createElement('b'); t2.className = 'on'; t2.textContent = csDayName(cs.day); tabs.appendChild(t2); }
+    if (cs.i < cs.top) cs.top = cs.i; else if (cs.i >= cs.top + N) cs.top = cs.i - N + 1;
+    cs.top = Math.max(0, Math.min(cs.top, Math.max(0, n - N)));
+    var box = $('cslist'); box.textContent = '';
+    if (!n) { var e0 = document.createElement('div'); e0.className = 'csr'; e0.textContent = 'Nothing scheduled'; box.appendChild(e0); }
+    cs.rows.forEach(function (b, i) {
+      if (i < cs.top || i >= cs.top + N) return;
+      var r = document.createElement('div');
+      r.className = 'csr' + (b.endMs <= now ? ' past' : '') + (b.startMs <= now && now < b.endMs ? ' now' : '') + (i === cs.i ? ' sel' : '');
+      var t = document.createElement('span'); t.className = 't'; t.textContent = fmtTime(b.startMs); r.appendChild(t);
+      var nm = document.createElement('span'); nm.className = 'n'; nm.textContent = b.prog.title || '';
+      var sub = b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '');
+      if (sub) { var s = document.createElement('i'); s.textContent = sub; nm.appendChild(s); }
+      r.appendChild(nm);
+      var dd = document.createElement('span'); dd.className = 'd'; dd.textContent = csLen(b.endMs - b.startMs); r.appendChild(dd);
+      r.addEventListener('click', function () { if (cs.i === i) csAct(); else { cs.i = i; csRender(); } });
+      box.appendChild(r);
+    });
+    $('csfoot').textContent = '';
+    ['\u25c4 \u25ba Day', 'Ch +/\u2212 Channel', 'OK ' + (n && cs.rows[cs.i] && cs.rows[cs.i].startMs > now ? 'Starts ' + fmtTime(cs.rows[cs.i].startMs) : 'Watch'), 'Back'].forEach(function (x) {
+      var s = document.createElement('span'); s.textContent = x; $('csfoot').appendChild(s);
+    });
+  }
+  function csAct() {
+    var b = cs.rows[cs.i]; if (!b) return;
+    var c = cs.c, now = Date.now();
+    if (b.startMs > now) { toast(b.prog.title + ' starts at ' + fmtTime(b.startMs), 3000); return; }
+    csClose();
+    if (osdOpen) closeOsd();
+    if (optsOpen) closeOpts();
+    gChan = c; gFocus = b.startMs <= now && now < b.endMs ? now : b.startMs + 1000;
+    watchFromGuide();
+  }
+  function csChannel(d) {
+    var list = guideList().filter(function (x) { return x.status === 'ready'; }), i = list.indexOf(cs.c);
+    if (!list.length) return;
+    cs.c = list[((i < 0 ? 0 : i) + d + list.length) % list.length]; csLoad(); csRender();
+  }
+  function csKey(k) {
+    var n = cs.rows.length;
+    if (k === 'ArrowUp') { if (n) cs.i = (cs.i + n - 1) % n; }
+    else if (k === 'ArrowDown') { if (n) cs.i = (cs.i + 1) % n; }
+    else if (k === 'ArrowLeft' || k === 'Yellow' || k === 'MediaRewind') { if (cs.day > -1) { cs.day--; csLoad(); } }
+    else if (k === 'ArrowRight' || k === 'Green' || k === 'MediaFastForward') { if (cs.day < 6) { cs.day++; csLoad(); } }
+    else if (k === 'ChannelUp') { csChannel(1); return; }
+    else if (k === 'ChannelDown' || k === 'Blue') { csChannel(-1); return; }
+    else if (k === 'Enter' || k === ' ') { csAct(); return; }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide' || k === 'Red' || k === 'Info') { csClose(); return; }
+    csRender();
+  }
+
   // ------------------------------------------------------------------ OSD bar (OK while watching)
 
   var AR = [
@@ -3354,7 +3444,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'info', 'od', 'options'];   // buttons on the bar, left to right
+  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'info', 'sched', 'od', 'options'];   // buttons on the bar, left to right
   /** The buttons showing now: Skip adverts is only there while a break is playing (and never on the Adverts channel, which is all adverts). */
   function obList() { return OB_ALL.filter(function (id) { return id !== 'skipad' || (cur && cur.ad && !isAdChan(cur.ch)); }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
@@ -3911,7 +4001,7 @@
   // The categories down the left of Options, and the rows in each. OPTS is those rows in order.
   var OCATS = [
     { id: 'picture', rows: ['ar', 'fx'] },
-    { id: 'guide', rows: ['od', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
+    { id: 'guide', rows: ['od', 'sched', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
     { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
@@ -3944,7 +4034,7 @@
     if (id === 'mclear') return metaSizeText || '\u2026';
     if (id === 'gaps') return gapState.report ? gapState.report.summary.gaps + ' shows with gaps' : '';
     if (id === 'live') return liveAddr ? 'On' : 'Off';
-    if (id === 'about' || id === 'log' || id === 'od' || id === 'epg') return '';
+    if (id === 'about' || id === 'log' || id === 'od' || id === 'epg' || id === 'sched') return '';
     return '';
   }
 
@@ -4210,6 +4300,7 @@
   function optsChange(d) {
     var id = OPTS[optsSel];
     if (id === 'od') odOpenUi();
+    else if (id === 'sched') csOpen((cur && cur.ch) || gChan, 'opts');
     else if (id === 'ar') changeAr(d);
     else if (id === 'fx') changeFx(d);
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
@@ -4467,6 +4558,7 @@
     else if (id === 'od') { closeOsd(); odOpenUi(); return; }
     else if (id === 'guide') { closeOsd(); openGuide(); }
     else if (id === 'info') { closeOsd(); openInfo(); return; }
+    else if (id === 'sched') { closeOsd(); csOpen(cur && cur.ch, 'osd'); return; }
     renderOsd();
   }
 
@@ -4530,20 +4622,21 @@
     if (quitOpen) { quitKey(k); e.preventDefault(); return; }
     if (k === 'OnDemand') {                                   // the phone's remote: On Demand from anywhere that is not already a panel
       e.preventDefault();
-      if (!odOpen && !optsOpen && !infoOpen && !relOpen && !gm && !kbShown) odOpenUi();
+      if (!odOpen && !optsOpen && !infoOpen && !relOpen && !gm && !kbShown && !cs) odOpenUi();
       return;
     }
     if (!odOpen && (k === 'GoBack' || k === 'Escape' || k === 'Backspace')) {
       var nowT = Date.now();
       // only a Back pressed on the plain picture (or the guide with nothing playing) counts towards quitting:
       // one that closes the guide, the bar, the options or a panel never does
-      if (relOpen || infoOpen || optsOpen || osdOpen || gm) lastBack = 0;
+      if (relOpen || infoOpen || optsOpen || osdOpen || gm || cs) lastBack = 0;
       else if (!e.repeat && nowT - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); e.preventDefault(); return; }   // includes the guide a first Back has just opened
       else if (guideOpen && cur) lastBack = 0;               // a Back that closes the guide on its own never counts
       else if (!e.repeat) lastBack = nowT;
     }
 
     if (kbShown) { kbKey(e); e.preventDefault(); return; }
+    if (cs) { csKey(k); e.preventDefault(); return; }
 
     if (relOpen) {                        // What's new sits above the options panel it was opened from
       if (relKey(k)) e.preventDefault();

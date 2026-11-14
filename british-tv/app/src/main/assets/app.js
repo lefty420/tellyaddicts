@@ -3533,7 +3533,7 @@
     if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
     var m = /^(https?):\/\/([^\/?#]+)([^?#]*)/i.exec(s);
     if (!m) return { err: 'That is not a web address' };
-    if (m[1].toLowerCase() === 'http' && !adLan(m[2].split(':')[0])) return { err: 'Only https:// addresses are allowed (http only on your own network)' };
+    if (m[1].toLowerCase() === 'http') return { err: 'Only https:// addresses are allowed' };
     var path = m[3].replace(/\/manifest\.json$/i, '').replace(/\/+$/, '');
     return { base: m[1].toLowerCase() + '://' + m[2] + path };
   }
@@ -3545,8 +3545,18 @@
     });
     return out;
   }
+  /** A GET to an addon (any https address the person added); the app's own network code does it, as the page may only reach a few sites. */
+  function adHttp(url) {
+    if (!(window.NativeHttp && NativeHttp.addonGet)) return http(url);
+    return new Promise(function (res, rej) {
+      var id = ++reqId;
+      pending[id] = { res: res, rej: rej, url: url };
+      NativeHttp.addonGet(id, url);
+      setTimeout(function () { if (pending[id]) { delete pending[id]; rej(new Error('timeout')); } }, 20000);
+    });
+  }
   function adFetch(base) {
-    return adTmo(http(base + '/manifest.json'), 10000).then(function (t) {
+    return adTmo(adHttp(base + '/manifest.json'), 10000).then(function (t) {
       var m; try { m = JSON.parse(t); } catch (e) { throw new Error('That address did not give an addon'); }
       if (!m || !m.id || !m.name || !Array.isArray(m.resources)) throw new Error('That address did not give an addon');
       return m;
@@ -3685,10 +3695,10 @@
     }
     var srch = adLive().filter(function (a) { return (a.catalogs || 0) > 0; });
     return pool(srch, 3, function (a) {
-      return adTmo(http(a.base + '/manifest.json'), 8000).then(function (t) {
+      return adTmo(adHttp(a.base + '/manifest.json'), 8000).then(function (t) {
         var m = JSON.parse(t), cat = (m.catalogs || []).filter(function (c) { return c.type === 'movie' && (c.extra || []).some(function (x) { return x.name === 'search'; }); })[0];
         if (!cat) return null;
-        return adTmo(http(a.base + '/catalog/movie/' + encodeURIComponent(cat.id) + '/search=' + encodeURIComponent(name) + '.json'), 8000).then(function (t2) {
+        return adTmo(adHttp(a.base + '/catalog/movie/' + encodeURIComponent(cat.id) + '/search=' + encodeURIComponent(name) + '.json'), 8000).then(function (t2) {
           var l = (JSON.parse(t2).metas || []).filter(function (x) { return /^tt\d+/.test(x.id || ''); });
           var w = normShow(name), hit = l.filter(function (x) { return normShow(x.name || '') === w; })[0] || l[0];
           return hit ? { imdb: hit.id, year: +String(hit.releaseInfo || hit.year || '').slice(0, 4) || 0 } : null;
@@ -3755,7 +3765,7 @@
         }
       };
       targets.forEach(function (a) {
-        adTmo(http(a.base + '/stream/' + type + '/' + encodeURIComponent(id).replace(/%3A/g, ':') + '.json'), 8000).then(function (t) {
+        adTmo(adHttp(a.base + '/stream/' + type + '/' + encodeURIComponent(id).replace(/%3A/g, ':') + '.json'), 8000).then(function (t) {
           var ss = (JSON.parse(t).streams || []);
           a.bad = false;
           ss.slice(0, 40).forEach(function (s) {

@@ -15,7 +15,7 @@ import java.net.URLDecoder;
  */
 final class AddonInbox {
 
-    private static final int PORT = 8766;
+    private static final int PORT = 8767;
     private ServerSocket server;
     private volatile String code = "";
     private volatile String pending = "";

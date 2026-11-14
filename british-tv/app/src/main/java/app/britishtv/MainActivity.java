@@ -462,6 +462,64 @@ public class MainActivity extends Activity {
             });
         }
 
+        /**
+         * GET for the experimental Stremio addons: any https address the person added themselves, never a private or
+         * local one, at most 3 MB back. Answers window.__http(id, status, body) like get().
+         */
+        @JavascriptInterface
+        public void addonGet(final int id, final String url) {
+            http.execute(new Runnable() {
+                @Override
+                public void run() {
+                    int status = 0;
+                    String body = "";
+                    HttpURLConnection c = null;
+                    try {
+                        if (url == null || !url.startsWith("https://")) {
+                            throw new SecurityException("https only");
+                        }
+                        java.net.InetAddress ia = java.net.InetAddress.getByName(new URL(url).getHost());
+                        if (ia.isAnyLocalAddress() || ia.isLoopbackAddress() || ia.isSiteLocalAddress() || ia.isLinkLocalAddress()) {
+                            throw new SecurityException("local address");
+                        }
+                        c = (HttpURLConnection) new URL(url).openConnection();
+                        c.setConnectTimeout(10000);
+                        c.setReadTimeout(15000);
+                        c.setRequestProperty("User-Agent", "BritishTV/1.0 (Android TV)");
+                        c.setRequestProperty("Accept", "application/json");
+                        status = c.getResponseCode();
+                        InputStream in = status >= 200 && status < 300 ? c.getInputStream() : c.getErrorStream();
+                        if (in != null) {
+                            ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                            byte[] buf = new byte[8192];
+                            int n;
+                            while ((n = in.read(buf)) > 0 && bo.size() < 3 * 1024 * 1024) {
+                                bo.write(buf, 0, n);
+                            }
+                            in.close();
+                            body = bo.toString("UTF-8");
+                        }
+                    } catch (Exception e) {
+                        status = 0;
+                        body = "";
+                    } finally {
+                        if (c != null) {
+                            c.disconnect();
+                        }
+                    }
+                    final String js = "window.__http(" + id + "," + status + "," + JSONObject.quote(body) + ")";
+                    main.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (web != null) {
+                                web.evaluateJavascript(js, null);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
         /** A request with a method, headers and a body, for TheTVDB only (login is a POST; the rest send a bearer token). */
         @JavascriptInterface
         public void httpx(final int id, final String method, final String url, final String headers, final String reqBody) {

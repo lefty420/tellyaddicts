@@ -3022,6 +3022,17 @@
     gTop = Math.max(0, gRow - VISIBLE_ROWS + 1);
     gWin = floorHalf(now);
     gFocus = now;
+    // Back to the picture and then back into the guide: it comes back exactly as it was left (same channel, rows and time), as long as
+    // the same thing is still playing and it was not long ago; otherwise it opens on what is playing
+    var m = gMem;
+    if (m && m.cur === cur && now - m.t < 600000 && list.indexOf(m.chan) >= 0) {
+      gChan = m.chan; gRow = list.indexOf(gChan);
+      gTop = Math.max(0, Math.min(m.top, Math.max(0, list.length - VISIBLE_ROWS)));
+      if (gRow < gTop) gTop = gRow; else if (gRow >= gTop + VISIBLE_ROWS) gTop = gRow - VISIBLE_ROWS + 1;
+      gWin = Math.max(m.win, floorHalf(now));
+      gFocus = Math.max(m.focus, now);
+      if (gFocus >= gWin + SPAN) gFocus = gWin;
+    }
     document.body.classList.add('guide-open');
     $('guide').className = '';
     $('banner').className = 'off';
@@ -3035,7 +3046,9 @@
     }, 20000);
   }
 
+  var gMem = null;                       // where the guide was left: openGuide puts it back (see there)
   function closeGuide() {
+    if (guideOpen && gChan) gMem = { cur: cur, chan: gChan, top: gTop, win: gWin, focus: gFocus, t: Date.now() };
     gPaint = null;
     guideOpen = false;
     document.body.classList.remove('guide-open');

@@ -5086,7 +5086,19 @@
     odBgFor = want;
     var img = k && k.back ? 'url("' + k.back + '")' : (g ? odTone(g.name) : 'none');
     clearTimeout(odBgTimer);                      // a big picture takes a moment to decode: wait until the highlight rests
-    odBgTimer = setTimeout(function () { var b = $('odbg'); b.style.backgroundImage = img; if (b.animate) try { b.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); } catch (e) { /* no animation */ } }, 140);
+    odBgTimer = setTimeout(function () {
+      function put() {
+        if (want !== odBgFor) return;                // the highlight moved on while the picture was decoding
+        var b = $('odbg'); b.style.backgroundImage = img;
+        if (b.animate) try { b.animate([{ opacity: 0.3 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' }); } catch (e) { /* no animation */ }
+      }
+      // a big backdrop decoded while it is being painted holds the page up for a moment: decode it off the main thread first
+      if (k && k.back && window.Image) {
+        var im = new Image(); im.src = k.back;
+        if (im.decode) { im.decode().then(put, put); return; }
+      }
+      put();
+    }, 140);
   }
   /** The show's own details (network, years, summary) and artwork, looked up once the highlight has rested on it. */
   var odMetaTimer = null;

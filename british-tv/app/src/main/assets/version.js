@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.28",
-  "version": "0.46.28",
-  "code": 4628,
+  "name": "Alpha 0.46.29",
+  "version": "0.46.29",
+  "code": 4629,
   "date": "2026-11-14",
   "notes": [
-    "**More American game shows blocked**: the MVG Productions Archive uploads (Joker's Wild, Sale of the Century, Big Jon's Price Is Right and Wheel of Fortune) are all US versions and were showing as the UK shows. All of them are now hidden."
+    "**Smoother On Demand**: the big backdrop behind a show is now decoded in the background before it is shown, so moving along the rows no longer stalls while a large picture loads."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.28",
+      "date": "2026-11-14",
+      "notes": [
+        "**More American game shows blocked**: the MVG Productions Archive uploads (Joker's Wild, Sale of the Century, Big Jon's Price Is Right and Wheel of Fortune) are all US versions and were showing as the UK shows. All of them are now hidden."
+      ]
+    },
     {
       "name": "Alpha 0.46.27",
       "date": "2026-11-14",
@@ -56,14 +63,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Telly Addicts Mobile: On Demand on the remote.** A purple On Demand button at the top of the on-screen remote opens On Demand from the guide or while watching."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.20",
-      "date": "2026-11-14",
-      "notes": [
-        "**Telly Addicts Mobile: move the remote button.** Drag the round button anywhere on the screen. The on-screen remote opens beside it, and the app remembers where you put it. A tap still opens and closes the remote.",
-        "**A selected programme you can read**: a programme that runs in from the left edge of the guide now starts its words at the edge you can see, and tapping a programme that is mostly off the side scrolls it back into view."
       ]
     }
   ]

@@ -3596,13 +3596,39 @@
     var rows = addons.map(function (a, i) {
       return { t: !a.on ? 'Off' : a.bad ? 'Offline' : 'On', n: a.name, s: a.version ? 'v' + a.version : '', d: i === 0 ? 'First' : '#' + (i + 1), f: function () { adMenu(i); } };
     });
-    rows.push({ t: '+', n: 'Add an addon', s: 'paste its link', d: '', f: adAsk });
+    if (window.NativeHttp && NativeHttp.addonInbox) rows.push({ t: '\u2709', n: 'Add from your phone', s: 'easiest: no typing', d: '', f: adPhone });
+    rows.push({ t: '+', n: 'Add an addon', s: 'type its link', d: '', f: adAsk });
     adOpen({ title: 'Addons', sub: expOn ? 'Asked in this order' : 'Experimental is off', rows: rows, i: keep == null ? 0 : keep, foot: ['OK Choose', 'Back'], empty: '',
       back: function () { adClose(); if (!optsOpen) openOpts(); else renderOpts(); } });
   }
+  var adPoll = null;
+  function adPhoneStop() { clearInterval(adPoll); adPoll = null; try { NativeHttp.addonStop(); } catch (e) { /* ignore */ } }
+  /** The phone route: a small page on the TV's address takes the long link; this screen waits for it. */
+  function adPhone() {
+    var code = String(1000 + Math.floor(Math.random() * 9000)), addr = '';
+    try { addr = NativeHttp.addonInbox(code) || ''; } catch (e) { addr = ''; }
+    if (!addr) { toast('The TV is not on a network', 4000); return; }
+    var back = function () { adPhoneStop(); adList(addons.length); };
+    adOpen({ title: 'Add from your phone', sub: 'on the same Wi-Fi', back: back, foot: ['Back'], rows: [
+      { t: '1', n: 'Open this on your phone', s: '', d: '', dim: true, f: function () {} },
+      { t: '', n: addr.replace(/^http:\/\//, ''), s: '', d: '', f: function () {} },
+      { t: '2', n: 'Type this code', s: '', d: '', dim: true, f: function () {} },
+      { t: '', n: code, s: '', d: '', f: function () {} },
+      { t: '3', n: 'Paste the addon link and press Send to TV', s: '', d: '', dim: true, f: function () {} }], i: 1 });
+    clearInterval(adPoll);
+    adPoll = setInterval(function () {
+      var l = ''; try { l = NativeHttp.addonTake() || ''; } catch (e) { l = ''; }
+      if (!l) return;
+      adPhoneStop();
+      var b = adBase(l);
+      if (b.err) { toast(b.err, 5000); adList(addons.length); return; }
+      adOpen({ title: 'Checking the addon\u2026', sub: '', rows: [], empty: 'Asking it for its details\u2026', back: function () { adList(addons.length); } });
+      adFetch(b.base).then(function (m) { adPreview(b.base, m); }, function (e) { toast(e.message === 'timeout' ? 'The addon did not answer' : e.message, 5000); adList(addons.length); });
+    }, 1500);
+  }
   function adAsk() {
     adClose();
-    kbOpen({ title: 'Addon link', label: 'Paste or type the link ending in manifest.json', value: '', save: function (txt) {
+    kbOpen({ title: 'Addon link (ends in manifest.json)', label: 'Add', sym: 1, value: '', save: function (txt) {
       if (!txt) { adList(addons.length); return; }
       var b = adBase(txt);
       if (b.err) { toast(b.err, 5000); adList(addons.length); return; }
@@ -3622,7 +3648,7 @@
     if (m.description) rows.push({ t: 'About', n: String(m.description).replace(/\s+/g, ' ').slice(0, 140), s: '', d: '', dim: true, f: function () {} });
     rows.push({ t: 'Note', n: 'Only direct web links and YouTube play; torrents never start', s: '', d: '', dim: true, f: function () {} });
     rows.push({ t: 'Back', n: 'Cancel', s: '', d: '', f: function () { adList(addons.length); } });
-    adOpen({ title: 'Add this addon?', sub: base, rows: rows, foot: ['OK Choose', 'Back'], back: function () { adList(addons.length); } });
+    adOpen({ title: 'Add this addon?', sub: base.replace(/^https?:\/\//, '').split('/')[0], rows: rows, foot: ['OK Choose', 'Back'], back: function () { adList(addons.length); } });
   }
   function adMenu(i) {
     var a = addons[i], mv = function (d) { return function () { var j = i + d; var x = addons.splice(i, 1)[0]; addons.splice(j, 0, x); adSave(); adList(j); }; };
@@ -3635,7 +3661,7 @@
       { t: 'Remove', n: 'Remove this addon', f: function () { addons.splice(i, 1); adSave(); adList(Math.max(0, i - 1)); } },
       { t: 'Back', n: 'Back to the list', f: function () { adList(i); } }
     ];
-    adOpen({ title: a.name, sub: a.base, rows: rows.map(function (r) { if (r.dim) r.why = 'Not possible'; return r; }), back: function () { adList(i); } });
+    adOpen({ title: a.name, sub: a.base.replace(/^https?:\/\//, '').split('/')[0], rows: rows.map(function (r) { if (r.dim) r.why = 'Not possible'; return r; }), back: function () { adList(i); } });
   }
 
   // ---- finding a title's streams
@@ -4659,10 +4685,12 @@
 
   // ---- on-screen keyboard (for the TheTVDB key): arrows to move, OK to type, the number keys type digits too
   var kbShown = false, kbVal = '', kbShift = false, kbR = 0, kbC = 0;
-  var KB_ROWS = [
+  var KB_BASE = [
     '1234567890-'.split(''), 'abcdefghij'.split(''), 'klmnopqrst'.split(''), ['u', 'v', 'w', 'x', 'y', 'z', '_', '⌫'],
     ['⇧ ABC', 'Space', 'Clear', 'Cancel', 'Save']
   ];
+  var KB_SYM = '.:/?=&%@+~'.split('');          // for web addresses
+  var KB_ROWS = KB_BASE;
   var kbMode = null;        // null: the TheTVDB key. Otherwise { title, label, value, save(text) } for another use (On Demand search)
   function kbLabel(k) { return kbShift && /^[a-z]$/.test(k) ? k.toUpperCase() : k === '⇧ ABC' ? (kbShift ? '⇧ abc' : '⇧ ABC') : k === 'Save' && kbMode ? kbMode.label : k; }
   function kbDraw() {
@@ -4671,7 +4699,7 @@
     KB_ROWS.forEach(function (row, r) {
       var line = document.createElement('div'); line.className = 'kbrow';
       row.forEach(function (k, c) {
-        var d = document.createElement('div'); d.className = 'kbk' + (r === 4 ? ' w2' : '') + (k === 'Save' ? ' go' : '') + (r === kbR && c === kbC ? ' sel' : ''); d.textContent = kbLabel(k);
+        var d = document.createElement('div'); d.className = 'kbk' + (r === KB_ROWS.length - 1 ? ' w2' : '') + (k === 'Save' ? ' go' : '') + (r === kbR && c === kbC ? ' sel' : ''); d.textContent = kbLabel(k);
         line.appendChild(d);
       });
       box.appendChild(line);
@@ -4679,8 +4707,9 @@
   }
   function kbOpen(mode) {
     kbMode = mode || null;
+    KB_ROWS = kbMode && kbMode.sym ? KB_BASE.slice(0, 4).concat([KB_SYM], KB_BASE.slice(4)) : KB_BASE;
     kbShown = true; kbVal = kbMode ? (kbMode.value || '') : tvdbKey; kbShift = false;
-    kbR = kbMode && !kbVal ? 1 : 4; kbC = kbMode && !kbVal ? 0 : 4;          // an empty search starts on the letters, a key to check starts on Save
+    kbR = kbMode && !kbVal ? 1 : KB_ROWS.length - 1; kbC = kbMode && !kbVal ? 0 : 4;          // an empty search starts on the letters, a key to check starts on Save
     $('kbtitle').textContent = kbMode ? kbMode.title : 'TheTVDB key';
     $('kbd').className = ''; kbDraw();
   }
@@ -4701,7 +4730,7 @@
   }
   function kbKey(e) {
     var k = e.key;
-    if (k.length === 1 && /[A-Za-z0-9_\-]/.test(k)) { kbVal += k; kbDraw(); return; }
+    if (k.length === 1 && (kbMode && kbMode.sym ? /[A-Za-z0-9_\-.:\/?=&%@+~]/ : /[A-Za-z0-9_\-]/).test(k)) { kbVal += k; kbDraw(); return; }
     if (k === 'ArrowUp') kbR = (kbR + KB_ROWS.length - 1) % KB_ROWS.length;
     else if (k === 'ArrowDown') kbR = (kbR + 1) % KB_ROWS.length;
     else if (k === 'ArrowLeft') kbC = (kbC + KB_ROWS[kbR].length - 1) % KB_ROWS[kbR].length;

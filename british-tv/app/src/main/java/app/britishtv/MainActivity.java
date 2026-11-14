@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
     private final Handler main = new Handler(Looper.getMainLooper());
     private MediaCache cache;
     private final LogServer logs = new LogServer();
+    private final AddonInbox addonInbox = new AddonInbox();
     private LiveView live;
     private KvStore kv;
     /** All requests share a small pool: one thread per request used to leave 50+ threads competing during start-up. */
@@ -300,6 +301,7 @@ public class MainActivity extends Activity {
         np.stop();
         http.shutdownNow();
         logs.stop();
+        addonInbox.stop();
         if (live != null) {
             live.stop();
         }
@@ -582,6 +584,23 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String shareLog(String text) {
             return logs.share(text);
+        }
+
+        /** Start waiting for an addon link from a phone, with this 4-digit code. Returns the address to open, or "". */
+        @JavascriptInterface
+        public String addonInbox(String code) {
+            return addonInbox.open(code);
+        }
+
+        /** The addon link a phone sent (once), or "". */
+        @JavascriptInterface
+        public String addonTake() {
+            return addonInbox.take();
+        }
+
+        @JavascriptInterface
+        public void addonStop() {
+            addonInbox.stop();
         }
 
         @JavascriptInterface

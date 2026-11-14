@@ -2459,6 +2459,7 @@
       cur.adYear = y;                                // carried onto the first advert
       return playAd(cur.ch, cur.index, cur.prog.adPad);
     }
+    if (cur && cur.prog && cur.prog.addon) adFall = null;     // it played to the end: nothing to fall back to
     nextInChannel();
   }
 
@@ -2596,6 +2597,11 @@
   }
   function nextInChannel() {
     if (!cur) return;
+    if (cur.prog && cur.prog.addon && adFall) {                // an addon source failed: the next best one, then give up
+      var nx = adFall.q.shift();
+      if (nx) { toast('That source failed, trying the next', 3000); adPlay(adFall.ch, adFall.g, adFall.ep, nx); return; }
+      adFall = null; v.pause(); toast('No other source worked', 4000); odOpenUi(); return;
+    }
     if (cur.od) return odStep(1);               // On Demand: the next episode of the show, not the channel's running order
     playSlot(cur.ch, (cur.index + 1) % cur.ch.sched.order.length, 0, true);
   }
@@ -3502,6 +3508,8 @@
   // for streams; only plain web links and YouTube are played. Torrents, usenet and archives are never started.
 
   var expOn = store.get('exp1') === 'on';
+  var adAuto = store.get('adauto1') === 'on';               // play the best source straight away
+  var adFall = null;                                          // the sources still to try if the one playing fails
   var adCut = store.get('adcut1') !== 'off';                 // only titles from before 2000
   var addons = store.get('addons1') || [];
   var ad = null, adTimer = null;
@@ -3685,11 +3693,16 @@
         });
         ad.rows = list.map(function (x) {
           return { t: x.q ? x.q + 'p' : '—', n: x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
-            f: function () { adPlay(ch, g, ep, x); } };
+            f: function () { adFall = { ch: ch, g: g, ep: ep, q: list.filter(function (y) { return !y.why && y !== x && list.indexOf(y) > list.indexOf(x); }) }; adPlay(ch, g, ep, x); } };
         });
         ad.sub = (film ? '' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  ') + (final ? list.length + ' found' : 'asking ' + (targets.length - answered) + ' addon' + (targets.length - answered === 1 ? '' : 's') + '…');
         ad.empty = final ? 'Nothing found. Try another addon.' : 'Asking your addons…';
         adRender();
+        if (final && adAuto && !ad.auto) {
+          var q = list.filter(function (x) { return !x.why; });
+          ad.auto = 1;
+          if (q.length) { adFall = { ch: ch, g: g, ep: ep, q: q.slice(1) }; adPlay(ch, g, ep, q[0]); toast('Playing the best source: ' + q[0].addon, 3500); }
+        }
       };
       targets.forEach(function (a) {
         adTmo(http(a.base + '/stream/' + type + '/' + encodeURIComponent(id).replace(/%3A/g, ':') + '.json'), 8000).then(function (t) {
@@ -3717,6 +3730,7 @@
     odm.items.splice(2, 0, { t: 'Find sources', sub: 'Ask your addons for streams (experimental)', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }); } });
   }
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
+  function changeAuto() { adAuto = !adAuto; store.set('adauto1', adAuto ? 'on' : 'off'); renderOpts(); }
   function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
 
   // ------------------------------------------------------------------ OSD bar (OK while watching)
@@ -4287,7 +4301,7 @@
     { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'addons', 'adauto', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -4298,6 +4312,7 @@
   function optValue(id) {
     if (id === 'exp') return expOn ? 'On' : 'Off';
     if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
+    if (id === 'adauto') return adAuto ? 'On' : 'Off';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
@@ -4402,6 +4417,7 @@
   var OPT_HELP = {
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
+    adauto: 'When on, Find sources plays the best working source straight away (1080p, then 720p). If it fails, the next one is tried, and so on.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
     theme: 'How the TV guide looks. It only changes when you change it here.',
@@ -4590,6 +4606,7 @@
     var id = OPTS[optsSel];
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
+    else if (id === 'adauto') changeAuto();
     else if (id === 'adcut') changeAdcut();
     else if (id === 'addons') { if (!expOn) toast('Turn Experimental on first', 3000); else { adList(0); } }
     else if (id === 'sched') csOpen((cur && cur.ch) || gChan, 'opts');

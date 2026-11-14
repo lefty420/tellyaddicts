@@ -2166,7 +2166,7 @@
   var pb = { t0: 0, ev: [], url: '', offset: 0 };
   // ---- the backup player (player.js, NativePlayer.java): Auto = the web view first, the app's own player for files
   // it cannot play (remembered, so the next time they go straight there); Standard only; Always.
-  var PLAYERS = [{ id: 'auto', label: 'Auto' }, { id: 'off', label: 'Standard only' }, { id: 'always', label: 'Always backup' }];
+  var PLAYERS = [{ id: 'auto', label: 'Automatic' }, { id: 'off', label: 'Never' }, { id: 'always', label: 'Always' }];
   var playerIdx = (function () { var s = store.get('player1'); for (var i = 0; i < PLAYERS.length; i++) if (PLAYERS[i].id === s) return i; return 0; })();
   var npKnown = store.get('np1') || {};                // file -> when it needed the backup player
   function playerMode() { return PLAYERS[playerIdx].id; }
@@ -4048,7 +4048,7 @@
     if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
     if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
-    if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs a newer app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  (' + Object.keys(npKnown).length + ' files)' : '');
+    if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs the newest app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  \u00b7  rescued ' + Object.keys(npKnown).length + (Object.keys(npKnown).length === 1 ? ' video' : ' videos') + ' so far' : '');
     if (id === 'span') return SPANS[spanIdx].label;
     if (id === 'theme') return THEMES[themeIdx].label;
     if (id === 'season') return seasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
@@ -4151,10 +4151,10 @@
     fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness.',
     gart: 'Posters and backdrops in the guide and on the bar. Off keeps things plain.',
     ads: 'Adverts between programmes, matched to the year of what you are watching. UK first, and never on the BBC.',
-    player: 'Auto plays everything normally and switches to the app\u2019s own player for a file that has no sound or will not load (AC3/DTS sound, some MKVs). Always uses it for every file; Standard only never does. The VHS and Smart ratio looks do not apply to the backup player.',
-    buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
+    player: 'A few videos have no sound, or will not play at all, in the normal player. When that happens the app can switch to a second, built-in player that handles them. Automatic does this by itself, only for the videos that need it, and remembers them. Never keeps the normal player for everything. Always uses the second player for every video (the VHS and Smart ratio looks do not work with it).',
+    buf: 'Downloads the next part of a programme to this device before you reach it, so it keeps playing through slow spells on your internet. A bigger amount copes with slower connections but uses more space. Off plays straight from archive.org.',
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
-    keep: 'How long a channel\u2019s line-up stays as it is before it is built afresh.',
+    keep: 'How often each channel\u2019s line-up of programmes is shuffled into a new running order. Shorter means the guide changes more often.',
     scan: 'Looks up every show in the library that is missing a poster, a backdrop or its episode pictures, and (with a TheTVDB key) every film missing a backdrop, one at a time, with TheTVDB first when a key is entered and TVmaze otherwise. Takes a few minutes the first time. OK again while it runs to cancel. Shows are skipped when they already have everything, so a second scan is quick.',
     tvdb: 'Your own key from thetvdb.com (a free account gives you one). With a key, posters, backdrops, summaries, episode details and cast are looked up on TheTVDB first, and TVmaze fills in whatever it does not have. Clear the key to go back to TVmaze alone.',
     unhide: 'Shows hidden from the hold-OK menu (Hide this show). OK twice brings them all back.',

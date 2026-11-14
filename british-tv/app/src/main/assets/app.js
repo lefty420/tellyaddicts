@@ -1642,16 +1642,11 @@
   // and slowly, and keeps what it finds with the rest of the artwork. It pauses while On Demand is open, gives up
   // after a run of failures, and having finished it does not run again until the channels are rebuilt (Refresh EPG)
   // or the library changes.
-  var artScan = { running: false, fails: 0 };
-  function artScanKey() { return epgGen + ':' + (artRev || '') + ':' + E.hash(JSON.stringify(libRevs || {})); }
-  function artScanStart() {
-    if (artScan.running || !gartOn) return;
-    var key = artScanKey();
-    if (store.get('artscan_run') === key) return;                       // already done for this library and EPG build
-    artScan.running = true; artScan.fails = 0;
-    Promise.all([loadArt(), libP || Promise.resolve(null)]).then(function () {
-      var names = {}, list = [];
-      function add(n) { if (n && n.length > 1 && !names[normShow(n)]) { names[normShow(n)] = n; list.push(n); } }
+  /** Every show name in the library (films left out), once each. */
+  function artNames() {
+    var names = {}, list = [];
+    function add(n) { if (n && n.length > 1 && !names[normShow(n)]) { names[normShow(n)] = n; list.push(n); } }
+    return Promise.all([loadArt(), libP || Promise.resolve(null)]).then(function () {
       return (libP || Promise.resolve(null)).then(function (routed) {
         if (routed) Object.keys(routed).forEach(function (ch) {
           routed[ch].forEach(function (it) {
@@ -1662,6 +1657,19 @@
           });
         });
         else channels.forEach(function (c) { if (OD_FILMS[c.id]) return; (c.plan || []).forEach(function (p) { if (!p.filmKey && !p.ad) add(p.show || p.group); }); });
+        return list;
+      });
+    });
+  }
+  var artScan = { running: false, fails: 0 };
+  function artScanKey() { return epgGen + ':' + (artRev || '') + ':' + E.hash(JSON.stringify(libRevs || {})); }
+  function artScanStart() {
+    if (artScan.running || !gartOn) return;
+    var key = artScanKey();
+    if (store.get('artscan_run') === key) return;                       // already done for this library and EPG build
+    artScan.running = true; artScan.fails = 0;
+    artNames().then(function (list) {
+      return (function () {
         var noPic = [], noBack = [];
         list.forEach(function (n) {
           var m = store.get('artscan1:' + normShow(n));
@@ -1670,7 +1678,7 @@
           if (!k || !k.poster) noPic.push(n); else if (!k.back) noBack.push(n);
         });
         return noPic.concat(noBack);
-      });
+      })();
     }).then(function (queue) {
       var found = 0, missed = 0, total = queue.length;
       dlog('ARTSCAN start: ' + total + ' shows to look up');
@@ -1720,6 +1728,114 @@
         return show.poster || show.background ? 'found' : 'miss';
       });
     }).then(null, function () { return 'fail'; });          // rate-limited or offline: not that TVmaze has nothing
+  }
+
+  // ------------------------------------------------------------------ Options > Artwork > Scan my artwork
+  // On request: every show in the library that is missing a poster, a backdrop or its episode pictures is looked up,
+  // TheTVDB first when a key is entered and TVmaze otherwise, one show at a time, with a progress bar and Cancel.
+  var scanUi = { running: false, cancel: false, i: 0, n: 0, name: '', art: 0, eps: 0, miss: 0, fail: 0, result: '' };
+  function scanRender() { if (optsOpen) renderOpts(); }
+  function scanEpsMap(list, sh) {      // either service's episode list -> the guide format On Demand reads (s, e, t, a, l, d, img)
+    return list.filter(function (e) { return e && (e.season || e.seasonNumber != null) && (e.number); }).map(function (e) {
+      var o = { s: e.season != null ? e.season : e.seasonNumber, e: e.number };
+      if (e.name) o.t = e.name;
+      var air = e.airdate || e.aired; if (air) o.a = air;
+      if (e.runtime) o.l = e.runtime;
+      var d = plain(e.summary || e.overview); if (d) o.d = d.length > 400 ? d.slice(0, 397) + '...' : d;
+      var img = https(typeof e.image === 'string' ? e.image : (e.image && (e.image.medium || e.image.original))); if (img) o.img = img;
+      return o;
+    });
+  }
+  function tvdbAllEpisodes(id) {
+    var out = [];
+    function page(n) {
+      return tvdbQueue(function () { return tvdbGet('/series/' + id + '/episodes/default?page=' + n); }).then(function (j) {
+        var eps = (j && j.data && j.data.episodes) || [];
+        out = out.concat(eps);
+        return eps.length && j.links && j.links.next && n < 8 ? page(n + 1) : out;
+      });
+    }
+    return page(0);
+  }
+  /** Poster and backdrop for one show; 'skip' when it has both already. */
+  function scanArtOne(name) {
+    var nk = normShow(name), k = knownArt({ title: name, show: name });
+    if (k && k.poster && k.back) return Promise.resolve('skip');
+    if (!tvdbReady()) return artScanOne(name);
+    var c = store.get('tvdb1:' + nk); if (c && !c.d) { try { kv.removeItem('tvdb1:' + nk); } catch (e) { /* none */ } }     // a miss is tried again when asked
+    return tvdbShow(name, 0).then(function (d) {
+      if (!d) return artScanOne(name);                                   // TheTVDB has nothing: TVmaze
+      var key = 'info3:' + nk + ':0:0', old = store.get(key), os = old && old.d && old.d.show || {};
+      var show = Object.assign({}, d, { poster: os.poster || d.poster, background: os.background || d.background });
+      store.set(key, { t: Date.now(), x: 0, d: { show: show, ep: null } });
+      return show.poster || show.background ? 'found' : 'miss';
+    }, function () { return artScanOne(name); });
+  }
+  /** The episode guide with its pictures for one show, when it has none; 'skip' when the scraper or an earlier look has them. */
+  function scanEpsOne(name) {
+    var slug = odSlug(name), key = 'eps1:' + slug, c = store.get(key);
+    if (epsMap && epsMap[slug]) return Promise.resolve('skip');           // the scraper publishes this show's guide
+    if (c && c.m && c.m.eps && c.m.eps.some(function (e) { return e.img; })) return Promise.resolve('skip');
+    function save(eps) {
+      if (!eps.length) return 'none';
+      store.set(key, { t: Date.now(), x: Date.now() + 14 * 24 * 3600 * 1000, rev: '', m: { eps: eps } });
+      return eps.some(function (e) { return e.img; }) ? 'found' : 'none';
+    }
+    function maze() {
+      return artShow(name).then(function (a) {
+        var id = a && a.i;
+        if (!id) { var o = store.get('info3:' + normShow(name) + ':0:0'); id = o && o.d && o.d.show && o.d.show.id; }
+        if (!id) return 'none';
+        return wait(600).then(function () { return getJSON('https://api.tvmaze.com/shows/' + id + '/episodes'); }).then(function (list) {
+          return save(scanEpsMap(Array.isArray(list) ? list : []));
+        });
+      });
+    }
+    if (tvdbReady()) {
+      return tvdbShow(name, 0).then(function (sh) { return sh ? tvdbAllEpisodes(sh.tvdb) : null; }).then(function (list) {
+        var r = list ? save(scanEpsMap(list)) : 'none';
+        return r === 'found' ? r : maze().then(function (m) { return m === 'found' ? m : r; });
+      }, function () { return maze(); });
+    }
+    return maze();
+  }
+  function scanStart() {
+    if (scanUi.running) {                                                 // OK again while it runs: cancel
+      scanUi.cancel = true; scanUi.result = 'Stopping…'; scanRender(); return;
+    }
+    if (artScan.running) { toast('A quiet scan is already running. Try again in a few minutes.', 4000); return; }
+    scanUi = { running: true, cancel: false, i: 0, n: 0, name: 'Working out what is missing…', art: 0, eps: 0, miss: 0, fail: 0, result: '' };
+    scanRender();
+    var fails = 0;
+    Promise.all([artNames(), loadDataIndex()]).then(function (r) {
+      var queue = r[0].filter(function (n) {
+        var k = knownArt({ title: n, show: n }), slug = odSlug(n), c = store.get('eps1:' + slug);
+        var needArt = !k || !k.poster || !k.back;
+        var needEps = !(epsMap && epsMap[slug]) && !(c && c.m && c.m.eps && c.m.eps.some(function (e) { return e.img; }));
+        return needArt || needEps;
+      });
+      scanUi.n = queue.length;
+      dlog('SCAN ARTWORK start: ' + queue.length + ' of ' + r[0].length + ' shows need something' + (tvdbReady() ? ' (TheTVDB first)' : ' (TVmaze)'));
+      function finish(stopped) {
+        var res = (stopped ? 'Stopped' : 'Done') + ': ' + scanUi.art + ' artwork, ' + scanUi.eps + ' episode guides' + (scanUi.miss ? ', ' + scanUi.miss + ' not found' : '') + (scanUi.fail ? ', ' + scanUi.fail + ' failed' : '');
+        scanUi.running = false; scanUi.result = res; dlog('SCAN ARTWORK ' + res);
+        odKGen++; scanRender();
+        toast(res, 6000);
+      }
+      (function step() {
+        if (scanUi.cancel) { finish(true); return; }
+        if (!queue.length) { finish(false); return; }
+        var name = queue.shift();
+        scanUi.name = name; scanUi.i++; scanRender();
+        scanArtOne(name).then(function (a) {
+          if (a === 'found') scanUi.art++; else if (a === 'miss') scanUi.miss++; else if (a === 'fail') scanUi.fail++;
+          return scanEpsOne(name).then(function (e) { if (e === 'found') scanUi.eps++; return [a, e]; });
+        }).then(function (res) {
+          if (res[0] === 'fail') { if (++fails >= 6) { scanUi.cancel = true; dlog('SCAN ARTWORK: too many failures, stopping'); } } else fails = 0;
+          setTimeout(step, 400);
+        }, function () { scanUi.fail++; setTimeout(step, 400); });
+      })();
+    }, function () { scanUi.running = false; scanUi.result = 'Could not read the library'; scanRender(); });
   }
 
   function guideArt(prog) {
@@ -3603,7 +3719,7 @@
   var OCATS = [
     { id: 'picture', rows: ['ar', 'fx'] },
     { id: 'guide', rows: ['od', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
-    { id: 'art', rows: ['gart', 'tvdb', 'mkeep', 'mclear'] },
+    { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
@@ -3618,6 +3734,7 @@
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'real') return realOn ? 'On' : 'Off';
+    if (id === 'scan') return scanUi.running ? (scanUi.i + ' of ' + scanUi.n + '  \u00b7  ' + scanUi.name + '  \u00b7  OK to cancel') : (scanUi.result || 'OK to start');
     if (id === 'tvdb') return !tvdbKey ? 'Not set  \u00b7  OK to enter' : (Date.now() < tvdbPause ? 'Key not accepted' : !(window.NativeHttp && NativeHttp.httpx) ? 'Needs a newer app' : 'On  \u00b7  ' + tvdbStat.found + ' found' + (tvdbStat.none ? ', ' + tvdbStat.none + ' no match' : '') + (tvdbStat.fail ? ', ' + tvdbStat.fail + ' failed' : '') + (tvdbStat.found + tvdbStat.none + tvdbStat.fail ? '' : '  \u00b7  OK to test'));
     if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
     if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
@@ -3711,7 +3828,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { tvdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { scan: 1, tvdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
@@ -3729,6 +3846,7 @@
     buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
     keep: 'How long a channel\u2019s line-up stays as it is before it is built afresh.',
+    scan: 'Looks up every show in the library that is missing a poster, a backdrop or its episode pictures, one at a time, with TheTVDB first when a key is entered and TVmaze otherwise. Takes a few minutes the first time. OK again while it runs to cancel. Shows are skipped when they already have everything, so a second scan is quick.',
     tvdb: 'Your own key from thetvdb.com (a free account gives you one). With a key, posters, backdrops, summaries, episode details and cast are looked up on TheTVDB first, and TVmaze fills in whatever it does not have. Clear the key to go back to TVmaze alone.',
     unhide: 'Shows hidden from the hold-OK menu (Hide this show). OK twice brings them all back.',
     refresh: 'Throws away every line-up and builds them all again in a new running order.',
@@ -3780,6 +3898,8 @@
       }
       optsShown[id] = { v: val, c: cls, s: sig };
     });
+    var bar = $('ob-scan'), pct = scanUi.running && scanUi.n ? Math.round(100 * (scanUi.i - 1) / scanUi.n) : 0;
+    if (bar) { var w = pct + '%'; if (optsShown._p !== w) { bar.style.width = w; optsShown._p = w; } var bc = 'obar' + (scanUi.running ? ' on' : ''); if ($('obar-scan').className !== bc) $('obar-scan').className = bc; }
     applyTheme(gChan || (cur && cur.ch));
     var pv = $('otpv'), pc = 'otpv' + (themeNow === 'classic' || !themeNow ? '' : ' gt-' + themeNow);
     if (pv && pv.className !== pc) pv.className = pc;
@@ -3903,6 +4023,7 @@
     else if (id === 'refresh') refreshEpg();
     else if (id === 'unhide') unhideAll();
     else if (id === 'tvdb') kbOpen();
+    else if (id === 'scan') scanStart();
     else if (id === 'rel') openRel('rel');
     else if (id === 'log') openRel('log');
     else if (id === 'live') liveToggle();

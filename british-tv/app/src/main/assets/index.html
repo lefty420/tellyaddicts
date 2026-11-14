@@ -673,6 +673,9 @@
   .kbk.w2 { flex: 2 1 0; }
   .kbk.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
   #kbhelp { margin-top: 1.8vh; font-size: 2vh; color: rgba(255,255,255,.55); }
+  .obar { display: none; height: 1.2vh; margin-top: 1.4vh; border-radius: .6vh; background: rgba(255,255,255,.14); overflow: hidden; }
+  .obar.on { display: block; }
+  .obar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--hi1), var(--hi2)); transition: width .4s; }
   #opts { position: fixed; inset: 0; z-index: 60; color: #fff;
     background: linear-gradient(180deg, #0c2f9a 0%, #071d66 46%, #030d36 100%); }          /* solid: nothing of the guide shows through */
   #opts.hidden { display: none; }
@@ -839,6 +842,7 @@
       <h3>Artwork</h3>
       <div class="orow" id="or-gart"><div class="oline"><b>Artwork</b><span id="ov-gart"></span></div><div class="ochips" id="oc-gart"></div></div>
       <div class="orow act" id="or-tvdb"><div class="oline"><b>TheTVDB key</b><span id="ov-tvdb"></span></div><div class="ochips" id="oc-tvdb"></div></div>
+      <div class="orow act" id="or-scan"><div class="oline"><b>Scan my artwork</b><span id="ov-scan"></span></div><div class="obar" id="obar-scan"><i id="ob-scan"></i></div><div class="ochips" id="oc-scan"></div></div>
       <div class="orow" id="or-mkeep"><div class="oline"><b>Keep artwork &amp; details</b><span id="ov-mkeep"></span></div><div class="ochips" id="oc-mkeep"></div></div>
       <div class="orow act" id="or-mclear"><div class="oline"><b>Clear saved artwork</b><span id="ov-mclear"></span></div><div class="ochips" id="oc-mclear"></div></div>
     </div>

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.21",
-  "version": "0.46.21",
-  "code": 4621,
+  "name": "Alpha 0.46.22",
+  "version": "0.46.22",
+  "code": 4622,
   "date": "2026-11-14",
   "notes": [
-    "**Telly Addicts Mobile: On Demand on the remote.** A purple On Demand button at the top of the on-screen remote opens On Demand from the guide or while watching."
+    "**Not Seinfeld**: \"Comedians in Cars Getting Coffee\" was turning up on US Sitcoms as Seinfeld episodes. That upload is now blocked everywhere."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.21",
+      "date": "2026-11-14",
+      "notes": [
+        "**Telly Addicts Mobile: On Demand on the remote.** A purple On Demand button at the top of the on-screen remote opens On Demand from the guide or while watching."
+      ]
+    },
     {
       "name": "Alpha 0.46.20",
       "date": "2026-11-14",
@@ -62,14 +69,6 @@ window.RELEASE = {
       "notes": [
         "**Blocked shows really disappear now**: two wrong versions you reported (Mr and Mrs North, the American Wheel of Fortune) were already on the block list but kept playing, because the TV was still using lineups it had saved earlier. The saved lineups are now rebuilt whenever the block list changes, so a block takes effect straight away.",
         "Blocked the American Shining Time Station episodes that were showing as Thomas and Friends."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.13",
-      "date": "2026-11-14",
-      "notes": [
-        "**Classic Blue looks livelier**: gradient channel tiles with rounded corners, the programme showing now glows brighter with a gold edge on every channel, and later programmes are darker so it is easy to see what is on right now.",
-        "**Options > Guide theme fixed**: the preview of the theme now shows all three rows instead of being cut off, and the Options panel no longer spills its rows over the button hints at the bottom; it scrolls to follow the highlighted row."
       ]
     }
   ]

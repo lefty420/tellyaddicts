@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-14T19:53:38Z",
+ "updated": "2026-11-14T20:58:36Z",
  "channels": {
   "bbc": "f2149c3b19",
   "childrens": "78c845eb51",
@@ -23,7 +23,7 @@
   "soaps": "99f7682ad2",
   "tv70s": "3342e9da03",
   "tvarchive": "51b0369073",
-  "ussitcoms": "16f619c2aa",
+  "ussitcoms": "ea5082b4f3",
   "videoshop": "e5be818e34",
   "xmasmovies": "10c091a96a",
   "xmasmusic": "8c82de3046"
@@ -51,16 +51,16 @@
   "soaps": 252,
   "tv70s": 219,
   "tvarchive": 53,
-  "ussitcoms": 205,
+  "ussitcoms": 204,
   "videoshop": 337,
   "xmasmovies": 49,
   "xmasmusic": 57
  },
- "library": "79b82f7aa8",
+ "library": "7f54944d1d",
  "library_counts": {
   "shows": 572,
-  "episodes": 45763,
-  "copies": 124691
+  "episodes": 45757,
+  "copies": 124684
  },
  "routes": "e396269ed1",
  "art": "aac9423262",

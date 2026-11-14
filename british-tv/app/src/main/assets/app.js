@@ -1371,7 +1371,7 @@
       var g = store.get('art2:' + normShow(p.show));
       if (g && g.d && g.d.background) out.back = out.back || g.d.background;
     }
-    if (film && film.poster) out.poster = film.poster;
+    if (film && film.poster && !(fxa && fxa.a && fxa.a.p)) out.poster = film.poster;      // the film's own poster, unless one was picked by hand
     return out.poster || out.back ? out : null;
   }
 
@@ -1523,6 +1523,50 @@
   }
   function tvdbExtended(hit) {
     return tvdbQueue(function () { return tvdbGet('/series/' + hit.tvdb_id + '/extended?short=true'); }).then(function (j) { return tvdbBuild((j && j.data) || {}, hit); });
+  }
+  // ---- films on TheTVDB: a backdrop (films come with a poster only), and pictures to choose from
+  function filmArtName(prog) { var f = filmFor(prog); return (f && f.title) || (prog && prog.title) || ''; }
+  function filmYear(prog) {
+    var f = filmFor(prog), m = /\((\d{4})\)/.exec((prog && prog.title) || '');
+    return (f && f.released ? +String(f.released).slice(0, 4) : 0) || (m ? +m[1] : 0);
+  }
+  function filmQuery(name) { return String(name).replace(/\s*\(\d{4}\)\s*$/, '').trim(); }
+  /** A film's artworks sorted best first: posters (upright) or backgrounds (wide). TheTVDB types 14 and 15, else by shape. */
+  function tvdbFilmArts(arts, kind) {
+    var type = kind === 'poster' ? 14 : 15;
+    var l = (arts || []).filter(function (a) { return a.image && a.type === type; });
+    if (!l.length) l = (arts || []).filter(function (a) {
+      if (!a.image || !a.width || !a.height) return false;
+      var r = a.width / a.height;
+      return kind === 'poster' ? r < 0.8 : (r > 1.5 && r < 2.1);
+    });
+    var en = l.filter(function (a) { return !a.language || a.language === 'eng'; });
+    if (en.length) l = en;
+    return l.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+  }
+  function tvdbFilmSearch(name, year) {
+    return tvdbQueue(function () { return tvdbGet('/search?type=movie&limit=10&query=' + encodeURIComponent(filmQuery(name)) + (year ? '&year=' + year : '')); }).then(function (j) {
+      return ((j && j.data) || []).filter(function (r) { return r.tvdb_id; });
+    });
+  }
+  function tvdbFilmExtended(hit) {
+    return tvdbQueue(function () { return tvdbGet('/movies/' + hit.tvdb_id + '/extended?short=true'); }).then(function (j) {
+      var x = (j && j.data) || {}, bg = tvdbFilmArts(x.artworks, 'background')[0], po = tvdbFilmArts(x.artworks, 'poster')[0];
+      return { name: x.name || hit.name, year: x.year || hit.year || '', tvdb: hit.tvdb_id, film: 1,
+               poster: https(x.image || (po && po.image) || hit.image_url || ''), background: bg ? https(bg.image) : '' };
+    });
+  }
+  /** The best match for a film: the same name, then the nearest year. null when TheTVDB has none. */
+  function tvdbFilm(name, year) {
+    var want = normShow(filmQuery(name));
+    function pick(list) {
+      var c = list.filter(function (r) { return normShow(r.name || '') === want; });
+      if (!c.length) return null;
+      c.sort(function (a, b) { return Math.abs((+a.year || 9999) - (year || 0)) - Math.abs((+b.year || 9999) - (year || 0)); });
+      return year && Math.abs((+c[0].year || 9999) - year) > 1 ? null : c[0];
+    }
+    return tvdbFilmSearch(name, year).then(function (l) { return pick(l) || (year ? tvdbFilmSearch(name, 0).then(pick) : null); })
+      .then(function (hit) { return hit ? tvdbFilmExtended(hit) : null; });
   }
   function tvdbEpisode(sh, p) {
     return tvdbQueue(function () { return tvdbGet('/series/' + sh.tvdb + '/episodes/default?page=0&season=' + p.s + '&episodeNumber=' + p.e); }).then(function (j) {
@@ -1808,6 +1852,27 @@
     }
     return maze();
   }
+  /** A film's backdrop from TheTVDB; 'skip' when it has one. Kept with the looked-up artwork, not as a hand pick. */
+  function scanFilmOne(prog) {
+    var k = knownArt(prog);
+    if (k && k.back) return Promise.resolve('skip');
+    var name = filmArtName(prog), nk = normShow(name);
+    return tvdbFilm(name, filmYear(prog)).then(function (d) {
+      if (!d || !d.background) return 'miss';
+      store.set('info3:' + nk + ':0:0', { t: Date.now(), x: 0, d: { show: { name: d.name, year: String(d.year || ''), poster: '', background: d.background, id: 0, tvdb: d.tvdb }, ep: null } });
+      return 'found';
+    }, function () { return 'fail'; });
+  }
+  function scanFilms() {
+    var seen = {}, out = [];
+    if (!tvdbReady()) return out;
+    channels.forEach(function (c) { (c.plan || []).forEach(function (p) {
+      if (!p.filmKey || p.ad || seen[p.filmKey] || blocked(p)) return;
+      seen[p.filmKey] = 1;
+      var k = knownArt(p); if (!k || !k.back) out.push(p);
+    }); });
+    return out;
+  }
   function scanStart() {
     if (scanUi.running) {                                                 // OK again while it runs: cancel
       scanUi.cancel = true; scanUi.result = 'Stopping…'; scanRender(); return;
@@ -1823,8 +1888,10 @@
         var needEps = !(epsMap && epsMap[slug]) && !(c && c.m && c.m.eps && c.m.eps.some(function (e) { return e.img; }));
         return needArt || needEps;
       });
+      var films = scanFilms();
+      queue = queue.concat(films);
       scanUi.n = queue.length;
-      dlog('SCAN ARTWORK start: ' + queue.length + ' of ' + r[0].length + ' shows need something' + (tvdbReady() ? ' (TheTVDB first)' : ' (TVmaze)'));
+      dlog('SCAN ARTWORK start: ' + queue.length + ' of ' + r[0].length + ' shows need something, ' + films.length + ' films need a backdrop' + (tvdbReady() ? ' (TheTVDB first)' : ' (TVmaze)'));
       function finish(stopped) {
         var res = (stopped ? 'Stopped' : 'Done') + ': ' + scanUi.art + ' artwork, ' + scanUi.eps + ' episode guides' + (scanUi.miss ? ', ' + scanUi.miss + ' not found' : '') + (scanUi.fail ? ', ' + scanUi.fail + ' failed' : '');
         scanUi.running = false; scanUi.result = res; dlog('SCAN ARTWORK ' + res);
@@ -1835,6 +1902,15 @@
         if (scanUi.cancel) { finish(true); return; }
         if (!queue.length) { finish(false); return; }
         var name = queue.shift();
+        if (typeof name !== 'string') {                                   // a film: its backdrop only
+          scanUi.name = filmQuery(filmArtName(name)); scanUi.i++; scanRender();
+          scanFilmOne(name).then(function (a) {
+            if (a === 'found') scanUi.art++; else if (a === 'miss') scanUi.miss++; else if (a === 'fail') scanUi.fail++;
+            if (a === 'fail') { if (++fails >= 6) { scanUi.cancel = true; dlog('SCAN ARTWORK: too many failures, stopping'); } } else fails = 0;
+            setTimeout(step, 300);
+          });
+          return;
+        }
         scanUi.name = name; scanUi.i++; scanRender();
         scanArtOne(name).then(function (a) {
           if (a === 'found') scanUi.art++; else if (a === 'miss') scanUi.miss++; else if (a === 'fail') scanUi.fail++;
@@ -3857,7 +3933,7 @@
     buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
     keep: 'How long a channel\u2019s line-up stays as it is before it is built afresh.',
-    scan: 'Looks up every show in the library that is missing a poster, a backdrop or its episode pictures, one at a time, with TheTVDB first when a key is entered and TVmaze otherwise. Takes a few minutes the first time. OK again while it runs to cancel. Shows are skipped when they already have everything, so a second scan is quick.',
+    scan: 'Looks up every show in the library that is missing a poster, a backdrop or its episode pictures, and (with a TheTVDB key) every film missing a backdrop, one at a time, with TheTVDB first when a key is entered and TVmaze otherwise. Takes a few minutes the first time. OK again while it runs to cancel. Shows are skipped when they already have everything, so a second scan is quick.',
     tvdb: 'Your own key from thetvdb.com (a free account gives you one). With a key, posters, backdrops, summaries, episode details and cast are looked up on TheTVDB first, and TVmaze fills in whatever it does not have. Clear the key to go back to TVmaze alone.',
     unhide: 'Shows hidden from the hold-OK menu (Hide this show). OK twice brings them all back.',
     refresh: 'Throws away every line-up and builds them all again in a new running order.',
@@ -5092,9 +5168,11 @@
     im.onerror = fail;
     im.src = test;
   }
+  /** The name a show's or film's chosen artwork is filed under (a film: its own title, as the loading screen looks it up). */
+  function odArtName(g) { return g.film && g.eps && g.eps[0] ? filmArtName(g.eps[0].p) : g.name; }
   function odFixApply(g, entry, msg) {
-    store.set('artfix:' + normShow(g.name), { a: entry });
-    try { kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
+    store.set('artfix:' + normShow(odArtName(g)), { a: entry });
+    if (!g.film) { try { kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ } }
     g.art = entry; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odKGen++;
     dlog('ARTWORK picked for ' + g.name + ': ' + (entry.name || '') + (entry.tvdb ? ' (TheTVDB ' + entry.tvdb + ')' : ' (TVmaze ' + (entry.i || '?') + ')') + (entry.p ? ' poster ' + entry.p : '') + (entry.b ? ' background ' + entry.b : ''));
     odmClose(); toast(msg, 3500);
@@ -5107,8 +5185,18 @@
     var optsItem = { t: 'Options', sub: 'Settings, help and debug', f: function () { odmClose(); openOpts(); } };
     var infoItem = { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = (g.flat && g.flat[0]) || (g.eps && g.eps[0]); if (e0) openInfo({ prog: e0.p, ch: g.chan }); } };
     if (g.film) {                                            // a film keeps the poster that came with it: nothing to scrape or choose
-      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [infoItem, optsItem,
+      var need = function (fn) { return function () { if (!tvdbReady()) { odmClose(); toast('Film artwork needs a TheTVDB key (Options > Artwork)', 4500); return; } fn(); }; };
+      var fixed = store.get('artfix:' + normShow(odArtName(g)));
+      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [infoItem,
+        { t: 'Scrape artwork', sub: 'Find this film\u2019s backdrop on TheTVDB', f: need(function () { odmFilmScrape(g); }) },
+        { t: 'Choose the right film', sub: 'Pick from the list if the wrong film was matched', f: need(function () { odmFilmList(g); }) },
+        { t: 'Choose a poster', sub: 'Pick the picture shown on its card', f: need(function () { odmFilmPics(g, 'poster'); }) },
+        { t: 'Choose a background', sub: 'Pick the wide picture behind the film', f: need(function () { odmFilmPics(g, 'background'); }) },
+        optsItem,
         { t: 'Hide this film', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { hideShow(g.name, true); } }] };
+      if (fixed && fixed.a) odm.items.push({ t: 'Back to automatic', sub: 'Forget the choices made for this film', f: function () {
+        try { kv.removeItem('artfix:' + normShow(odArtName(g))); } catch (e) { /* ignore */ }
+        g._k = null; odArtFor = ''; odBgFor = ''; odKGen++; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } });
       odmRender(); return;
     }
     odm = { mode: 'menu', g: g, i: 0, items: [
@@ -5131,6 +5219,65 @@
     return getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(g.name)).then(function (l) { return Array.isArray(l) ? l : []; }, function () { return null; });
   }
   /** Look the show up again; take the match if it is clearly the one, otherwise let the person choose. */
+  function odmFilmEntry(d, keepPoster) {
+    return { name: d.name, i: 0, tvdb: d.tvdb, film: 1, p: keepPoster ? '' : (d.poster || ''), b: d.background || '', y: String(d.year || '') };
+  }
+  function odmFilmBase(g) {            // what is chosen for this film so far, or a fresh search
+    var fx = store.get('artfix:' + normShow(odArtName(g)));
+    if (fx && fx.a && fx.a.tvdb && fx.a.film) return Promise.resolve(fx.a);
+    return tvdbFilm(odArtName(g), filmYear(g.eps[0].p)).then(function (d) { return d ? odmFilmEntry(d, true) : null; });
+  }
+  function odmFilmFail(e) { dlog('TVDB film lookup failed: ' + e.message); if (odm) { odm.mode = 'wait'; odm.items = []; odm.note = 'Could not reach TheTVDB'; odmRender(); } }
+  function odmFilmScrape(g) {
+    odmWait('Looking for ' + filmQuery(odArtName(g)) + ' on TheTVDB…');
+    tvdbFilm(odArtName(g), filmYear(g.eps[0].p)).then(function (d) {
+      if (!odm) return;
+      if (!d) { dlog('TVDB film: no match for ' + odArtName(g)); odmFilmList(g); toast('No clear match. Choose the right film', 3500); return; }
+      if (!d.background) { dlog('TVDB film: ' + d.name + ' has no backdrop'); odm.mode = 'wait'; odm.items = []; odm.note = 'TheTVDB has ' + d.name + ' but no backdrop for it'; odmRender(); return; }
+      dlog('TVDB film found ' + d.name + ' (' + d.tvdb + ') for ' + g.name);
+      odFixDone(g, odmFilmEntry(d, true), 'Found ' + d.name + (d.year ? ' (' + d.year + ')' : '') + ' on TheTVDB', d.background);
+    }, odmFilmFail);
+  }
+  function odmFilmList(g) {
+    odmWait('Searching TheTVDB…');
+    tvdbFilmSearch(odArtName(g), 0).then(function (list) {
+      if (!odm) return;
+      if (!list.length) { odm.mode = 'wait'; odm.items = []; odm.note = 'TheTVDB has nothing for “' + filmQuery(odArtName(g)) + '”'; odmRender(); return; }
+      odm.mode = 'shows'; odm.note = ''; odm.i = 0; odm.title = 'Choose the right film';
+      odm.items = list.slice(0, 8).map(function (r) {
+        return { t: r.name || '', sub: [r.year, r.country === 'gbr' ? 'UK' : r.country].filter(Boolean).join('  ·  '), img: https(r.thumbnail || r.image_url), f: function () {
+          odmWait('Getting pictures…');
+          tvdbFilmExtended(r).then(function (d) {
+            dlog('TVDB film pick ' + d.name + ' (' + d.tvdb + ') for ' + g.name);
+            odFixDone(g, odmFilmEntry(d, false), 'Using ' + d.name + (d.year ? ' (' + d.year + ')' : ''), d.background || d.poster);
+          }, odmFilmFail);
+        } };
+      });
+      odmRender();
+    }, odmFilmFail);
+  }
+  function odmFilmPics(g, kind) {
+    odmWait('Getting pictures…');
+    odmFilmBase(g).then(function (base) {
+      if (!odm) return;
+      if (!base) { odmFilmList(g); toast('Choose the right film first', 3000); return; }
+      return tvdbQueue(function () { return tvdbGet('/movies/' + base.tvdb + '/extended?short=true'); }).then(function (j) {
+        if (!odm) return;
+        var arts = tvdbFilmArts(j && j.data && j.data.artworks, kind);
+        odm.items = arts.slice(0, 12).map(function (a) {
+          return { img: https(a.thumbnail || a.image), f: function () {
+            var e = {}; Object.keys(base).forEach(function (k) { e[k] = base[k]; });
+            var url = https(a.image);
+            e[kind === 'poster' ? 'p' : 'b'] = url;
+            odFixDone(g, e, kind === 'poster' ? 'Poster changed' : 'Background changed', url);
+          } };
+        });
+        odm.mode = odm.items.length ? (kind === 'poster' ? 'posters' : 'backs') : 'wait'; odm.note = odm.items.length ? '' : 'No ' + kind + 's on TheTVDB for this film';
+        odm.i = 0; odm.title = kind === 'poster' ? 'Choose a poster' : 'Choose a background';
+        odmRender();
+      });
+    }).then(null, odmFilmFail);
+  }
   function odmScrape(g) {
     if (tvdbReady()) {
       odmWait('Looking for ' + g.name + ' on TheTVDB\u2026');

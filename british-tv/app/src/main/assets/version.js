@@ -1,15 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.5",
-  "version": "0.46.5",
-  "code": 4605,
+  "name": "Alpha 0.46.6",
+  "version": "0.46.6",
+  "code": 4606,
   "date": "2026-11-14",
   "notes": [
-    "**The library is no longer downloaded on every start.** The app fetched the whole 10 MB library a few seconds after every launch, even when nothing had changed. It now keeps the copy on the TV with its revision and only downloads when the scraper publishes a new one. Saving it is also lighter (the text is stored as it came instead of being wrapped a second time).",
-    "**VHS looks stop dropping frames at the start of every programme.** When two programmes in a row needed the blur taken off, the rest of the session starts without it instead of finding out again each time. Choosing a look in Options gives it a fresh try."
+    "**Films get backdrops and an artwork menu** (needs a TheTVDB key). Hold OK on a film in On Demand: Scrape artwork finds its backdrop on TheTVDB, Choose the right film lists the matches when it picked the wrong one, and Choose a poster / Choose a background list its pictures. Back to automatic forgets the choices. A film keeps the poster it came with unless you pick another.",
+    "**Scan my artwork now covers films too**: with a key it looks up a backdrop for every film that has none, after the shows.",
+    "The backdrop is used wherever a show's is: the loading screen, On Demand and the guide."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.5",
+      "date": "2026-11-14",
+      "notes": [
+        "**The library is no longer downloaded on every start.** The app fetched the whole 10 MB library a few seconds after every launch, even when nothing had changed. It now keeps the copy on the TV with its revision and only downloads when the scraper publishes a new one. Saving it is also lighter (the text is stored as it came instead of being wrapped a second time).",
+        "**VHS looks stop dropping frames at the start of every programme.** When two programmes in a row needed the blur taken off, the rest of the session starts without it instead of finding out again each time. Choosing a look in Options gives it a fresh try."
+      ]
+    },
     {
       "name": "Alpha 0.46.4",
       "date": "2026-11-14",
@@ -59,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Options is in the On Demand hold-OK menu.** Hold OK on a show and you can open Options without leaving On Demand. Films now get a small menu of their own: Info, Options and Hide this film."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.97",
-      "date": "2026-11-14",
-      "notes": [
-        "**The start-up tuning screen no longer repeats a picture early on.** While only a few pictures had loaded, the same ones came round again and again. Until there are plenty, a gap now stays empty until a new picture arrives. Each load also starts afresh, so a picture is never shown twice in one load."
       ]
     }
   ]

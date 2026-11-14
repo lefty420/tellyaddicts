@@ -4525,6 +4525,11 @@
     var handled = true;
 
     if (quitOpen) { quitKey(k); e.preventDefault(); return; }
+    if (k === 'OnDemand') {                                   // the phone's remote: On Demand from anywhere that is not already a panel
+      e.preventDefault();
+      if (!odOpen && !optsOpen && !infoOpen && !relOpen && !gm && !kbShown) odOpenUi();
+      return;
+    }
     if (!odOpen && (k === 'GoBack' || k === 'Escape' || k === 'Backspace')) {
       var nowT = Date.now();
       // only a Back pressed on the plain picture (or the guide with nothing playing) counts towards quitting:

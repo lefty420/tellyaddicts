@@ -24,7 +24,7 @@
     '#pr button{flex:1;height:8vh;border:0;border-radius:1.4vh;background:rgba(255,255,255,.16);color:#fff;font:700 3vh/1 sans-serif;touch-action:manipulation}' +
     '#pr button:active{background:#ffb800;color:#0a1a55}' +
     '#pr button.ok{background:#ffb800;color:#0a1a55}#pr button.sm{font-size:2.3vh}' +
-    '#pr .r{background:#c62828}#pr .g{background:#2e7d32}#pr .y{background:#f9a825;color:#222}#pr .b{background:#1565c0}';
+    '#pr button.od{background:#6a1b9a;font-size:2.8vh}#pr .r{background:#c62828}#pr .g{background:#2e7d32}#pr .y{background:#f9a825;color:#222}#pr .b{background:#1565c0}';
   document.head.appendChild(css);
 
   var btn = document.createElement('div'); btn.id = 'pr-btn'; btn.textContent = '☰';
@@ -38,6 +38,7 @@
     });
     pad.appendChild(row);
   }
+  addRow([['On Demand', 'OnDemand', 'sm od']]);
   addRow([['Back', 'GoBack', 'sm'], ['▲', 'ArrowUp'], ['Guide', 'Guide', 'sm']]);
   addRow([['◀', 'ArrowLeft'], ['OK', 'Enter', 'ok'], ['▶', 'ArrowRight']]);
   addRow([['Info', 'Info', 'sm'], ['▼', 'ArrowDown'], ['Play', 'MediaPlayPause', 'sm']]);

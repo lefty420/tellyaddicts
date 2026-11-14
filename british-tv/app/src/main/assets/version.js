@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.20",
-  "version": "0.46.20",
-  "code": 4620,
+  "name": "Alpha 0.46.21",
+  "version": "0.46.21",
+  "code": 4621,
   "date": "2026-11-14",
   "notes": [
-    "**Telly Addicts Mobile: move the remote button.** Drag the round button anywhere on the screen. The on-screen remote opens beside it, and the app remembers where you put it. A tap still opens and closes the remote.",
-    "**A selected programme you can read**: a programme that runs in from the left edge of the guide now starts its words at the edge you can see, and tapping a programme that is mostly off the side scrolls it back into view."
+    "**Telly Addicts Mobile: On Demand on the remote.** A purple On Demand button at the top of the on-screen remote opens On Demand from the guide or while watching."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.20",
+      "date": "2026-11-14",
+      "notes": [
+        "**Telly Addicts Mobile: move the remote button.** Drag the round button anywhere on the screen. The on-screen remote opens beside it, and the app remembers where you put it. A tap still opens and closes the remote.",
+        "**A selected programme you can read**: a programme that runs in from the left edge of the guide now starts its words at the edge you can see, and tapping a programme that is mostly off the side scrolls it back into view."
+      ]
+    },
     {
       "name": "Alpha 0.46.19",
       "date": "2026-11-14",
@@ -63,13 +70,6 @@ window.RELEASE = {
       "notes": [
         "**Classic Blue looks livelier**: gradient channel tiles with rounded corners, the programme showing now glows brighter with a gold edge on every channel, and later programmes are darker so it is easy to see what is on right now.",
         "**Options > Guide theme fixed**: the preview of the theme now shows all three rows instead of being cut off, and the Options panel no longer spills its rows over the button hints at the bottom; it scrolls to follow the highlighted row."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.12",
-      "date": "2026-11-14",
-      "notes": [
-        "**No second loading screen**: a programme that starts part-way through (like G.I. Joe) could show the loading screen, drop it, then show it again when the player jumped to the right spot. Each programme now gets its loading screen once."
       ]
     }
   ]

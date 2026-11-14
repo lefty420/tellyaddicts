@@ -2658,6 +2658,8 @@
     {
       if (!cur || cur.ad) return;                                                  // adverts use the small spinner
       if (!force && (v.readyState >= 3 || v.currentTime > 0.2)) return;           // mid-show waits only if still loading
+      if (!force && cur.sbShown) return;                                           // this programme already had its loading screen: never a second one (seek/restart)
+      cur.sbShown = true;
       var next = cur.prog && cur.prog.title;
       $('sbnum').textContent = cur.ch.n;
       $('sbname').textContent = cur.ch.name;

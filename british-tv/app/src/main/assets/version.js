@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.8",
-  "version": "0.46.8",
-  "code": 4608,
+  "name": "Alpha 0.46.9",
+  "version": "0.46.9",
+  "code": 4609,
   "date": "2026-11-14",
   "notes": [
-    "**Three wrong YouTube videos are out of Blind Date.** They were modern short dramas (\"A Billionaire CEO hides her identity for a blind date…\") that matched on the show's name. Videos like that are now left out."
+    "**Search in On Demand.** Press Yellow on the On Demand screen (or hold OK and choose Search), type part of a name on the on-screen keyboard and press Search. Every channel is searched, and the shows and films that match appear as a \"Search\" row at the top. Search again with the box empty (Clear, then Search) to remove the row.",
+    "The on-screen keyboard has a Space key."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.8",
+      "date": "2026-11-14",
+      "notes": [
+        "**Three wrong YouTube videos are out of Blind Date.** They were modern short dramas (\"A Billionaire CEO hides her identity for a blind date…\") that matched on the show's name. Videos like that are now left out."
+      ]
+    },
     {
       "name": "Alpha 0.46.7",
       "date": "2026-11-14",
@@ -59,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Scrape artwork and the other On Demand menu choices now use TheTVDB too** (when a key is entered). Scrape artwork searches TheTVDB first and falls back to TVmaze when it has no match. Choose the right show lists TheTVDB's matches. Choose a poster and Choose a background list TheTVDB's pictures for a show picked from it. Each attempt is written to Options > Debug log (for example \"TVDB scrape found … \" or \"TVDB scrape: no match for …\"), so a scrape that finds nothing now says why."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.0",
-      "date": "2026-11-14",
-      "notes": [
-        "**You can now see whether TheTVDB is working.** The TheTVDB key row in Options > Artwork shows a running count, such as \"On · 12 found, 3 no match\", and each lookup is written to Options > Debug log. Pressing Save (even with the same key) now checks the key and then looks up a test show, and says \"TheTVDB is working\" when it all comes back."
       ]
     }
   ]

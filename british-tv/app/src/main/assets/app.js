@@ -4123,26 +4123,34 @@
   var kbShown = false, kbVal = '', kbShift = false, kbR = 0, kbC = 0;
   var KB_ROWS = [
     '1234567890-'.split(''), 'abcdefghij'.split(''), 'klmnopqrst'.split(''), ['u', 'v', 'w', 'x', 'y', 'z', '_', '⌫'],
-    ['⇧ ABC', 'Clear', 'Cancel', 'Save']
+    ['⇧ ABC', 'Space', 'Clear', 'Cancel', 'Save']
   ];
-  function kbLabel(k) { return kbShift && /^[a-z]$/.test(k) ? k.toUpperCase() : k === '⇧ ABC' ? (kbShift ? '⇧ abc' : '⇧ ABC') : k; }
+  var kbMode = null;        // null: the TheTVDB key. Otherwise { title, label, value, save(text) } for another use (On Demand search)
+  function kbLabel(k) { return kbShift && /^[a-z]$/.test(k) ? k.toUpperCase() : k === '⇧ ABC' ? (kbShift ? '⇧ abc' : '⇧ ABC') : k === 'Save' && kbMode ? kbMode.label : k; }
   function kbDraw() {
     $('kbtext').textContent = kbVal;
     var box = $('kbkeys'); box.textContent = '';
     KB_ROWS.forEach(function (row, r) {
       var line = document.createElement('div'); line.className = 'kbrow';
       row.forEach(function (k, c) {
-        var d = document.createElement('div'); d.className = 'kbk' + (r === 4 ? ' w2' : '') + (r === kbR && c === kbC ? ' sel' : ''); d.textContent = kbLabel(k);
+        var d = document.createElement('div'); d.className = 'kbk' + (r === 4 ? ' w2' : '') + (k === 'Save' ? ' go' : '') + (r === kbR && c === kbC ? ' sel' : ''); d.textContent = kbLabel(k);
         line.appendChild(d);
       });
       box.appendChild(line);
     });
   }
-  function kbOpen() { kbShown = true; kbVal = tvdbKey; kbShift = false; kbR = 4; kbC = 3; $('kbd').className = ''; kbDraw(); }
-  function kbClose() { kbShown = false; $('kbd').className = 'hidden'; renderOpts(); }
+  function kbOpen(mode) {
+    kbMode = mode || null;
+    kbShown = true; kbVal = kbMode ? (kbMode.value || '') : tvdbKey; kbShift = false;
+    kbR = kbMode && !kbVal ? 1 : 4; kbC = kbMode && !kbVal ? 0 : 4;          // an empty search starts on the letters, a key to check starts on Save
+    $('kbtitle').textContent = kbMode ? kbMode.title : 'TheTVDB key';
+    $('kbd').className = ''; kbDraw();
+  }
+  function kbClose() { kbShown = false; $('kbd').className = 'hidden'; if (optsOpen) renderOpts(); }
   function kbSave() {
     var key = kbVal.trim();
     kbClose();
+    if (kbMode) { kbMode.save(key); return; }
     tvdbKey = key; tvdbPause = 0; tvdbTokP = null;
     store.set('tvdbkey', key);
     try { kv.removeItem('tvdbtok'); } catch (e) { /* none */ }
@@ -4167,6 +4175,7 @@
       if (key === 'Save') { kbSave(); return; }
       if (key === 'Cancel') { kbClose(); return; }
       if (key === 'Clear') kbVal = '';
+      else if (key === 'Space') { if (kbVal && !/ $/.test(kbVal)) kbVal += ' '; }
       else if (key === '⌫') kbVal = kbVal.slice(0, -1);
       else if (key === '⇧ ABC') kbShift = !kbShift;
       else kbVal += kbLabel(key);
@@ -4614,6 +4623,7 @@
     return shows;
   }
   function odLoadChannel(ch) {
+    if (ch.id === '_sr') return Promise.resolve(odData._sr || { shows: [] });       // the search row, like Continue watching, is made from the others
     if (ch.id === '_cw') return Promise.resolve(odData._cw || { shows: [] });     // the Continue watching row is made from the others
     var rec = odData[ch.id];
     if (rec) return rec.p;
@@ -4730,13 +4740,40 @@
     var e = g && g._cw;
     return e && ep && ep.p && e.url === ep.p.url && e.pos > 30 && (!e.dur || e.pos < e.dur - 60) ? e.pos : 0;
   }
+  // ---- search: Yellow (or the hold-OK menu) asks for a name; the matches from every channel become the top row
+  var srPseudo = { id: '_sr', n: '', name: 'Search' }, odQuery = '';
+  function odSearchAsk() {
+    kbOpen({ title: 'Search On Demand', label: 'Search', value: odQuery, save: odSearchRun });
+  }
+  function odSearchRun(q) {
+    odQuery = q;
+    if (!q) { odData._sr = null; odRowsMemo = null; if (odOpen) odRender(); return; }
+    toast('Searching…', 1500);
+    Promise.all(odChannels().map(function (c) { return odLoadChannel(c).then(null, function () { /* that channel is skipped */ }); })).then(function () {
+      var words = normShow(q).split(' ').filter(Boolean), seen = {}, hits = [];
+      odChannels().forEach(function (c) {
+        ((odData[c.id] && odData[c.id].shows) || []).forEach(function (g) {
+          var n = normShow(g.name), k = n + (g.film ? '|film' : '');
+          if (seen[k] || !words.length || !words.every(function (w) { return n.indexOf(w) >= 0; })) return;
+          seen[k] = 1; hits.push({ g: g, n: n, r: n.indexOf(words[0]) === 0 ? 0 : 1 });
+        });
+      });
+      hits.sort(function (a, b) { return a.r - b.r || (a.n < b.n ? -1 : a.n > b.n ? 1 : 0); });
+      odRowsMemo = null;
+      if (!hits.length) { odData._sr = null; toast('Nothing in On Demand matches “' + q + '”', 4000); if (odOpen) odRender(); return; }
+      odData._sr = { shows: hits.map(function (h) { return h.g; }) };
+      srPseudo.name = 'Search: ' + q + '   (' + hits.length + ')';
+      odPos._sr = 0; odRc = srPseudo; odRi = 0;
+      if (odOpen) { if (odView === 'show') odShowView(false); odRender(); }
+    });
+  }
   var odRowsMemo = null;
   function odRowList() {
     if (odRowsMemo) return odRowsMemo;
     setTimeout(function () { odRowsMemo = null; }, 0);
     var rows = odChannels().filter(function (c) { var r = odData[c.id]; return !(r && r.shows && !odShowsOf(c).length); });
-    var cw = odCwRow();
-    return (odRowsMemo = cw ? [cw].concat(rows) : rows);
+    var cw = odCwRow(), sr = odData._sr && odData._sr.shows.length ? srPseudo : null;
+    return (odRowsMemo = [sr, cw].filter(Boolean).concat(rows));
   }
   /** On Demand has no clock, but films keep the watershed: family films all day, 15s from eight, the rest after nine,
    *  as on the film channels. Without a certificate a film counts as an 18. */
@@ -4822,7 +4859,7 @@
     if (odView === 'show') odRenderShow(); else odRenderHome();
     $('odfoot').textContent = odView === 'show'
       ? '▲ ▼ move   ◀ seasons   ▶ episodes   OK play   Back'
-      : '◀ ▶ browse   ▲ ▼ channels   OK open   Back';
+      : '◀ ▶ browse   ▲ ▼ channels   OK open   Yellow search   Back';
   }
   var rowIsCw = false;
   /** One poster element per show, kept and reused: moving along a row re-attaches the ones already built (and decoded)
@@ -5088,6 +5125,7 @@
     if (odm) return k === 'Info' ? true : odmKey(k);
     if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') { odmOpen(); return true; }   // a held OK arrives as Info (see MainActivity)
     if (k === 'Guide' || k === 'Red') { odClose(false); openGuide(); return true; }
+    if (k === 'Yellow') { odSearchAsk(); return true; }
     if (odView === 'show') return odKeyShow(k);
     var s = odSel(), c = s.c, sh = s.sh, pos = c ? (odPos[c.id] || 0) : 0;
     if (k === 'ArrowUp' || k === 'ArrowDown') {
@@ -5183,11 +5221,12 @@
     var g = odSel().g;
     if (!g) return;
     var optsItem = { t: 'Options', sub: 'Settings, help and debug', f: function () { odmClose(); openOpts(); } };
+    var searchItem = { t: 'Search', sub: odQuery ? 'Find a show or film by name (now: ' + odQuery + ')' : 'Find a show or film by name', f: function () { odmClose(); odSearchAsk(); } };
     var infoItem = { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = (g.flat && g.flat[0]) || (g.eps && g.eps[0]); if (e0) openInfo({ prog: e0.p, ch: g.chan }); } };
     if (g.film) {                                            // a film keeps the poster that came with it: nothing to scrape or choose
       var need = function (fn) { return function () { if (!tvdbReady()) { odmClose(); toast('Film artwork needs a TheTVDB key (Options > Artwork)', 4500); return; } fn(); }; };
       var fixed = store.get('artfix:' + normShow(odArtName(g)));
-      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [infoItem,
+      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [infoItem, searchItem,
         { t: 'Scrape artwork', sub: 'Find this film\u2019s backdrop on TheTVDB', f: need(function () { odmFilmScrape(g); }) },
         { t: 'Choose the right film', sub: 'Pick from the list if the wrong film was matched', f: need(function () { odmFilmList(g); }) },
         { t: 'Choose a poster', sub: 'Pick the picture shown on its card', f: need(function () { odmFilmPics(g, 'poster'); }) },
@@ -5201,6 +5240,7 @@
     }
     odm = { mode: 'menu', g: g, i: 0, items: [
       { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = g.flat && g.flat[0]; if (e0) openInfo({ prog: e0.p, ch: g.chan }); } },
+      searchItem,
       { t: 'Scrape artwork', sub: 'Look the show up again and use the best match', f: function () { odmScrape(g); } },
       { t: 'Choose the right show', sub: 'Pick from the list if the wrong show was matched', f: function () { odmShows(g); } },
       { t: 'Choose a poster', sub: 'Pick the picture shown on its card', f: function () { odmPics(g, 'poster'); } },

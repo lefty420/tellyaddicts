@@ -539,15 +539,15 @@
   body:not([class*="gt-"]) .blk.foc { background: linear-gradient(180deg, #fff6c2 0%, #ffb800 100%); box-shadow: 0 0 2vh rgba(255,190,40,.9); border-color: #fff; }
 
   /* ---- phone (the mobile build sets html.phone, see phone.js): a bigger guide, four channels at a time, finger-sized rows */
-  html.phone body.guide-open #v { left: 3vw; top: 3vh; width: 29vw; }
-  html.phone #ginfo { left: 35vw; top: 2.4vh; height: 25vh; }
+  html.phone body.guide-open #v { left: 3vw; top: 3vh; width: 36vh; }
+  html.phone #ginfo { left: calc(6vw + 36vh); right: 3vw; top: 2.4vh; height: 24vh; }
   html.phone #gtop { font-size: 3.2vh; }
   html.phone #godbtn { font-size: 3vh; padding: .8vh 2vw; }
   html.phone #gclock { font-size: 4vh; }
   html.phone #gtitle { font-size: 4.8vh; margin: 1.2vh 0 .4vh; max-height: 11vh; }
   html.phone #gchan, html.phone #gtime { font-size: 3.4vh; margin-top: .3vh; }
   html.phone #gsub { display: none; }
-  html.phone #ggrid { top: 29vh; left: 2vw; right: 2vw; }
+  html.phone #ggrid { top: 27.5vh; left: 2vw; right: 2vw; }
   html.phone .trow { height: 8vh; }
   html.phone .grow { height: 14.6vh; margin-bottom: .6vh; }
   html.phone .gch, html.phone .tday { width: 22vw; }
@@ -561,6 +561,21 @@
   html.phone .blk .arr { font-size: 3.4vh; margin-top: -1.8vh; }
   html.phone .blk.cl { padding-left: 4vw; } html.phone .blk.cr { padding-right: 4vw; }
   html.phone #glegend { display: none !important; }
+  html.phone .tline { overflow: hidden; }
+  html.phone .tin { position: absolute; left: 0; right: 0; top: 0; bottom: 0; transform: translateX(var(--gx, 0px)); }
+  html.phone .gwrap { position: relative; overflow: hidden; height: calc(4 * 15.2vh); z-index: 1; }
+  html.phone .gin2 { position: absolute; left: 0; right: 0; transform: translateY(var(--gy, 0px)); }
+  html.phone #ggrid.snap .gin2, html.phone #ggrid.snap .tin { transition: transform .38s cubic-bezier(.2,.8,.3,1); }
+  /* phone: the bar over the picture, at a thumb's size */
+  html.phone #osd { padding-bottom: 1vh; }
+  html.phone #otitle { font-size: 4.6vh; } html.phone #ochan { font-size: 2.8vh; } html.phone #osub, html.phone #onext { font-size: 2.8vh; }
+  html.phone #oprog { height: 2vh; margin-top: 1.4vh; margin-bottom: 1.6vh; }
+  html.phone #oprog::before { content: ''; position: absolute; left: -2vw; right: -2vw; top: -3.4vh; bottom: -3.4vh; }
+  html.phone #othumb { opacity: 1; width: 3.6vh; height: 3.6vh; margin: -1.8vh 0 0 -1.8vh; }
+  html.phone #otime { top: 3vh; font-size: 2.8vh; }
+  html.phone #obtns { flex-wrap: wrap; gap: 1.2vh 1vw; padding: 5vh 2vw 1.6vh 2vw; }
+  html.phone .ob { flex: 1 1 22%; min-height: 9vh; font-size: 3.2vh; }
+  html.phone .ob .ic { font-size: 3.4vh; }
   /* phone: menus, On Demand menus and Options at a size a thumb can use */
   html.phone #gmbox { width: 76vw; padding: 3vh 3vw 2.4vh; }
   html.phone #gmt { font-size: 4.8vh; }

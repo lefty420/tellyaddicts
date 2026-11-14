@@ -2760,6 +2760,7 @@
   var gChan = null;  // selected channel
   var gRow = 0;      // its row (derived)
   var gTop = 0;      // first visible row
+  var gFree = false; // phone: the view has been scrolled by hand, so the highlight need not be on screen
   var gWin = 0;      // time at the left edge of the grid
   var gFocus = 0;    // time the cursor is on
   var guideTimer = null;
@@ -2785,7 +2786,7 @@
     var now = Date.now();
     $('gclock').textContent = fmtTime(now);
     gPaint.rows.forEach(function (row, i) {
-      var want = 'gch' + (gPaint.top + i === gRow ? ' sel' : '');
+      var want = 'gch' + ((gPaint.first || 0) + i === gRow ? ' sel' : '');
       if (row.cell.className !== want) row.cell.className = want;
       if (row.ld) {                                 // channel still loading: one wide block, highlighted or not
         var lw = 'blk ld' + (row.ch === list[gRow] ? ' foc' : '');
@@ -2846,8 +2847,11 @@
     gRow = list.indexOf(gChan);
     if (gRow < 0) { gRow = 0; gChan = list[0]; }
     applyTheme(gChan);
-    if (gRow < gTop) gTop = gRow;
-    if (gRow >= gTop + VISIBLE_ROWS) gTop = gRow - VISIBLE_ROWS + 1;
+    if (!(window.PHONE && gFree)) {
+      if (gRow < gTop) gTop = gRow;
+      if (gRow >= gTop + VISIBLE_ROWS) gTop = gRow - VISIBLE_ROWS + 1;
+    }
+    var PH = !!window.PHONE, r0 = PH ? Math.max(0, gTop - 1) : gTop, r1 = Math.min(list.length, gTop + VISIBLE_ROWS + (PH ? 1 : 0));
 
     if (light && gPaint && gPaint.top === gTop && gPaint.win === gWin && gPaint.len === list.length) {
       paintSelection(list);
@@ -2858,20 +2862,26 @@
 
     var grid = $('ggrid');
     grid.textContent = '';
-    gPaint = { top: gTop, win: gWin, len: list.length, rows: [] };
+    gPaint = { top: gTop, first: r0, win: gWin, len: list.length, rows: [] };
 
     var th = div('trow');
     th.appendChild(div('tday', dayLabel(gWin)));
-    var ticks = div('tline');
-    for (var i = 0; i < 4; i++) {
+    var ticks = div('tline'), tickHost = ticks;
+    if (PH) { tickHost = div('tin'); ticks.appendChild(tickHost); }
+    for (var i = PH ? -1 : 0; i < (PH ? 6 : 4); i++) {
       var tick = div('tick', fmtTime(gWin + i * HALF));
       tick.style.left = (i * 25) + '%';
-      ticks.appendChild(tick);
+      tickHost.appendChild(tick);
     }
     th.appendChild(ticks);
     grid.appendChild(th);
+    var rowHost = grid, gin2 = null;
+    if (PH) {
+      var gwrap = div('gwrap'); gin2 = div('gin2'); gin2.style.top = (-(gTop - r0) * 15.2) + 'vh';
+      gwrap.appendChild(gin2); grid.appendChild(gwrap); rowHost = gin2;
+    }
 
-    for (var r = gTop; r < Math.min(list.length, gTop + VISIBLE_ROWS); r++) {
+    for (var r = r0; r < r1; r++) {
       var ch = list[r];
       var row = div('grow');
       var cell = div('gch' + (r === gRow ? ' sel' : ''));
@@ -2890,17 +2900,20 @@
         rec.ld = ld;
         line.appendChild(ld);
         row.appendChild(line);
-        grid.appendChild(row);
+        rowHost.appendChild(row);
         continue;
       }
+      var bhost = line;
+      if (PH) { bhost = div('tin'); line.appendChild(bhost); }
       (function (rec, line, ch) {
-        E.blocks(ch.sched, gWin, gWin + SPAN).forEach(function (b) {
-          var s = Math.max(b.startMs, gWin);
-          var e = Math.min(b.endMs, gWin + SPAN);
+        var lo = PH ? gWin - HALF : gWin, hi = PH ? gWin + SPAN + HALF : gWin + SPAN;
+        E.blocks(ch.sched, lo, hi).forEach(function (b) {
+          var s = Math.max(b.startMs, lo);
+          var e = Math.min(b.endMs, hi);
           if (e <= s) return;
           var focused = (ch === list[gRow]) && b.startMs <= gFocus && gFocus < b.endMs;
           var frac = (e - s) / SPAN;
-          var clipL = b.startMs < gWin, clipR = b.endMs > gWin + SPAN;
+          var clipL = b.startMs < lo, clipR = b.endMs > hi;
           var base = 'blk' + (clipL ? ' cl' : '') + (clipR ? ' cr' : '') + (frac < 0.07 ? ' nw' : '');
           var el = div(base + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : ''));
           el.style.left = ((s - gWin) / SPAN * 100) + '%';
@@ -2914,9 +2927,9 @@
           el.appendChild(div('s', b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '')));
           line.appendChild(el);
         });
-      })(rec, line, ch);
+      })(rec, bhost, ch);
       row.appendChild(line);
-      grid.appendChild(row);
+      rowHost.appendChild(row);
     }
 
     paintSelection(list);
@@ -2940,6 +2953,7 @@
     var list = guideList();
     if (!list.length) return;
     guideOpen = true;
+    gFree = false;
     var now = Date.now();
     gChan = cur && list.indexOf(cur.ch) >= 0 ? cur.ch : list[0];
     gRow = Math.max(0, list.indexOf(gChan));
@@ -2972,6 +2986,7 @@
   var gOd = false;
   function gOdSet(on) { gOd = on; $('godbtn').className = on ? 'sel' : ''; }
   function gMove(delta, wrap) {
+    gFree = false;
     var list = guideList();
     var n = list.length;
     var i = Math.max(0, list.indexOf(gChan));
@@ -2981,6 +2996,7 @@
   }
 
   function gHoriz(dir) {
+    gFree = false;
     if (!gChan || gChan.status !== 'ready') return;
     var sched = gChan.sched;
     var fb = E.blockAt(sched, gFocus);
@@ -2999,6 +3015,63 @@
     }
     renderGuide(true);
   }
+
+
+  // Phone: the guide follows the finger. PG.drag(dx, dy) moves the view by pixels (whole rows and half hours are committed as it
+  // goes, the rest is a CSS offset); PG.end(vx, vy) lets it glide to rest on a row / half hour.
+  if (window.PHONE) window.PG = (function () {
+    var gy = 0, gx = 0;
+    function grid() { return $('ggrid'); }
+    function metrics() {
+      var g = document.querySelector('.gin2 .grow'), tl = document.querySelector('#ggrid .tline');
+      var row = g ? g.getBoundingClientRect().height + parseFloat(getComputedStyle(g).marginBottom || 0) : 100;
+      var half = tl ? tl.getBoundingClientRect().width * HALF / SPAN : 100;
+      return { row: row || 100, half: half || 100 };
+    }
+    function maxTop() { return Math.max(0, guideList().length - VISIBLE_ROWS); }
+    function winOk(w) { var base = floorHalf(Date.now()), max = Math.max(base, base + SPANS[spanIdx].h * 3600000 - SPAN); return w >= base && w <= max; }
+    function vars() { var g = grid(); g.style.setProperty('--gy', gy + 'px'); g.style.setProperty('--gx', gx + 'px'); }
+    function commit(dRows, dHalves) {
+      var any = false;
+      while (dRows > 0 && gTop < maxTop()) { gTop++; dRows--; any = true; }
+      while (dRows < 0 && gTop > 0) { gTop--; dRows++; any = true; }
+      while (dHalves > 0 && winOk(gWin + HALF)) { gWin += HALF; dHalves--; any = true; }
+      while (dHalves < 0 && winOk(gWin - HALF)) { gWin -= HALF; dHalves++; any = true; }
+      return any;
+    }
+    return {
+      drag: function (dx, dy) {
+        if (!guideOpen) return;
+        grid().classList.remove('snap'); gFree = true;
+        var m = metrics(), moved = false;
+        gy += dy; gx += dx;
+        while (gy <= -m.row && gTop < maxTop()) { gTop++; gy += m.row; moved = true; }
+        while (gy >= m.row && gTop > 0) { gTop--; gy -= m.row; moved = true; }
+        while (gx <= -m.half && winOk(gWin + HALF)) { gWin += HALF; gx += m.half; moved = true; }
+        while (gx >= m.half && winOk(gWin - HALF)) { gWin -= HALF; gx -= m.half; moved = true; }
+        if (gTop >= maxTop() && gy < 0) gy = Math.max(gy, -m.row * 0.18);        // the end of the list: a little give, no more
+        if (gTop <= 0 && gy > 0) gy = Math.min(gy, m.row * 0.18);
+        if (!winOk(gWin + HALF) && gx < 0) gx = Math.max(gx, -m.half * 0.18);
+        if (!winOk(gWin - HALF) && gx > 0) gx = Math.min(gx, m.half * 0.18);
+        if (moved) renderGuide();
+        vars();
+      },
+      end: function (vx, vy) {
+        if (!guideOpen) return;
+        var m = metrics();
+        var nRows = Math.round(-(gy + vy * 0.2) / m.row), nHalf = Math.round(-(gx + vx * 0.2) / m.half);
+        nRows = Math.max(-6, Math.min(6, nRows)); nHalf = Math.max(-6, Math.min(6, nHalf));
+        var t0 = gTop, w0 = gWin;
+        commit(nRows, nHalf);
+        gy += (gTop - t0) * m.row; gx += ((gWin - w0) / HALF) * m.half;
+        if (gTop !== t0 || gWin !== w0) renderGuide();
+        vars(); void grid().offsetHeight;
+        grid().classList.add('snap');
+        gy = 0; gx = 0; vars();
+        setTimeout(function () { grid().classList.remove('snap'); }, 420);
+      }
+    };
+  })();
 
   function gJump(kind) {
     var now = Date.now();
@@ -4405,6 +4478,28 @@
     else return false;
     return true;
   }
+
+  // Phone: the bar that comes up over the picture can be touched. Its buttons work with a tap; the progress line is a scrubber you
+  // can tap or drag.
+  if (window.PHONE) (function () {
+    $('obtns').addEventListener('click', function (e) {
+      var t = e.target.closest && e.target.closest('.ob');
+      if (!t || !osdOpen) return;
+      osdTouch(); osdAct(t.id.slice(3));
+    });
+    var pr = $('oprog');
+    pr.setAttribute('data-own', '1');
+    function at(e) { var t = (e.touches && e.touches[0]) || e.changedTouches[0], r = pr.getBoundingClientRect(); return Math.max(0, Math.min(1, (t.clientX - r.left) / r.width)); }
+    function set(e) {
+      if (!cur || cur.ad || !isFinite(v.duration) || v.duration <= 0) return;
+      osdZone = 'bar'; osdTouch();
+      scrubT = Math.max(0, Math.min(v.duration - 1, at(e) * v.duration));
+      renderOsd();
+    }
+    pr.addEventListener('touchstart', set, { passive: true });
+    pr.addEventListener('touchmove', set, { passive: true });
+    pr.addEventListener('touchend', function () { scrubApply(); }, { passive: true });
+  })();
 
   var lastKeyAt = 0;
   window.addEventListener('keydown', function (e) {

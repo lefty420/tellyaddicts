@@ -1,14 +1,25 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.18",
-  "version": "0.46.18",
-  "code": 4618,
+  "name": "Alpha 0.46.19",
+  "version": "0.46.19",
+  "code": 4619,
   "date": "2026-11-14",
   "notes": [
-    "**Telly Addicts Mobile, better touch** (the TV app is unchanged):"
+    "**Telly Addicts Mobile: the guide now scrolls like a phone** (the TV app is unchanged). It follows your finger smoothly, up and down through the channels and sideways through the time line, and glides to rest when you let go. Scrolling no longer moves the highlight, so a tap picks what you touch.",
+    "**Fixed overlapping**: the small TV window no longer sits over the time line and the first channel.",
+    "**The bar over the picture can be touched**: tap its buttons (TV Guide, Play, Next, Restart, Info, On Demand, Options), tap or drag along the progress line to jump around, and tap anywhere else to close it. The buttons and text are bigger.",
+    "In lists and menus, dragging now moves the way the list is dragged (finger up shows the next items).",
+    "The remote button in the bottom right stays on every screen."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.18",
+      "date": "2026-11-14",
+      "notes": [
+        "**Telly Addicts Mobile, better touch** (the TV app is unchanged):"
+      ]
+    },
     {
       "name": "Alpha 0.46.17",
       "date": "2026-11-14",
@@ -59,13 +70,6 @@ window.RELEASE = {
       "notes": [
         "**Options now leaves a trail in the debug log**: where it was opened from, how many button presses it handled, and whether it closed by itself. This is to pin down any further report of Options hanging.",
         "**Three more wrong matches blocked** from your reports and the log: Care Bears was playing the 2007 series, CITV had a 2018 CGI Thomas & Friends, and The Lion King (1994) was a recording of the stage musical."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.10",
-      "date": "2026-11-14",
-      "notes": [
-        "**Options no longer hangs when opened from On Demand.** Opening Options from the On Demand hold-OK menu showed the Options screen, but the remote was still moving On Demand underneath it, so Options looked frozen until it closed itself. The remote now works Options, and Back returns to On Demand."
       ]
     }
   ]

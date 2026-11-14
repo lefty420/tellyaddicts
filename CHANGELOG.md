@@ -7,6 +7,14 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.19 — 2026-11-14
+
+- **Telly Addicts Mobile: the guide now scrolls like a phone** (the TV app is unchanged). It follows your finger smoothly, up and down through the channels and sideways through the time line, and glides to rest when you let go. Scrolling no longer moves the highlight, so a tap picks what you touch.
+- **Fixed overlapping**: the small TV window no longer sits over the time line and the first channel.
+- **The bar over the picture can be touched**: tap its buttons (TV Guide, Play, Next, Restart, Info, On Demand, Options), tap or drag along the progress line to jump around, and tap anywhere else to close it. The buttons and text are bigger.
+- In lists and menus, dragging now moves the way the list is dragged (finger up shows the next items).
+- The remote button in the bottom right stays on every screen.
+
 ## Alpha 0.46.18 — 2026-11-14
 
 - **Telly Addicts Mobile, better touch** (the TV app is unchanged):

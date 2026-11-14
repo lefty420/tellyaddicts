@@ -47,9 +47,9 @@
   document.body.appendChild(pad); document.body.appendChild(btn);
 
   // ---- gestures on the rest of the screen
-  // drag = scroll (the content follows the finger: a row's worth of drag moves one step), tap = OK on what was touched,
+  // drag = move the cursor the way the finger goes (a row's worth of drag moves one step), tap = OK on what was touched,
   // long press = the hold-OK menu for what was touched
-  function shown(id) { var e = document.getElementById(id); return !!e && !/\bhidden\b/.test(e.className); }
+  function shown(id) { var e = document.getElementById(id); return !!e && !/\b(hidden|off)\b/.test(e.className); }
   function overlay() { return shown('gmenu') || shown('odmenu') || shown('opts') || shown('rel') || shown('info') || shown('kbd') || shown('od') || shown('quit'); }
   function nth(list, el) { return Array.prototype.indexOf.call(list, el); }
   function press(k, n) { for (var i = 0; i < n; i++) key(k); }
@@ -101,7 +101,7 @@
   }
 
   var t0 = null, longT = 0, fired = false, tapOwn = null, axis = '', accX = 0, accY = 0, lastX = 0, lastY = 0, moved = false;
-  function inRemote(e) { return e.target && e.target.closest && e.target.closest('#pr, #pr-btn, input, textarea'); }
+  function inRemote(e) { return e.target && e.target.closest && e.target.closest('#pr, #pr-btn, input, textarea, [data-own]'); }
   document.addEventListener('touchstart', function (e) {
     if (inRemote(e) || e.touches.length !== 1) { t0 = null; return; }
     var t = e.touches[0]; t0 = { x: t.clientX, y: t.clientY }; lastX = t.clientX; lastY = t.clientY;
@@ -118,6 +118,7 @@
       key('Info');
     }, 600);
   }, { passive: true });
+  var samples = [];
   document.addEventListener('touchmove', function (e) {
     if (!t0 || fired) return;
     var t = e.touches[0];
@@ -125,17 +126,20 @@
       var dx = t.clientX - t0.x, dy = t.clientY - t0.y;
       if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;
       axis = Math.abs(dy) >= Math.abs(dx) ? 'y' : 'x'; moved = true; clearTimeout(longT);
-      lastX = t0.x; lastY = t0.y;
+      lastX = t0.x; lastY = t0.y; samples = [];
     }
-    var H = window.innerHeight, W = window.innerWidth, inGuide = shown('guide') && !overlay();
-    if (axis === 'y') {
-      accY += t.clientY - lastY;
-      var stepY = inGuide ? H * 0.15 : H * 0.12;
-      while (accY <= -stepY) { key('ArrowDown'); accY += stepY; }           // finger up: the list moves up, so the next one comes
+    var H = window.innerHeight, W = window.innerWidth, inGuide = shown('guide') && !overlay() && window.PG;
+    var ddx = t.clientX - lastX, ddy = t.clientY - lastY, now = Date.now();
+    samples.push({ t: now, x: t.clientX, y: t.clientY }); if (samples.length > 6) samples.shift();
+    if (inGuide) {
+      // the guide follows the finger, and glides on when you let go
+      if (axis === 'y') window.PG.drag(0, ddy); else window.PG.drag(ddx, 0);
+    } else if (axis === 'y') {
+      accY += ddy; var stepY = H * 0.12;
+      while (accY <= -stepY) { key('ArrowDown'); accY += stepY; }              // a list: the finger drags it up, the next row comes
       while (accY >= stepY) { key('ArrowUp'); accY -= stepY; }
     } else {
-      accX += t.clientX - lastX;
-      var stepX = inGuide ? W * 0.16 : W * 0.14;
+      accX += ddx; var stepX = W * 0.14;
       while (accX <= -stepX) { key('ArrowRight'); accX += stepX; }
       while (accX >= stepX) { key('ArrowLeft'); accX -= stepX; }
     }
@@ -145,9 +149,16 @@
     clearTimeout(longT);
     var was = t0, hadMoved = moved, wasFired = fired;
     t0 = null;
+    if (was && hadMoved && !wasFired && window.PG && shown('guide') && !overlay()) {
+      var vx = 0, vy = 0, n = samples.length;
+      if (n > 1) { var a = samples[0], b = samples[n - 1], dt = Math.max(30, b.t - a.t) / 1000; if (Date.now() - b.t < 120) { vx = (b.x - a.x) / dt; vy = (b.y - a.y) / dt; } }
+      window.PG.end(axis === 'x' ? vx : 0, axis === 'y' ? vy : 0);
+      return;
+    }
     if (!was || wasFired || hadMoved) return;
     if (document.querySelector('#pr.on')) { pad.classList.remove('on'); btn.classList.remove('on'); return; }
     if (tapOwn) return;                                    // the guide handles its own taps
+    if (shown('osd') ) { if (!(e.target.closest && e.target.closest('.ob, #oprog'))) key('GoBack'); return; }
     if (listTap(e)) return;
     if (shown('info') || shown('rel')) { key('GoBack'); return; }
     if (!overlay() || (shown('od') && !shown('opts') && !shown('odmenu') && !shown('kbd'))) key('Enter');

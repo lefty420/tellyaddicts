@@ -3432,7 +3432,7 @@
   // The categories down the left of Options, and the rows in each. OPTS is those rows in order.
   var OCATS = [
     { id: 'picture', rows: ['ar', 'fx'] },
-    { id: 'guide', rows: ['od', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
+    { id: 'guide', rows: ['od', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
     { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
@@ -3447,6 +3447,7 @@
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
+    if (id === 'real') return realOn ? 'On' : 'Off';
     if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
     if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
@@ -3488,6 +3489,13 @@
       metaSizeText = metaSize();
       if (optsOpen) renderOpts();
     }, 400);
+  }
+  function changeReal() {
+    realOn = !realOn; store.set('real1', realOn ? 'on' : 'off');
+    renderOpts();
+    toast(realOn ? 'Real time EPG on: building a real week for every channel\u2026' : 'Real time EPG off: building the guides\u2026', 3000);
+    clearTimeout(spanTimer);
+    spanTimer = setTimeout(function () { location.reload(); }, 2200);
   }
   function changeYt() {
     ytOn = !ytOn; store.set('yt1', ytOn ? 'on' : 'off');
@@ -3538,6 +3546,7 @@
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
     theme: 'How the TV guide looks. It only changes when you change it here.',
     yt: 'Episodes that are not on archive.org but are on YouTube, shown in On Demand. They play without adverts or a sign-in, through the app\u2019s own player, and where an episode has more than one copy the best plays first. Turn this off if they cause trouble.',
+    real: 'Lays each channel out like a real week of television: programmes on the hour and half hour, short ones in the morning and at lunchtime, half hours through the early evening, hour-long programmes and films in prime time and on weekend afternoons, and Saturday and Sunday different from the weekdays. A series plays in order, one episode after another. Channels with a plan of their own (News, Saturday Night, Soaps, Drama, Video Shop) keep it. Off is the endless shuffle.',
     mkeep: 'How long artwork and episode details are remembered before they are looked up again. Permanent keeps them until you clear them.',
     mclear: 'Forgets the saved artwork, episode details and downloaded pictures, so they are fetched again fresh. Shows what is stored now.',
     od: 'Browse every channel\u2019s shows, series and episodes, and play any of them from the start.',
@@ -3572,6 +3581,7 @@
     if (id === 'ar') return { l: AR.map(function (x) { return x.label; }), i: arIdx };
     if (id === 'ads') return { l: ['Off', 'On'], i: adEra === 'off' ? 0 : 1 };
     if (id === 'yt') return { l: ['Off', 'On'], i: ytOn ? 1 : 0 };
+    if (id === 'real') return { l: ['Off', 'On'], i: realOn ? 1 : 0 };
     if (id === 'fx') { var ks = Object.keys(FXLABEL); return { l: ks.map(function (k) { return FXLABEL[k]; }), i: Math.max(0, ks.indexOf(fxMode)) }; }
     return null;
   }
@@ -3709,6 +3719,7 @@
     else if (id === 'gart') { gartOn = !gartOn; store.set('gart', gartOn ? 'on' : 'off'); gartFor = '\u0000'; artFor = ''; osdArt(); renderOpts(); }
     else if (id === 'ads') changeAds(d);
     else if (id === 'yt') changeYt();
+    else if (id === 'real') changeReal();
     else if (id === 'season') { seasonOn = !seasonOn; store.set('seasonal', seasonOn ? 'auto' : 'off'); seasonUpdate(); renderOpts(); }
     else if (id === 'player') changePlayer(d);
     else if (id === 'buf') changeBuf(d);
@@ -4034,6 +4045,7 @@
 
   // ---- YouTube as a second source (data/yt.json from the scraper). The files are not on archive.org: the app's own
   // player looks the stream up when you press play (NativePlayer.java), so a video is stored here as "yt:<id>".
+  var realOn = store.get('real1') === 'on';
   var ytOn = store.get('yt1') !== 'off';
   var ytP = null, ytDead = store.get('ytdead2') || {};
   function ytAvailable() { try { return !!(window.NativeHttp && window.NativeHttp.npOpen); } catch (e) { return false; } }
@@ -4934,7 +4946,7 @@
           var seed = c.id + (epgGen ? ':' + epgGen : '');
           // a channel with a daypart plan is laid out against the clock; the rest are one shuffled loop
           var spanH = SPANS[spanIdx].h;
-          c.sched = (window.DAYPARTS && DAYPARTS.has(c.id) && DAYPARTS.schedule(c.id, progs, seed, spanH / 24)) ||
+          c.sched = (window.DAYPARTS && DAYPARTS.has(c.id, realOn) && DAYPARTS.schedule(c.id, progs, seed, spanH / 24, { real: realOn })) ||
                     E.buildSchedule(E.selectSpan(progs, spanH * 3600, seed), seed);
           c.status = 'ready';
           if (!isAdChan(c)) enrichNames(c, progs).then(null, function () { /* names stay as they are */ });

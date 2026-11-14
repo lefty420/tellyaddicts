@@ -233,31 +233,108 @@
     }
   };
 
+
+  // ---------------------------------------------------------------- Real time EPG
+
+  /**
+   * A week laid out the way real channels were, for any channel without a plan of its own (Options > TV Guide >
+   * Real time EPG). It knows nothing about what a programme is, only how long it runs, and shapes the week by that:
+   * short items in the morning and at lunchtime, half hours through the early evening, hour-long programmes and
+   * longer in prime time, films on weekend afternoons, and Saturday and Sunday laid out differently from the
+   * weekdays. Programmes start on the hour and half hour. Within each kind a series plays in episode order, one show
+   * after another in turn, and carries on from one day to the next.
+   */
+  function showOf(p) { return String(p.show || p.group || String(p.title || '').replace(/\s+S\d+E\d+.*$/i, '')).toLowerCase(); }
+  function epOf(p) { var m = /S(\d{1,4})[ED](\d{1,3})/i.exec(p.title || ''); return m ? [+m[1], +m[2]] : [0, 0]; }
+  /** Every show's episodes in order, the shows taken in turn. */
+  function inTurn(list, seed) {
+    var by = {}, keys = [];
+    list.forEach(function (p, i) { var k = showOf(p); if (!by[k]) { by[k] = []; keys.push(k); } by[k].push({ p: p, i: i }); });
+    keys = shuffled(keys, seedOf(String(seed) + 'turn'));
+    keys.forEach(function (k) {
+      by[k].sort(function (a, b) { var x = epOf(a.p), y = epOf(b.p); return (x[0] - y[0]) || (x[1] - y[1]) || (a.i - b.i); });
+    });
+    var out = [];
+    for (var r = 0, more = true; more; r++) {
+      more = false;
+      for (var j = 0; j < keys.length; j++) { var e = by[keys[j]][r]; if (e) { out.push(e.p); more = true; } }
+    }
+    return out;
+  }
+  function lengthClass(p) { var d = p.dur || 0; return d <= 1080 ? 'bite' : d <= 2400 ? 'half' : d <= 4200 ? 'hour' : d <= 6000 ? 'long' : 'film'; }
+  var KIDS = { citv: 1, childrens: 1, kidsmovies: 1, kidsxmas: 1, disney: 1 };
+  // [time, starts on the dot, the kinds of programme that belong]; each day of the week, Sunday first
+  var T = function (h, m) { return secs(h, m); };
+  var WEEKDAY = [[T(6, 0), 0, 'bite half'], [T(9, 30), 0, 'half'], [T(12, 0), 0, 'half bite'], [T(14, 0), 0, 'half hour'],
+    [T(17, 30), 0, 'half'], [T(20, 0), 0, 'hour half'], [T(21, 0), 0, 'hour long'],
+    [T(22, 0), 0, 'half hour'], [T(23, 0), 0, 'half bite'], [T(24, 30), 0, '']];
+  var WEEKDAY_KIDS = [[T(6, 30), 0, 'bite half'], [T(9, 30), 0, 'half'], [T(12, 0), 0, 'half bite'], [T(15, 30), 0, 'half bite'],
+    [T(17, 0), 0, 'half'], [T(18, 30), 0, 'film long hour'], [T(20, 0), 0, 'half'], [T(22, 0), 0, 'half bite'], [T(24, 30), 0, '']];
+  var SATDAY = [[T(6, 0), 0, 'bite half'], [T(9, 0), 0, 'half bite'], [T(12, 0), 0, 'half'], [T(14, 0), 0, 'long film hour'],
+    [T(16, 30), 0, 'half'], [T(19, 0), 0, 'hour long'], [T(20, 30), 0, 'hour long film'],
+    [T(22, 30), 0, 'half hour'], [T(24, 0), 0, '']];
+  var SATDAY_KIDS = [[T(6, 30), 0, 'bite half'], [T(9, 0), 0, 'half bite'], [T(12, 0), 0, 'half'], [T(14, 0), 0, 'film long hour'],
+    [T(16, 30), 0, 'half'], [T(18, 0), 0, 'half bite'], [T(19, 0), 0, 'film long hour'], [T(21, 0), 0, 'half']];
+  var SUNDAY = [[T(6, 0), 0, 'bite half'], [T(9, 0), 0, 'half'], [T(12, 0), 0, 'half'], [T(14, 0), 0, 'film long'],
+    [T(16, 0), 0, 'hour half'], [T(19, 0), 0, 'hour long'], [T(21, 0), 0, 'hour half'],
+    [T(22, 30), 0, 'half bite'], [T(24, 0), 0, '']];
+  var SUNDAY_KIDS = [[T(6, 30), 0, 'bite half'], [T(9, 0), 0, 'half bite'], [T(12, 0), 0, 'half'], [T(14, 0), 0, 'film long'],
+    [T(16, 0), 0, 'half bite'], [T(18, 0), 0, 'hour long half'], [T(20, 0), 0, 'half']];
+
+  var REAL = {
+    cycle: 'week',
+    filler: function (progs) { var f = progs.filter(shorter(900)); return f.length ? f : progs; },
+    make: function (progs, seed, ctx) {
+      var kids = !!KIDS[ctx && ctx.id];
+      var byClass = { bite: [], half: [], hour: [], long: [], film: [] };
+      progs.forEach(function (p) { byClass[lengthClass(p)].push(p); });
+      var lists = {};
+      function listFor(kinds) {                        // the kinds named, in one list; everything when there are too few of them
+        if (lists[kinds]) return lists[kinds];
+        var items = [];
+        kinds.split(' ').forEach(function (k) { if (byClass[k]) items = items.concat(byClass[k]); });
+        if (items.length < 3) return (lists[kinds] = listFor.all || (listFor.all = { key: 'any', items: inTurn(progs, seed + 'any') }));
+        return (lists[kinds] = { key: kinds, items: inTurn(items, seed + kinds) });
+      }
+      var days = [SUNDAY, WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, SATDAY];
+      if (kids) days = [SUNDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, SATDAY_KIDS];
+      var blocks = [];
+      days.forEach(function (slots, d) {
+        slots.forEach(function (sl) {
+          var l = listFor(sl[2]);
+          blocks.push({ at: d * DAY + sl[0], exact: !!sl[1], items: l.items, ordered: true, cursor: l.key, round: 300 });
+        });
+      });
+      return blocks;
+    }
+  };
+
   var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, drama: DRAMA, soaps: SOAPS };
 
   /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. `days` is how long the
    *  schedule runs before it repeats: each day (or week, for a weekly plan) is laid out afresh from its own seed. */
-  function schedule(channelId, progs, seed, days) {
-    var plan = DAYPARTS[channelId];
+  function schedule(channelId, progs, seed, days, opts) {
+    // Real time EPG: a channel with no plan of its own gets the general week; the adverts channel keeps its own way
+    var plan = DAYPARTS[channelId] || (opts && opts.real && channelId !== 'adbreak' ? REAL : null);
     if (!plan || !progs || progs.length < 4 || !root.Engine) return null;
     var unitDays = plan.cycle === 'week' ? 7 : 1;
     var n = Math.max(1, Math.min(28, Math.round((days || 1) / unitDays)));
-    var list = [];
+    var list = [], cursors = {};
     for (var d = 0; d < n; d++) {
       var sd = d ? seed + '|d' + d : seed;
       var blocks = [];
-      if (plan.make) blocks = plan.make(progs, sd);          // a plan that needs more than "which programmes fit"
+      if (plan.make) blocks = plan.make(progs, sd, { id: channelId });          // a plan that needs more than "which programmes fit"
       else plan.blocks.forEach(function (b) {
         var items = progs.filter(b.want);
         if (items.length) blocks.push({ at: b.at, exact: b.exact, items: items });
       });
       if (blocks.length < 2) { if (d === 0) return null; break; }   // nothing to shape: an ordinary loop is more honest
       var filler = plan.filler ? plan.filler(progs) : [];
-      list.push(root.Engine.buildClockSchedule(blocks, filler.length ? filler : progs, sd, plan.cycle));
+      list.push(root.Engine.buildClockSchedule(blocks, filler.length ? filler : progs, sd, plan.cycle, cursors));
     }
     return n > 1 ? root.Engine.joinCycles(list) : list[0];
   }
 
-  var Dayparts = { has: function (id) { return !!DAYPARTS[id]; }, schedule: schedule, isNews: NEWS };
+  var Dayparts = { has: function (id, real) { return !!DAYPARTS[id] || (!!real && id !== 'adbreak'); }, schedule: schedule, isNews: NEWS };
   if (typeof module !== 'undefined' && module.exports) module.exports = Dayparts; else root.DAYPARTS = Dayparts;
 })(typeof window !== 'undefined' ? window : this);

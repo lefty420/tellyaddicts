@@ -502,7 +502,8 @@
    * last of those is cut short so the programme after it starts exactly on time. That is what the continuity
    * announcer is for. Without filler the previous programme is trimmed instead, so there is never dead air.
    */
-  function buildClockSchedule(blocks, filler, seed, cycle) {
+  function buildClockSchedule(blocks, filler, seed, cycle, cursors) {
+    cursors = cursors || {};          // shared read-through counters for blocks marked `ordered` (see below); the caller keeps them between cycles
     var span = cycle === 'week' ? WEEK_SEC : DAY_SEC;
     var seeded = hash(String(seed));
     var fill = shuffle((filler || []).filter(function (p) { return p && p.dur > 0; }), seeded ^ 0x5f5f);
@@ -511,7 +512,10 @@
       var at = typeof b.at === 'number' ? b.at : clockSec(b.at);
       var items = (b.items || []).filter(function (p) { return p && p.dur > 0; });
       if (at === null || at === undefined || !items.length) return;
-      marks.push({ at: ((at % span) + span) % span, exact: !!b.exact, items: spread(shuffle(items, seeded ^ at), seeded ^ at ^ 0x3c3c) });
+      // an `ordered` block keeps its list as given and plays through it in order, sharing one counter (b.cursor) with
+      // every other block that names the same cursor, so a series runs episode after episode across the week
+      marks.push({ at: ((at % span) + span) % span, exact: !!b.exact, round: b.round || 0, cursor: b.ordered ? (b.cursor || '_') : '',
+                   items: b.ordered ? items : spread(shuffle(items, seeded ^ at), seeded ^ at ^ 0x3c3c) });
     });
     if (!marks.length) return null;
     marks.sort(function (a, b) { return a.at - b.at; });
@@ -535,8 +539,24 @@
 
     // a programme that has already been on today is passed over for the next one, unless the block has nothing else
     var used = {};
-    function nextItem(block) {
+    function nextItem(block, room) {          // room: seconds left before a mark that must be hit exactly (0 = no limit)
       var len = block.items.length, cand = null;
+      if (block.cursor && room > 0) {          // an ordered block running up to an exact start: the next one in order that fits
+        var c0 = cursors[block.cursor] || 0;
+        for (var k = 0; k < Math.min(len, 14); k++) {
+          var q = block.items[(c0 + k) % len];
+          if (q.dur <= room && !used[q.url || q.id]) { used[q.url || q.id] = 1; if (k === 0) cursors[block.cursor] = c0 + 1; return q; }
+        }
+      }
+      if (block.cursor) {
+        for (var t0 = 0; t0 < len; t0++) {
+          var ci = cursors[block.cursor] || 0;
+          cursors[block.cursor] = ci + 1;
+          cand = block.items[ci % len];
+          if (!used[cand.url || cand.id]) { used[cand.url || cand.id] = 1; return cand; }
+        }
+        return cand;
+      }
       block.i = block.i || 0;
       for (var t = 0; t < len; t++) {
         cand = block.items[block.i++ % len];
@@ -555,10 +575,28 @@
         if (keep >= 60) { order[over] = clone(order[over], keep); at = block.at; }   // the news waits for nobody
       }
       for (var k = 0; at < ends && k <= block.items.length * 40; k++) {
-        var p = nextItem(block);
-        if (p.dur <= ends - at) { put(p, p.dur); continue; }
+        var p = nextItem(block, mustEnd ? ends - at : 0);
+        if (p.dur <= ends - at) {
+          put(p, p.dur);
+          if (block.round) {                                  // start the next one on a round time: a little continuity first
+            var rd = Math.ceil(at / block.round) * block.round;
+            if (rd > at && rd - at < block.round && rd - at >= 120 && rd <= ends) {           // a gap under two minutes is left as it is
+              for (var tf = 0; tf < Math.min(fill.length, 25); tf++) {                     // one clip long enough to fill it, cut to fit; none, no padding
+                var cf = fill[(fillAt + tf) % fill.length];
+                if (cf.dur >= rd - at) { fillAt += tf + 1; put(cf, rd - at); break; }
+              }
+            }
+          }
+          continue;
+        }
         // it will not finish in time: let it overrun into a block that is not fussy, otherwise fill to the mark
-        if (!mustEnd) { put(p, p.dur); break; }
+        if (!mustEnd) {
+          if (block.cursor && p.dur - (ends - at) > 600) {   // an ordered block lets a programme run over by ten minutes, no more:
+            cursors[block.cursor]--; used[p.url || p.id] = 0;  //  it goes back for the next block, and continuity runs up to the mark
+            padTo(ends); break;
+          }
+          put(p, p.dur); break;
+        }
         padTo(ends);
         break;
       }

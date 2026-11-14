@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.89",
-  "version": "0.45.89",
-  "code": 4589,
+  "name": "Alpha 0.45.90",
+  "version": "0.45.90",
+  "code": 4590,
   "date": "2026-11-14",
   "notes": [
-    "**Start-up pictures no longer repeat.** When the pictures flicking by on the tuning screen had all been shown once (more likely on a slow start, when new ones arrive slowly) it started over and could pick the one it had just shown, or one of the last few. It now skips the last six shown, and never picks the very last one again."
+    "**Real time EPG (Options > TV Guide).** When on, every channel is laid out like a real week of television: short programmes in the morning and at lunchtime, half hours through the early evening, hour-long programmes and longer in prime time, films and long programmes on weekend afternoons and evenings, and Saturday and Sunday different from the weekdays. Children's channels get a school-day pattern (early morning, after school, a longer programme at teatime). Programmes start on a round five minutes, and a series plays in order, episode after episode, from one day to the next. Channels that already have a plan of their own (News, Saturday Night, Soaps, Drama, Video Shop) keep it. Turning it on or off rebuilds the guides. It shapes the week by how long each programme runs; showing each programme at its real slot needs a slot list from the scraper."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.89",
+      "date": "2026-11-14",
+      "notes": [
+        "**Start-up pictures no longer repeat.** When the pictures flicking by on the tuning screen had all been shown once (more likely on a slow start, when new ones arrive slowly) it started over and could pick the one it had just shown, or one of the last few. It now skips the last six shown, and never picks the very last one again."
+      ]
+    },
     {
       "name": "Alpha 0.45.88",
       "date": "2026-11-13",
@@ -63,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**Options tidied up.** The screen behind Options no longer shows through. \"Help & tools\" is split into **Help** (What's new, About) and **Debug** (Live view, Debug log, EPG debug, Missing episodes). The one-item \"Watch\" category is gone: On Demand is now the first line under TV Guide, and Options opens there. The Live view address is shown large and green so it can be read from across the room. \"Match the channel\" has been taken out of the guide themes, so the theme only ever changes when you change it."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.81",
-      "date": "2026-11-13",
-      "notes": [
-        "**The guide only changes theme when you change it.** Until a theme is chosen in Options, the guide is now Classic Blue (before, it was \"Match the channel\", which dressed the guide as the 70's, 80's or 90's whenever one of those channels was involved). \"Match the channel\" is still there in Options for anyone who wants it. If it was picked on purpose it stays picked."
       ]
     }
   ]

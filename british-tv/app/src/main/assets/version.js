@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.92",
-  "version": "0.45.92",
-  "code": 4592,
+  "name": "Alpha 0.45.93",
+  "version": "0.45.93",
+  "code": 4593,
   "date": "2026-11-14",
   "notes": [
-    "**No more small gaps in the guide with Real time EPG on.** Programmes now simply follow one another in the ordered week; the short clips used to pad out start times are gone, so the guide has no tiny boxes between programmes. Start times drift a few minutes off the round marks instead.",
-    "**Three wrong matches hidden:** a Budgie the Little Helicopter episode listed as Surprise Surprise, a Richard Scarry episode listed as Treasure Hunt, and a 1935 film listed as Mr and Mrs."
+    "**Back twice now brings up the quit question.** From the picture, the first Back opens the guide and a second one straight after (within about a second) asks whether to quit. Before, the guide the first Back opened swallowed the second one, so it only worked when nothing was playing."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.92",
+      "date": "2026-11-14",
+      "notes": [
+        "**No more small gaps in the guide with Real time EPG on.** Programmes now simply follow one another in the ordered week; the short clips used to pad out start times are gone, so the guide has no tiny boxes between programmes. Start times drift a few minutes off the round marks instead.",
+        "**Three wrong matches hidden:** a Budgie the Little Helicopter episode listed as Surprise Surprise, a Richard Scarry episode listed as Treasure Hunt, and a 1935 film listed as Mr and Mrs."
+      ]
+    },
     {
       "name": "Alpha 0.45.91",
       "date": "2026-11-14",
@@ -62,15 +69,6 @@ window.RELEASE = {
       "date": "2026-11-13",
       "notes": [
         "**No more empty Dragon Ball Z.** It had no videos but was still listed under Children's, so it showed as an empty show. Removed."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.84",
-      "date": "2026-11-13",
-      "notes": [
-        "**Hide a show you don't want.** Both hold-OK menus now have \"Hide this show\" (or film). It goes from On Demand straight away and from the guide after Refresh listings. Options > TV Guide > Hidden shows brings them all back (OK twice).",
-        "**Report a problem** in the guide menu writes the programme, show and file to the debug log, so a wrong video can be traced.",
-        "**Menu tidy.** \"Scrape this show\" is now \"Fix artwork & details\", the Options shortcut is gone from the guide menu, and the On Demand menu gains Info."
       ]
     }
   ]

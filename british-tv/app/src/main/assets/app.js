@@ -3947,8 +3947,9 @@
       var nowT = Date.now();
       // only a Back pressed on the plain picture (or the guide with nothing playing) counts towards quitting:
       // one that closes the guide, the bar, the options or a panel never does
-      if (relOpen || infoOpen || optsOpen || osdOpen || gm || (guideOpen && cur)) lastBack = 0;
-      else if (!e.repeat && nowT - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); e.preventDefault(); return; }
+      if (relOpen || infoOpen || optsOpen || osdOpen || gm) lastBack = 0;
+      else if (!e.repeat && nowT - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); e.preventDefault(); return; }   // includes the guide a first Back has just opened
+      else if (guideOpen && cur) lastBack = 0;               // a Back that closes the guide on its own never counts
       else if (!e.repeat) lastBack = nowT;
     }
 

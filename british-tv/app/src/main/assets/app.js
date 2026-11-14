@@ -2459,7 +2459,10 @@
       cur.adYear = y;                                // carried onto the first advert
       return playAd(cur.ch, cur.index, cur.prog.adPad);
     }
-    if (cur && cur.prog && cur.prog.addon) adFall = null;     // it played to the end: nothing to fall back to
+    if (cur && cur.prog && cur.prog.addon) {                  // it played to the end: nothing to fall back to
+      var fe = adFall; adFall = null;
+      if (adAuto && fe && !fe.g.film && fe.ep) { adSources(fe.g, { s: fe.ep.s || 1, e: (fe.ep.e || 1) + 1 }); return; }     // auto-play: the next episode, same release group first
+    }
     nextInChannel();
   }
 
@@ -2598,7 +2601,9 @@
   function nextInChannel() {
     if (!cur) return;
     if (cur.prog && cur.prog.addon && adFall) {                // an addon source failed: the next best one, then give up
+      try { delete adLast[adKeyOf(adFall.g, adFall.ep)]; store.set('adlast1', adLast); } catch (e) { /* ignore */ }
       var nx = adFall.q.shift();
+      if (!nx && adFall.retry) { var f0 = adFall; adFall = null; toast('That source has stopped working, looking again', 3000); adSources(f0.g, f0.ep, true); return; }
       if (nx) { toast('That source failed, trying the next', 3000); adPlay(adFall.ch, adFall.g, adFall.ep, nx); return; }
       adFall = null; v.pause(); toast('No other source worked', 4000); odOpenUi(); return;
     }
@@ -3509,6 +3514,8 @@
 
   var expOn = store.get('exp1') === 'on';
   var adAuto = store.get('adauto1') === 'on';               // play the best source straight away
+  var adLast = store.get('adlast1') || {}, adBg = store.get('adbg1') || {};   // the source that last worked per episode (1 hour), and the release group chosen per show
+  function adKeyOf(g, ep) { return normShow(g.name) + '|' + (g.film ? 'f' : (ep.s || 1) + ':' + (ep.e || 1)); }
   var adFall = null;                                          // the sources still to try if the one playing fails
   var adCut = store.get('adcut1') !== 'off';                 // only titles from before 2000
   var addons = store.get('addons1') || [];
@@ -3671,9 +3678,15 @@
     if (s.externalUrl) return 'Opens a website: not supported here';
     return 'Not something this TV can play';
   }
-  function adSources(g, ep) {
+  function adSources(g, ep, noCache) {
     var name = g.name, film = !!g.film, ch = odSel().c;
     var live = adLive();
+    var hit = adAuto && !noCache && adLast[adKeyOf(g, ep)];
+    if (hit && Date.now() - hit.t < 3600000) {                   // the same source worked within the hour: straight back to it
+      adFall = { ch: ch, g: g, ep: ep, q: [], retry: 1 };
+      toast('Playing the source that worked last time', 3000);
+      adPlay(ch, g, ep, { s: hit.s, addon: hit.addon, label: hit.label }); return;
+    }
     if (!live.length) { toast('No addon is on (Options > Experimental > Addons)', 4000); return; }
     adOpen({ title: name, sub: film ? 'Finding sources…' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  finding sources…', rows: [], empty: 'Looking up the title…', back: adClose });
     adResolve(odArtName ? odArtName(g) : name, film).then(function (r) {
@@ -3684,12 +3697,14 @@
       var all = [], asked = 0, answered = 0;
       var targets = live.filter(function (a) { var s = adRes(a, 'stream'); return s && s.types.indexOf(type) >= 0 && (!s.pre || s.pre.some(function (p) { return id.indexOf(p) === 0; })); });
       if (!targets.length) { ad.rows = []; ad.empty = 'None of your addons give streams for ' + (film ? 'films' : 'shows'); adRender(); return; }
+      var bgOf = function (x) { var h = x.s.behaviorHints, w = adBg[normShow(g.name)]; return !!(w && h && h.bingeGroup === w); };
       var show = function (final) {
         if (!ad) return;
         var pref = function (q) { return q === 1080 ? 3 : q === 720 ? 2 : 1; };
         var list = all.map(function (x, k) { x.k = k; return x; }).sort(function (a, b) {
           if (!!a.why !== !!b.why) return a.why ? 1 : -1;
-          return pref(b.q) - pref(a.q) || a.k - b.k;
+          var ba = bgOf(a) ? 1 : 0, bb = bgOf(b) ? 1 : 0;
+          return bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
         });
         ad.rows = list.map(function (x) {
           return { t: x.q ? x.q + 'p' : '—', n: x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
@@ -3698,8 +3713,9 @@
         ad.sub = (film ? '' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  ') + (final ? list.length + ' found' : 'asking ' + (targets.length - answered) + ' addon' + (targets.length - answered === 1 ? '' : 's') + '…');
         ad.empty = final ? 'Nothing found. Try another addon.' : 'Asking your addons…';
         adRender();
-        if (final && adAuto && !ad.auto) {
-          var q = list.filter(function (x) { return !x.why; });
+        var q0 = adAuto && !ad.auto ? list.filter(function (x) { return !x.why; }) : [];
+        if (q0.length && (final || bgOf(q0[0]) || q0[0].q === 1080)) {    // a good one has arrived: no need to wait for the slow addons
+          var q = q0;
           ad.auto = 1;
           if (q.length) { adFall = { ch: ch, g: g, ep: ep, q: q.slice(1) }; adPlay(ch, g, ep, q[0]); toast('Playing the best source: ' + q[0].addon, 3500); }
         }
@@ -3719,6 +3735,11 @@
   function adPlay(ch, g, ep, x) {
     var s = x.s, url = s.ytId ? 'yt:' + s.ytId : s.url;
     var prog = { id: 'addon/' + x.addon + '/' + (g.name || ''), item: 'addon', url: url, title: g.name + (g.film ? '' : ' S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1)), sub: x.addon, dur: 0, lenKnown: 0, show: g.name, group: g.name, addon: 1 };
+    var bgp = s.behaviorHints && s.behaviorHints.bingeGroup;
+    if (bgp) { adBg[normShow(g.name)] = bgp; store.set('adbg1', adBg); }
+    adLast[adKeyOf(g, ep)] = { t: Date.now(), s: s, addon: x.addon, label: x.label };
+    var lk = Object.keys(adLast); if (lk.length > 60) { lk.sort(function (a, b) { return adLast[a].t - adLast[b].t; }); delete adLast[lk[0]]; }
+    store.set('adlast1', adLast);
     adClose(); if (odm) odmClose();
     dlog('ADDON PLAY ' + x.addon + ' | ' + x.label + ' | ' + url);
     odStart(ch, [{ p: prog, s: 0, e: 0 }], 0, 0, '');

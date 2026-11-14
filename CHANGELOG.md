@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.33 — 2026-11-14
+
+- **No blue bar over the loading screen**: the channel/programme bar that flashes up when something starts no longer sits on top of the "please stand by" loading screen; the loading screen covers it.
+
 ## Alpha 0.46.32 — 2026-11-14
 
 - **Realistic TV schedule is on by default**: new installs, and anyone who had never touched the setting, now get the real-week layout. If you had switched it off yourself it stays off. The guides rebuild once after the update.

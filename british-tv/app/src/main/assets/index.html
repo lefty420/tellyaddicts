@@ -319,7 +319,7 @@
   #spin.hidden { display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
   /* "Please stand by" card while a channel's picture is still loading */
-  #standby { position: fixed; inset: 0; z-index: 11; color: #fff; overflow: hidden; display: flex; flex-direction: column; align-items: center;
+  #standby { position: fixed; inset: 0; z-index: 21; color: #fff; overflow: hidden; display: flex; flex-direction: column; align-items: center;
     background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 46%, var(--g3) 100%); }
   #standby.hidden, body.guide-open #standby { display: none; }
   #standby::after { content: ""; position: absolute; inset: 0; pointer-events: none;

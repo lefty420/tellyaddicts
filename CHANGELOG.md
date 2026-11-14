@@ -7,6 +7,14 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.18 — 2026-11-14
+
+- **Telly Addicts Mobile, better touch** (the TV app is unchanged):
+  - Dragging up and down now scrolls the guide, a row at a time as you drag. Dragging sideways moves along the time line. The same drag scrolls lists and menus.
+  - Press and hold on a programme selects it and opens its menu (Watch now, Watch from the start, On Demand, Options and so on).
+  - The menus, On Demand menus and Options are much bigger for a phone. You can tap a menu row, an Options category, row or choice to use it, and tap outside a menu to close it.
+  - Long menus scroll to keep the highlighted row in view.
+
 ## Alpha 0.46.17 — 2026-11-14
 
 - **Telly Addicts Mobile gets touch controls** (the TV app is unchanged):

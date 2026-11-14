@@ -2828,6 +2828,7 @@
   /** Phone: a tap on a channel or programme in the guide selects it; a tap on what is already selected watches it. */
   function tapGuide(el, ch, b) {
     el.setAttribute('data-tap', '1');
+    el.addEventListener('phoneselect', function () { gOdSet(false); gChan = ch; if (b) { var n0 = Date.now(); gFocus = b.startMs <= n0 && n0 < b.endMs ? n0 : Math.min(b.startMs + 1000, b.endMs - 1); } renderGuide(true); });
     el.addEventListener('click', function () {
       var now = Date.now(), same = gChan === ch && (!b || (b.startMs <= gFocus && gFocus < b.endMs));
       if (same && (b || gChan === ch)) { gOdSet(false); watchFromGuide(); return; }

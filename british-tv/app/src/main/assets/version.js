@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.17",
-  "version": "0.46.17",
-  "code": 4617,
+  "name": "Alpha 0.46.18",
+  "version": "0.46.18",
+  "code": 4618,
   "date": "2026-11-14",
   "notes": [
-    "**Telly Addicts Mobile gets touch controls** (the TV app is unchanged):"
+    "**Telly Addicts Mobile, better touch** (the TV app is unchanged):"
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.17",
+      "date": "2026-11-14",
+      "notes": [
+        "**Telly Addicts Mobile gets touch controls** (the TV app is unchanged):"
+      ]
+    },
     {
       "name": "Alpha 0.46.16",
       "date": "2026-11-14",
@@ -59,14 +66,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Options no longer hangs when opened from On Demand.** Opening Options from the On Demand hold-OK menu showed the Options screen, but the remote was still moving On Demand underneath it, so Options looked frozen until it closed itself. The remote now works Options, and Back returns to On Demand."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.9",
-      "date": "2026-11-14",
-      "notes": [
-        "**Search in On Demand.** Press Yellow on the On Demand screen (or hold OK and choose Search), type part of a name on the on-screen keyboard and press Search. Every channel is searched, and the shows and films that match appear as a \"Search\" row at the top. Search again with the box empty (Clear, then Search) to remove the row.",
-        "The on-screen keyboard has a Space key."
       ]
     }
   ]

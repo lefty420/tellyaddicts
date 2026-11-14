@@ -10,8 +10,8 @@ android {
         applicationId = "app.britishtv"
         minSdk = 22
         targetSdk = 34
-        versionCode = 4615
-        versionName = "0.46.15"
+        versionCode = 4616
+        versionName = "0.46.16"
     }
 
     // Two builds from the one codebase: "tv" (the TV app, exactly as before) and "mobile" (for phones). They have different
@@ -57,4 +57,19 @@ dependencies {
     // in the README. Keep the two on matching Media3 versions.
     implementation("androidx.media3:media3-exoplayer:1.5.0")
     implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.5.0+1")
+}
+
+// The Telly Addict Builder (in the scraper repo) builds with `assembleDebug` and picks the TV APK up from
+// build/outputs/apk/debug/app-debug.apk. Splitting into tv and mobile moved the files, so the TV one is copied back there.
+afterEvaluate {
+    tasks.named("assembleDebug") {
+        doLast {
+            val built = layout.buildDirectory.file("outputs/apk/tv/debug/app-tv-debug.apk").get().asFile
+            val legacy = layout.buildDirectory.file("outputs/apk/debug/app-debug.apk").get().asFile
+            if (built.exists()) {
+                legacy.parentFile.mkdirs()
+                built.copyTo(legacy, overwrite = true)
+            }
+        }
+    }
 }

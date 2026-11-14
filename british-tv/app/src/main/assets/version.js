@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.15",
-  "version": "0.46.15",
-  "code": 4615,
+  "name": "Alpha 0.46.16",
+  "version": "0.46.16",
+  "code": 4616,
   "date": "2026-11-14",
   "notes": [
-    "**Two apps from one build**: each build now gives you `tellyaddicts-tv.apk` (the TV app, unchanged) and `tellyaddicts-mobile.apk` (called \"Telly Addicts Mobile\", for phones). They install side by side, keep separate data and have separate settings, so nothing done on the phone version can affect the TV. For now the mobile one is the same app; the touch controls and phone layout come next."
+    "**The Telly Addict Builder keeps working**: splitting the build into TV and Mobile moved the TV app's APK, which the Builder looks for. The TV build now also leaves its APK where the Builder expects it. The Builder installs the TV app only; the Mobile APK comes from the GitHub build for now."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.15",
+      "date": "2026-11-14",
+      "notes": [
+        "**Two apps from one build**: each build now gives you `tellyaddicts-tv.apk` (the TV app, unchanged) and `tellyaddicts-mobile.apk` (called \"Telly Addicts Mobile\", for phones). They install side by side, keep separate data and have separate settings, so nothing done on the phone version can affect the TV. For now the mobile one is the same app; the touch controls and phone layout come next."
+      ]
+    },
     {
       "name": "Alpha 0.46.14",
       "date": "2026-11-14",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Three wrong YouTube videos are out of Blind Date.** They were modern short dramas (\"A Billionaire CEO hides her identity for a blind date…\") that matched on the show's name. Videos like that are now left out."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.7",
-      "date": "2026-11-14",
-      "notes": [
-        "**YouTube episodes no longer play behind a frozen picture.** Starting a YouTube episode (or anything else in the app's own player) straight after a normal programme left that programme's last frame stuck on screen, with the new one playing behind it. The old picture is now let go and hidden whenever the app's own player is showing."
       ]
     }
   ]

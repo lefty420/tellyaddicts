@@ -37,7 +37,7 @@ jobs:
         working-directory: british-tv
         run: |
           chmod +x gradlew
-          ./gradlew assembleTvDebug assembleMobileDebug
+          ./gradlew assembleDebug
 
       - name: Gather the release
         run: |

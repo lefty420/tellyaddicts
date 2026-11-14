@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.94",
-  "version": "0.45.94",
-  "code": 4594,
+  "name": "Alpha 0.45.95",
+  "version": "0.45.95",
+  "code": 4595,
   "date": "2026-11-14",
   "notes": [
-    "**Options is back in the guide's hold-OK menu**, above Hide this show. The menu now has ten choices, so it shows eight at a time and scrolls with the highlight (arrows in the corner show there are more above or below)."
+    "**The loading screen shows a poster only when a show has no backdrop.** Before a programme starts, the picture behind the channel name is the show's backdrop on its own. The poster used to sit on top of it as well."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.94",
+      "date": "2026-11-14",
+      "notes": [
+        "**Options is back in the guide's hold-OK menu**, above Hide this show. The menu now has ten choices, so it shows eight at a time and scrolls with the highlight (arrows in the corner show there are more above or below)."
+      ]
+    },
     {
       "name": "Alpha 0.45.93",
       "date": "2026-11-14",
@@ -59,16 +66,6 @@ window.RELEASE = {
       "notes": [
         "**YouTube is off by default for now.** On a first try, YouTube refused every lookup with a \"sign in to confirm you're not a bot\" check, so none of its videos played. They stay out of On Demand until that is sorted; Options > Play > YouTube videos turns them back on.",
         "**One failed YouTube video no longer skips down the list.** A refusal that hits every video is reported once, and only a video YouTube calls gone or private is left out."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.86",
-      "date": "2026-11-13",
-      "notes": [
-        "**YouTube as a second source (trial).** Episodes the scraper found on YouTube (Telly Addicts, Big Break, Gladiators, Blind Date and more) now show in On Demand, from `data/yt.json`. They play through the app's own player with no adverts and no sign-in; the stream is looked up when you press play. Episodes with no season or number sit under \"More from YouTube\". Needs the TV app, not a browser.",
-        "**Best copy first.** Where an episode exists more than once, the app now ranks the copies: archive.org first, then YouTube; a copy of the right running time beats one that is far off, and a copy that keeps adverts or is an .mkv ranks lower. The rest stay behind it: if the first will not play, the next is tried by itself, and \"Try another version\" now offers the YouTube copies too.",
-        "**Options > Play > YouTube videos** turns the source off. A video that fails to play is left out for a day.",
-        "If a YouTube video will not play, the debug log says why (YouTube changes this from time to time)."
       ]
     }
   ]

@@ -2310,7 +2310,7 @@
         clearInterval(sbNoiseTimer);
         if (style === 'tv') { sbNoise(); sbNoiseTimer = setInterval(sbNoise, 110); }
         $('sbart').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
-        if (art && art.poster) { $('sbposter').src = art.poster; $('sbposter').className = ''; }
+        if (art && art.poster && !art.back) { $('sbposter').src = art.poster; $('sbposter').className = ''; }   // a poster only when there is no backdrop
         else $('sbposter').className = 'hidden';
       }
       paint(art);

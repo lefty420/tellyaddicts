@@ -4498,7 +4498,7 @@
       .then(function (d) { return d && typeof d === 'object' ? d : {}; }, function () { return (c && c.d) || {}; });
     return ytP;
   }
-  var YT_JUNK = /\b(best of|compilation|highlights?|reaction|reacts?|review|live ?stream|live:|music video|official video|trailer|behind the scenes|interview|bloopers?)\b/i;
+  var YT_JUNK = /\b(best of|compilation|highlights?|reaction|reacts?|review|live ?stream|live:|music video|official video|trailer|behind the scenes|interview|bloopers?|billionaire|ceo)\b/i;      // the last two: short-drama channels that turn up under show names like Blind Date
   /** After the cut-off year, or a title and air date that disagree, so the scraper's match to the guide was wrong. */
   function ytLate(x) {
     var ys = String(x.title || '').match(/\b(?:19|20)\d\d\b/g) || [];

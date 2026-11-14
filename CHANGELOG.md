@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.8 — 2026-11-14
+
+- **Three wrong YouTube videos are out of Blind Date.** They were modern short dramas ("A Billionaire CEO hides her identity for a blind date…") that matched on the show's name. Videos like that are now left out.
+
 ## Alpha 0.46.7 — 2026-11-14
 
 - **YouTube episodes no longer play behind a frozen picture.** Starting a YouTube episode (or anything else in the app's own player) straight after a normal programme left that programme's last frame stuck on screen, with the new one playing behind it. The old picture is now let go and hidden whenever the app's own player is showing.

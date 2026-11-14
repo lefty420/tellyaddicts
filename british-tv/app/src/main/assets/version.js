@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.7",
-  "version": "0.46.7",
-  "code": 4607,
+  "name": "Alpha 0.46.8",
+  "version": "0.46.8",
+  "code": 4608,
   "date": "2026-11-14",
   "notes": [
-    "**YouTube episodes no longer play behind a frozen picture.** Starting a YouTube episode (or anything else in the app's own player) straight after a normal programme left that programme's last frame stuck on screen, with the new one playing behind it. The old picture is now let go and hidden whenever the app's own player is showing."
+    "**Three wrong YouTube videos are out of Blind Date.** They were modern short dramas (\"A Billionaire CEO hides her identity for a blind date…\") that matched on the show's name. Videos like that are now left out."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.7",
+      "date": "2026-11-14",
+      "notes": [
+        "**YouTube episodes no longer play behind a frozen picture.** Starting a YouTube episode (or anything else in the app's own player) straight after a normal programme left that programme's last frame stuck on screen, with the new one playing behind it. The old picture is now let go and hidden whenever the app's own player is showing."
+      ]
+    },
     {
       "name": "Alpha 0.46.6",
       "date": "2026-11-14",
@@ -59,15 +66,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**You can now see whether TheTVDB is working.** The TheTVDB key row in Options > Artwork shows a running count, such as \"On · 12 found, 3 no match\", and each lookup is written to Options > Debug log. Pressing Save (even with the same key) now checks the key and then looks up a test show, and says \"TheTVDB is working\" when it all comes back."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.99",
-      "date": "2026-11-14",
-      "notes": [
-        "**TheTVDB for artwork and details.** There is a new **TheTVDB key** row in Options > Artwork. OK opens an on-screen keyboard (arrows to move, OK to type, Shift for capitals; the number keys on the remote type digits). Save checks the key with TheTVDB and says whether it was accepted.",
-        "With a key, posters, backdrops, summaries, episode details and the cast on the Info screen come from TheTVDB first, and TVmaze fills in whatever TheTVDB has no match for. The scraper's own artwork list still comes before both. With no key, or a key TheTVDB will not accept, nothing changes. Clear the key to go back to TVmaze alone.",
-        "Needs the new app build (it adds a network call for TheTVDB), so install this version rather than just reloading the page."
       ]
     }
   ]

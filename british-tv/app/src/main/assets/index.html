@@ -146,7 +146,9 @@
   #spscale em { display: block; font-style: normal; font-size: 2.2vh; letter-spacing: .3em; margin-bottom: .8vh; }
   #sptrack { position: relative; height: 3.4vh; border-bottom: .3vh solid #5dff86;
     background: repeating-linear-gradient(90deg, #5dff86 0 .25vh, transparent .25vh 2%) bottom / 100% 55% no-repeat, repeating-linear-gradient(90deg, #5dff86 0 .35vh, transparent .35vh 10%) bottom / 100% 100% no-repeat; }
-  #spneedle { position: absolute; top: -.6vh; bottom: -.3vh; width: .7vh; margin-left: -.35vh; background: #fff; box-shadow: 0 0 1.4vh #fff, 0 0 .5vh #5dff86; animation: spsweep 2.6s ease-in-out infinite alternate; }
+  /* the needle and the knobs are driven by the real tuning: one step for each channel that has finished loading (app.js renderStatus) */
+  #spneedle { position: absolute; top: -.6vh; bottom: -.3vh; left: 0; width: 100%; transform: translateX(2%); transition: transform .7s cubic-bezier(.3,1.4,.5,1); will-change: transform; }
+  #spneedle::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: .7vh; margin-left: -.35vh; background: #fff; box-shadow: 0 0 1.4vh #fff, 0 0 .5vh #5dff86; }
   @keyframes spsweep { from { left: 2%; } to { left: 98%; } }
   #spscreen.lock #spscale, #spscreen.lock #sposd { text-shadow: .2vh .2vh 0 #000; color: #fff; }
   #sppanel { width: 6.2vw; display: flex; flex-direction: column; align-items: center; gap: 2.2vh; padding-top: 1.2vh; }
@@ -180,10 +182,10 @@
   .spslot.has { display: block; }
   .spslot::after { content: attr(data-ch); position: absolute; left: 9%; top: 11%; font: 7.2vh/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .08em; color: #5dff86; text-shadow: 0 0 1vh rgba(93,255,134,.8), .25vh .25vh 0 #052; }
   @keyframes spslot { 0% { opacity: 1; transform: translateX(1.6%) skewX(-3deg); } 1.667% { opacity: 1; transform: none; } 6.127% { opacity: 1; } 6.527% { opacity: 0; } 100% { opacity: 0; } }
-  #spbars { animation: spflash 20.4s linear infinite; transition: none; }
+  #spbars { transition: opacity .1s; }                  /* the colour bars flash when a channel locks on (app.js), no longer on a timer */
   @keyframes spflash { 0%, 47.9% { opacity: 0; } 48%, 49.6% { opacity: 1; } 49.7%, 97.9% { opacity: 0; } 98%, 99.6% { opacity: 1; } 99.7%, 100% { opacity: 0; } }
   #sposd { display: none; }
-  #spk1 { animation: spturn1 20.4s linear infinite; } #spk2 { animation: spturn2 20.4s linear infinite; }
+  #spk1, #spk2 { transition: transform .6s cubic-bezier(.3,1.5,.5,1); will-change: transform; }
   @keyframes spturn1 {
     0%% { transform: rotate(0deg); }
     8.824% { transform: rotate(100deg); }

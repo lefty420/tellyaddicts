@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.34 — 2026-11-14
+
+- **Start-up TV follows the real tuning**: the needle on the little TV's scale now moves along as channels really finish loading, the knobs click round one step for each, the pictures are labelled with the numbers of channels that have actually loaded, and the colour bars flash as each one locks on (and stay when every channel is in). Before, it all just looped on a timer.
+
 ## Alpha 0.46.33 — 2026-11-14
 
 - **No blue bar over the loading screen**: the channel/programme bar that flashes up when something starts no longer sits on top of the "please stand by" loading screen; the loading screen covers it.

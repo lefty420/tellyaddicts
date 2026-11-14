@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.33",
-  "version": "0.46.33",
-  "code": 4633,
+  "name": "Alpha 0.46.34",
+  "version": "0.46.34",
+  "code": 4634,
   "date": "2026-11-14",
   "notes": [
-    "**No blue bar over the loading screen**: the channel/programme bar that flashes up when something starts no longer sits on top of the \"please stand by\" loading screen; the loading screen covers it."
+    "**Start-up TV follows the real tuning**: the needle on the little TV's scale now moves along as channels really finish loading, the knobs click round one step for each, the pictures are labelled with the numbers of channels that have actually loaded, and the colour bars flash as each one locks on (and stay when every channel is in). Before, it all just looped on a timer."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.33",
+      "date": "2026-11-14",
+      "notes": [
+        "**No blue bar over the loading screen**: the channel/programme bar that flashes up when something starts no longer sits on top of the \"please stand by\" loading screen; the loading screen covers it."
+      ]
+    },
     {
       "name": "Alpha 0.46.32",
       "date": "2026-11-14",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**YouTube picture in the guide's little TV**: videos played by the app's own player (all the YouTube ones, and some files) disappeared from the preview window when the guide opened, because that player draws behind the page. The picture now moves into the little TV and goes back to full screen when the guide closes. Needs the new app, not just a refresh."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.25",
-      "date": "2026-11-14",
-      "notes": [
-        "**Channel schedule**: a full list of everything on a channel with its start time and length, like a real EPG. Open it from the guide's hold-OK menu (Channel schedule), from the new Schedule button on the OSD, or from Options > TV Guide. Left/Right change the day (yesterday to a week ahead), Channel +/- change channel, OK watches what is on or plays an earlier programme from its start. It uses the colours of whichever guide theme you have, and on the phone the rows are tappable."
       ]
     }
   ]

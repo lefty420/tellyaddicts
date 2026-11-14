@@ -1071,7 +1071,7 @@
     }
     spFill();
   }
-  var spRecent = [];
+  var spRecent = [], spChi = 0, spDone = -1;
   function spSet(el) {
     var pool = spPics.length ? spPics : spPosters;                   // backdrops only; posters just until a backdrop has loaded
     if (!pool.length) return;
@@ -1085,6 +1085,8 @@
       if (!fresh.length) fresh = pool.slice();
     }
     var u = fresh[(Math.random() * fresh.length) | 0], pn = 1 + ((Math.random() * 40) | 0);
+    var tuned = channels.filter(function (c) { return c.status === 'ready'; });       // the picture is "tuned" to a channel that has really loaded
+    if (tuned.length) pn = tuned[spChi++ % tuned.length].n;
     spSeen[u] = 1; spRecent.push(u); if (spRecent.length > 6) spRecent.shift();
     el.style.backgroundImage = 'url("' + u + '")'; el.className = 'spslot has';
     el.setAttribute('data-ch', 'P' + (pn < 10 ? '0' : '') + pn);
@@ -1115,6 +1117,19 @@
     }
     spLoadPics();
     spInit();
+    // the little TV follows the real tuning: the needle moves along its scale and the knobs click round one step for every channel that has finished
+    var settled = channels.filter(function (c) { return c.status === 'ready' || c.status === 'empty'; }).length;
+    if (settled !== spDone && channels.length) {
+      var first = spDone < 0;
+      spDone = settled;
+      var frac = settled / channels.length;
+      $('spneedle').style.transform = 'translateX(' + (2 + 96 * frac).toFixed(1) + '%)';
+      $('spk1').style.transform = 'rotate(' + (settled * 47) + 'deg)';
+      $('spk2').style.transform = 'rotate(' + (-settled * 31) + 'deg)';
+      var scr = $('spscreen');
+      if (!first && settled < channels.length) { scr.classList.add('lock'); setTimeout(function () { scr.classList.remove('lock'); }, 140); }   // a flash of colour bars as it locks on
+      if (settled >= channels.length) scr.classList.add('lock');                                                                          // all tuned in
+    }
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;
     for (var i = 0; i < bars.length; i++) {

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.93",
-  "version": "0.45.93",
-  "code": 4593,
+  "name": "Alpha 0.45.94",
+  "version": "0.45.94",
+  "code": 4594,
   "date": "2026-11-14",
   "notes": [
-    "**Back twice now brings up the quit question.** From the picture, the first Back opens the guide and a second one straight after (within about a second) asks whether to quit. Before, the guide the first Back opened swallowed the second one, so it only worked when nothing was playing."
+    "**Options is back in the guide's hold-OK menu**, above Hide this show. The menu now has ten choices, so it shows eight at a time and scrolls with the highlight (arrows in the corner show there are more above or below)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.93",
+      "date": "2026-11-14",
+      "notes": [
+        "**Back twice now brings up the quit question.** From the picture, the first Back opens the guide and a second one straight after (within about a second) asks whether to quit. Before, the guide the first Back opened swallowed the second one, so it only worked when nothing was playing."
+      ]
+    },
     {
       "name": "Alpha 0.45.92",
       "date": "2026-11-14",
@@ -62,13 +69,6 @@ window.RELEASE = {
         "**Best copy first.** Where an episode exists more than once, the app now ranks the copies: archive.org first, then YouTube; a copy of the right running time beats one that is far off, and a copy that keeps adverts or is an .mkv ranks lower. The rest stay behind it: if the first will not play, the next is tried by itself, and \"Try another version\" now offers the YouTube copies too.",
         "**Options > Play > YouTube videos** turns the source off. A video that fails to play is left out for a day.",
         "If a YouTube video will not play, the debug log says why (YouTube changes this from time to time)."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.85",
-      "date": "2026-11-13",
-      "notes": [
-        "**No more empty Dragon Ball Z.** It had no videos but was still listed under Children's, so it showed as an empty show. Removed."
       ]
     }
   ]

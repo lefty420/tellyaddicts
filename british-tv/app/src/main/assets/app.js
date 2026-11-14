@@ -2750,6 +2750,7 @@
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
     items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
+    items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); closeGuide(); openOpts(); } });
     items.push({ t: film ? 'Hide this film' : 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { gmClose(); hideShow(film ? p.title : name, film); } });
     items.push({ t: 'Report a problem', sub: 'Note it in the debug log', f: function () {
       gmClose();
@@ -2854,8 +2855,12 @@
   function gmRender() {
     var box = $('gml'); box.textContent = '';
     $('gmt').textContent = gm.title;
-    $('gms').textContent = gm.sub;
+    var N = 8, n = gm.items.length;                       // more choices than fit: show eight at a time, following the highlight
+    gm.top = Math.max(0, Math.min(gm.top || 0, n - N));
+    if (gm.i < gm.top) gm.top = gm.i; else if (gm.i >= gm.top + N) gm.top = gm.i - N + 1;
+    $('gms').textContent = gm.sub + (gm.top > 0 ? '   \u25b2' : '') + (gm.top + N < n ? '   \u25bc' : '');
     gm.items.forEach(function (it, i) {
+      if (i < gm.top || i >= gm.top + N) return;
       var r = document.createElement('div'); r.className = 'gmr' + (i === gm.i ? ' sel' : '');
       var b = document.createElement('b'); b.textContent = it.t; r.appendChild(b);
       if (it.sub) { var sm = document.createElement('small'); sm.textContent = it.sub; r.appendChild(sm); }

@@ -596,12 +596,15 @@
   function hidSave() { store.set('hid1', hid); hidCount = Object.keys(hid).length; }
   function dropHidden(list) { return hidCount ? list.filter(function (p) { var k = hidKey(p); return !(k && hid[k]); }) : list; }
   var BAD_SALT = E.hash(Object.keys(BAD_ITEMS).join(','));       // stored lineups and plans are rebuilt whenever this block list changes
+  // The American Price Is Right (Barker/Carey, Buzzr, TPIR ids); only Bruce's Price Is Right is the UK one.
+  var US_TPIR = /price\s*is\s*right|\btpir|barker\s*era/i;
   function blocked(p) {
     if (!p) return false;
     if (p.id && BAD_ITEMS[String(p.id).split('/')[0]]) return true;
     if (hidCount) { var hk = hidKey(p); if (hk && hid[hk]) return true; }
     var t = (p.show || p.group || '') + ' ' + (p.title || '') + ' ' + (p.sub || '') + ' ' +
             String(p.id || '').replace(/[-_]/g, ' ');
+    if (US_TPIR.test(t) && !/bruce/i.test(t)) return true;
     return BLOCKED.test(t) || (!!p.filmKey && BLOCKED_FILM.test(t));
   }
 

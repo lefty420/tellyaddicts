@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.23",
-  "version": "0.46.23",
-  "code": 4623,
+  "name": "Alpha 0.46.24",
+  "version": "0.46.24",
+  "code": 4624,
   "date": "2026-11-14",
   "notes": [
-    "**Fake Thomas episode blocked**: a fan-made \"A Very Evil Christmas\" upload was playing as a real Thomas and Friends episode on Children's Christmas. That upload is now blocked everywhere."
+    "**American Price Is Right blocked**: the US game show (hundreds of Barker-era episodes) was filling the TV. All of it is now hidden everywhere; Bruce's Price Is Right (the UK one) stays."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.23",
+      "date": "2026-11-14",
+      "notes": [
+        "**Fake Thomas episode blocked**: a fan-made \"A Very Evil Christmas\" upload was playing as a real Thomas and Friends episode on Children's Christmas. That upload is now blocked everywhere."
+      ]
+    },
     {
       "name": "Alpha 0.46.22",
       "date": "2026-11-14",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**The Telly Addict Builder keeps working**: splitting the build into TV and Mobile moved the TV app's APK, which the Builder looks for. The TV build now also leaves its APK where the Builder expects it. The Builder installs the TV app only; the Mobile APK comes from the GitHub build for now."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.15",
-      "date": "2026-11-14",
-      "notes": [
-        "**Two apps from one build**: each build now gives you `tellyaddicts-tv.apk` (the TV app, unchanged) and `tellyaddicts-mobile.apk` (called \"Telly Addicts Mobile\", for phones). They install side by side, keep separate data and have separate settings, so nothing done on the phone version can affect the TV. For now the mobile one is the same app; the touch controls and phone layout come next."
       ]
     }
   ]

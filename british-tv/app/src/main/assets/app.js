@@ -4759,7 +4759,7 @@
 
   // ---- YouTube as a second source (data/yt.json from the scraper). The files are not on archive.org: the app's own
   // player looks the stream up when you press play (NativePlayer.java), so a video is stored here as "yt:<id>".
-  var realOn = store.get('real1') === 'on';
+  var realOn = store.get('real1') !== 'off';       // on unless it was switched off
   var ytOn = store.get('yt1') !== 'off';
   var ytP = null, ytDead = store.get('ytdead2') || {};
   function ytAvailable() { try { return !!(window.NativeHttp && window.NativeHttp.npOpen); } catch (e) { return false; } }

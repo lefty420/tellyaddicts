@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.31",
-  "version": "0.46.31",
-  "code": 4631,
+  "name": "Alpha 0.46.32",
+  "version": "0.46.32",
+  "code": 4632,
   "date": "2026-11-14",
   "notes": [
-    "**Clearer Options**: confusing settings now say what they do. *Video player* is now **Videos that won't play** (Automatic / Never / Always, and \"rescued 5 videos so far\" instead of \"(5 files)\"), *Buffer* is **Download ahead**, *Enhancements* is **Picture style**, *Real time EPG* is **Realistic TV schedule**, *Keep listings for* is **Shuffle guide every** and *EPG debug* is **Guide check (debug)**. The help line under each is rewritten in plain English."
+    "**Realistic TV schedule is on by default**: new installs, and anyone who had never touched the setting, now get the real-week layout. If you had switched it off yourself it stays off. The guides rebuild once after the update."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.31",
+      "date": "2026-11-14",
+      "notes": [
+        "**Clearer Options**: confusing settings now say what they do. *Video player* is now **Videos that won't play** (Automatic / Never / Always, and \"rescued 5 videos so far\" instead of \"(5 files)\"), *Buffer* is **Download ahead**, *Enhancements* is **Picture style**, *Real time EPG* is **Realistic TV schedule**, *Keep listings for* is **Shuffle guide every** and *EPG debug* is **Guide check (debug)**. The help line under each is rewritten in plain English."
+      ]
+    },
     {
       "name": "Alpha 0.46.30",
       "date": "2026-11-14",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**American Price Is Right blocked**: the US game show (hundreds of Barker-era episodes) was filling the TV. All of it is now hidden everywhere; Bruce's Price Is Right (the UK one) stays."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.23",
-      "date": "2026-11-14",
-      "notes": [
-        "**Fake Thomas episode blocked**: a fan-made \"A Very Evil Christmas\" upload was playing as a real Thomas and Friends episode on Children's Christmas. That upload is now blocked everywhere."
       ]
     }
   ]

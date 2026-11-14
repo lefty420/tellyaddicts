@@ -9,7 +9,7 @@ hurry gets a third number, `Alpha 0.1.1`.
 
 ## Alpha 0.45.97 — 2026-11-14
 
-- **The start-up tuning screen no longer repeats a picture early on.** While only a few pictures had loaded, the same ones came round again and again. Until there are plenty, a gap now stays empty until a new picture arrives.
+- **The start-up tuning screen no longer repeats a picture early on.** While only a few pictures had loaded, the same ones came round again and again. Until there are plenty, a gap now stays empty until a new picture arrives. Each load also starts afresh, so a picture is never shown twice in one load.
 
 ## Alpha 0.45.96 — 2026-11-14
 

@@ -4934,6 +4934,7 @@
   }
 
   function startLoading() {
+    spSeen = {}; spRecent = [];                                     // each load starts with every picture unseen
     forgetOldChannels();
     channels.forEach(function (c) { c.status = 'loading'; c.sched = null; });
     var finished = 0;

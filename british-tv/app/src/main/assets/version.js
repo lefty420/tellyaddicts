@@ -6,7 +6,7 @@ window.RELEASE = {
   "code": 4597,
   "date": "2026-11-14",
   "notes": [
-    "**The start-up tuning screen no longer repeats a picture early on.** While only a few pictures had loaded, the same ones came round again and again. Until there are plenty, a gap now stays empty until a new picture arrives."
+    "**The start-up tuning screen no longer repeats a picture early on.** While only a few pictures had loaded, the same ones came round again and again. Until there are plenty, a gap now stays empty until a new picture arrives. Each load also starts afresh, so a picture is never shown twice in one load."
   ],
   "history": [
     {

@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.98",
-  "version": "0.45.98",
-  "code": 4598,
+  "name": "Alpha 0.45.99",
+  "version": "0.45.99",
+  "code": 4599,
   "date": "2026-11-14",
   "notes": [
-    "**Options is in the On Demand hold-OK menu.** Hold OK on a show and you can open Options without leaving On Demand. Films now get a small menu of their own: Info, Options and Hide this film."
+    "**TheTVDB for artwork and details.** There is a new **TheTVDB key** row in Options > Artwork. OK opens an on-screen keyboard (arrows to move, OK to type, Shift for capitals; the number keys on the remote type digits). Save checks the key with TheTVDB and says whether it was accepted.",
+    "With a key, posters, backdrops, summaries, episode details and the cast on the Info screen come from TheTVDB first, and TVmaze fills in whatever TheTVDB has no match for. The scraper's own artwork list still comes before both. With no key, or a key TheTVDB will not accept, nothing changes. Clear the key to go back to TVmaze alone.",
+    "Needs the new app build (it adds a network call for TheTVDB), so install this version rather than just reloading the page."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.98",
+      "date": "2026-11-14",
+      "notes": [
+        "**Options is in the On Demand hold-OK menu.** Hold OK on a show and you can open Options without leaving On Demand. Films now get a small menu of their own: Info, Options and Hide this film."
+      ]
+    },
     {
       "name": "Alpha 0.45.97",
       "date": "2026-11-14",
@@ -57,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Fixed: anything playing in the app's own player was skipped after about five seconds.** The check for \"sound but no picture\" counted frames, which the app's own player cannot report, so it always decided there was no picture and moved on to the next programme. It now takes a known picture size as a picture. This hit YouTube videos, and any file that had been handed to the backup player."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.90",
-      "date": "2026-11-14",
-      "notes": [
-        "**Real time EPG (Options > TV Guide).** When on, every channel is laid out like a real week of television: short programmes in the morning and at lunchtime, half hours through the early evening, hour-long programmes and longer in prime time, films and long programmes on weekend afternoons and evenings, and Saturday and Sunday different from the weekdays. Children's channels get a school-day pattern (early morning, after school, a longer programme at teatime). Programmes start on a round five minutes, and a series plays in order, episode after episode, from one day to the next. Channels that already have a plan of their own (News, Saturday Night, Soaps, Drama, Video Shop) keep it. Turning it on or off rebuilds the guides. It shapes the week by how long each programme runs; showing each programme at its real slot needs a slot list from the scraper."
       ]
     }
   ]

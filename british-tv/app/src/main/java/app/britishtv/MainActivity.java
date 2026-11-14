@@ -29,6 +29,7 @@ import android.util.JsonToken;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
@@ -50,6 +51,8 @@ public class MainActivity extends Activity {
     // Film posters that come with the scraper's TMDb details. The page shows these in an <img>, which the WebView
     // fetches itself; this is here so anything that does go through the bridge is not blocked.
     private static final String ALLOWED_PREFIX_4 = "https://image.tmdb.org/";
+    // TheTVDB (artwork and details, when the person has entered their own key in Options). Only this host, only through httpx.
+    private static final String TVDB_PREFIX = "https://api4.thetvdb.com/";
     private static final int MAX_BODY_BYTES = 48 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
     private static final int HTTP_THREADS = 8;                  // archive.org is happier with a few connections than with hundreds
 
@@ -415,6 +418,65 @@ public class MainActivity extends Activity {
                             // An item's metadata lists every file with its checksums: megabytes of fields the page never
                             // reads. Keep only what it uses, as the response is read, so the big string is never built.
                             body = ok && url.contains("/metadata/") ? trimMetadata(in) : readAll(in);
+                            in.close();
+                        }
+                    } catch (Exception e) {
+                        status = 0;
+                        body = "";
+                    } finally {
+                        if (c != null) {
+                            c.disconnect();
+                        }
+                    }
+                    final String js = "window.__http(" + id + "," + status + "," + JSONObject.quote(body) + ")";
+                    main.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (web != null) {
+                                web.evaluateJavascript(js, null);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        /** A request with a method, headers and a body, for TheTVDB only (login is a POST; the rest send a bearer token). */
+        @JavascriptInterface
+        public void httpx(final int id, final String method, final String url, final String headers, final String reqBody) {
+            http.execute(new Runnable() {
+                @Override
+                public void run() {
+                    int status = 0;
+                    String body = "";
+                    HttpURLConnection c = null;
+                    try {
+                        if (url == null || !url.startsWith(TVDB_PREFIX)) {
+                            throw new SecurityException("blocked url");
+                        }
+                        c = (HttpURLConnection) new URL(url).openConnection();
+                        c.setConnectTimeout(20000);
+                        c.setReadTimeout(30000);
+                        c.setRequestMethod("POST".equals(method) ? "POST" : "GET");
+                        c.setRequestProperty("User-Agent", "BritishTV/1.0 (Android TV)");
+                        if (headers != null && headers.length() > 1) {
+                            JSONObject h = new JSONObject(headers);
+                            java.util.Iterator<String> it = h.keys();
+                            while (it.hasNext()) {
+                                String k = it.next();
+                                c.setRequestProperty(k, h.getString(k));
+                            }
+                        }
+                        if ("POST".equals(method) && reqBody != null) {
+                            c.setDoOutput(true);
+                            OutputStream o = c.getOutputStream();
+                            o.write(reqBody.getBytes("UTF-8"));
+                            o.close();
+                        }
+                        status = c.getResponseCode();
+                        InputStream in = status >= 200 && status < 300 ? c.getInputStream() : c.getErrorStream();
+                        if (in != null) {
+                            body = readAll(in);
                             in.close();
                         }
                     } catch (Exception e) {

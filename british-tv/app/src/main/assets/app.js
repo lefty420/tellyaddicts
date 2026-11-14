@@ -1392,7 +1392,137 @@
     return job;
   }
 
+  // ---- TheTVDB: the person's own key (Options > Artwork). Tried first for posters, backdrops, summaries and episodes,
+  // with TVmaze kept for whatever it has nothing on. No key, or a key it will not accept: nothing here runs.
+  var tvdbKey = String(store.get('tvdbkey') || ''), tvdbPause = 0, tvdbTokP = null, tvdbChain = Promise.resolve();
+  var TVDB = 'https://api4.thetvdb.com/v4';
+  function tvdbReady() { return !!tvdbKey && Date.now() > tvdbPause && !!(window.NativeHttp && NativeHttp.httpx); }
+  function httpx(method, url, headers, body) {
+    return new Promise(function (res, rej) {
+      var id = ++reqId;
+      pending[id] = { res: res, rej: rej, url: url };
+      window.NativeHttp.httpx(id, method, url, JSON.stringify(headers || {}), body || '');
+      setTimeout(function () { if (pending[id]) { delete pending[id]; rej(new Error('timeout')); } }, 40000);
+    });
+  }
+  function tvdbLogin() {
+    var c = store.get('tvdbtok');
+    if (c && c.k === tvdbKey && Date.now() - c.t < 20 * 24 * 3600 * 1000) return Promise.resolve(c.tok);
+    if (tvdbTokP) return tvdbTokP;
+    var key = tvdbKey;
+    tvdbTokP = httpx('POST', TVDB + '/login', { 'Content-Type': 'application/json', Accept: 'application/json' }, JSON.stringify({ apikey: key })).then(JSON.parse).then(function (j) {
+      var t = j && j.data && j.data.token;
+      if (!t) throw new Error('HTTP 401');
+      store.set('tvdbtok', { k: key, t: Date.now(), tok: t });
+      tvdbTokP = null; return t;
+    }, function (e) {
+      tvdbTokP = null;
+      if (/HTTP 4\d\d/.test(e.message)) { tvdbPause = Date.now() + 3600 * 1000; dlog('TVDB key not accepted: ' + e.message); }     // wrong key: leave it alone for an hour
+      throw e;
+    });
+    return tvdbTokP;
+  }
+  function tvdbGet(path) {
+    return tvdbLogin().then(function (tok) {
+      return httpx('GET', TVDB + path, { Authorization: 'Bearer ' + tok, Accept: 'application/json' }).then(JSON.parse);
+    }).then(null, function (e) {
+      if (/HTTP 401/.test(e.message)) { try { kv.removeItem('tvdbtok'); } catch (x) { /* none */ } }
+      throw e;
+    });
+  }
+  /** One request at a time, a moment apart. */
+  function tvdbQueue(fn) {
+    var job = tvdbChain.then(fn);
+    tvdbChain = job.then(function () { return wait(150); }, function () { return wait(150); });
+    return job;
+  }
+  /** The show as TheTVDB has it, in the shape the rest of the app reads; null when it has no match. Kept per show. */
+  function tvdbShow(name, year) {
+    var key = 'tvdb1:' + normShow(name), c = store.get(key);
+    if (c && (c.d ? metaFresh(c) : Date.now() - c.t < TVM_MISS)) return Promise.resolve(c.d);
+    var words = name.split(/\s+/), tries = [name];
+    if (words.length > 3) tries.push(words.slice(0, 3).join(' '));
+    if (words.length > 2) tries.push(words.slice(0, 2).join(' '));
+    return tvdbQueue(function () {
+      var i = 0;
+      function next() {
+        if (i >= tries.length) return null;
+        return tvdbFind(tries[i++], year).then(function (r) { return r || next(); });
+      }
+      return next();
+    }).then(function (hit) {
+      if (!hit) return null;
+      return tvdbQueue(function () { return tvdbGet('/series/' + hit.tvdb_id + '/extended?short=true'); }).then(function (j) {
+        var x = (j && j.data) || {}, arts = x.artworks || [];
+        function best(type) {
+          var l = arts.filter(function (a) { return a.type === type && a.image && (!a.language || a.language === 'eng'); });
+          if (!l.length) l = arts.filter(function (a) { return a.type === type && a.image; });
+          l.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+          return l[0] ? https(l[0].image) : '';
+        }
+        var net = (x.originalNetwork && x.originalNetwork.name) || (x.latestNetwork && x.latestNetwork.name) || '';
+        var ended = x.status && /ended/i.test(x.status.name || '') && x.lastAired ? String(x.lastAired).slice(0, 4) : '';
+        var cast = (x.characters || []).filter(function (m) { return m.type === 3 && m.personName; })
+          .sort(function (a, b) { return (a.sort || 99) - (b.sort || 99); }).slice(0, 10)
+          .map(function (m) { return { n: m.personName, c: m.name || '', p: https(m.personImgURL || m.image || '') }; });
+        var d = {
+          name: x.name || hit.name, year: x.firstAired ? String(x.firstAired).slice(0, 4) : (x.year || hit.year || ''), ended: ended, network: net,
+          genres: (x.genres || []).slice(0, 3).map(function (g) { return g.name; }).join(', '), rating: 0,
+          summary: plain(hit.overview || x.overview), poster: https(x.image) || best(2) || https(hit.image_url), background: best(3), id: 0, cast: cast, tvdb: hit.tvdb_id
+        };
+        if (!d.poster && !d.background) d = null;
+        store.set(key, { t: Date.now(), d: d });
+        return d;
+      });
+    });
+  }
+  /** Search TheTVDB; the best match for the name (exact first, then British, then the nearest year). */
+  function tvdbFind(name, year) {
+    return tvdbGet('/search?type=series&limit=10&query=' + encodeURIComponent(name)).then(function (j) {
+      var want = normShow(name), cands = [];
+      ((j && j.data) || []).forEach(function (r) {
+        var n = normShow(r.name || '');
+        if (!n || !r.tvdb_id || !(n === want || n.indexOf(want) === 0 || want.indexOf(n) === 0)) return;
+        cands.push({ r: r, exact: n === want, gb: r.country === 'gbr', yr: +r.year || 9999 });
+      });
+      if (!cands.length) return null;
+      cands.sort(function (x, y) {
+        if (year) { var dx = Math.abs(x.yr - year), dy = Math.abs(y.yr - year); if (dx !== dy) return dx - dy; }
+        if (x.exact !== y.exact) return x.exact ? -1 : 1;
+        if (x.gb !== y.gb) return x.gb ? -1 : 1;
+        return x.yr - y.yr;
+      });
+      return cands[0].r;
+    });
+  }
+  function tvdbEpisode(sh, p) {
+    return tvdbQueue(function () { return tvdbGet('/series/' + sh.tvdb + '/episodes/default?page=0&season=' + p.s + '&episodeNumber=' + p.e); }).then(function (j) {
+      var e = j && j.data && j.data.episodes && j.data.episodes[0];
+      if (!e) return null;
+      return { name: e.name || '', season: e.seasonNumber, number: e.number, airdate: e.aired || '', runtime: e.runtime || 0, summary: plain(e.overview), image: https(e.image) };
+    }, function () { return null; });
+  }
+  /** What the Info screen wants, from TheTVDB; null (so TVmaze is asked) when it has nothing. */
+  function tvdbInfo(p) {
+    return tvdbShow(p.show, p.year).then(function (sh) {
+      if (!sh) return null;
+      var d = { show: Object.assign({}, sh), ep: null };
+      if (!p.e) return d;
+      return tvdbEpisode(sh, p).then(function (ep) { d.ep = ep; return d; });
+    });
+  }
   function tvmInfoLive(p) {
+    if (!tvdbReady()) return tvmInfoMaze(p);
+    var key = 'info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0), c = store.get(key);
+    if (c && (c.d ? metaFresh(c) : Date.now() - c.t < TVM_MISS)) return Promise.resolve(c.d);
+    return tvdbInfo(p).then(function (d) {
+      if (!d) return tvmInfoMaze(p);
+      store.set(key, { t: Date.now(), d: d });
+      return d;
+    }, function () { return tvmInfoMaze(p); });
+  }
+
+  function tvmInfoMaze(p) {
     var key = 'info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0);
     var c = store.get(key);
     if (c && (c.d ? metaFresh(c) : Date.now() - c.t < TVM_MISS)) return Promise.resolve(c.d);
@@ -1443,6 +1573,17 @@
   }
 
   function tvmArtLive(p) {
+    if (!tvdbReady()) return tvmArtMaze(p);
+    var key = 'art2:' + normShow(p.show), c = store.get(key);
+    if (metaFresh(c)) return Promise.resolve(c.d);
+    return tvdbShow(p.show, p.year).then(function (sh) {
+      if (!sh || !sh.background) return tvmArtMaze(p);
+      var d = { background: sh.background };
+      store.set(key, { t: Date.now(), d: d });
+      return d;
+    }, function () { return tvmArtMaze(p); });
+  }
+  function tvmArtMaze(p) {
     var key = 'art2:' + normShow(p.show);
     var c = store.get(key);
     if (metaFresh(c)) return Promise.resolve(c.d);
@@ -1638,8 +1779,9 @@
       var ph = $('iposter');
       if (s.poster) { ph.src = s.poster; ph.className = ''; }
       if (s.background || pic) $('ibg').style.backgroundImage = 'url("' + (s.background || pic) + '")';
-      $('isrc').textContent = 'Details from TVmaze   \u00b7   Back to close';
-      if (s.id) tvmCast(s.id).then(function (list) { if (token === infoToken && infoOpen) showCast(list); });
+      $('isrc').textContent = 'Details from ' + (s.tvdb ? 'TheTVDB' : 'TVmaze') + '   \u00b7   Back to close';
+      if (s.cast && s.cast.length) showCast(s.cast);
+      else if (s.id) tvmCast(s.id).then(function (list) { if (token === infoToken && infoOpen) showCast(list); });
     }, function () {
       if (token !== infoToken || !infoOpen) return;
       $('isum').textContent = 'Could not look this up right now.';
@@ -3074,6 +3216,7 @@
   /** Where everything on this channel list comes from, and the credits those sources ask for. */
   var CREDITS = [
     { who: 'archive.org', what: 'Every programme is played from a public upload at archive.org. Nothing is hosted by this app.' },
+    { who: 'TheTVDB', what: 'Artwork and episode details, when a key is entered in Options > Artwork. Metadata provided by TheTVDB.com; please consider adding missing information or subscribing.' },
     { who: 'TVmaze', what: 'Episode titles, air dates, posters and summaries for television programmes.' },
     { who: 'TMDB', tmdb: true,
       what: 'Film titles, plots, posters and running times. This product uses the TMDB API but is not endorsed or certified by TMDB.' },
@@ -3440,7 +3583,7 @@
   var OCATS = [
     { id: 'picture', rows: ['ar', 'fx'] },
     { id: 'guide', rows: ['od', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
-    { id: 'art', rows: ['gart', 'mkeep', 'mclear'] },
+    { id: 'art', rows: ['gart', 'tvdb', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
@@ -3455,6 +3598,7 @@
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'real') return realOn ? 'On' : 'Off';
+    if (id === 'tvdb') return !tvdbKey ? 'Not set  \u00b7  OK to enter' : (Date.now() < tvdbPause ? 'Key not accepted' : !(window.NativeHttp && NativeHttp.httpx) ? 'Needs a newer app' : 'On  \u00b7  key ending ' + tvdbKey.slice(-4));
     if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
     if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
@@ -3475,7 +3619,7 @@
   }
 
   /** Picking longer keeps the lists already stored; picking shorter lets them run out. Links are never thrown away. */
-  var META_KEYS = /^(info3|art2|tvm4|eps1|artdb1|cast1):/;
+  var META_KEYS = /^(info3|art2|tvm4|eps1|artdb1|cast1|tvdb1):/;
   /** How much saved artwork and episode detail there is, as text for the Options row. */
   function metaSize() {
     var bytes = 0, n = 0;
@@ -3547,7 +3691,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { tvdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
@@ -3565,6 +3709,7 @@
     buf: 'Loads the programme ahead of the picture on this device, to ride out slow spells.',
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
     keep: 'How long a channel\u2019s line-up stays as it is before it is built afresh.',
+    tvdb: 'Your own key from thetvdb.com (a free account gives you one). With a key, posters, backdrops, summaries, episode details and cast are looked up on TheTVDB first, and TVmaze fills in whatever it does not have. Clear the key to go back to TVmaze alone.',
     unhide: 'Shows hidden from the hold-OK menu (Hide this show). OK twice brings them all back.',
     refresh: 'Throws away every line-up and builds them all again in a new running order.',
     rel: 'What changed in this version and the ones before it.',
@@ -3737,12 +3882,70 @@
     else if (id === 'mclear') clearMeta();
     else if (id === 'refresh') refreshEpg();
     else if (id === 'unhide') unhideAll();
+    else if (id === 'tvdb') kbOpen();
     else if (id === 'rel') openRel('rel');
     else if (id === 'log') openRel('log');
     else if (id === 'live') liveToggle();
     else if (id === 'gaps') openRel('gaps');
     else if (id === 'epg') openRel('epg');
     else if (id === 'about') openRel('about');
+  }
+
+  // ---- on-screen keyboard (for the TheTVDB key): arrows to move, OK to type, the number keys type digits too
+  var kbShown = false, kbVal = '', kbShift = false, kbR = 0, kbC = 0;
+  var KB_ROWS = [
+    '1234567890-'.split(''), 'abcdefghij'.split(''), 'klmnopqrst'.split(''), ['u', 'v', 'w', 'x', 'y', 'z', '_', '⌫'],
+    ['⇧ ABC', 'Clear', 'Cancel', 'Save']
+  ];
+  function kbLabel(k) { return kbShift && /^[a-z]$/.test(k) ? k.toUpperCase() : k === '⇧ ABC' ? (kbShift ? '⇧ abc' : '⇧ ABC') : k; }
+  function kbDraw() {
+    $('kbtext').textContent = kbVal;
+    var box = $('kbkeys'); box.textContent = '';
+    KB_ROWS.forEach(function (row, r) {
+      var line = document.createElement('div'); line.className = 'kbrow';
+      row.forEach(function (k, c) {
+        var d = document.createElement('div'); d.className = 'kbk' + (r === 4 ? ' w2' : '') + (r === kbR && c === kbC ? ' sel' : ''); d.textContent = kbLabel(k);
+        line.appendChild(d);
+      });
+      box.appendChild(line);
+    });
+  }
+  function kbOpen() { kbShown = true; kbVal = tvdbKey; kbShift = false; kbR = 4; kbC = 3; $('kbd').className = ''; kbDraw(); }
+  function kbClose() { kbShown = false; $('kbd').className = 'hidden'; renderOpts(); }
+  function kbSave() {
+    var key = kbVal.trim();
+    kbClose();
+    if (key === tvdbKey) return;
+    tvdbKey = key; tvdbPause = 0; tvdbTokP = null;
+    store.set('tvdbkey', key);
+    try { kv.removeItem('tvdbtok'); } catch (e) { /* none */ }
+    renderOpts();
+    if (!key) { toast('TheTVDB off: TVmaze only', 3000); return; }
+    if (!(window.NativeHttp && NativeHttp.httpx)) { toast('Saved, but this app version cannot reach TheTVDB. Update the app.', 5000); return; }
+    toast('Checking the key with TheTVDB…', 3000);
+    tvdbLogin().then(function () { toast('TheTVDB key accepted. New lookups use it.', 4500); renderOpts(); },
+      function (e) { toast(/HTTP 4\d\d/.test(e.message) ? 'TheTVDB would not accept that key' : 'Could not reach TheTVDB to check the key', 5000); renderOpts(); });
+  }
+  function kbKey(e) {
+    var k = e.key;
+    if (k.length === 1 && /[A-Za-z0-9_\-]/.test(k)) { kbVal += k; kbDraw(); return; }
+    if (k === 'ArrowUp') kbR = (kbR + KB_ROWS.length - 1) % KB_ROWS.length;
+    else if (k === 'ArrowDown') kbR = (kbR + 1) % KB_ROWS.length;
+    else if (k === 'ArrowLeft') kbC = (kbC + KB_ROWS[kbR].length - 1) % KB_ROWS[kbR].length;
+    else if (k === 'ArrowRight') kbC = (kbC + 1) % KB_ROWS[kbR].length;
+    else if (k === 'GoBack' || k === 'Escape' || (k === 'Backspace' && !kbVal)) { kbClose(); return; }
+    else if (k === 'Backspace') kbVal = kbVal.slice(0, -1);
+    else if (k === 'Enter' || k === ' ') {
+      var key = KB_ROWS[kbR][Math.min(kbC, KB_ROWS[kbR].length - 1)];
+      if (key === 'Save') { kbSave(); return; }
+      if (key === 'Cancel') { kbClose(); return; }
+      if (key === 'Clear') kbVal = '';
+      else if (key === '⌫') kbVal = kbVal.slice(0, -1);
+      else if (key === '⇧ ABC') kbShift = !kbShift;
+      else kbVal += kbLabel(key);
+    }
+    kbC = Math.min(kbC, KB_ROWS[kbR].length - 1);
+    kbDraw();
   }
   function optsKey(k) {
     optsTouch();
@@ -3959,6 +4162,8 @@
       else if (guideOpen && cur) lastBack = 0;               // a Back that closes the guide on its own never counts
       else if (!e.repeat) lastBack = nowT;
     }
+
+    if (kbShown) { kbKey(e); e.preventDefault(); return; }
 
     if (relOpen) {                        // What's new sits above the options panel it was opened from
       if (relKey(k)) e.preventDefault();

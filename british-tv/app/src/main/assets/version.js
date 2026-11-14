@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.45.95",
-  "version": "0.45.95",
-  "code": 4595,
+  "name": "Alpha 0.45.96",
+  "version": "0.45.96",
+  "code": 4596,
   "date": "2026-11-14",
   "notes": [
-    "**The loading screen shows a poster only when a show has no backdrop.** Before a programme starts, the picture behind the channel name is the show's backdrop on its own. The poster used to sit on top of it as well."
+    "**Films now use their backdrop on the loading screen.** A film such as Dogma showed only its poster before it started, even when a backdrop was on file for it. The loading screen now looks the film up by title, so the backdrop is used when there is one, and the poster only when there isn't."
   ],
   "history": [
+    {
+      "name": "Alpha 0.45.95",
+      "date": "2026-11-14",
+      "notes": [
+        "**The loading screen shows a poster only when a show has no backdrop.** Before a programme starts, the picture behind the channel name is the show's backdrop on its own. The poster used to sit on top of it as well."
+      ]
+    },
     {
       "name": "Alpha 0.45.94",
       "date": "2026-11-14",
@@ -58,14 +65,6 @@ window.RELEASE = {
       "notes": [
         "**YouTube through public Piped and Invidious servers.** The app no longer asks YouTube's own player directly. It asks several community-run Piped and Invidious servers at once and plays the first good stream (no adverts, no sign-in); the last server that worked is asked first next time. If none answer, the debug log lists why. These servers come and go, so expect some days when it is patchy. YouTube videos are on again (Options > Play > YouTube videos turns them off).",
         "The debug log now says which server and quality each YouTube video came from."
-      ]
-    },
-    {
-      "name": "Alpha 0.45.87",
-      "date": "2026-11-13",
-      "notes": [
-        "**YouTube is off by default for now.** On a first try, YouTube refused every lookup with a \"sign in to confirm you're not a bot\" check, so none of its videos played. They stay out of On Demand until that is sorted; Options > Play > YouTube videos turns them back on.",
-        "**One failed YouTube video no longer skips down the list.** A refusal that hits every video is reported once, and only a video YouTube calls gone or private is left out."
       ]
     }
   ]

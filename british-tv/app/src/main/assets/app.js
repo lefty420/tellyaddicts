@@ -1341,11 +1341,11 @@
   function knownArt(prog) {
     if (!gartOn || !prog || prog.ad) return null;
     var film = filmFor(prog);
-    if (film) return film.poster ? { poster: film.poster, back: '' } : null;
     var p = parseTitle(prog.title || '');
     if (prog.show) p.show = prog.show;
-    if (!p.show) return null;
-    if (isFilmChannelName(p.show)) return null;      // "The Video Shop" / "Kids Movies" are channels, not shows: never look them up for a poster
+    if (film) { p.show = film.title || prog.title || ''; p.s = 0; p.e = 0; }     // a film has its own poster, but a backdrop may be on file under its title
+    if (!p.show) return film && film.poster ? { poster: film.poster, back: '' } : null;
+    if (!film && isFilmChannelName(p.show)) return null;      // "The Video Shop" / "Kids Movies" are channels, not shows: never look them up for a poster
     if (!artP) loadArt();
     var out = { poster: '', back: '' };
     var fxa = store.get('artfix:' + normShow(p.show));
@@ -1361,6 +1361,7 @@
       var g = store.get('art2:' + normShow(p.show));
       if (g && g.d && g.d.background) out.back = out.back || g.d.background;
     }
+    if (film && film.poster) out.poster = film.poster;
     return out.poster || out.back ? out : null;
   }
 

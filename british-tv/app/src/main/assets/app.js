@@ -587,7 +587,7 @@
   var BLOCKED_FILM = /\bporn\b|\bporno\b|\berotica?\b|\badults?\b|\bplayboy\b|\bpenthouse\b/i;
   /** Keep adult material off every channel, whichever list it came in on. */
   // single archive.org items found to be the wrong thing (a dubbed or foreign-language copy, say), hidden until the scraper drops them
-  var BAD_ITEMS = { 'care-bears-adventures-in-care-a-lot': 1, 'Thomas-UK-HD': 1, 'the-lion-king-musical': 1, 'get-smart-s-01-e-01-mr.-big-pilot': 1, 'PCTV214710103-OvercomingThroughTheWord_BookOfPhillipiansPart1_12-20-18': 1, 'mvgproductionsarchivewofs2': 1, 'mrandmrsnorthseries': 1, 'angels-of-light-truth-expo-25': 1, 'short-noise-work-by-james-cleeland': 1, 'SERMONINDEX_gPi7vI0XPQ0': 1, 'budgie-the-little-helicopter-series-2-episode-8-surprise-surprise': 1, 'mr-and-mrs-is-the-name-1935-restored': 1, 'the-busy-world-of-richard-scarry-s-01-e-07-the-snowstorm-professor-dig-and-his-e': 1, 'AngelsinHeat2': 1, '00AIH1': 1, '1993TvsCounterCam': 1, '1992VideoShopTedsBooksAdamsCainingMagicMt': 1, 'tamers12345-sonic-underground': 1, 'the-goonies-1985_202510': 1, 'sailor-moon-1992-1080pcbr-': 1, 'bishoujo-senshi-sailor-moon-live': 1,
+  var BAD_ITEMS = { 'thomas-friends_202212': 1, 'care-bears-adventures-in-care-a-lot': 1, 'Thomas-UK-HD': 1, 'the-lion-king-musical': 1, 'get-smart-s-01-e-01-mr.-big-pilot': 1, 'PCTV214710103-OvercomingThroughTheWord_BookOfPhillipiansPart1_12-20-18': 1, 'mvgproductionsarchivewofs2': 1, 'mrandmrsnorthseries': 1, 'angels-of-light-truth-expo-25': 1, 'short-noise-work-by-james-cleeland': 1, 'SERMONINDEX_gPi7vI0XPQ0': 1, 'budgie-the-little-helicopter-series-2-episode-8-surprise-surprise': 1, 'mr-and-mrs-is-the-name-1935-restored': 1, 'the-busy-world-of-richard-scarry-s-01-e-07-the-snowstorm-professor-dig-and-his-e': 1, 'AngelsinHeat2': 1, '00AIH1': 1, '1993TvsCounterCam': 1, '1992VideoShopTedsBooksAdamsCainingMagicMt': 1, 'tamers12345-sonic-underground': 1, 'the-goonies-1985_202510': 1, 'sailor-moon-1992-1080pcbr-': 1, 'bishoujo-senshi-sailor-moon-live': 1,
     'the-addams-family__season-2': 1, 'the-addams-family__season-1': 1,
     '20250604_20250604_0220': 1, '20250527_20250527_1334': 1, '20250601_20250601_0848': 1 };      // Russian first audio track, English second
   // Shows hidden on this TV from the hold-OK menus (Options > TV Guide > Hidden shows brings them back).
@@ -595,6 +595,7 @@
   function hidKey(p) { return LIBROUTE.norm(p.filmKey ? (p.title || '') : (p.show || p.group || '')); }
   function hidSave() { store.set('hid1', hid); hidCount = Object.keys(hid).length; }
   function dropHidden(list) { return hidCount ? list.filter(function (p) { var k = hidKey(p); return !(k && hid[k]); }) : list; }
+  var BAD_SALT = E.hash(Object.keys(BAD_ITEMS).join(','));       // stored lineups and plans are rebuilt whenever this block list changes
   function blocked(p) {
     if (!p) return false;
     if (p.id && BAD_ITEMS[String(p.id).split('/')[0]]) return true;
@@ -753,7 +754,7 @@
       // published revision is part of the key, so a newly scraped list is picked up straight away.
       return loadDataIndex().then(function (idx) {
         var rev = idx[ch.id] || '';
-        var dkey = 'plan7d:' + ch.id + ':' + E.hash('v8|' + rev + '|' + epgGen);
+        var dkey = 'plan7d:' + ch.id + ':' + E.hash('v8|' + rev + '|' + epgGen + '|' + BAD_SALT);
         ch.cacheKey = dkey;
         var dcached = store.get(dkey);
         if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < planTtl()) {
@@ -827,7 +828,7 @@
     var sources = auto || ch.sources;
     ch.autoUsed = !!auto;
     var prefix = auto ? 'plan7a:' : 'plan7:';
-    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + salt + '|v7|' + epgGen);   // bump when the naming/URL rules change so stored titles are rebuilt (how long it is kept is Options > Keep listings)
+    var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + salt + '|v7|' + epgGen + '|' + BAD_SALT);   // bump when the naming/URL rules change so stored titles are rebuilt (how long it is kept is Options > Keep listings)
     ch.cacheKey = key;
     var cached = ch.noCache ? null : store.get(key);
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < planTtl()) {

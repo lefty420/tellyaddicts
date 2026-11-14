@@ -1,15 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.13",
-  "version": "0.46.13",
-  "code": 4613,
+  "name": "Alpha 0.46.14",
+  "version": "0.46.14",
+  "code": 4614,
   "date": "2026-11-14",
   "notes": [
-    "**Classic Blue looks livelier**: gradient channel tiles with rounded corners, the programme showing now glows brighter with a gold edge on every channel, and later programmes are darker so it is easy to see what is on right now.",
-    "**Options > Guide theme fixed**: the preview of the theme now shows all three rows instead of being cut off, and the Options panel no longer spills its rows over the button hints at the bottom; it scrolls to follow the highlighted row."
+    "**Blocked shows really disappear now**: two wrong versions you reported (Mr and Mrs North, the American Wheel of Fortune) were already on the block list but kept playing, because the TV was still using lineups it had saved earlier. The saved lineups are now rebuilt whenever the block list changes, so a block takes effect straight away.",
+    "Blocked the American Shining Time Station episodes that were showing as Thomas and Friends."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.13",
+      "date": "2026-11-14",
+      "notes": [
+        "**Classic Blue looks livelier**: gradient channel tiles with rounded corners, the programme showing now glows brighter with a gold edge on every channel, and later programmes are darker so it is easy to see what is on right now.",
+        "**Options > Guide theme fixed**: the preview of the theme now shows all three rows instead of being cut off, and the Options panel no longer spills its rows over the button hints at the bottom; it scrolls to follow the highlighted row."
+      ]
+    },
     {
       "name": "Alpha 0.46.12",
       "date": "2026-11-14",
@@ -61,14 +69,6 @@ window.RELEASE = {
         "**Films get backdrops and an artwork menu** (needs a TheTVDB key). Hold OK on a film in On Demand: Scrape artwork finds its backdrop on TheTVDB, Choose the right film lists the matches when it picked the wrong one, and Choose a poster / Choose a background list its pictures. Back to automatic forgets the choices. A film keeps the poster it came with unless you pick another.",
         "**Scan my artwork now covers films too**: with a key it looks up a backdrop for every film that has none, after the shows.",
         "The backdrop is used wherever a show's is: the loading screen, On Demand and the guide."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.5",
-      "date": "2026-11-14",
-      "notes": [
-        "**The library is no longer downloaded on every start.** The app fetched the whole 10 MB library a few seconds after every launch, even when nothing had changed. It now keeps the copy on the TV with its revision and only downloads when the scraper publishes a new one. Saving it is also lighter (the text is stored as it came instead of being wrapped a second time).",
-        "**VHS looks stop dropping frames at the start of every programme.** When two programmes in a row needed the blur taken off, the rest of the session starts without it instead of finding out again each time. Choosing a look in Options gives it a fresh try."
       ]
     }
   ]

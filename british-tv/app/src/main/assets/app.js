@@ -1454,23 +1454,7 @@
     }).then(function (hit) {
       if (!hit) { tvdbCount('none', name); return null; }
       return tvdbQueue(function () { return tvdbGet('/series/' + hit.tvdb_id + '/extended?short=true'); }).then(function (j) {
-        var x = (j && j.data) || {}, arts = x.artworks || [];
-        function best(type) {
-          var l = arts.filter(function (a) { return a.type === type && a.image && (!a.language || a.language === 'eng'); });
-          if (!l.length) l = arts.filter(function (a) { return a.type === type && a.image; });
-          l.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
-          return l[0] ? https(l[0].image) : '';
-        }
-        var net = (x.originalNetwork && x.originalNetwork.name) || (x.latestNetwork && x.latestNetwork.name) || '';
-        var ended = x.status && /ended/i.test(x.status.name || '') && x.lastAired ? String(x.lastAired).slice(0, 4) : '';
-        var cast = (x.characters || []).filter(function (m) { return m.type === 3 && m.personName; })
-          .sort(function (a, b) { return (a.sort || 99) - (b.sort || 99); }).slice(0, 10)
-          .map(function (m) { return { n: m.personName, c: m.name || '', p: https(m.personImgURL || m.image || '') }; });
-        var d = {
-          name: x.name || hit.name, year: x.firstAired ? String(x.firstAired).slice(0, 4) : (x.year || hit.year || ''), ended: ended, network: net,
-          genres: (x.genres || []).slice(0, 3).map(function (g) { return g.name; }).join(', '), rating: 0,
-          summary: plain(hit.overview || x.overview), poster: https(x.image) || best(2) || https(hit.image_url), background: best(3), id: 0, cast: cast, tvdb: hit.tvdb_id
-        };
+        var d = tvdbBuild((j && j.data) || {}, hit);
         if (!d.poster && !d.background) d = null;
         store.set(key, { t: Date.now(), d: d });
         tvdbCount(d ? 'found' : 'none', name);
@@ -1482,6 +1466,28 @@
     tvdbStat[kind]++; tvdbStat.last = name;
     dlog('TVDB ' + (kind === 'found' ? 'found ' : kind === 'none' ? 'no match for ' : 'failed for ') + name);
     if (optsOpen) renderOpts();
+  }
+  /** TheTVDB's extended record for a series -> the show shape the app reads. */
+  function tvdbBest(arts, type) {
+    var l = arts.filter(function (a) { return a.type === type && a.image && (!a.language || a.language === 'eng'); });
+    if (!l.length) l = arts.filter(function (a) { return a.type === type && a.image; });
+    l.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+    return l[0] ? https(l[0].image) : '';
+  }
+  function tvdbBuild(x, hit) {
+    var arts = x.artworks || [];
+    function best(type) { return tvdbBest(arts, type); }
+        var net = (x.originalNetwork && x.originalNetwork.name) || (x.latestNetwork && x.latestNetwork.name) || '';
+        var ended = x.status && /ended/i.test(x.status.name || '') && x.lastAired ? String(x.lastAired).slice(0, 4) : '';
+        var cast = (x.characters || []).filter(function (m) { return m.type === 3 && m.personName; })
+          .sort(function (a, b) { return (a.sort || 99) - (b.sort || 99); }).slice(0, 10)
+          .map(function (m) { return { n: m.personName, c: m.name || '', p: https(m.personImgURL || m.image || '') }; });
+        var d = {
+          name: x.name || hit.name, year: x.firstAired ? String(x.firstAired).slice(0, 4) : (x.year || hit.year || ''), ended: ended, network: net,
+          genres: (x.genres || []).slice(0, 3).map(function (g) { return g.name; }).join(', '), rating: 0,
+          summary: plain(hit.overview || x.overview), poster: https(x.image) || best(2) || https(hit.image_url), background: best(3), id: 0, cast: cast, tvdb: hit.tvdb_id
+        };
+        return d;
   }
   /** Search TheTVDB; the best match for the name (exact first, then British, then the nearest year). */
   function tvdbFind(name, year) {
@@ -1501,6 +1507,13 @@
       });
       return cands[0].r;
     });
+  }
+  /** A TheTVDB show as an artwork-list entry (what a pick made on this TV is saved as). */
+  function tvdbEntry(d) {
+    return { name: d.name, i: 0, tvdb: d.tvdb, p: d.poster || '', b: d.background || '', n: d.network || '', y: d.year || '', e: d.ended || '', g: d.genres || '', s: d.summary || '' };
+  }
+  function tvdbExtended(hit) {
+    return tvdbQueue(function () { return tvdbGet('/series/' + hit.tvdb_id + '/extended?short=true'); }).then(function (j) { return tvdbBuild((j && j.data) || {}, hit); });
   }
   function tvdbEpisode(sh, p) {
     return tvdbQueue(function () { return tvdbGet('/series/' + sh.tvdb + '/episodes/default?page=0&season=' + p.s + '&episodeNumber=' + p.e); }).then(function (j) {
@@ -4951,7 +4964,7 @@
     store.set('artfix:' + normShow(g.name), { a: entry });
     try { kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
     g.art = entry; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odKGen++;
-    dlog('ARTWORK picked for ' + g.name + ': ' + (entry.name || '') + ' (TVmaze ' + (entry.i || '?') + ')' + (entry.p ? ' poster ' + entry.p : '') + (entry.b ? ' background ' + entry.b : ''));
+    dlog('ARTWORK picked for ' + g.name + ': ' + (entry.name || '') + (entry.tvdb ? ' (TheTVDB ' + entry.tvdb + ')' : ' (TVmaze ' + (entry.i || '?') + ')') + (entry.p ? ' poster ' + entry.p : '') + (entry.b ? ' background ' + entry.b : ''));
     odmClose(); toast(msg, 3500);
     if (odView === 'show') odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });
     odRender();
@@ -4987,6 +5000,20 @@
   }
   /** Look the show up again; take the match if it is clearly the one, otherwise let the person choose. */
   function odmScrape(g) {
+    if (tvdbReady()) {
+      odmWait('Looking for ' + g.name + ' on TheTVDB\u2026');
+      tvdbQueue(function () { return tvdbFind(g.name); }).then(function (hit) { return hit ? tvdbExtended(hit) : null; }).then(function (d) {
+        if (!odm) return;
+        if (d && (d.poster || d.background)) {
+          tvdbStat.found++; dlog('TVDB scrape found ' + d.name + ' (' + d.tvdb + ') for ' + g.name + (d.background ? ' with a backdrop' : ' with no backdrop'));
+          odFixDone(g, tvdbEntry(d), 'Found ' + d.name + (d.year ? ' (' + d.year + ')' : '') + ' on TheTVDB');
+        } else { tvdbStat.none++; dlog('TVDB scrape: no match for ' + g.name + ', trying TVmaze'); odmScrapeMaze(g); }
+      }, function (e) { tvdbStat.fail++; dlog('TVDB scrape failed for ' + g.name + ': ' + e.message + ', trying TVmaze'); if (odm) odmScrapeMaze(g); });
+      return;
+    }
+    odmScrapeMaze(g);
+  }
+  function odmScrapeMaze(g) {
     odmWait('Looking for ' + g.name + '…');
     odmSearch(g).then(function (list) {
       if (!odm) return;
@@ -5001,7 +5028,27 @@
       });
     });
   }
-  function odmShows(g) { odmWait('Searching TVmaze…'); odmSearch(g).then(function (list) { if (odm) { if (list === null) { odm.note = 'Could not reach TVmaze'; odmRender(); } else odmShowList(g, list, 'Choose the right show'); } }); }
+  function odmShows(g) {
+    if (!tvdbReady()) { odmShowsMaze(g); return; }
+    odmWait('Searching TheTVDB\u2026');
+    tvdbQueue(function () { return tvdbGet('/search?type=series&limit=8&query=' + encodeURIComponent(g.name)); }).then(function (j) {
+      if (!odm) return;
+      var list = ((j && j.data) || []).filter(function (r) { return r.tvdb_id; }).slice(0, 8);
+      if (!list.length) { dlog('TVDB search: nothing for ' + g.name + ', trying TVmaze'); odmShowsMaze(g); return; }
+      odm.mode = 'shows'; odm.note = ''; odm.i = 0; odm.title = 'Choose the right show (TheTVDB)';
+      odm.items = list.map(function (r) {
+        return { t: r.name || '', sub: [r.year, r.network, r.country === 'gbr' ? 'UK' : r.country].filter(Boolean).join('  \u00b7  '), img: https(r.thumbnail || r.image_url), f: function () {
+          odmWait('Getting pictures\u2026');
+          tvdbExtended(r).then(function (d) {
+            dlog('TVDB pick ' + d.name + ' (' + d.tvdb + ') for ' + g.name);
+            odFixDone(g, tvdbEntry(d), 'Using ' + d.name + (d.year ? ' (' + d.year + ')' : ''));
+          }, function (e) { dlog('TVDB pick failed: ' + e.message); if (odm) { odm.note = 'Could not reach TheTVDB'; odmRender(); } });
+        } };
+      });
+      odmRender();
+    }, function (e) { dlog('TVDB search failed for ' + g.name + ': ' + e.message + ', trying TVmaze'); if (odm) odmShowsMaze(g); });
+  }
+  function odmShowsMaze(g) { odmWait('Searching TVmaze…'); odmSearch(g).then(function (list) { if (odm) { if (list === null) { odm.note = 'Could not reach TVmaze'; odmRender(); } else odmShowList(g, list, 'Choose the right show'); } }); }
   function odmShowList(g, list, title) {
     if (!odm) return;
     var items = list.slice(0, 8).map(function (r) {
@@ -5022,6 +5069,25 @@
   function odmPics(g, kind) {
     odmWait('Getting pictures…');
     artShow(g.name).then(function (base) {
+      if (base && base.tvdb && tvdbReady()) {                      // a show chosen from TheTVDB: its pictures come from there
+        tvdbQueue(function () { return tvdbGet('/series/' + base.tvdb + '/extended?short=true'); }).then(function (j) {
+          if (!odm) return;
+          var type = kind === 'poster' ? 2 : 3, arts = ((j && j.data && j.data.artworks) || []).filter(function (a) { return a.type === type && a.image; });
+          arts.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+          odm.items = arts.slice(0, 12).map(function (a) {
+            return { img: https(a.thumbnail || a.image), f: function () {
+              var e = {}; Object.keys(base).forEach(function (k) { e[k] = base[k]; });
+              var url = https(a.image);
+              e[kind === 'poster' ? 'p' : 'b'] = url;
+              odFixDone(g, e, kind === 'poster' ? 'Poster changed' : 'Background changed', url);
+            } };
+          });
+          odm.mode = odm.items.length ? (kind === 'poster' ? 'posters' : 'backs') : 'wait'; odm.note = odm.items.length ? '' : 'No ' + kind + 's on TheTVDB for this show';
+          odm.i = 0; odm.title = kind === 'poster' ? 'Choose a poster' : 'Choose a background';
+          odmRender();
+        }, function (e) { dlog('TVDB pictures failed: ' + e.message); if (odm) { odm.note = 'Could not reach TheTVDB'; odmRender(); } });
+        return;
+      }
       if (!base || !base.i) { odmShows(g); toast('Choose the right show first', 3000); return; }
       tvmImages(base.i).then(function (imgs) {
         if (!odm) return;

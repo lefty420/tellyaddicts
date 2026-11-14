@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.1 — 2026-11-14
+
+- **Scrape artwork and the other On Demand menu choices now use TheTVDB too** (when a key is entered). Scrape artwork searches TheTVDB first and falls back to TVmaze when it has no match. Choose the right show lists TheTVDB's matches. Choose a poster and Choose a background list TheTVDB's pictures for a show picked from it. Each attempt is written to Options > Debug log (for example "TVDB scrape found … " or "TVDB scrape: no match for …"), so a scrape that finds nothing now says why.
+
 ## Alpha 0.46.0 — 2026-11-14
 
 - **You can now see whether TheTVDB is working.** The TheTVDB key row in Options > Artwork shows a running count, such as "On · 12 found, 3 no match", and each lookup is written to Options > Debug log. Pressing Save (even with the same key) now checks the key and then looks up a test show, and says "TheTVDB is working" when it all comes back.

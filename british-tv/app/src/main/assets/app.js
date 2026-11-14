@@ -1394,6 +1394,7 @@
 
   // ---- TheTVDB: the person's own key (Options > Artwork). Tried first for posters, backdrops, summaries and episodes,
   // with TVmaze kept for whatever it has nothing on. No key, or a key it will not accept: nothing here runs.
+  var tvdbStat = { found: 0, none: 0, fail: 0, last: '' };
   var tvdbKey = String(store.get('tvdbkey') || ''), tvdbPause = 0, tvdbTokP = null, tvdbChain = Promise.resolve();
   var TVDB = 'https://api4.thetvdb.com/v4';
   function tvdbReady() { return !!tvdbKey && Date.now() > tvdbPause && !!(window.NativeHttp && NativeHttp.httpx); }
@@ -1451,7 +1452,7 @@
       }
       return next();
     }).then(function (hit) {
-      if (!hit) return null;
+      if (!hit) { tvdbCount('none', name); return null; }
       return tvdbQueue(function () { return tvdbGet('/series/' + hit.tvdb_id + '/extended?short=true'); }).then(function (j) {
         var x = (j && j.data) || {}, arts = x.artworks || [];
         function best(type) {
@@ -1472,9 +1473,15 @@
         };
         if (!d.poster && !d.background) d = null;
         store.set(key, { t: Date.now(), d: d });
+        tvdbCount(d ? 'found' : 'none', name);
         return d;
       });
-    });
+    }).then(null, function (e) { tvdbCount('fail', name + ' (' + e.message + ')'); throw e; });
+  }
+  function tvdbCount(kind, name) {
+    tvdbStat[kind]++; tvdbStat.last = name;
+    dlog('TVDB ' + (kind === 'found' ? 'found ' : kind === 'none' ? 'no match for ' : 'failed for ') + name);
+    if (optsOpen) renderOpts();
   }
   /** Search TheTVDB; the best match for the name (exact first, then British, then the nearest year). */
   function tvdbFind(name, year) {
@@ -3598,7 +3605,7 @@
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
     if (id === 'real') return realOn ? 'On' : 'Off';
-    if (id === 'tvdb') return !tvdbKey ? 'Not set  \u00b7  OK to enter' : (Date.now() < tvdbPause ? 'Key not accepted' : !(window.NativeHttp && NativeHttp.httpx) ? 'Needs a newer app' : 'On  \u00b7  key ending ' + tvdbKey.slice(-4));
+    if (id === 'tvdb') return !tvdbKey ? 'Not set  \u00b7  OK to enter' : (Date.now() < tvdbPause ? 'Key not accepted' : !(window.NativeHttp && NativeHttp.httpx) ? 'Needs a newer app' : 'On  \u00b7  ' + tvdbStat.found + ' found' + (tvdbStat.none ? ', ' + tvdbStat.none + ' no match' : '') + (tvdbStat.fail ? ', ' + tvdbStat.fail + ' failed' : '') + (tvdbStat.found + tvdbStat.none + tvdbStat.fail ? '' : '  \u00b7  OK to test'));
     if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
     if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
@@ -3915,7 +3922,6 @@
   function kbSave() {
     var key = kbVal.trim();
     kbClose();
-    if (key === tvdbKey) return;
     tvdbKey = key; tvdbPause = 0; tvdbTokP = null;
     store.set('tvdbkey', key);
     try { kv.removeItem('tvdbtok'); } catch (e) { /* none */ }
@@ -3923,7 +3929,7 @@
     if (!key) { toast('TheTVDB off: TVmaze only', 3000); return; }
     if (!(window.NativeHttp && NativeHttp.httpx)) { toast('Saved, but this app version cannot reach TheTVDB. Update the app.', 5000); return; }
     toast('Checking the key with TheTVDB…', 3000);
-    tvdbLogin().then(function () { toast('TheTVDB key accepted. New lookups use it.', 4500); renderOpts(); },
+    tvdbLogin().then(function () { return tvdbShow('Fawlty Towers', 1975); }).then(function (d) { toast(d ? 'TheTVDB is working: found Fawlty Towers and its artwork' : 'Key accepted, but the test show was not found', 5000); renderOpts(); },
       function (e) { toast(/HTTP 4\d\d/.test(e.message) ? 'TheTVDB would not accept that key' : 'Could not reach TheTVDB to check the key', 5000); renderOpts(); });
   }
   function kbKey(e) {

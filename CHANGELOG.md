@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.0 — 2026-11-14
+
+- **You can now see whether TheTVDB is working.** The TheTVDB key row in Options > Artwork shows a running count, such as "On · 12 found, 3 no match", and each lookup is written to Options > Debug log. Pressing Save (even with the same key) now checks the key and then looks up a test show, and says "TheTVDB is working" when it all comes back.
+
 ## Alpha 0.45.99 — 2026-11-14
 
 - **TheTVDB for artwork and details.** There is a new **TheTVDB key** row in Options > Artwork. OK opens an on-screen keyboard (arrows to move, OK to type, Shift for capitals; the number keys on the remote type digits). Save checks the key with TheTVDB and says whether it was accepted.

@@ -1853,7 +1853,7 @@
     setTimeout(function () {
       if (cur !== watched || !cur || v.paused || !(v.currentTime > 2)) return;
       var q = v.getVideoPlaybackQuality ? v.getVideoPlaybackQuality() : null;
-      if (v.videoWidth > 0 && !(q && q.totalVideoFrames === 0)) return;
+      if (v.videoWidth > 0 && (v.native || !(q && q.totalVideoFrames === 0))) return;      // the app's own player cannot count frames, so a known picture size is taken as a picture
       dlog('NO PICTURE ' + (cur.prog ? (cur.prog.title || '') : '') + ': sound is playing but the video shows no frames (size ' + v.videoWidth + 'x' + v.videoHeight + ', frames ' + (q ? q.totalVideoFrames : '?') + ')');
       if (cur.ad || !cur.prog) return;
       markSlow(cur.prog.id); nextInChannel();

@@ -4412,6 +4412,8 @@
       return;
     }
 
+    // Options opened from On Demand (its hold-OK menu) sits on top of it: the keys are for Options, not the screen underneath
+    if (odOpen && optsOpen) { if (k === 'Guide' || k === 'Red') closeOpts(); else optsKey(k); e.preventDefault(); return; }
     if (odOpen) { odKey(k); e.preventDefault(); return; }
     if (gm) { if (k !== 'Info') gmKey(k); e.preventDefault(); return; }
     if (k === 'Menu' || k === 'ContextMenu') { odOpenUi(); e.preventDefault(); return; }

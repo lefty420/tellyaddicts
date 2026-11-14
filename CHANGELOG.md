@@ -7,6 +7,15 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.17 — 2026-11-14
+
+- **Telly Addicts Mobile gets touch controls** (the TV app is unchanged):
+  - A round remote button, bottom right, opens an on-screen remote: arrows, OK, Back, Guide, Info (the hold-OK menu), Play, channel up/down, rewind/forward and the four colour buttons (the yellow one is Search). It works on every screen.
+  - Swipe to move, tap for OK, press and hold for the hold-OK menu.
+  - In the TV guide, tap a channel or programme to select it, and tap it again to watch it.
+  - A much bigger guide on the phone: four channels at a time with large text.
+  - The phone app stays in landscape for now.
+
 ## Alpha 0.46.16 — 2026-11-14
 
 - **The Telly Addict Builder keeps working**: splitting the build into TV and Mobile moved the TV app's APK, which the Builder looks for. The TV build now also leaves its APK where the Builder expects it. The Builder installs the TV app only; the Mobile APK comes from the GitHub build for now.

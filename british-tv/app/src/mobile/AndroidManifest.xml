@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mobile build only: the app is laid out for a wide screen, so the phone is held sideways for now. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="sensorLandscape" />
+    </application>
+</manifest>

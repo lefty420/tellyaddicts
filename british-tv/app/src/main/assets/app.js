@@ -2753,7 +2753,7 @@
 
   var HALF = 30 * 60 * 1000;
   var SPAN = 4 * HALF;          // two hours visible
-  var VISIBLE_ROWS = 7;   // the colour-button legend is gone, so the grid takes its space
+  var VISIBLE_ROWS = window.PHONE ? 4 : 7;   // the colour-button legend is gone, so the grid takes its space
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -2825,6 +2825,18 @@
   }
 
   /** light = the highlight moved; rebuild the grid only when the rows or the time window actually change. */
+  /** Phone: a tap on a channel or programme in the guide selects it; a tap on what is already selected watches it. */
+  function tapGuide(el, ch, b) {
+    el.setAttribute('data-tap', '1');
+    el.addEventListener('click', function () {
+      var now = Date.now(), same = gChan === ch && (!b || (b.startMs <= gFocus && gFocus < b.endMs));
+      if (same && (b || gChan === ch)) { gOdSet(false); watchFromGuide(); return; }
+      gOdSet(false);
+      gChan = ch;
+      if (b) gFocus = b.startMs <= now && now < b.endMs ? now : Math.min(b.startMs + 1000, b.endMs - 1);
+      renderGuide(true);
+    });
+  }
   function renderGuide(light) {
     if (seasonOv) seasonOv.touch();
     var list = guideList();
@@ -2862,6 +2874,7 @@
       var ch = list[r];
       var row = div('grow');
       var cell = div('gch' + (r === gRow ? ' sel' : ''));
+      if (window.PHONE) tapGuide(cell, ch, null);
       cell.appendChild(div('n', ch.n));
       cell.appendChild(div('name', ch.name));
       row.appendChild(cell);
@@ -2891,6 +2904,7 @@
           var el = div(base + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : ''));
           el.style.left = ((s - gWin) / SPAN * 100) + '%';
           el.style.width = 'calc(' + (frac * 100) + '% - .4vw)';
+          if (window.PHONE) tapGuide(el, ch, b);
           rec.blocks.push({ el: el, b: b, base: base });
           if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text: no padding either, or it would stick out past the edge
           if (clipL) el.appendChild(div('arr l', '\u25c4'));

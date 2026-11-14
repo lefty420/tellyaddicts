@@ -538,6 +538,30 @@
   body:not([class*="gt-"]) .blk:not(.now):not(.foc) { background: linear-gradient(180deg, #1b4cc0 0%, #0f2f8c 100%); }
   body:not([class*="gt-"]) .blk.foc { background: linear-gradient(180deg, #fff6c2 0%, #ffb800 100%); box-shadow: 0 0 2vh rgba(255,190,40,.9); border-color: #fff; }
 
+  /* ---- phone (the mobile build sets html.phone, see phone.js): a bigger guide, four channels at a time, finger-sized rows */
+  html.phone body.guide-open #v { left: 3vw; top: 3vh; width: 29vw; }
+  html.phone #ginfo { left: 35vw; top: 2.4vh; height: 25vh; }
+  html.phone #gtop { font-size: 3.2vh; }
+  html.phone #godbtn { font-size: 3vh; padding: .8vh 2vw; }
+  html.phone #gclock { font-size: 4vh; }
+  html.phone #gtitle { font-size: 4.8vh; margin: 1.2vh 0 .4vh; max-height: 11vh; }
+  html.phone #gchan, html.phone #gtime { font-size: 3.4vh; margin-top: .3vh; }
+  html.phone #gsub { display: none; }
+  html.phone #ggrid { top: 29vh; left: 2vw; right: 2vw; }
+  html.phone .trow { height: 8vh; }
+  html.phone .grow { height: 14.6vh; margin-bottom: .6vh; }
+  html.phone .gch, html.phone .tday { width: 22vw; }
+  html.phone .tday { font-size: 3.4vh; }
+  html.phone .tick { font-size: 3.8vh; }
+  html.phone .gch .n { font-size: 5vh; width: 7vh; }
+  html.phone .gch .name { font-size: 3.6vh; white-space: normal; line-height: 1.1; }
+  html.phone .blk { padding: 1vh 1.6vw; }
+  html.phone .blk .t { font-size: 4.2vh; white-space: normal; max-height: 2.4em; line-height: 1.12; }
+  html.phone .blk .s { font-size: 3vh; }
+  html.phone .blk .arr { font-size: 3.4vh; margin-top: -1.8vh; }
+  html.phone .blk.cl { padding-left: 4vw; } html.phone .blk.cr { padding-right: 4vw; }
+  html.phone #glegend { display: none !important; }
+
   /* a programme cut off at either edge keeps room for its arrow, whatever the theme's own padding says */
   body[class*="gt-"] .blk.cl { padding-left: 2.6vw; } body[class*="gt-"] .blk.cr { padding-right: 2.6vw; }
 
@@ -996,6 +1020,7 @@
 <script src="adverts.js"></script>
 <script src="seasons.js"></script>
 <script src="channels.js"></script>
+<script src="phone.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

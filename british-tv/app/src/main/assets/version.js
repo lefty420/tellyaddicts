@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.16",
-  "version": "0.46.16",
-  "code": 4616,
+  "name": "Alpha 0.46.17",
+  "version": "0.46.17",
+  "code": 4617,
   "date": "2026-11-14",
   "notes": [
-    "**The Telly Addict Builder keeps working**: splitting the build into TV and Mobile moved the TV app's APK, which the Builder looks for. The TV build now also leaves its APK where the Builder expects it. The Builder installs the TV app only; the Mobile APK comes from the GitHub build for now."
+    "**Telly Addicts Mobile gets touch controls** (the TV app is unchanged):"
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.16",
+      "date": "2026-11-14",
+      "notes": [
+        "**The Telly Addict Builder keeps working**: splitting the build into TV and Mobile moved the TV app's APK, which the Builder looks for. The TV build now also leaves its APK where the Builder expects it. The Builder installs the TV app only; the Mobile APK comes from the GitHub build for now."
+      ]
+    },
     {
       "name": "Alpha 0.46.15",
       "date": "2026-11-14",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "notes": [
         "**Search in On Demand.** Press Yellow on the On Demand screen (or hold OK and choose Search), type part of a name on the on-screen keyboard and press Search. Every channel is searched, and the shows and films that match appear as a \"Search\" row at the top. Search again with the box empty (Clear, then Search) to remove the row.",
         "The on-screen keyboard has a Space key."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.8",
-      "date": "2026-11-14",
-      "notes": [
-        "**Three wrong YouTube videos are out of Blind Date.** They were modern short dramas (\"A Billionaire CEO hides her identity for a blind date…\") that matched on the show's name. Videos like that are now left out."
       ]
     }
   ]

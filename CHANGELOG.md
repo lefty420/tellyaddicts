@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.88 — 2026-11-15
+
+- **Saved film sources cleared once**: the app remembers the source that last worked for each title and plays it again without searching, so the wrong *Blackadder's Christmas Carol* link would have kept playing for Mickey's Christmas Carol for three days even after 0.46.87. Sources saved for films (in the replay memory and in Options > Saved sources) are forgotten one time, and looked up again with the stricter search. Saved sources for series are untouched.
+
 ## Alpha 0.46.87 — 2026-11-15
 
 - **Wrong film from an addon**: Mickey's Christmas Carol played *Blackadder's Christmas Carol* with a green ADDON badge. When the film search found no result with the right name, the app took the first result, whatever it was, and remembered it. It now only accepts the same name (or a close name with the same year) and otherwise says it could not find the film, so the library copy plays instead. Films matched wrongly before are forgotten, so they are looked up again.

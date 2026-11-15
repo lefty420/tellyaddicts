@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.87",
-  "version": "0.46.87",
-  "code": 4687,
+  "name": "Alpha 0.46.88",
+  "version": "0.46.88",
+  "code": 4688,
   "date": "2026-11-15",
   "notes": [
-    "**Wrong film from an addon**: Mickey's Christmas Carol played *Blackadder's Christmas Carol* with a green ADDON badge. When the film search found no result with the right name, the app took the first result, whatever it was, and remembered it. It now only accepts the same name (or a close name with the same year) and otherwise says it could not find the film, so the library copy plays instead. Films matched wrongly before are forgotten, so they are looked up again."
+    "**Saved film sources cleared once**: the app remembers the source that last worked for each title and plays it again without searching, so the wrong *Blackadder's Christmas Carol* link would have kept playing for Mickey's Christmas Carol for three days even after 0.46.87. Sources saved for films (in the replay memory and in Options > Saved sources) are forgotten one time, and looked up again with the stricter search. Saved sources for series are untouched."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.87",
+      "date": "2026-11-15",
+      "notes": [
+        "**Wrong film from an addon**: Mickey's Christmas Carol played *Blackadder's Christmas Carol* with a green ADDON badge. When the film search found no result with the right name, the app took the first result, whatever it was, and remembered it. It now only accepts the same name (or a close name with the same year) and otherwise says it could not find the film, so the library copy plays instead. Films matched wrongly before are forgotten, so they are looked up again."
+      ]
+    },
     {
       "name": "Alpha 0.46.86",
       "date": "2026-11-15",
@@ -62,13 +69,6 @@ window.RELEASE = {
       "notes": [
         "**Shorter hold-OK menu on a programme**: Fix artwork, Hide this show/film and Report a problem now sit behind one \"More...\" entry (Back returns to the main menu). Options stays last. When a menu has more entries than fit, its heading says which one you are on (\"item 10 of 11\").",
         "**Bigger supporting text**: the small lines under menu entries, the dates inside guide cells, On Demand's menu and the Options hints at the bottom are a little larger, so they read from across the room."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.79",
-      "date": "2026-11-15",
-      "notes": [
-        "**The debug log now times the scraper's library**: how long it took to download, to read and to sort into channels. Nothing changes on screen; it is there to show what the library really costs on this TV."
       ]
     }
   ]

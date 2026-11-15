@@ -3695,6 +3695,11 @@
   var adLang = store.get('adlang1') || 'en';                 // audio language: en = skip links that say they are in another language, any = take everything
   var adHist = store.get('adhist1') || [];                  // sources that worked, newest first, so a title can start again at once
   var adLast = store.get('adlast1') || {}, adBg = store.get('adbg1') || {};   // the source that last worked per episode (1 hour), and the release group chosen per show
+  if (!store.get('adfilm87')) {                     // once: sources saved for films may be the wrong film (the first search result was taken), so forget them
+    store.set('adfilm87', 1);
+    adHist = adHist.filter(function (h) { return !h.film; }); store.set('adhist1', adHist);
+    Object.keys(adLast).forEach(function (k) { if (/\|f$/.test(k)) delete adLast[k]; }); store.set('adlast1', adLast);
+  }
   function adKeyOf(g, ep) { return normShow(g.name) + '|' + (g.film ? 'f' : (ep.s || 1) + ':' + (ep.e || 1)); }
   var adFall = null;                                          // the sources still to try if the one playing fails
   var adCut = store.get('adcut1') !== 'off';                 // only titles from before 2000

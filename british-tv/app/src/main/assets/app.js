@@ -2272,14 +2272,14 @@
   function trMenu(k, parent) {
     var list = trOf(k), items = [];
     if (k === 'text') items.push({ t: (trNow('text') === 'Off' ? '✓ ' : '') + 'Off', f: function () {
-      v.selectTrack(null); trPref.t = 'off'; trSave(); gmClose(); toast('Subtitles off', 1500);
+      v.selectTrack(null); trPref.t = 'off'; trSave(); gmClose(); subLog = 0; toast('Subtitles off', 1500);
     } });
     list.forEach(function (t, n) {
       var name = trName(t, n + 1);
       items.push({ t: (t.on ? '✓ ' : '') + name, sub: trSub(t), f: function () {
         v.selectTrack(t);
         if (k === 'audio') trPref.a = t.lang && t.lang !== 'und' ? t.lang : ''; else trPref.t = t.lang && t.lang !== 'und' ? t.lang : 'any';
-        trSave(); gmClose();
+        trSave(); gmClose(); if (k === 'text') subLog = 0;
         toast((k === 'audio' ? 'Sound: ' : 'Subtitles: ') + name, 2000);
         dlog('TRACK ' + k + ' ' + name + (t.mime ? ' (' + t.mime + ')' : ''));
       } });
@@ -2303,9 +2303,11 @@
     if (!ts.length) return;
     dlog('  tracks: ' + ts.map(function (t, n) { return (t.on ? '*' : '') + t.k + ' ' + (t.lang || '?') + (t.mime ? ' ' + t.mime.replace(/^\w+\//, '') : '') + (t.ch ? ' ' + t.ch + 'ch' : ''); }).join(', '));
   });
+  var subLog = 0;                                      // the first few subtitle deliveries after a choice go in the debug log, so a silent track can be told from a hidden one
   window.__npCues = function (json) {
     var box = $('subs'), list = [];
     try { list = JSON.parse(json) || []; } catch (e) { /* nothing to show */ }
+    if (subLog < 6 && list.length) { subLog++; dlog('SUBTITLE cue: ' + list.filter(function (c) { return c.t; }).length + ' text, ' + list.filter(function (c) { return c.img; }).length + ' picture' + (list[0] && list[0].t ? ', ' + list[0].t.length + ' characters' : '')); }
     box.textContent = '';
     if (!list.length) { box.className = 'hidden'; return; }
     // the box covers the picture itself (not the black bars), since picture subtitles are placed by where they sit in the frame

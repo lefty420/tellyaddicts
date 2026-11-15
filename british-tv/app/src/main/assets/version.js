@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.93",
-  "version": "0.46.93",
-  "code": 4693,
+  "name": "Alpha 0.46.94",
+  "version": "0.46.94",
+  "code": 4694,
   "date": "2026-11-15",
   "notes": [
-    "**English sound first**: when a file has several sound tracks, the app's own player now picks the English one unless you have chosen another language in Audio & subtitles. Before, it took whichever the file listed first, so a Lethal Weapon with Turkish and English tracks played in Turkish. If a file has no English track it plays as before. A language you choose is still kept for the next programme."
+    "**Subtitle diagnostics**: after you choose a subtitle track, the debug log now records the first few subtitle lines the player delivers (\"SUBTITLE cue: 1 text, 0 picture, 38 characters\"), with no words from the film. If a subtitle track is selected but nothing shows, the log now says whether the player sent nothing (an empty or forced-only track) or the screen failed to draw it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.93",
+      "date": "2026-11-15",
+      "notes": [
+        "**English sound first**: when a file has several sound tracks, the app's own player now picks the English one unless you have chosen another language in Audio & subtitles. Before, it took whichever the file listed first, so a Lethal Weapon with Turkish and English tracks played in Turkish. If a file has no English track it plays as before. A language you choose is still kept for the next programme."
+      ]
+    },
     {
       "name": "Alpha 0.46.92",
       "date": "2026-11-15",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Rescrape a film from the TV Guide**: \"Fix artwork & details\" on a film used to say \"Films use the details that came with them\" and do nothing. It now opens that film's artwork menu in On Demand: Scrape artwork, Choose the right film (for when the wrong film was matched), Choose a poster or background. Film artwork needs the TheTVDB key (Options > Artwork), as in On Demand."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.85",
-      "date": "2026-11-15",
-      "notes": [
-        "**Oswald the Lucky Rabbit** (about 365 cartoons in the library) is now on the Disney channel too."
       ]
     }
   ]

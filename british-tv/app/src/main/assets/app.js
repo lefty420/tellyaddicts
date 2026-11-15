@@ -106,12 +106,23 @@
   // play. Options > Debug log puts it on the home network for a phone or computer to open and copy.
   var DLOG = store.get('dbglog1') || [], dlogTimer = null, httpFails = 0;
   if (!(DLOG instanceof Array)) DLOG = [];
-  DLOG = DLOG.map(function (l) { return String(l).replace(/\/(?:[A-Za-z0-9_-]{80,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/g, '/\u2026'); });       // lines kept by earlier versions may hold an addon's settings (the debrid key)
+  // An addon's address holds its settings, and with them the debrid key ("…/realdebrid=KEY/…"), and a debrid play link
+  // is a key of its own. So for any site but the app's fixed ones only the site's name is written down, and any long run
+  // of letters and digits (the shape keys have) is blanked as well.
+  var LOG_OPEN = /^(?:[a-z0-9-]+\.)*(?:archive\.org|tvmaze\.com|githubusercontent\.com|tmdb\.org|open-meteo\.com|wikipedia\.org|thetvdb\.com)$/i;
+  function logSafe(t) {
+    return String(t).replace(/(https?:\/\/)([^\/\s?#|]+)\S*/gi, function (all, sch, host) {
+      return LOG_OPEN.test(host) ? all : sch + host + '/\u2026';
+    }).replace(/\/(?:[A-Za-z0-9_-]{80,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/g, '/\u2026')
+      .replace(/[A-Za-z0-9]{32,}/g, '\u2026');
+  }
+  DLOG = DLOG.map(logSafe);       // lines kept by earlier versions may hold a key: saved again without them
+  if (DLOG.length) store.set('dbglog1', DLOG);
   function two(n) { return (n < 10 ? '0' : '') + n; }
   function dlog(text) {
     var d = new Date();
     DLOG.push(two(d.getDate()) + '/' + two(d.getMonth() + 1) + ' ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) +
-      '  ' + String(text).replace(/\/(?:[A-Za-z0-9_-]{80,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/g, '/\u2026').slice(0, 700));        // a long path piece is an addon's settings (it holds the debrid key): never written down
+      '  ' + logSafe(text).slice(0, 700));
     if (DLOG.length > 400) DLOG.splice(0, DLOG.length - 400);
     clearTimeout(dlogTimer);
     dlogTimer = setTimeout(function () { store.set('dbglog1', DLOG); }, 2000);

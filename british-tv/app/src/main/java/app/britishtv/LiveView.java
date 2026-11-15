@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +43,7 @@ final class LiveView {
     private final Keys keys;
     private final Handler main = new Handler(Looper.getMainLooper());
     private ServerSocket server;
-    private String token = "";
+    private volatile String token = "";
     private volatile String state = "";
 
     LiveView(Activity activity, View root, Keys keys) {
@@ -57,7 +56,7 @@ final class LiveView {
     synchronized String start() {
         try {
             if (server == null) {
-                token = String.valueOf(1000 + new Random().nextInt(9000));
+                token = LogServer.newToken();
                 try {
                     server = new ServerSocket(PORT);
                 } catch (IOException busy) {
@@ -146,7 +145,7 @@ final class LiveView {
                 path = target.substring(0, q);
                 query = target.substring(q + 1);
             }
-            if (!token.equals(param(query, "t"))) {
+            if (token.isEmpty() || !token.equals(param(query, "t"))) {
                 reply(sock, "403 Forbidden", "text/plain; charset=utf-8", "Open the address shown on the TV, including the part after the question mark.".getBytes("UTF-8"));
                 return;
             }

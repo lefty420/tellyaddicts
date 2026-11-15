@@ -1,15 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.99",
-  "version": "0.46.99",
-  "code": 4699,
+  "name": "Alpha 0.47.0",
+  "version": "0.47.0",
+  "code": 4700,
   "date": "2026-11-15",
   "notes": [
-    "API keys from your phone: OK on \"TheTVDB key\" or \"TMDB key\" now shows a QR code. The phone page has a \"Get your key\" button that opens the sign-up page (thetvdb.com or themoviedb.org), then you paste the key and press Send. \"Type it with the remote instead\" is the second row.",
-    "Needs the new APK (the phone page is part of the app)."
+    "Magic EPG (Options > Experimental, off by default): fills the channel guides with every episode of each show, not only the ones the library has a file for. Missing episodes are marked with a diamond, and play through your addons when the clock reaches them. If no addon has one, it says so and moves on to the next programme (and remembers, so it is left out next time).",
+    "It reads one new file, `data/epdb.json`, packed from the scraper's per-show episode files by `python3 tools/build_epdb.py` (no internet needed). Shows with no entry fall back to the TV's own lookups from Options > Artwork > Episode lists from, done slowly in the background and used the next time the app starts.",
+    "Needs Experimental on and an addon. Turning it on or off restarts the guides."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.99",
+      "date": "2026-11-15",
+      "notes": [
+        "API keys from your phone: OK on \"TheTVDB key\" or \"TMDB key\" now shows a QR code. The phone page has a \"Get your key\" button that opens the sign-up page (thetvdb.com or themoviedb.org), then you paste the key and press Send. \"Type it with the remote instead\" is the second row.",
+        "Needs the new APK (the phone page is part of the app)."
+      ]
+    },
     {
       "name": "Alpha 0.46.98",
       "date": "2026-11-15",
@@ -64,13 +73,6 @@ window.RELEASE = {
       "notes": [
         "**Screen dims when left on a still screen**: with the TV Guide, On Demand, the bar, Info, Options, Teletext or a menu open and no key pressed for five minutes, the screen fades to a dim. Any key (or a touch on the phone) brings it back at once. A screen that stays put wears an OLED panel far more than moving video, so this matters most for OLED TVs. Nothing changes while a programme plays with nothing open.",
         "**VHS OLED lines are softer** (lighter, a smaller step between line and gap), so they put less uneven wear on a panel. The VHS look itself is unchanged."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.91",
-      "date": "2026-11-15",
-      "notes": [
-        "**VHS OLED made fairer**: which of the two line positions shows now comes from the clock (a new one every ten minutes), not from when the app started. Before, every start began in the same position, so short viewings could leave one set of pixel rows dimmed far more than the other. The lines are also now a whole, even number of device pixels apart, so the swap lands exactly on pixel rows."
       ]
     }
   ]

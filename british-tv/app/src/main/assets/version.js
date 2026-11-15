@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.98",
-  "version": "0.46.98",
-  "code": 4698,
+  "name": "Alpha 0.46.99",
+  "version": "0.46.99",
+  "code": 4699,
   "date": "2026-11-15",
   "notes": [
-    "Options > Artwork: \"Episode lists from\" now sits above the two keys, and its help text fits on one line."
+    "API keys from your phone: OK on \"TheTVDB key\" or \"TMDB key\" now shows a QR code. The phone page has a \"Get your key\" button that opens the sign-up page (thetvdb.com or themoviedb.org), then you paste the key and press Send. \"Type it with the remote instead\" is the second row.",
+    "Needs the new APK (the phone page is part of the app)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.98",
+      "date": "2026-11-15",
+      "notes": [
+        "Options > Artwork: \"Episode lists from\" now sits above the two keys, and its help text fits on one line."
+      ]
+    },
     {
       "name": "Alpha 0.46.97",
       "date": "2026-11-15",
@@ -63,13 +71,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**VHS OLED made fairer**: which of the two line positions shows now comes from the clock (a new one every ten minutes), not from when the app started. Before, every start began in the same position, so short viewings could leave one set of pixel rows dimmed far more than the other. The lines are also now a whole, even number of device pixels apart, so the swap lands exactly on pixel rows."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.90",
-      "date": "2026-11-15",
-      "notes": [
-        "**VHS OLED**: a new picture look, first in the list after Off (Options > Picture). It is the VHS look, but the scanlines swap places with the gaps between them every ten minutes (and when a new video starts, after two minutes), so no row of pixels on an OLED TV is always the dimmed one. The other looks are unchanged."
       ]
     }
   ]

@@ -1870,15 +1870,14 @@
     var id = EPSRC[epSrcIdx].id, first = id === 'tmdb' ? tmdbEpisodes(name, year) : id === 'tvdb' ? tvdbEpisodeList(name, year) : Promise.resolve(null);
     return first.then(function (r) { return r && r.eps.length ? r : mazeEpisodeList(name); }, function () { return mazeEpisodeList(name); });
   }
-  function tmdbKeyOpen() {
-    kbOpen({ title: 'TMDB API key', label: 'Save', value: tmdbKey, save: function (key) {
-      tmdbKey = key; store.set('tmdbkey', key); renderOpts();
-      if (!key) { toast('TMDB key cleared', 3000); return; }
-      toast('Checking the key with TMDB\u2026', 3000);
-      tmdbGet('/search/tv?query=Fawlty%20Towers').then(function (r) { toast(r && r.results && r.results.length ? 'TMDB is working' : 'TMDB answered but found nothing', 4000); },
-        function (e) { toast(/401|403/.test(e.message) ? 'TMDB would not accept that key' : 'Could not reach TMDB to check the key', 5000); });
-    } });
+  function tmdbSetKey(key) {
+    tmdbKey = key; store.set('tmdbkey', key); renderOpts();
+    if (!key) { toast('TMDB key cleared', 3000); return; }
+    toast('Checking the key with TMDB\u2026', 3000);
+    tmdbGet('/search/tv?query=Fawlty%20Towers').then(function (r) { toast(r && r.results && r.results.length ? 'TMDB is working' : 'TMDB answered but found nothing', 4000); },
+      function (e) { toast(/401|403/.test(e.message) ? 'TMDB would not accept that key' : 'Could not reach TMDB to check the key', 5000); });
   }
+  function tmdbKeyOpen() { keyAsk('tmdb'); }
   function tvdbAllEpisodes(id) {
     var out = [];
     function page(n) {
@@ -3907,6 +3906,34 @@
       adFetch(b.base).then(function (m) { adPreview(b.base, m); }, function (e) { adFail(b.base, e); });
     }, 1500);
   }
+  /** An API key is long, so the phone route comes first: scan the code, tap "Get your key", paste it, Send. The remote keyboard is the second row. */
+  var KEYS = { tvdb: { name: 'TheTVDB', row: 'tvdb', set: function (k) { tvdbSetKey(k); }, cur: function () { return tvdbKey; } },
+               tmdb: { name: 'TMDB', row: 'tmdb', set: function (k) { tmdbSetKey(k); }, cur: function () { return tmdbKey; } } };
+  function keyBack(kind) {
+    adPhoneStop(); adClose(); openOpts();
+    optsCat = catOfRow(KEYS[kind].row); optsZone = 1; optsSel = OPTS.indexOf(KEYS[kind].row); renderOpts();
+  }
+  function keyAsk(kind) {
+    var K = KEYS[kind], code = String(1000 + Math.floor(Math.random() * 9000)), addr = '';
+    var remote = { t: '\u2328', n: 'Type it with the remote instead', s: '', d: '', f: function () {
+      adPhoneStop(); adClose();
+      kbOpen({ title: K.name + ' key', label: 'Save', value: K.cur(), save: function (key) { K.set(key); keyBack(kind); } });
+    } };
+    try { addr = NativeHttp.addonInbox(code) || ''; } catch (e) { addr = ''; }
+    if (!addr) { adOpen({ title: K.name + ' key', sub: '', back: function () { keyBack(kind); }, foot: ['OK Select', 'Back'], rows: [remote], i: 0 }); return; }
+    adOpen({ title: K.name + ' key from your phone', sub: 'same Wi-Fi', back: function () { keyBack(kind); }, foot: ['OK Select', 'Back'], qr: addr + '/?c=' + code + '&k=' + kind, rows: [
+      { t: '1', n: 'Scan the code with your phone', s: '', d: '', dim: true, f: function () {} },
+      { t: '2', n: 'Tap Get your key, paste it, Send', s: '', d: '', dim: true, f: function () {} },
+      remote], i: 2 });
+    clearInterval(adPoll);
+    adPoll = setInterval(function () {
+      var l = ''; try { l = NativeHttp.addonTake() || ''; } catch (e) { l = ''; }
+      if (!l) return;
+      var key = l.replace(/^(tvdb|tmdb):/, '').trim();
+      keyBack(kind);
+      K.set(key);
+    }, 1500);
+  }
   function adAsk() {
     adClose();
     kbOpen({ title: 'Addon link (ends in manifest.json)', label: 'Add', sym: 1, value: '', save: function (txt) {
@@ -5263,7 +5290,7 @@
     else if (id === 'mclear') clearMeta();
     else if (id === 'refresh') refreshEpg();
     else if (id === 'unhide') unhideAll();
-    else if (id === 'tvdb') kbOpen();
+    else if (id === 'tvdb') keyAsk('tvdb');
     else if (id === 'tmdb') tmdbKeyOpen();
     else if (id === 'epsrc') { epSrcIdx = (epSrcIdx + (d < 0 ? EPSRC.length - 1 : 1)) % EPSRC.length; store.set('epsrc1', EPSRC[epSrcIdx].id); renderOpts(); }
     else if (id === 'scan') scanStart();
@@ -5310,13 +5337,16 @@
     var key = kbVal.trim();
     kbClose();
     if (kbMode) { kbMode.save(key); return; }
+    tvdbSetKey(key);
+  }
+  function tvdbSetKey(key) {
     tvdbKey = key; tvdbPause = 0; tvdbTokP = null;
     store.set('tvdbkey', key);
     try { kv.removeItem('tvdbtok'); } catch (e) { /* none */ }
     renderOpts();
     if (!key) { toast('TheTVDB off: TVmaze only', 3000); return; }
     if (!(window.NativeHttp && NativeHttp.httpx)) { toast('Saved, but this app version cannot reach TheTVDB. Update the app.', 5000); return; }
-    toast('Checking the key with TheTVDB…', 3000);
+    toast('Checking the key with TheTVDB\u2026', 3000);
     tvdbLogin().then(function () { return tvdbShow('Fawlty Towers', 1975); }).then(function (d) { toast(d ? 'TheTVDB is working: found Fawlty Towers and its artwork' : 'Key accepted, but the test show was not found', 5000); renderOpts(); },
       function (e) { toast(/HTTP 4\d\d/.test(e.message) ? 'TheTVDB would not accept that key' : 'Could not reach TheTVDB to check the key', 5000); renderOpts(); });
   }

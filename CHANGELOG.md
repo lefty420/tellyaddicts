@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.99 — 2026-11-15
+- API keys from your phone: OK on "TheTVDB key" or "TMDB key" now shows a QR code. The phone page has a "Get your key" button that opens the sign-up page (thetvdb.com or themoviedb.org), then you paste the key and press Send. "Type it with the remote instead" is the second row.
+- Needs the new APK (the phone page is part of the app).
+
 ## Alpha 0.46.98 — 2026-11-15
 - Options > Artwork: "Episode lists from" now sits above the two keys, and its help text fits on one line.
 

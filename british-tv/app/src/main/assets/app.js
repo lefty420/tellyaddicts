@@ -3525,6 +3525,7 @@
   // for streams; only plain web links and YouTube are played. Torrents, usenet and archives are never started.
 
   var expOn = store.get('exp1') === 'on';
+  var adLang = store.get('adlang1') || 'en';                 // audio language: en = skip links that say they are in another language, any = take everything
   var adDeb = 'off';                                        // (no debrid settings: the addon does the debrid; links it has not cached are only skipped)
   var adHist = store.get('adhist1') || [];                  // sources that worked, newest first, so a title can start again at once
   var adLast = store.get('adlast1') || {}, adBg = store.get('adbg1') || {};   // the source that last worked per episode (1 hour), and the release group chosen per show
@@ -3762,6 +3763,18 @@
     if (m) return m[2].toUpperCase() === 'GB' ? +m[1] * 1024 : +m[1];
     var b = s.behaviorHints && s.behaviorHints.videoSize; return b ? b / 1048576 : 0;
   }
+  /** Which spoken languages a stream says it has, from the flags and words addons put in its text: {en: bool, other: ['French', ...]}. Nothing said = unknown. */
+  var AD_FLAGS = { '🇬🇧': 'en', '🇺🇸': 'en', '🇦🇺': 'en', '🇨🇦': 'en', '🇫🇷': 'French', '🇩🇪': 'German', '🇮🇹': 'Italian', '🇪🇸': 'Spanish', '🇲🇽': 'Spanish', '🇵🇹': 'Portuguese', '🇧🇷': 'Portuguese', '🇷🇺': 'Russian', '🇯🇵': 'Japanese', '🇰🇷': 'Korean', '🇨🇳': 'Chinese', '🇮🇳': 'Hindi', '🇵🇱': 'Polish', '🇳🇱': 'Dutch', '🇹🇷': 'Turkish', '🇸🇪': 'Swedish', '🇺🇦': 'Ukrainian', '🇨🇿': 'Czech', '🇷🇴': 'Romanian', '🇬🇷': 'Greek', '🇸🇦': 'Arabic' };
+  var AD_WORDS = [[/\b(french|vostfr|vff|vfq|truefrench|fran[cç]ais)\b/i, 'French'], [/\b(german|deutsch|ger)\b/i, 'German'], [/\b(italian|ita)\b/i, 'Italian'], [/\b(spanish|castellano|latino)\b/i, 'Spanish'], [/\b(portuguese|dublado)\b/i, 'Portuguese'], [/\b(russian|rus)\b/i, 'Russian'], [/\b(hindi|tamil|telugu)\b/i, 'Hindi'], [/\b(japanese|jpn)\b/i, 'Japanese'], [/\b(korean|kor)\b/i, 'Korean'], [/\b(chinese|mandarin|cantonese)\b/i, 'Chinese'], [/\b(polish|pl dub|lektor)\b/i, 'Polish'], [/\b(dutch)\b/i, 'Dutch'], [/\b(turkish)\b/i, 'Turkish'], [/\b(arabic)\b/i, 'Arabic']];
+  var adCurTitle = '';                                      // the title being searched: its own words ("The Italian Job") are not a language
+  function adLangs(s) {
+    var t = (s.name || '') + ' ' + (s.title || '') + ' ' + (s.description || '') + ' ' + ((s.behaviorHints && s.behaviorHints.filename) || ''), en = false, other = [];
+    if (adCurTitle) { var tw = adCurTitle.replace(/[^A-Za-z0-9 ]/g, ' ').trim().split(/\s+/).join('[ ._-]+'); if (tw) t = t.replace(new RegExp(tw, 'ig'), ' '); }
+    Object.keys(AD_FLAGS).forEach(function (f) { if (t.indexOf(f) >= 0) { if (AD_FLAGS[f] === 'en') en = true; else if (other.indexOf(AD_FLAGS[f]) < 0) other.push(AD_FLAGS[f]); } });
+    if (/\b(english|eng|en)\b|multi|dual.?audio|\bdual\b/i.test(t.replace(/\bpl\b/ig, ''))) en = true;
+    AD_WORDS.forEach(function (w) { if (w[0].test(t) && other.indexOf(w[1]) < 0) other.push(w[1]); });
+    return { en: en, other: other };
+  }
   /** A link an addon made through the person's debrid account: Torrentio-style "[RD+]" tags, or the service named. */
   function adIsDebrid(s) {
     var t = (s.name || '') + ' ' + (s.title || '') + ' ' + (s.description || '');
@@ -3777,6 +3790,7 @@
     if (s.url && /^https?:\/\//i.test(s.url)) {
       if (s.behaviorHints && s.behaviorHints.proxyHeaders) return 'Needs special request headers (not supported yet)';
       if (adUncached(s)) return 'Not on the debrid service yet (it would have to download first)';
+      if (adLang === 'en') { var L = adLangs(s); if (!L.en && L.other.length) return L.other[0] + ' audio (Audio language: English only)'; }
       if (adDeb === 'only' && !adIsDebrid(s)) return 'Not a debrid link (Debrid only is on)';
       return '';
     }
@@ -3790,6 +3804,7 @@
   /** auto: play the best link by itself (Auto play with debrid); otherwise just list what the addons found and let the person choose (Find sources). */
   function adSources(g, ep, noCache, chOv, auto) {
     var name = g.name, film = !!g.film, ch = chOv || odSel().c;
+    adCurTitle = String(name || '');
     var live = adLive();
     var hit = auto && !noCache && adLast[adKeyOf(g, ep)];
     if (hit && Date.now() - hit.t < 259200000) {                 // the same source worked in the last three days: straight back to it (if it has died, the next lines look again)
@@ -3818,7 +3833,7 @@
           return db - da || bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
         });
         ad.rows = list.map(function (x) {
-          return { t: x.q ? x.q + 'p' : '—', n: x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
+          return { t: x.q ? x.q + 'p' : '—', n: (function () { var L = adLangs(x.s); return (L.other.length && !L.en ? '[' + L.other[0].slice(0, 2).toUpperCase() + '] ' : '') + x.label; })(), s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
             f: function () { adFall = { ch: ch, g: g, ep: ep, q: list.filter(function (y) { return !y.why && y !== x && list.indexOf(y) > list.indexOf(x); }), auto: auto }; adPlay(ch, g, ep, x); } };
         });
         ad.sub = (film ? '' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  ') + (final ? list.length + ' found' : 'asking ' + (targets.length - answered) + ' addon' + (targets.length - answered === 1 ? '' : 's') + '…');
@@ -3882,6 +3897,7 @@
       { t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, false); } });
   }
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
+  function changeLang() { adLang = adLang === 'en' ? 'any' : 'en'; store.set('adlang1', adLang); renderOpts(); }
   function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
 
   // ------------------------------------------------------------------ Teletext (pages the app builds from its own guide)
@@ -4729,7 +4745,7 @@
     { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'addons', 'adlang', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -4740,6 +4756,7 @@
   function optValue(id) {
     if (id === 'exp') return expOn ? 'On' : 'Off';
     if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
+    if (id === 'adlang') return adLang === 'en' ? 'English only' : 'Any';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
     if (id === 'ar') return AR[arIdx].label;
@@ -4845,6 +4862,7 @@
   var OPT_HELP = {
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
+    adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
@@ -5034,6 +5052,7 @@
     var id = OPTS[optsSel];
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
+    else if (id === 'adlang') changeLang();
     else if (id === 'adrec') { closeOpts(); adRecent(); }
     else if (id === 'adcut') changeAdcut();
     else if (id === 'addons') { if (!expOn) toast('Turn Experimental on first', 3000); else { adList(0); } }

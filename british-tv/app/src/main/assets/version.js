@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.60",
-  "version": "0.46.60",
-  "code": 4660,
+  "name": "Alpha 0.46.61",
+  "version": "0.46.61",
+  "code": 4661,
   "date": "2026-11-15",
   "notes": [
-    "**Guide menu**: **Watch now** is removed from the hold-OK menu (plain OK on a programme still joins it where it is now)."
+    "**Audio language for addon links** (Options > Experimental > **Audio language**, default **English only**): the app now reads the language flags and words addons put in their results (the French or German flag, FRENCH, VOSTFR, ITA, LATINO and so on). A link that names another language and no English is greyed out (\"French audio\") so Auto play with debrid never picks it, and in the Find sources list it is tagged like `[FR]`. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Words that are part of the title itself (The Italian Job) are ignored. Set it to **Any** to take everything."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.60",
+      "date": "2026-11-15",
+      "notes": [
+        "**Guide menu**: **Watch now** is removed from the hold-OK menu (plain OK on a programme still joins it where it is now)."
+      ]
+    },
     {
       "name": "Alpha 0.46.59",
       "date": "2026-11-15",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Fix: Find sources for films said \"Could not find this film\"**: the film lookup now (1) searches a film as its plain title (a title like \"Family Plot (1976)\" is searched as \"Family Plot\", and the year picks between films of the same name), (2) understands the newer way addons say they can search (`extraSupported`), and (3) if no addon can find the film, asks Stremio's public film catalogue (Cinemeta) for its IMDb number. What it tried and found is written to the debug log lines starting `ADDON film search` / `CINEMETA`."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.52",
-      "date": "2026-11-15",
-      "notes": [
-        "**Teletext: film of the day**: page **320** shows one film from your guide, chosen by the date (so it stays the same all day): year, certificate, running time, genres, the plot, the cast and which channels show it. The details are the TMDb ones the app already holds, so it needs no internet. Page **321** lists the other films with their years."
       ]
     }
   ]

@@ -1833,7 +1833,7 @@
       return o;
     });
   }
-  // ---- episode lists for the Debrid EPG experiment: one call, whichever source is chosen in Options (TVmaze unless changed)
+  // ---- episode lists for the Magic EPG experiment: one call, whichever source is chosen in Options (TVmaze unless changed)
   var EPSRC = [{ id: 'tvmaze', label: 'TVmaze' }, { id: 'tvdb', label: 'TheTVDB' }, { id: 'tmdb', label: 'TMDB' }];
   var tmdbKey = String(store.get('tmdbkey') || '');
   var epSrcIdx = Math.max(0, EPSRC.map(function (x) { return x.id; }).indexOf(store.get('epsrc1') || 'tvmaze'));
@@ -1878,6 +1878,97 @@
       function (e) { toast(/401|403/.test(e.message) ? 'TMDB would not accept that key' : 'Could not reach TMDB to check the key', 5000); });
   }
   function tmdbKeyOpen() { keyAsk('tmdb'); }
+
+  // ---- Magic EPG (experimental): every episode of every show in the guides, not just the ones the scraper has a file for.
+  // The missing ones become "virtual" programmes (no link) that play through the addons when the clock reaches them.
+  // Episode lists are fetched slowly in the background and kept (epl1:<show>); the guides use what is kept when they are built.
+  var depgOn = store.get('depg1') === 'on', veRun = false, veStat = { shows: 0, listed: 0, virtual: 0 };
+  function depgActive() { return depgOn && expOn && adLive().length > 0; }
+  // The complete-episodes database (data/epdb.json, built by tools/build_epdb.py from the whole library) comes first;
+  // a show it does not have falls back to this device's own lookups (epl1:<show>).
+  var epdb = null, epdbP = null;
+  function loadEpdb() {
+    if (!depgActive()) return Promise.resolve();
+    if (epdbP) return epdbP;
+    var c = store.get('epdb1');
+    if (c && c.d && Date.now() - c.t < 86400000) { epdb = c.d; return (epdbP = Promise.resolve()); }
+    epdbP = getJSON(DATA_BASE + 'epdb.json').then(function (j) {
+      if (j && j.shows) { epdb = j.shows; try { store.set('epdb1', { t: Date.now(), d: epdb }); } catch (e) { /* too big to keep: fetched again next start */ } }
+    }, function () { dlog('MAGIC EPG: no epdb.json published yet'); });
+    return epdbP;
+  }
+  function veGet(show) {
+    var k = normShow(show), e = epdb && epdb[k];
+    if (e && e.e && e.e.length) return { imdb: e.i || '', eps: e.e };
+    var c = store.get('epl1:' + k);
+    return c && c.d && Date.now() - c.t < 30 * 86400000 ? c.d : null;
+  }
+  /** Add the episodes the channel has no file for, from the kept episode lists. */
+  function virtualFill(c, progs) {
+    if (!depgActive()) return progs;
+    var by = {}, out = progs.slice();
+    progs.forEach(function (p) {
+      var ref = window.LINKS && LINKS.parseEp(p.title), nm = gmName(p);
+      if (!ref || !nm || p.ad || p.adBlock || p.song || p.filmKey || p.addon) return;
+      var k = normShow(nm), g = by[k] = by[k] || { name: nm, have: {}, durs: [] };
+      g.have[ref.s + ':' + ref.e] = 1; if (p.dur > 600) g.durs.push(p.dur);
+    });
+    Object.keys(by).forEach(function (k) {
+      var g = by[k], d = veGet(g.name);
+      if (!d || !d.eps || !d.eps.length) return;
+      var first = 9999; d.eps.forEach(function (e) { var y = +String(e[3] || '').slice(0, 4); if (y && y < first) first = y; });
+      if (adCut && first >= 2000) return;                       // the addons only look up older titles, like the rest of the app
+      g.durs.sort(function (a, b) { return a - b; });
+      var dur = g.durs.length ? g.durs[g.durs.length >> 1] : 1800, n = 0, today = new Date().toISOString().slice(0, 10);
+      d.eps.forEach(function (e) {
+        if (g.have[e[0] + ':' + e[1]] || (e[3] && e[3] > today) || n >= 400) return;
+        var id = 'virt/' + k + '/' + e[0] + '/' + e[1];
+        if (isSlow(id)) return;                                 // no source last time
+        n++;
+        out.push({ id: id, item: 'virtual', url: '', virtual: true, show: g.name, group: g.name, dur: dur,
+                   title: g.name + ' S' + pad2(e[0]) + 'E' + pad2(e[1]) + (e[2] ? ' ' + e[2] : ''), sub: '', aired: e[3] || '' });
+      });
+      veStat.virtual += n;
+    });
+    return out;
+  }
+  /** One show at a time, a moment apart: look up every show in the guides that has no kept episode list yet. */
+  function veFill() {
+    if (veRun || !depgActive()) return;
+    var seen = {}, todo = [];
+    channels.forEach(function (c) { (c.plan || []).forEach(function (p) {
+      var nm = gmName(p), ref = window.LINKS && LINKS.parseEp(p.title);
+      if (!nm || !ref || p.ad || p.adBlock || p.song || p.filmKey) return;
+      var k = normShow(nm); if (seen[k]) return; seen[k] = 1;
+      var c0 = store.get('epl1:' + k);
+      if (c0 && Date.now() - c0.t < (c0.d ? 30 : 3) * 86400000) return;
+      todo.push(nm);
+    }); });
+    if (!todo.length) return;
+    veRun = true; var i = 0, got = 0;
+    dlog('DEBRID EPG: looking up episode lists for ' + todo.length + ' shows');
+    (function next() {
+      if (!depgActive() || i >= todo.length) {
+        veRun = false;
+        if (got) toast('Magic EPG: episode lists ready for ' + got + ' shows. They join the guides the next time the app starts.', 8000);
+        return;
+      }
+      var nm = todo[i++];
+      episodeList(nm, 0).then(function (r) {
+        var ok = r && r.eps && r.eps.length;
+        store.set('epl1:' + normShow(nm), { t: Date.now(), d: ok ? { imdb: r.imdb || '', eps: r.eps.map(function (e) { return [e.season, e.number, e.name, e.airdate]; }) } : null });
+        if (ok) got++;
+      }, function () { /* try again another day */ }).then(function () { setTimeout(next, 1500); });
+    })();
+  }
+  function changeDepg() {
+    if (!expOn) { toast('Turn Experimental on first', 3000); return; }
+    depgOn = !depgOn; store.set('depg1', depgOn ? 'on' : 'off'); renderOpts();
+    if (depgOn && !adLive().length) toast('Magic EPG is on. Now add an addon (Options > Experimental).', 5000);
+    else toast(depgOn ? 'Magic EPG on: building episode lists, then rebuilding the guides\u2026' : 'Magic EPG off: rebuilding the guides\u2026', 3000);
+    clearTimeout(spanTimer);
+    spanTimer = setTimeout(function () { location.reload(); }, 2200);
+  }
   function tvdbAllEpisodes(id) {
     var out = [];
     function page(n) {
@@ -2459,6 +2550,7 @@
 
   function playSlot(ch, index, offset, announce, tuning, progOverride) {
     var prog = progOverride || ch.sched.order[index];   // progOverride: Play Next plays an episode that is not in the schedule
+    if (prog.virtual && !depgActive()) { playSlot(ch, (index + 1) % ch.sched.order.length, 0, announce, tuning); return; }   // no addon to play it: on to the next
     if (amMsg) { amMsg = false; toast('', 1); }                  // a new channel or programme: the old scraping message goes
     if (amTake(ch, index, offset, announce, tuning, progOverride, prog)) return;
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
@@ -3056,7 +3148,7 @@
       var esub = fb.prog.sub || '';
       $('gsub').textContent = fb.count > 1
         ? 'Plus ' + (fb.count - 1) + ' more programme' + (fb.count > 2 ? 's' : '')
-        : (sp.ep ? sp.ep + (esub && sp.ep.indexOf(esub) < 0 ? ' \u00b7 ' + esub : '') : esub);
+        : (fb.prog.virtual ? '\u25c7 From your addons' + (sp.ep ? ' \u00b7 ' + sp.ep : '') : sp.ep ? sp.ep + (esub && sp.ep.indexOf(esub) < 0 ? ' \u00b7 ' + esub : '') : esub);
     }
     guideArt(fb ? fb.prog : null);
   }
@@ -3158,7 +3250,7 @@
           var focused = (ch === list[gRow]) && b.startMs <= gFocus && gFocus < b.endMs;
           var frac = (e - s) / SPAN;
           var clipL = b.startMs < lo, clipR = b.endMs > hi;
-          var base = 'blk' + (clipL ? ' cl' : '') + (clipR ? ' cr' : '') + (frac < 0.07 ? ' nw' : '');
+          var base = 'blk' + (clipL ? ' cl' : '') + (clipR ? ' cr' : '') + (frac < 0.07 ? ' nw' : '') + (b.prog.virtual ? ' virt' : '');
           var el = div(base + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : ''));
           el.style.left = ((s - gWin) / SPAN * 100) + '%';
           el.style.width = 'calc(' + (frac * 100) + '% - .4vw)';
@@ -4192,6 +4284,16 @@
       }, function () { finish([]); });
     });
   }
+  var vSkips = 0;
+  /** A virtual episode no addon had: remember that, and go to the next programme (a real one after a few misses in a row). */
+  function vMiss(ch, index, prog, announce) {
+    markSlow(prog.id); vSkips++;
+    dlog('DEBRID EPG: no source for ' + prog.title);
+    toast('No source for ' + prog.title + ', moving on', 3000);
+    var n = ch.sched.order.length, j = (index + 1) % n;
+    if (vSkips >= 3) { for (var t = 0; t < n && ch.sched.order[j].virtual; t++) j = (j + 1) % n; vSkips = 0; }
+    playSlot(ch, j, 0, announce, false);
+  }
   /** Play the library's own link (the fallback), carrying On Demand's place in its list when there was one. */
   function amFallback(lib, why) {
     toast('', 1);
@@ -4203,7 +4305,7 @@
   }
   /** Called at the top of playSlot: true when the addons are going to be tried first (the library plays only if they fail). */
   function amTake(ch, index, offset, announce, tuning, po, prog) {
-    if (amSkip || !amActive()) return false;
+    if (amSkip || !(amActive() || (prog && prog.virtual && depgActive()))) return false;
     var rq = amReq(prog);
     if (!rq) return false;
     var lib = { ch: ch, index: index, offset: offset, announce: announce, tuning: tuning, po: po };
@@ -4216,9 +4318,10 @@
     var go = function (list) {
       if (cur !== me) return;                                  // the viewer changed channel while it was looking
       amMsg = false;
-      if (!list.length) { amFallback(lib, 'no source found'); return; }
+      if (!list.length) { if (prog && prog.virtual) { vMiss(ch, index, prog, announce); return; } amFallback(lib, 'no source found'); return; }
       toast('', 1);
       adFall = { ch: ch, g: rq.g, ep: rq.ep, q: list.slice(1), auto: 0, lib: lib };
+      vSkips = 0;
       dlog('ADDONS MAIN SOURCE: ' + rq.g.name + ' | ' + list[0].addon);
       adPlay(ch, rq.g, rq.ep, list[0]);
       if (cur && cur.prog && cur.prog.addon) { if (me.od) cur.od = me.od; else cur.am = { ch: ch, index: index }; }
@@ -4955,7 +5058,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'ammain', 'adlang', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'addons', 'ammain', 'depg', 'adlang', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -4967,6 +5070,7 @@
     if (id === 'exp') return expOn ? 'On' : 'Off';
     if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'ammain') return !expOn ? 'Turn Experimental on first' : amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
+    if (id === 'depg') return !expOn ? 'Turn Experimental on first' : depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
     if (id === 'adlang') return adLang === 'en' ? 'English only' : 'Any';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
@@ -5076,6 +5180,7 @@
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
     ammain: 'With this on, every programme that has an episode number, and every film, is first looked up with your addons while the loading screen or a "Scraping your debrid" message is showing, and plays from the best link they find. If they find nothing, or the link will not play, the library link plays instead. It plays from the start rather than joining part way through.',
+    depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Those episodes show a \u25c7 and play through your addons; if no addon has one it moves on to the next programme. Needs an addon, and works best with Use addons as a main source.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
@@ -5095,7 +5200,7 @@
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
     keep: 'How often each channel\u2019s line-up of programmes is shuffled into a new running order. Shorter means the guide changes more often.',
     scan: 'Looks up every show in the library that is missing a poster, a backdrop or its episode pictures, and (with a TheTVDB key) every film missing a backdrop, one at a time, with TheTVDB first when a key is entered and TVmaze otherwise. Takes a few minutes the first time. OK again while it runs to cancel. Shows are skipped when they already have everything, so a second scan is quick.',
-    epsrc: 'Where episode lists come from (for the Debrid EPG experiment). TVmaze needs no key; the others use your keys below.',
+    epsrc: 'Where episode lists come from (for the Magic EPG experiment). TVmaze needs no key; the others use your keys below.',
     tmdb: 'Your free API key from themoviedb.org (Settings > API), used when Episode lists is TMDB.',
     tvdb: 'Your own key from thetvdb.com (a free account gives you one). With a key, posters, backdrops, summaries, episode details and cast are looked up on TheTVDB first, and TVmaze fills in whatever it does not have. Clear the key to go back to TVmaze alone.',
     unhide: 'Shows hidden from the hold-OK menu (Hide this show). OK twice brings them all back.',
@@ -5269,6 +5374,7 @@
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
     else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
+    else if (id === 'depg') changeDepg();
     else if (id === 'adlang') changeLang();
     else if (id === 'adrec') { closeOpts(); adRecent(); }
     else if (id === 'adcut') changeAdcut();
@@ -6822,10 +6928,12 @@
     });
     order.forEach(function (c) {
       loadPrograms(c).then(function (progs) {
+        return loadEpdb().then(function () { return progs; });   // Magic EPG: the episode database is in before the first guide is built
+      }).then(function (progs) {
         return progs;   // Auto EPG stands on the library alone; a channel it has nothing for stays empty
       }).then(function (progs) {
         if (progs && progs.length) {
-          progs = dropSlow(progs);
+          progs = dropSlow(virtualFill(c, progs));
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           progs = withBreaks(c, progs);
           var seed = c.id + (epgGen ? ':' + epgGen : '');
@@ -6842,6 +6950,7 @@
         finished++;
         renderStatus();
         if (finished === channels.length) setTimeout(seedLinks, 4000);
+        if (finished === channels.length) setTimeout(veFill, 30000);
         if (finished === channels.length) setTimeout(artScanStart, 60000);
         if (finished === channels.length) setTimeout(odWarm, 4000);
         begin();

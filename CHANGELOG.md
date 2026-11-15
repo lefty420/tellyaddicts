@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.86 — 2026-11-15
+
+- **Rescrape a film from the TV Guide**: "Fix artwork & details" on a film used to say "Films use the details that came with them" and do nothing. It now opens that film's artwork menu in On Demand: Scrape artwork, Choose the right film (for when the wrong film was matched), Choose a poster or background. Film artwork needs the TheTVDB key (Options > Artwork), as in On Demand.
+
 ## Alpha 0.46.85 — 2026-11-15
 
 - **Oswald the Lucky Rabbit** (about 365 cartoons in the library) is now on the Disney channel too.

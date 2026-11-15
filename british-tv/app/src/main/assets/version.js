@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.85",
-  "version": "0.46.85",
-  "code": 4685,
+  "name": "Alpha 0.46.86",
+  "version": "0.46.86",
+  "code": 4686,
   "date": "2026-11-15",
   "notes": [
-    "**Oswald the Lucky Rabbit** (about 365 cartoons in the library) is now on the Disney channel too."
+    "**Rescrape a film from the TV Guide**: \"Fix artwork & details\" on a film used to say \"Films use the details that came with them\" and do nothing. It now opens that film's artwork menu in On Demand: Scrape artwork, Choose the right film (for when the wrong film was matched), Choose a poster or background. Film artwork needs the TheTVDB key (Options > Artwork), as in On Demand."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.85",
+      "date": "2026-11-15",
+      "notes": [
+        "**Oswald the Lucky Rabbit** (about 365 cartoons in the library) is now on the Disney channel too."
+      ]
+    },
     {
       "name": "Alpha 0.46.84",
       "date": "2026-11-15",
@@ -62,15 +69,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**The debug log hides more of an addon's address**: an addon whose settings are a 36-character ID (the AIOStreams style) now shows as ... in the log and live view, like the long ones already did. Lines saved by earlier versions are cleaned when the log loads."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.77",
-      "date": "2026-11-15",
-      "notes": [
-        "**The \"Scraping your debrid...\" message goes away** when you change channel while it is still looking.",
-        "**One ranking for addon links**: Find sources and Use addons as a main source now pick the best link the same way (English audio first, the release group that worked last time, then 1080p over 720p). The unused debrid switch behind the old code is gone.",
-        "**Teletext page text moved out of app.js** into its own file (ttpages.js), about 200 lines. Nothing changes on screen."
       ]
     }
   ]

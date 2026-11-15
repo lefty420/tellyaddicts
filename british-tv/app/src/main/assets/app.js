@@ -3443,7 +3443,7 @@
     }
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
     items.push({ t: 'Teletext', sub: 'Pages built from your guide', f: function () { gmClose(); ttOpen(100); } });
-    items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
+    items.push({ t: 'Fix artwork & details', sub: film ? 'Look the film up again or choose the right one' : 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
     items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); closeGuide(); openOpts(); } });
     items.push({ t: film ? 'Hide this film' : 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { gmClose(); hideShow(film ? p.title : name, film); } });
     items.push({ t: 'Report a problem', sub: 'Note it in the debug log', f: function () {
@@ -3527,7 +3527,12 @@
   }
   /** Look the show up again on TVmaze, pin the match, and rebuild how its stored files are sorted into seasons. */
   function gmScrape(c, p, name, film) {
-    if (film) { toast('Films use the details that came with them', 3000); return; }
+    if (film) {                                            // a film: open its artwork menu in On Demand (Scrape artwork, Choose the right film)
+      gmClose();
+      if (odChannels().indexOf(c) < 0) { toast('Nothing on demand for ' + c.name, 3000); return; }
+      odOpenUi(); odJump(c, p, odmOpen);
+      return;
+    }
     toast('Looking for ' + name + '\u2026', 15000);
     getJSON('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(name)).then(function (list) {
       var sh = pickShow(Array.isArray(list) ? list : [], name, 0);
@@ -6169,7 +6174,7 @@
     if (odFrom === 'watch' && cur && cur.prog && !cur.ad && at >= 0) odJump(cur.ch, cur.prog);
   }
   /** Opened while something is playing: go straight to that show's page, on the season and episode that is on. */
-  function odJump(c, prog) {
+  function odJump(c, prog, after) {
     odLoadChannel(c).then(function () {
       odBusy = false;
       if (!odOpen || odView !== 'home') return;
@@ -6178,7 +6183,7 @@
       sh.forEach(function (g, i) { if (si < 0 && (LIBROUTE.norm(g.name) === key || g.eps.some(function (ep) { return ep.p.url === prog.url; }))) si = i; });
       if (ri < 0 || si < 0) { odRender(); return; }
       odRi = ri; odRc = c; odPos[c.id] = si;
-      if (sh[si].film) { odRender(); return; }      // a film is one video: land on its poster, don't start it again
+      if (sh[si].film) { odRender(); if (after) after(); return; }      // a film is one video: land on its poster, don't start it again
       odOpenShow();
       var g = sh[si];
       for (var s = 0; s < g.sea.length; s++) {

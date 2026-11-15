@@ -2604,7 +2604,7 @@
     if (cur.prog && cur.prog.addon && adFall) {                // an addon source failed: the next best one, then give up
       try { delete adLast[adKeyOf(adFall.g, adFall.ep)]; store.set('adlast1', adLast); } catch (e) { /* ignore */ }
       var nx = adFall.q.shift();
-      if (!nx && adFall.retry) { var f0 = adFall; adFall = null; toast('That source has stopped working, looking again', 3000); adSources(f0.g, f0.ep, true); return; }
+      if (!nx && adFall.retry) { var f0 = adFall; adFall = null; toast('That source has stopped working, looking again', 3000); adSources(f0.g, f0.ep, true, f0.ch); return; }
       if (nx) { toast('That source failed, trying the next', 3000); adPlay(adFall.ch, adFall.g, adFall.ep, nx); return; }
       adFall = null; v.pause(); toast('No other source worked', 4000); odOpenUi(); return;
     }
@@ -3515,6 +3515,8 @@
   // for streams; only plain web links and YouTube are played. Torrents, usenet and archives are never started.
 
   var expOn = store.get('exp1') === 'on';
+  var adDeb = store.get('addeb1') || 'prefer';              // debrid links: off, prefer (first) or only
+  var adHist = store.get('adhist1') || [];                  // sources that worked, newest first, so a title can start again at once
   var adAuto = store.get('adauto1') === 'on';               // play the best source straight away
   var adLast = store.get('adlast1') || {}, adBg = store.get('adbg1') || {};   // the source that last worked per episode (1 hour), and the release group chosen per show
   function adKeyOf(g, ep) { return normShow(g.name) + '|' + (g.film ? 'f' : (ep.s || 1) + ':' + (ep.e || 1)); }
@@ -3621,6 +3623,21 @@
     rows.push({ t: '+', n: 'Add an addon', s: 'type its link', d: '', f: adAsk });
     adOpen({ title: 'Addons', sub: expOn ? 'Asked in this order' : 'Experimental is off', rows: rows, i: keep == null ? 0 : keep, foot: ['OK Choose', 'Back'], empty: '',
       back: function () { adClose(); if (!optsOpen) openOpts(); else renderOpts(); } });
+  }
+  /** Saved sources: everything that worked, newest first. OK plays it; if the link has died the app looks again. */
+  function adRecent() {
+    var ago = function (t) { var m = Math.round((Date.now() - t) / 60000); return m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; };
+    var rows = adHist.map(function (h, i) {
+      return { t: h.q ? h.q + 'p' : '\u2014', n: h.name + (h.film ? '' : '  S' + pad2(h.se || 1) + 'E' + pad2(h.ep || 1)), s: (h.deb ? 'debrid \u00b7 ' : '') + h.addon, d: ago(h.t), f: function () {
+        var ch = channels.filter(function (c) { return c.id === h.ch; })[0] || (cur && cur.ch) || ready()[0], g = { name: h.name, film: h.film }, ep = { s: h.se, e: h.ep };
+        adFall = { ch: ch, g: g, ep: ep, q: [], retry: 1 };
+        closeOpts(); adClose();
+        adPlay(ch, g, ep, { s: h.s, addon: h.addon, label: h.label, q: h.q });
+      } };
+    });
+    if (rows.length) rows.push({ t: '\u2715', n: 'Clear this list', s: '', d: '', f: function () { adHist = []; store.set('adhist1', adHist); adLast = {}; store.set('adlast1', adLast); adRecent(); } });
+    adOpen({ title: 'Saved sources', sub: rows.length ? 'OK plays it again' : '', rows: rows, i: 0, foot: ['OK Play', 'Back'], empty: 'Nothing yet. A source is saved each time one plays.',
+      back: function () { adClose(); openOpts(); } });
   }
   var adPoll = null;
   function adPhoneStop() { clearInterval(adPoll); adPoll = null; try { NativeHttp.addonStop(); } catch (e) { /* ignore */ } }
@@ -3736,9 +3753,24 @@
     if (m) return m[2].toUpperCase() === 'GB' ? +m[1] * 1024 : +m[1];
     var b = s.behaviorHints && s.behaviorHints.videoSize; return b ? b / 1048576 : 0;
   }
+  /** A link an addon made through the person's debrid account: Torrentio-style "[RD+]" tags, or the service named. */
+  function adIsDebrid(s) {
+    var t = (s.name || '') + ' ' + (s.title || '') + ' ' + (s.description || '');
+    return /\[(RD|AD|PM|DL|TB|OC|ED|PP|DR)[^\]]{0,12}\]|real.?debrid|all.?debrid|premiumize|debrid.?link|torbox|offcloud|easydebrid|debrid/i.test(t);
+  }
+  /** A debrid link the service has not downloaded yet (it would sit on a "please wait" video). */
+  function adUncached(s) {
+    var t = (s.name || '') + ' ' + (s.title || '') + ' ' + (s.description || '');
+    return adIsDebrid(s) && /\[(RD|AD|PM|DL|TB|OC|ED|PP|DR)\s*(download|\u2193)\]|not cached|uncached|\bdownload\b.*\bdebrid|\u2193/i.test(t);
+  }
   /** Can this stream be played here? '' = yes, otherwise why not. */
   function adWhy(s) {
-    if (s.url && /^https?:\/\//i.test(s.url)) return (s.behaviorHints && s.behaviorHints.proxyHeaders) ? 'Needs special request headers (not supported yet)' : '';
+    if (s.url && /^https?:\/\//i.test(s.url)) {
+      if (s.behaviorHints && s.behaviorHints.proxyHeaders) return 'Needs special request headers (not supported yet)';
+      if (adUncached(s)) return 'Not on the debrid service yet (it would have to download first)';
+      if (adDeb === 'only' && !adIsDebrid(s)) return 'Not a debrid link (Debrid only is on)';
+      return '';
+    }
     if (s.ytId) return '';
     if (s.infoHash) return 'Torrent: not supported here';
     if (s.nzbUrl) return 'Usenet: not supported here';
@@ -3746,11 +3778,11 @@
     if (s.externalUrl) return 'Opens a website: not supported here';
     return 'Not something this TV can play';
   }
-  function adSources(g, ep, noCache) {
-    var name = g.name, film = !!g.film, ch = odSel().c;
+  function adSources(g, ep, noCache, chOv) {
+    var name = g.name, film = !!g.film, ch = chOv || odSel().c;
     var live = adLive();
     var hit = adAuto && !noCache && adLast[adKeyOf(g, ep)];
-    if (hit && Date.now() - hit.t < 3600000) {                   // the same source worked within the hour: straight back to it
+    if (hit && Date.now() - hit.t < 259200000) {                 // the same source worked in the last three days: straight back to it (if it has died, the next lines look again)
       adFall = { ch: ch, g: g, ep: ep, q: [], retry: 1 };
       toast('Playing the source that worked last time', 3000);
       adPlay(ch, g, ep, { s: hit.s, addon: hit.addon, label: hit.label }); return;
@@ -3772,17 +3804,18 @@
         var list = all.map(function (x, k) { x.k = k; return x; }).sort(function (a, b) {
           if (!!a.why !== !!b.why) return a.why ? 1 : -1;
           var ba = bgOf(a) ? 1 : 0, bb = bgOf(b) ? 1 : 0;
-          return bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
+          var da = adDeb !== 'off' && adIsDebrid(a.s) ? 1 : 0, db = adDeb !== 'off' && adIsDebrid(b.s) ? 1 : 0;
+          return db - da || bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
         });
         ad.rows = list.map(function (x) {
-          return { t: x.q ? x.q + 'p' : '—', n: x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
+          return { t: x.q ? x.q + 'p' : '—', n: (adIsDebrid(x.s) ? '[debrid] ' : '') + x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
             f: function () { adFall = { ch: ch, g: g, ep: ep, q: list.filter(function (y) { return !y.why && y !== x && list.indexOf(y) > list.indexOf(x); }) }; adPlay(ch, g, ep, x); } };
         });
         ad.sub = (film ? '' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  ') + (final ? list.length + ' found' : 'asking ' + (targets.length - answered) + ' addon' + (targets.length - answered === 1 ? '' : 's') + '…');
         ad.empty = final ? 'Nothing found. Try another addon.' : 'Asking your addons…';
         adRender();
         var q0 = adAuto && !ad.auto ? list.filter(function (x) { return !x.why; }) : [];
-        if (q0.length && (final || bgOf(q0[0]) || q0[0].q === 1080)) {    // a good one has arrived: no need to wait for the slow addons
+        if (q0.length && (final || bgOf(q0[0]) || q0[0].q === 1080 || (adDeb !== 'off' && adIsDebrid(q0[0].s) && q0[0].q >= 720))) {    // a good one has arrived: no need to wait for the slow addons
           var q = q0;
           ad.auto = 1;
           if (q.length) { adFall = { ch: ch, g: g, ep: ep, q: q.slice(1) }; adPlay(ch, g, ep, q[0]); toast('Playing the best source: ' + q[0].addon, 3500); }
@@ -3806,8 +3839,14 @@
     var bgp = s.behaviorHints && s.behaviorHints.bingeGroup;
     if (bgp) { adBg[normShow(g.name)] = bgp; store.set('adbg1', adBg); }
     adLast[adKeyOf(g, ep)] = { t: Date.now(), s: s, addon: x.addon, label: x.label };
-    var lk = Object.keys(adLast); if (lk.length > 60) { lk.sort(function (a, b) { return adLast[a].t - adLast[b].t; }); delete adLast[lk[0]]; }
+    var lk = Object.keys(adLast); if (lk.length > 150) { lk.sort(function (a, b) { return adLast[a].t - adLast[b].t; }); delete adLast[lk[0]]; }
     store.set('adlast1', adLast);
+    // the record of what worked: one line per title, newest first, so "Saved sources" can start it again
+    var hk = adKeyOf(g, ep);
+    adHist = adHist.filter(function (h) { return h.k !== hk; });
+    adHist.unshift({ k: hk, name: g.name, film: !!g.film, se: ep.s || 0, ep: ep.e || 0, ch: ch && ch.id, addon: x.addon, label: x.label, q: x.q || 0, deb: adIsDebrid(s) ? 1 : 0, t: Date.now(), s: s });
+    if (adHist.length > 100) adHist.length = 100;
+    store.set('adhist1', adHist);
     adClose(); if (odm) odmClose();
     if (odOpen) odClose(false);                               // the picture must not stay hidden behind On Demand
     dlog('ADDON PLAY ' + x.addon + ' | ' + x.label + ' | ' + url);
@@ -3820,6 +3859,7 @@
     odm.items.splice(2, 0, { t: 'Find sources', sub: 'Ask your addons for streams (experimental)', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }); } });
   }
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
+  function changeDeb() { adDeb = adDeb === 'prefer' ? 'only' : adDeb === 'only' ? 'off' : 'prefer'; store.set('addeb1', adDeb); renderOpts(); }
   function changeAuto() { adAuto = !adAuto; store.set('adauto1', adAuto ? 'on' : 'off'); renderOpts(); }
   function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
 
@@ -4668,7 +4708,7 @@
     { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'adauto', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'addons', 'adauto', 'addeb', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -4680,6 +4720,8 @@
     if (id === 'exp') return expOn ? 'On' : 'Off';
     if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'adauto') return adAuto ? 'On' : 'Off';
+    if (id === 'addeb') return adDeb === 'only' ? 'Debrid only' : adDeb === 'prefer' ? 'Debrid first' : 'Off';
+    if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
@@ -4784,6 +4826,8 @@
   var OPT_HELP = {
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
+    addeb: 'Debrid links (Real-Debrid, AllDebrid, Premiumize and the like, from an addon you set up with your own debrid account). Debrid first: those links are tried before any others. Debrid only: everything else is greyed out. Links the debrid service has not cached yet are never played.',
+    adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
     adauto: 'When on, Find sources plays the best working source straight away (1080p, then 720p). If it fails, the next one is tried, and so on.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
@@ -4974,6 +5018,8 @@
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
     else if (id === 'adauto') changeAuto();
+    else if (id === 'addeb') changeDeb();
+    else if (id === 'adrec') { closeOpts(); adRecent(); }
     else if (id === 'adcut') changeAdcut();
     else if (id === 'addons') { if (!expOn) toast('Turn Experimental on first', 3000); else { adList(0); } }
     else if (id === 'sched') csOpen((cur && cur.ch) || gChan, 'opts');

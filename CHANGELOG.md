@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.54 — 2026-11-15
+
+- **Find sources: debrid option and saved sources** (Options > Experimental):
+  - **Debrid links**: for addons you have set up with your own debrid account (Real-Debrid, AllDebrid, Premiumize, TorBox and similar, as Torrentio-style addons tag them, for example `[RD+]`). **Debrid first** (the new default) tries those links before any others and auto-plays one as soon as a 720p or better one arrives. **Debrid only** greys out everything else. **Off** treats them like any other link. Links the debrid service has not cached yet (`[RD download]`) are never played, because they would only show a waiting video.
+  - **Saved sources**: every source that works is recorded (up to 100 titles, newest first). Options > Experimental > Saved sources lists them with the quality, addon and how long ago; OK plays one again straight away. A saved source is also reused automatically for three days (it was one hour) when you use Find sources on the same title; if the link has died the app looks again by itself. Debrid links in the list are marked.
+
 ## Alpha 0.46.53 — 2026-11-15
 
 - **Fix: Find sources for films said "Could not find this film"**: the film lookup now (1) searches a film as its plain title (a title like "Family Plot (1976)" is searched as "Family Plot", and the year picks between films of the same name), (2) understands the newer way addons say they can search (`extraSupported`), and (3) if no addon can find the film, asks Stremio's public film catalogue (Cinemeta) for its IMDb number. What it tried and found is written to the debug log lines starting `ADDON film search` / `CINEMETA`.

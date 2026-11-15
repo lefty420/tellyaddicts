@@ -2915,10 +2915,22 @@
   var HALF = 30 * 60 * 1000;
   // A cell only a few letters wide shows "Sc…" or "O…", which says nothing (the big header names it on focus): give it the first
   // word if that fits, else a dot. Wider cells keep the whole title and let CSS trim it. Rough: a letter is ~.55 of the text height wide.
+  // File-name style titles ("Tekken.Bloodline.S01E02 .HEVC.x265", "01 Saturday ...", "Show (1981) S02E46 Name") are split into the show
+  // and its episode, and lose the dots, release tags and series year, so a cell and the header read as a name, not a file.
+  function splitTitle(t) {
+    t = String(t || '');
+    if (!/\s/.test(t.trim()) || (t.match(/[._]/g) || []).length > 2) t = t.replace(/[._]+/g, ' ');
+    t = t.replace(/\b(HEVC|x26[45]|h\.?26[45]|AAC\d?|AC3|DDP?\d?|10bit|(?:2160|1080|720|480)p|4K|WEB-?DL|WEB-?Rip|BluRay|BDRip|DVDRip|HDTV|REPACK|PROPER)\b.*$/i, '');
+    var m = /\bS(\d{1,2})E(\d{1,3})\b/i.exec(t), show = t, ep = '';
+    if (m && m.index > 0) { show = t.slice(0, m.index); ep = m[0].toUpperCase(); var rest = t.slice(m.index + m[0].length).trim(); if (rest) ep += ' \u00b7 ' + rest; }
+    show = show.replace(/\s*\((?:19|20)\d\d\)\s*$/, '').replace(/^\d{1,2}\s+(?=[A-Za-z])/, '').replace(/\s+/g, ' ').trim();
+    return { show: show || t.trim(), ep: ep.replace(/\s+/g, ' ').trim() };
+  }
+  // A cell only a few letters wide shows "Sc…" or "O…", which says nothing (the big header names it on focus): give it the first
+  // word if that fits, else a dot, and no arrows. Wider cells keep the whole title and let CSS trim it. Rough: a letter is ~.55 of the text height wide.
   function fitTitle(t, frac, arrows) {
-    var cap = Math.floor((frac * window.innerWidth * 0.8 - window.innerHeight * 0.03) / (window.innerHeight * 0.026 * 0.55));
-    cap -= 2 * arrows;                    // the ◄ ► arrows take room too
-    if (cap >= 8) return t;
+    var wpx = frac * window.innerWidth, cap = Math.floor((wpx * 0.8 - window.innerHeight * 0.03) / (window.innerHeight * 0.026 * 0.55));
+    if (wpx >= 170 * window.innerWidth / 1920) { cap -= 2 * arrows; if (cap >= 8) return t; }   // the arrows take room too
     var w = String(t).split(/[\s:\-\u2013]+/)[0];
     return w.length <= cap ? w : '\u2022';
   }
@@ -2986,7 +2998,8 @@
       $('gtime').textContent = 'Loading programmes\u2026';
       $('gsub').textContent = '';
     } else {
-      $('gtitle').textContent = fb.prog.title;
+      var sp = splitTitle(fb.prog.title);
+      $('gtitle').textContent = sp.show;
       $('gchan').textContent = sel.n + '  ' + sel.name;
       var when;
       if (fb.startMs <= now && now < fb.endMs) when = 'Showing now';
@@ -2995,9 +3008,10 @@
         when = mins < 60 ? 'Starts in ' + mins + ' min' : 'Starts at ' + fmtTime(fb.startMs);
       } else when = 'Earlier';
       $('gtime').textContent = fmtTime(fb.startMs) + ' \u2013 ' + fmtTime(fb.endMs) + '   ' + when;
+      var esub = fb.prog.sub || '';
       $('gsub').textContent = fb.count > 1
         ? 'Plus ' + (fb.count - 1) + ' more programme' + (fb.count > 2 ? 's' : '')
-        : (fb.prog.sub || '');
+        : (sp.ep ? sp.ep + (esub && sp.ep.indexOf(esub) < 0 ? ' \u00b7 ' + esub : '') : esub);
     }
     guideArt(fb ? fb.prog : null);
   }
@@ -3110,9 +3124,10 @@
           if (window.PHONE) tapGuide(el, ch, b);
           rec.blocks.push({ el: el, b: b, base: base });
           if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text: no padding either, or it would stick out past the edge
-          if (clipL) el.appendChild(div('arr l', '\u25c4'));
-          if (clipR) el.appendChild(div('arr r', '\u25ba'));
-          el.appendChild(div('t', fitTitle(b.prog.title, frac, (clipL ? 1 : 0) + (clipR ? 1 : 0))));
+          var tiny = frac * window.innerWidth < 170 * window.innerWidth / 1920, st = splitTitle(b.prog.title);
+          if (clipL && !tiny) el.appendChild(div('arr l', '\u25c4'));
+          if (clipR && !tiny) el.appendChild(div('arr r', '\u25ba'));
+          el.appendChild(div('t', fitTitle(st.show + (st.ep ? ' ' + st.ep.split(' ')[0] : ''), frac, (clipL ? 1 : 0) + (clipR ? 1 : 0))));
           el.appendChild(div('s', b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '')));
           line.appendChild(el);
         });

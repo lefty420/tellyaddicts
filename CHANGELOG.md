@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.96 — 2026-11-15
+- Guide header: the show name is big, with the episode ("S02E46 · Episode name") on the line under it; the series year is dropped.
+- Guide cells and header clean up file-style names: dots/underscores become spaces, codec and release tags (HEVC, x265, 1080p, WEB-DL...) and leading track numbers go.
+- Very narrow guide cells (under about 170 px) show the first word or a dot, with no arrows or "…".
+- On Demand "OK Open" hint is bigger; the guide's episode line is bigger.
+
 ## Alpha 0.46.95 — 2026-11-15
 
 - **A paused picture now dims too**: the five-minute dim only counted the guide, On Demand, the bar and the other panels, so a paused frame could sit on an OLED screen for hours. A paused programme now fades to the dim after five minutes with no key pressed, like any other still screen.

@@ -7,7 +7,7 @@
   function makeVideo(el) {
     var L = {};                                   // listeners that hear the native player's events
     var st = { native: false, src: '', pos: 0, ts: 0, dur: NaN, playing: false, paused: true, ready: 0, err: null,
-               w: 0, h: 0, muted: false, buf: 0, gen: 0 };
+               w: 0, h: 0, muted: false, buf: 0, gen: 0, tracks: [] };
     var shim = { el: el, wantNative: function () { return false; } };
     function hasNative() { try { return !!(root.NativeHttp && root.NativeHttp.npOpen); } catch (e) { return false; } }
     function call(fn) { var args = Array.prototype.slice.call(arguments, 1); try { root.NativeHttp[fn].apply(root.NativeHttp, args); } catch (e) { /* the native side is gone */ } }
@@ -25,7 +25,8 @@
     function open(url, startSec) {
       st.gen++;
       st.src = url; st.pos = startSec || 0; st.ts = Date.now(); st.dur = NaN; st.playing = false; st.paused = false;
-      st.ready = 0; st.err = null; st.w = 0; st.h = 0; st.buf = 0;
+      st.ready = 0; st.err = null; st.w = 0; st.h = 0; st.buf = 0; st.tracks = [];
+      cues('[]');
       setNative(true);
       call('npOpen', url, Math.round((startSec || 0) * 1000), st.gen);
       fire('loadstart');
@@ -33,9 +34,10 @@
     function closeNative() {
       if (!st.native) return;
       call('npStop');
-      st.gen++;
+      st.gen++; st.tracks = []; cues('[]');
       setNative(false);
     }
+    function cues(json) { if (root.__npCues) root.__npCues(json); }
     function def(name, get, set) { Object.defineProperty(shim, name, { get: get, set: set, enumerable: true }); }
 
     def('src', function () { return st.native ? st.src : el.src; }, function (u) {
@@ -102,6 +104,10 @@
       return true;
     };
     shim.canNative = hasNative;
+    /** The sound and subtitle tracks in the file (the app's own player only: the web view cannot see them). */
+    shim.tracks = function () { return st.native ? st.tracks : []; };
+    shim.selectTrack = function (t) { if (st.native) call('npTrack', t ? t.k : 'text', t ? t.g : -1, t ? t.i : -1); };
+    shim.trackPrefs = function (audio, text) { if (hasNative() && root.NativeHttp.npPrefs) call('npPrefs', audio || '', text || ''); };
 
     /** Called by the app with what the native player is doing. */
     root.__np = function (gen, type, a, b, c) {
@@ -128,6 +134,11 @@
       } else if (type === 'ended') {
         st.playing = false; st.paused = true;
         fire('ended');
+      } else if (type === 'tracks') {
+        try { st.tracks = JSON.parse(a) || []; } catch (e) { st.tracks = []; }
+        fire('tracks');
+      } else if (type === 'cues') {
+        cues(String(a || '[]'));
       } else if (type === 'note') {
         if (root.__ytNote) root.__ytNote(String(a || ''));
       } else if (type === 'error') {

@@ -1,15 +1,24 @@
 package app.britishtv;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.Base64;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.SurfaceView;
 import android.view.View;
 
+import androidx.media3.common.C;
+import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.Player;
+import androidx.media3.common.TrackSelectionOverride;
+import androidx.media3.common.TrackSelectionParameters;
+import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
+import androidx.media3.common.text.Cue;
+import androidx.media3.common.text.CueGroup;
 import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
@@ -18,7 +27,11 @@ import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.MergingMediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Locale;
 
 /**
  * The backup player. The page plays video in the web view's own player; a file with sound that player cannot decode
@@ -45,6 +58,9 @@ final class NativePlayer {
     private boolean readySent;
     private boolean muted;
     private int width, height;
+    // the viewer's choices, kept from programme to programme: a sound language (null = the file's own choice) and a
+    // subtitle language ("" = only the file's forced/default ones, "off" = none, "any" = whichever there is)
+    private String prefAudio, prefText = "";
 
     private final Runnable tick = new Runnable() {
         @Override
@@ -119,6 +135,47 @@ final class NativePlayer {
         });
     }
 
+    void prefs(final String audioLang, final String textLang) {
+        main.post(new Runnable() {
+            @Override
+            public void run() {
+                prefAudio = audioLang == null || audioLang.isEmpty() ? null : audioLang;
+                prefText = textLang == null ? "" : textLang;
+            }
+        });
+    }
+
+    /**
+     * Picks one sound or subtitle track, by its place in the list sent with "tracks". kind is "audio" or "text";
+     * group -1 turns subtitles off.
+     */
+    void select(final String kind, final int group, final int track) {
+        main.post(new Runnable() {
+            @Override
+            public void run() {
+                if (player == null) {
+                    return;
+                }
+                int type = "audio".equals(kind) ? C.TRACK_TYPE_AUDIO : C.TRACK_TYPE_TEXT;
+                TrackSelectionParameters.Builder b = player.getTrackSelectionParameters().buildUpon();
+                if (group < 0) {
+                    b.clearOverridesOfType(type).setTrackTypeDisabled(type, true);
+                } else {
+                    java.util.List<Tracks.Group> gs = player.getCurrentTracks().getGroups();
+                    if (group >= gs.size() || track >= gs.get(group).length || gs.get(group).getType() != type) {
+                        return;      // the tracks changed under the menu
+                    }
+                    b.setTrackTypeDisabled(type, false)
+                            .setOverrideForType(new TrackSelectionOverride(gs.get(group).getMediaTrackGroup(), track));
+                }
+                player.setTrackSelectionParameters(b.build());
+                if (type == C.TRACK_TYPE_TEXT) {
+                    send("cues", "[]");
+                }
+            }
+        });
+    }
+
     void stop() {
         main.post(new Runnable() {
             @Override
@@ -179,6 +236,15 @@ final class NativePlayer {
                     .setMediaSourceFactory(new DefaultMediaSourceFactory(http))
                     .build();
             player.setVideoSurfaceView(surface);
+            TrackSelectionParameters.Builder tp = player.getTrackSelectionParameters().buildUpon()
+                    .setPreferredAudioLanguage(prefAudio)
+                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, "off".equals(prefText));
+            if ("any".equals(prefText)) {
+                tp.setPreferredTextLanguage(Locale.getDefault().getLanguage()).setSelectUndeterminedTextLanguage(true);
+            } else if (!prefText.isEmpty() && !"off".equals(prefText)) {
+                tp.setPreferredTextLanguage(prefText);
+            }
+            player.setTrackSelectionParameters(tp.build());
             player.setVolume(muted ? 0f : 1f);
             player.addListener(new Listener(generation));
             if (audioUrl != null) {
@@ -276,6 +342,77 @@ final class NativePlayer {
             if (mine == gen && reason == Player.DISCONTINUITY_REASON_SEEK) {
                 send("seeked", newPos.positionMs);
             }
+        }
+
+        @Override
+        public void onTracksChanged(Tracks tracks) {
+            if (mine != gen) {
+                return;
+            }
+            JSONArray out = new JSONArray();
+            try {
+                java.util.List<Tracks.Group> gs = tracks.getGroups();
+                for (int g = 0; g < gs.size(); g++) {
+                    Tracks.Group grp = gs.get(g);
+                    int type = grp.getType();
+                    if (type != C.TRACK_TYPE_AUDIO && type != C.TRACK_TYPE_TEXT) {
+                        continue;
+                    }
+                    for (int i = 0; i < grp.length; i++) {
+                        if (!grp.isTrackSupported(i)) {
+                            continue;      // a sound this device cannot decode, or a subtitle format with no decoder
+                        }
+                        Format f = grp.getTrackFormat(i);
+                        JSONObject o = new JSONObject();
+                        o.put("k", type == C.TRACK_TYPE_AUDIO ? "audio" : "text");
+                        o.put("g", g);
+                        o.put("i", i);
+                        o.put("on", grp.isTrackSelected(i));
+                        if (f.label != null) o.put("label", f.label);
+                        if (f.language != null) o.put("lang", f.language);
+                        if (f.sampleMimeType != null) o.put("mime", f.sampleMimeType);
+                        if (f.channelCount > 0) o.put("ch", f.channelCount);
+                        if ((f.selectionFlags & C.SELECTION_FLAG_FORCED) != 0) o.put("forced", true);
+                        if ((f.roleFlags & (C.ROLE_FLAG_DESCRIBES_VIDEO | C.ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND)) != 0) o.put("desc", true);
+                        out.put(o);
+                    }
+                }
+            } catch (Exception ignored) {
+                // a JSON put that cannot fail
+            }
+            send("tracks", out.toString());
+        }
+
+        /** Subtitles are drawn by the page, so they look like the rest of the app: text as it is, pictures (DVD/Blu-ray) as PNGs. */
+        @Override
+        public void onCues(CueGroup cues) {
+            if (mine != gen) {
+                return;
+            }
+            JSONArray out = new JSONArray();
+            try {
+                for (Cue c : cues.cues) {
+                    JSONObject o = new JSONObject();
+                    if (c.bitmap != null) {
+                        ByteArrayOutputStream png = new ByteArrayOutputStream();
+                        c.bitmap.compress(Bitmap.CompressFormat.PNG, 100, png);
+                        o.put("img", "data:image/png;base64," + Base64.encodeToString(png.toByteArray(), Base64.NO_WRAP));
+                        o.put("x", c.position == Cue.DIMEN_UNSET ? 0.5 : c.position);
+                        o.put("y", c.line == Cue.DIMEN_UNSET ? 0.85 : c.line);
+                        o.put("w", c.size == Cue.DIMEN_UNSET ? 0.5 : c.size);
+                        o.put("ax", c.positionAnchor);
+                        o.put("ay", c.lineAnchor);
+                    } else if (c.text != null && c.text.length() > 0) {
+                        o.put("t", c.text.toString());
+                    } else {
+                        continue;
+                    }
+                    out.put(o);
+                }
+            } catch (Exception ignored) {
+                // a JSON put that cannot fail
+            }
+            send("cues", out.toString());
         }
 
         @Override

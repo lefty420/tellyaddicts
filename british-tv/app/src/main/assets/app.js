@@ -2224,6 +2224,115 @@
     store.set('player1', PLAYERS[playerIdx].id);
     renderOpts();
   }
+  // ---- sound and subtitle tracks (OSD "Audio & subtitles"). Only the app's own player can see the tracks inside a file;
+  // the web view plays one sound and no subtitles. A choice is kept as a language, so the next programme starts the same
+  // way where it can (NativePlayer.prefs). Subtitles come back as text or pictures and are drawn here, over the picture.
+  var trPref = store.get('tracks1') || { a: '', t: '' };      // a: sound language; t: '' the file's own, 'off', 'any' or a language
+  v.trackPrefs(trPref.a, trPref.t);
+  var LANG = { en: 'English', eng: 'English', fr: 'French', fre: 'French', fra: 'French', de: 'German', ger: 'German', deu: 'German',
+    es: 'Spanish', spa: 'Spanish', it: 'Italian', ita: 'Italian', nl: 'Dutch', dut: 'Dutch', pt: 'Portuguese', por: 'Portuguese',
+    sv: 'Swedish', swe: 'Swedish', da: 'Danish', dan: 'Danish', no: 'Norwegian', nor: 'Norwegian', fi: 'Finnish', fin: 'Finnish',
+    pl: 'Polish', pol: 'Polish', ru: 'Russian', rus: 'Russian', ja: 'Japanese', jpn: 'Japanese', zh: 'Chinese', chi: 'Chinese',
+    ko: 'Korean', kor: 'Korean', ar: 'Arabic', ara: 'Arabic', hi: 'Hindi', hin: 'Hindi', tr: 'Turkish', tur: 'Turkish', el: 'Greek', gre: 'Greek' };
+  var CODEC = { 'audio/ac3': 'Dolby Digital', 'audio/eac3': 'Dolby Digital+', 'audio/eac3-joc': 'Dolby Atmos', 'audio/true-hd': 'Dolby TrueHD',
+    'audio/vnd.dts': 'DTS', 'audio/vnd.dts.hd': 'DTS-HD', 'audio/mp4a-latm': 'AAC', 'audio/opus': 'Opus', 'audio/mpeg': 'MP3', 'audio/flac': 'FLAC' };
+  function langName(l) {
+    if (!l || l === 'und') return '';
+    var b = String(l).toLowerCase().split(/[-_]/)[0];
+    return LANG[b] || String(l).toUpperCase();
+  }
+  function trName(t, n) {
+    var bits = [];
+    var lang = langName(t.lang);
+    if (t.label && t.label.toLowerCase() !== lang.toLowerCase()) bits.push(t.label);
+    if (lang) bits.unshift(lang);
+    if (!bits.length) bits.push((t.k === 'audio' ? 'Sound ' : 'Subtitles ') + n);
+    return bits.join(' · ');
+  }
+  function trSub(t) {
+    var x = [];
+    if (t.k === 'audio') {
+      if (CODEC[t.mime]) x.push(CODEC[t.mime]);
+      if (t.ch) x.push(t.ch === 1 ? 'Mono' : t.ch === 2 ? 'Stereo' : t.ch === 6 ? '5.1' : t.ch === 8 ? '7.1' : t.ch + ' channels');
+      if (t.desc) x.push('Audio description');
+    } else {
+      if (t.forced) x.push('Forced');
+      if (t.desc) x.push('SDH');
+      if (/pgs|vobsub|dvb/.test(t.mime || '')) x.push('Picture subtitles');
+    }
+    return x.join(', ');
+  }
+  function trOf(k) { return v.tracks().filter(function (t) { return t.k === k; }); }
+  function trHas() { return trOf('audio').length > 1 || trOf('text').length > 0; }
+  function trSave() { store.set('tracks1', trPref); v.trackPrefs(trPref.a, trPref.t); }
+  function trNow(k) {
+    var on = trOf(k).filter(function (t) { return t.on; })[0];
+    return on ? trName(on, trOf(k).indexOf(on) + 1) : (k === 'text' ? 'Off' : 'None');
+  }
+  function trMenu(k, parent) {
+    var list = trOf(k), items = [];
+    if (k === 'text') items.push({ t: (trNow('text') === 'Off' ? '✓ ' : '') + 'Off', f: function () {
+      v.selectTrack(null); trPref.t = 'off'; trSave(); gmClose(); toast('Subtitles off', 1500);
+    } });
+    list.forEach(function (t, n) {
+      var name = trName(t, n + 1);
+      items.push({ t: (t.on ? '✓ ' : '') + name, sub: trSub(t), f: function () {
+        v.selectTrack(t);
+        if (k === 'audio') trPref.a = t.lang && t.lang !== 'und' ? t.lang : ''; else trPref.t = t.lang && t.lang !== 'und' ? t.lang : 'any';
+        trSave(); gmClose();
+        toast((k === 'audio' ? 'Sound: ' : 'Subtitles: ') + name, 2000);
+        dlog('TRACK ' + k + ' ' + name + (t.mime ? ' (' + t.mime + ')' : ''));
+      } });
+    });
+    var cur0 = 0;
+    items.forEach(function (it, i) { if (it.t.indexOf('✓') === 0) cur0 = i; });
+    gm = { items: items, i: cur0, title: k === 'audio' ? 'Sound' : 'Subtitles', sub: list.length + (k === 'audio' ? ' sound tracks' : ' subtitle tracks') + ' in this file', parent: parent || null };
+    gmRender();
+  }
+  function trOpen() {
+    if (!trHas()) { toast('This file has only one sound and no subtitles', 2500); return; }
+    var top = [];
+    if (trOf('audio').length > 1) top.push({ t: 'Sound', sub: trNow('audio'), f: function () { trMenu('audio', gm); } });
+    if (trOf('text').length) top.push({ t: 'Subtitles', sub: trNow('text'), f: function () { trMenu('text', gm); } });
+    if (top.length === 1) { trMenu(trOf('audio').length > 1 ? 'audio' : 'text'); return; }
+    gm = { items: top, i: 0, title: 'Audio & subtitles', sub: (cur && cur.prog && cur.prog.title) || '' };
+    gmRender();
+  }
+  v.addEventListener('tracks', function () {
+    var ts = v.tracks();
+    if (!ts.length) return;
+    dlog('  tracks: ' + ts.map(function (t, n) { return (t.on ? '*' : '') + t.k + ' ' + (t.lang || '?') + (t.mime ? ' ' + t.mime.replace(/^\w+\//, '') : '') + (t.ch ? ' ' + t.ch + 'ch' : ''); }).join(', '));
+  });
+  window.__npCues = function (json) {
+    var box = $('subs'), list = [];
+    try { list = JSON.parse(json) || []; } catch (e) { /* nothing to show */ }
+    box.textContent = '';
+    if (!list.length) { box.className = 'hidden'; return; }
+    // the box covers the picture itself (not the black bars), since picture subtitles are placed by where they sit in the frame
+    var ar = v.videoWidth > 0 && v.videoHeight > 0 ? v.videoWidth / v.videoHeight : 16 / 9;
+    var w = Math.min(window.innerWidth, window.innerHeight * ar);
+    box.style.width = w + 'px'; box.style.height = (w / ar) + 'px';
+    var text = [];
+    list.forEach(function (c) {
+      if (c.t) { text.push(c.t); return; }
+      if (!c.img) return;
+      var im = document.createElement('img'); im.src = c.img;
+      im.style.width = (c.w * 100) + '%';
+      im.style.left = (c.x * 100) + '%'; im.style.top = (c.y * 100) + '%';
+      im.style.transform = 'translate(' + (c.ax === 1 ? -50 : c.ax === 2 ? -100 : 0) + '%,' + (c.ay === 1 ? -50 : c.ay === 2 ? -100 : 0) + '%)';
+      box.appendChild(im);
+    });
+    if (text.length) {
+      var d = document.createElement('div'); d.className = 'st';
+      text.join('\n').split('\n').forEach(function (line, i) {
+        if (i) d.appendChild(document.createElement('br'));
+        var sp = document.createElement('span'); sp.textContent = line; d.appendChild(sp);
+      });
+      box.appendChild(d);
+    }
+    box.className = '';
+  };
+
   function pbStart(url, offset) { pb = { t0: Date.now(), ev: [], url: url, offset: offset || 0 }; }
   ['loadstart', 'loadedmetadata', 'loadeddata', 'canplay', 'playing', 'waiting', 'stalled', 'seeked', 'error'].forEach(function (n) {
     v.addEventListener(n, function () {
@@ -4160,9 +4269,9 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'sched', 'od', 'src', 'find', 'options'];   // buttons on the bar, left to right
+  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'sched', 'od', 'src', 'find', 'tracks', 'options'];   // buttons on the bar, left to right
   /** The buttons showing now: Skip adverts is only there while a break is playing (and never on the Adverts channel, which is all adverts). */
-  function obList() { return OB_ALL.filter(function (id) { return id === 'skipad' ? !!(cur && cur.ad && !isAdChan(cur.ch)) : (id === 'src' || id === 'find') ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
+  function obList() { return OB_ALL.filter(function (id) { return id === 'tracks' ? trHas() : id === 'skipad' ? !!(cur && cur.ad && !isAdChan(cur.ch)) : (id === 'src' || id === 'find') ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
   // The progress bar is a scrubber: Left / Right on it wind through the video (hold to go faster), Down reaches the buttons.
   var osdZone = 'btn', scrubT = null, scrubTimer = null, scrubLast = 0, scrubHold = 0, scrubDir = 0;
@@ -5255,6 +5364,7 @@
   function openOsd() {
     if (!cur) { openGuide(); return; }
     osdOpen = true;
+    document.body.classList.add('osdup');      // lifts any subtitles above the bar
     osdArt();
     osdSel = obList().indexOf('pp');      // start on play/pause
     osdZone = 'btn'; scrubT = null;
@@ -5270,6 +5380,7 @@
   function closeOsd() {
     scrubApply();
     osdOpen = false;
+    document.body.classList.remove('osdup');
     clearTimeout(osdTimer);
     clearInterval(osdTick);
     $('osd').className = 'off';
@@ -5303,6 +5414,7 @@
     else if (id === 'skipad') { closeOsd(); skipAds(); return; }
     else if (id === 'restart') { restartShow(); return; }
     else if (id === 'options') { openOpts(); return; }
+    else if (id === 'tracks') { trOpen(); return; }
     else if (id === 'od') { closeOsd(); odOpenUi(); return; }
     else if (id === 'src') { closeOsd(); adFromProg(cur && cur.prog, cur && cur.ch, true); return; }
     else if (id === 'find') { closeOsd(); adFromProg(cur && cur.prog, cur && cur.ch, false); return; }

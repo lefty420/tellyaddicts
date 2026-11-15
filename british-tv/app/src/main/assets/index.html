@@ -295,6 +295,14 @@
   html.phone #cstabs b { font-size: 3.4vh; padding: 1.4vh 2.2vw; } html.phone #cslist { top: 17vh; }
   html.phone .csr { height: 14vh; font-size: 4.6vh; margin-bottom: 1.2vh; } html.phone .csr .n i, html.phone .csr .d { font-size: 3.2vh; }
   html.phone #csfoot { display: none; }
+  /* subtitles from the app's own player (app.js __npCues): over the picture, under the bar and every panel */
+  #subs { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 8; pointer-events: none; }
+  #subs.hidden { display: none; }
+  #subs img { position: absolute; height: auto; }
+  #subs .st { position: absolute; left: 5%; right: 5%; bottom: 7%; text-align: center; font-size: 4.6vh; line-height: 1.25; color: #fff; font-weight: 600;
+    text-shadow: 0 0 .5vh #000, .2vh .2vh .2vh #000, -.2vh -.2vh .2vh #000; }
+  body.osdup #subs .st { bottom: auto; top: 30%; }
+  #subs .st span { background: rgba(0,0,0,.35); padding: 0 .6vw; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
   #gmenu { position: fixed; inset: 0; z-index: 65; background: rgba(2,6,28,.82); display: flex; align-items: center; justify-content: center; }
   #gmenu.hidden { display: none; }
   #gmbox { width: 38vw; background: #061450; border: .14vh solid rgba(255,255,255,.16); border-radius: 2.8vh; padding: 3.4vh 2vw 2.2vh; box-shadow: 0 2vh 6vh rgba(0,0,0,.7); }
@@ -895,6 +903,7 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="f-crt" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/><feOffset in="r" dx="-1.2" result="ro"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/><feOffset in="b" dx="1.2" result="bo"/><feBlend in="ro" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="bo" mode="screen" result="rgb"/><feGaussianBlur in="rgb" stdDeviation="0.9 0.5"/></filter><filter id="f-vhs" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="1.4 0.4"/></filter><filter id="f-sharp" color-interpolation-filters="sRGB"><feConvolveMatrix order="3" kernelMatrix="0 -0.55 0 -0.55 3.2 -0.55 0 -0.55 0" divisor="1" bias="0" preserveAlpha="true"/></filter></svg>
 <div id="spinner" class="hidden"></div>
 
+<div id="subs" class="hidden"></div>
 <div id="banner" class="off">
   <div id="bnum"></div>
   <div id="binfo"><div id="bchan"></div><div id="btitle"></div><div id="bsub"></div></div>
@@ -919,6 +928,7 @@
     <div class="ob" id="ob-od"><span>On Demand</span></div>
     <div class="ob" id="ob-src"><span>Auto play</span></div>
     <div class="ob" id="ob-find"><span>Find sources</span></div>
+    <div class="ob" id="ob-tracks"><span class="ic">&#9835;</span><span>Audio &amp; subtitles</span></div>
     <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
   </div>
 </div>

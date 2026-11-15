@@ -352,6 +352,17 @@ public class MainActivity extends Activity {
             np.mute(muted);
         }
 
+        /** The viewer's sound and subtitle languages (see NativePlayer.prefs), used for every file opened after this. */
+        @JavascriptInterface
+        public void npPrefs(String audioLang, String textLang) {
+            np.prefs(audioLang, textLang);
+        }
+
+        @JavascriptInterface
+        public void npTrack(String kind, int group, int track) {
+            np.select(kind, group, track);
+        }
+
         /** Put the backup player's picture in a window (the guide's little TV), or back to full screen when w is 0. */
         @JavascriptInterface
         public void npRect(final int left, final int top, final int w, final int h) {

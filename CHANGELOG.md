@@ -7,6 +7,13 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.58 — 2026-11-15
+
+- **Find sources and Auto play with debrid are now two separate things**, on the On Demand hold-OK menu, the guide's hold-OK menu and the on-screen bar:
+  - **Find sources** only asks your addons and shows what they found, so you choose.
+  - **Auto play with debrid** asks them and plays the best link by itself (reusing a link that worked in the last three days, trying the next if one fails, and carrying on to the next episode of a show).
+  The "Auto play" setting in Options > Experimental is gone, since each button now does its own thing.
+
 ## Alpha 0.46.57 — 2026-11-15
 
 - **On Demand menu**: the hold-OK item **Find sources** is now called **Auto play with debrid**, like the bar and the guide. It does what it did before: asks your addons and plays the best link.

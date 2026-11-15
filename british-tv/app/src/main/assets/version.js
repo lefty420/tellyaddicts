@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.57",
-  "version": "0.46.57",
-  "code": 4657,
+  "name": "Alpha 0.46.58",
+  "version": "0.46.58",
+  "code": 4658,
   "date": "2026-11-15",
   "notes": [
-    "**On Demand menu**: the hold-OK item **Find sources** is now called **Auto play with debrid**, like the bar and the guide. It does what it did before: asks your addons and plays the best link."
+    "**Find sources and Auto play with debrid are now two separate things**, on the On Demand hold-OK menu, the guide's hold-OK menu and the on-screen bar:"
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.57",
+      "date": "2026-11-15",
+      "notes": [
+        "**On Demand menu**: the hold-OK item **Find sources** is now called **Auto play with debrid**, like the bar and the guide. It does what it did before: asks your addons and plays the best link."
+      ]
+    },
     {
       "name": "Alpha 0.46.56",
       "date": "2026-11-15",
@@ -56,14 +63,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Teletext is now fully on the TV**: the \"other services\" pages (900, 990, 991) and anything to do with a phone are gone. Instead there is page **150** (a list of channels) and a schedule page for every channel, **200 plus its channel number** (for example 209 is channel 9), with times for what is coming up. Pages are built from your own guide, so everything works with no setup and no network."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.49",
-      "date": "2026-11-15",
-      "notes": [
-        "**Teletext: other services**: page **900** lists teletext services you add yourself. A service is an https address of `.tti` page files, either one file holding many pages or an address with `{page}` in it (for example `https://example.com/p{page}.tti`). Add one by typing the address (page 990) or from your phone (page 991, same Wi-Fi). Its pages open in the same viewer, links and number pad work the same, the footer says whose pages they are, and Back returns to your list. Remove one with its `x91n` link. Only the address is kept; nothing from any service is bundled. Please only add services you have permission to use.",
-        "Fix: the on-screen keyboard and messages now sit above the Teletext screen; Fastext links in `.tti` files are read as page numbers."
       ]
     }
   ]

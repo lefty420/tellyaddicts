@@ -2462,7 +2462,7 @@
     }
     if (cur && cur.prog && cur.prog.addon) {                  // it played to the end: nothing to fall back to
       var fe = adFall; adFall = null;
-      if (adAuto && fe && !fe.g.film && fe.ep) { adSources(fe.g, { s: fe.ep.s || 1, e: (fe.ep.e || 1) + 1 }); return; }     // auto-play: the next episode, same release group first
+      if (fe && fe.auto && !fe.g.film && fe.ep) { adSources(fe.g, { s: fe.ep.s || 1, e: (fe.ep.e || 1) + 1 }, false, fe.ch, true); return; }     // auto-play: the next episode, same release group first
     }
     nextInChannel();
   }
@@ -2604,7 +2604,7 @@
     if (cur.prog && cur.prog.addon && adFall) {                // an addon source failed: the next best one, then give up
       try { delete adLast[adKeyOf(adFall.g, adFall.ep)]; store.set('adlast1', adLast); } catch (e) { /* ignore */ }
       var nx = adFall.q.shift();
-      if (!nx && adFall.retry) { var f0 = adFall; adFall = null; toast('That source has stopped working, looking again', 3000); adSources(f0.g, f0.ep, true, f0.ch); return; }
+      if (!nx && adFall.retry) { var f0 = adFall; adFall = null; toast('That source has stopped working, looking again', 3000); adSources(f0.g, f0.ep, true, f0.ch, !!f0.auto); return; }
       if (nx) { toast('That source failed, trying the next', 3000); adPlay(adFall.ch, adFall.g, adFall.ep, nx); return; }
       adFall = null; v.pause(); toast('No other source worked', 4000); odOpenUi(); return;
     }
@@ -3292,7 +3292,10 @@
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
-    if (expOn && adLive().length) items.push({ t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { gmClose(); adFromProg(p, c); } });
+    if (expOn && adLive().length) {
+      items.push({ t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { gmClose(); adFromProg(p, c, true); } });
+      items.push({ t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { gmClose(); adFromProg(p, c, false); } });
+    }
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
     items.push({ t: 'Teletext', sub: 'Pages built from your guide', f: function () { gmClose(); ttOpen(100); } });
     items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
@@ -3518,7 +3521,6 @@
   var expOn = store.get('exp1') === 'on';
   var adDeb = 'off';                                        // (no debrid settings: the addon does the debrid; links it has not cached are only skipped)
   var adHist = store.get('adhist1') || [];                  // sources that worked, newest first, so a title can start again at once
-  var adAuto = store.get('adauto1') !== 'off';               // play the best source straight away
   var adLast = store.get('adlast1') || {}, adBg = store.get('adbg1') || {};   // the source that last worked per episode (1 hour), and the release group chosen per show
   function adKeyOf(g, ep) { return normShow(g.name) + '|' + (g.film ? 'f' : (ep.s || 1) + ':' + (ep.e || 1)); }
   var adFall = null;                                          // the sources still to try if the one playing fails
@@ -3631,7 +3633,7 @@
     var rows = adHist.map(function (h, i) {
       return { t: h.q ? h.q + 'p' : '\u2014', n: h.name + (h.film ? '' : '  S' + pad2(h.se || 1) + 'E' + pad2(h.ep || 1)), s: (h.deb ? 'debrid \u00b7 ' : '') + h.addon, d: ago(h.t), f: function () {
         var ch = channels.filter(function (c) { return c.id === h.ch; })[0] || (cur && cur.ch) || ready()[0], g = { name: h.name, film: h.film }, ep = { s: h.se, e: h.ep };
-        adFall = { ch: ch, g: g, ep: ep, q: [], retry: 1 };
+        adFall = { ch: ch, g: g, ep: ep, q: [], retry: 1, auto: 1 };
         closeOpts(); adClose();
         adPlay(ch, g, ep, { s: h.s, addon: h.addon, label: h.label, q: h.q });
       } };
@@ -3779,12 +3781,13 @@
     if (s.externalUrl) return 'Opens a website: not supported here';
     return 'Not something this TV can play';
   }
-  function adSources(g, ep, noCache, chOv) {
+  /** auto: play the best link by itself (Auto play with debrid); otherwise just list what the addons found and let the person choose (Find sources). */
+  function adSources(g, ep, noCache, chOv, auto) {
     var name = g.name, film = !!g.film, ch = chOv || odSel().c;
     var live = adLive();
-    var hit = adAuto && !noCache && adLast[adKeyOf(g, ep)];
+    var hit = auto && !noCache && adLast[adKeyOf(g, ep)];
     if (hit && Date.now() - hit.t < 259200000) {                 // the same source worked in the last three days: straight back to it (if it has died, the next lines look again)
-      adFall = { ch: ch, g: g, ep: ep, q: [], retry: 1 };
+      adFall = { ch: ch, g: g, ep: ep, q: [], retry: 1, auto: 1 };
       toast('Playing the source that worked last time', 3000);
       adPlay(ch, g, ep, { s: hit.s, addon: hit.addon, label: hit.label }); return;
     }
@@ -3810,16 +3813,16 @@
         });
         ad.rows = list.map(function (x) {
           return { t: x.q ? x.q + 'p' : '—', n: x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
-            f: function () { adFall = { ch: ch, g: g, ep: ep, q: list.filter(function (y) { return !y.why && y !== x && list.indexOf(y) > list.indexOf(x); }) }; adPlay(ch, g, ep, x); } };
+            f: function () { adFall = { ch: ch, g: g, ep: ep, q: list.filter(function (y) { return !y.why && y !== x && list.indexOf(y) > list.indexOf(x); }), auto: auto }; adPlay(ch, g, ep, x); } };
         });
         ad.sub = (film ? '' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  ') + (final ? list.length + ' found' : 'asking ' + (targets.length - answered) + ' addon' + (targets.length - answered === 1 ? '' : 's') + '…');
         ad.empty = final ? 'Nothing found. Try another addon.' : 'Asking your addons…';
         adRender();
-        var q0 = adAuto && !ad.auto ? list.filter(function (x) { return !x.why; }) : [];
+        var q0 = auto && !ad.auto ? list.filter(function (x) { return !x.why; }) : [];
         if (q0.length && (final || bgOf(q0[0]) || q0[0].q === 1080 || (adDeb !== 'off' && adIsDebrid(q0[0].s) && q0[0].q >= 720))) {    // a good one has arrived: no need to wait for the slow addons
           var q = q0;
           ad.auto = 1;
-          if (q.length) { adFall = { ch: ch, g: g, ep: ep, q: q.slice(1) }; adPlay(ch, g, ep, q[0]); toast('Playing the best source: ' + q[0].addon, 3500); }
+          if (q.length) { adFall = { ch: ch, g: g, ep: ep, q: q.slice(1), auto: 1 }; adPlay(ch, g, ep, q[0]); toast('Playing the best source: ' + q[0].addon, 3500); }
         }
       };
       targets.forEach(function (a) {
@@ -3856,22 +3859,23 @@
     odStart(ch, [{ p: prog, s: 0, e: 0 }], 0, 0, '');
   }
   /** Find sources and auto play for a programme from the guide or the one playing (the OSD bar and the guide's hold-OK menu). */
-  function adFromProg(p, ch) {
+  function adFromProg(p, ch, auto) {
     if (!p) return;
     if (!expOn || !adLive().length) { toast('Turn on Experimental and an addon first (Options > Experimental)', 4000); return; }
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!(p.filmKey || p.afilm);
     if (!film && !ref) { toast('This needs an episode number or a film', 3500); return; }
     var name = film && p.filmKey ? (filmFor(p) || {}).title || gmName(p) : gmName(p);
-    adSources({ name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film }, ref ? { s: ref.s, e: ref.e } : {}, !!p.addon, ch);
+    adSources({ name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film }, ref ? { s: ref.s, e: ref.e } : {}, !!p.addon, ch, !!auto);
   }
   /** On Demand's hold-OK menu: add "Find sources" when Experimental is on and an addon is on. */
   function adOdm(g) {
     if (!odm || !adLive().length) return;
     var ep = (odView === 'show' && g.sea && g.sea[odSea] && g.sea[odSea].eps[odEi] && g.sea[odSea].eps[odEi].p) || (g.flat && g.flat[0] && g.flat[0].p) || {};
-    odm.items.splice(2, 0, { t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }); } });
+    odm.items.splice(2, 0,
+      { t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, true); } },
+      { t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, false); } });
   }
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
-  function changeAuto() { adAuto = !adAuto; store.set('adauto1', adAuto ? 'on' : 'off'); renderOpts(); }
   function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
 
   // ------------------------------------------------------------------ Teletext (pages the app builds from its own guide)
@@ -4158,9 +4162,9 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'info', 'sched', 'od', 'src', 'options'];   // buttons on the bar, left to right
+  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'info', 'sched', 'od', 'src', 'find', 'options'];   // buttons on the bar, left to right
   /** The buttons showing now: Skip adverts is only there while a break is playing (and never on the Adverts channel, which is all adverts). */
-  function obList() { return OB_ALL.filter(function (id) { return id === 'skipad' ? !!(cur && cur.ad && !isAdChan(cur.ch)) : id === 'src' ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
+  function obList() { return OB_ALL.filter(function (id) { return id === 'skipad' ? !!(cur && cur.ad && !isAdChan(cur.ch)) : (id === 'src' || id === 'find') ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
   // The progress bar is a scrubber: Left / Right on it wind through the video (hold to go faster), Down reaches the buttons.
   var osdZone = 'btn', scrubT = null, scrubTimer = null, scrubLast = 0, scrubHold = 0, scrubDir = 0;
@@ -4719,7 +4723,7 @@
     { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'adauto', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'addons', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -4730,7 +4734,6 @@
   function optValue(id) {
     if (id === 'exp') return expOn ? 'On' : 'Off';
     if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
-    if (id === 'adauto') return adAuto ? 'On' : 'Off';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
     if (id === 'ar') return AR[arIdx].label;
@@ -4837,7 +4840,6 @@
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
-    adauto: 'Find sources asks every addon you have installed (your debrid addon included) and plays the best working link by itself, with nothing to choose: 1080p first, then 720p. If a link fails the next one is tried, and so on. Turn off to pick the source yourself.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
     theme: 'How the TV guide looks. It only changes when you change it here.',
@@ -5026,7 +5028,6 @@
     var id = OPTS[optsSel];
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
-    else if (id === 'adauto') changeAuto();
     else if (id === 'adrec') { closeOpts(); adRecent(); }
     else if (id === 'adcut') changeAdcut();
     else if (id === 'addons') { if (!expOn) toast('Turn Experimental on first', 3000); else { adList(0); } }
@@ -5289,7 +5290,8 @@
     else if (id === 'restart') { restartShow(); return; }
     else if (id === 'options') { openOpts(); return; }
     else if (id === 'od') { closeOsd(); odOpenUi(); return; }
-    else if (id === 'src') { closeOsd(); adFromProg(cur && cur.prog, cur && cur.ch); return; }
+    else if (id === 'src') { closeOsd(); adFromProg(cur && cur.prog, cur && cur.ch, true); return; }
+    else if (id === 'find') { closeOsd(); adFromProg(cur && cur.prog, cur && cur.ch, false); return; }
     else if (id === 'guide') { closeOsd(); openGuide(); }
     else if (id === 'info') { closeOsd(); openInfo(); return; }
     else if (id === 'sched') { closeOsd(); csOpen(cur && cur.ch, 'osd'); return; }

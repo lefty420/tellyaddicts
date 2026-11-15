@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.73",
-  "version": "0.46.73",
-  "code": 4673,
+  "name": "Alpha 0.46.74",
+  "version": "0.46.74",
+  "code": 4674,
   "date": "2026-11-15",
   "notes": [
-    "**New experimental option: Use addons as a main source** (Options > Experimental; needs Experimental on and an addon on). With it on, every programme with an episode number, and every film, is first looked up with your addons and plays from the best link they find. While it looks, the loading screen (at start-up) or a \"Scraping your debrid...\" message (when you change channel or move on) is shown. If the addons find nothing in about 15 seconds, or the link will not play, the library link plays instead. It plays from the start of the programme rather than joining part way through, and when it ends the channel carries on to its next programme. Off by default."
+    "Use addons as a main source no longer puts the NO SIGNAL screen up while it looks: at start-up it uses the normal loading screen, and after that a small \"Scraping your debrid...\" message appears over the picture."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.73",
+      "date": "2026-11-15",
+      "notes": [
+        "**New experimental option: Use addons as a main source** (Options > Experimental; needs Experimental on and an addon on). With it on, every programme with an episode number, and every film, is first looked up with your addons and plays from the best link they find. While it looks, the loading screen (at start-up) or a \"Scraping your debrid...\" message (when you change channel or move on) is shown. If the addons find nothing in about 15 seconds, or the link will not play, the library link plays instead. It plays from the start of the programme rather than joining part way through, and when it ends the channel carries on to its next programme. Off by default."
+      ]
+    },
     {
       "name": "Alpha 0.46.72",
       "date": "2026-11-15",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Teletext: play a programme**: on the pages that list programmes (110 On now, 120 Tonight, 130 Coming up next, and each channel's schedule page 2xx), the arrows now also step down the programme rows, and OK on one asks **Play it? Yes / No**. Yes closes Teletext and plays it (joined where it is now if it is on, otherwise from its start); No goes back to the page. Tapping a row on a phone does the same."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.65",
-      "date": "2026-11-15",
-      "notes": [
-        "**Logo on the phone page**: the page that opens on your phone to send an addon link to the TV now shows the Telly Addicts logo at the top."
       ]
     }
   ]

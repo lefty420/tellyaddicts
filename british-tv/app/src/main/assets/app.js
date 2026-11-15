@@ -3951,7 +3951,7 @@
   }
   /** Play the library's own link (the fallback), carrying On Demand's place in its list when there was one. */
   function amFallback(lib, why) {
-    hideNoSignal();
+    toast('', 1);
     dlog('ADDONS MAIN SOURCE: ' + why + ', playing the library link');
     amSkip = true;
     try { playSlot(lib.ch, lib.index, lib.offset, !!lib.announce, !!lib.tuning, lib.po); if (lib.od && cur) cur.od = lib.od; }
@@ -3973,14 +3973,14 @@
     var go = function (list) {
       if (cur !== me) return;                                  // the viewer changed channel while it was looking
       if (!list.length) { amFallback(lib, 'no source found'); return; }
-      hideNoSignal();
+      toast('', 1);
       adFall = { ch: ch, g: rq.g, ep: rq.ep, q: list.slice(1), auto: 0, lib: lib };
       dlog('ADDONS MAIN SOURCE: ' + rq.g.name + ' | ' + list[0].addon);
       adPlay(ch, rq.g, rq.ep, list[0]);
       if (cur && cur.prog && cur.prog.addon) { if (od) cur.od = od; else cur.am = { ch: ch, index: index }; }
     };
     if (pre) { go(pre.list); return true; }
-    showNoSignal('Scraping your debrid…');
+    toast('Scraping your debrid…', 15000);
     amScrape(rq.g, rq.ep).then(go, function () { go([]); });
     return true;
   }

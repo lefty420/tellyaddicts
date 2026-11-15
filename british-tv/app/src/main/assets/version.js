@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.91",
-  "version": "0.46.91",
-  "code": 4691,
+  "name": "Alpha 0.46.92",
+  "version": "0.46.92",
+  "code": 4692,
   "date": "2026-11-15",
   "notes": [
-    "**VHS OLED made fairer**: which of the two line positions shows now comes from the clock (a new one every ten minutes), not from when the app started. Before, every start began in the same position, so short viewings could leave one set of pixel rows dimmed far more than the other. The lines are also now a whole, even number of device pixels apart, so the swap lands exactly on pixel rows."
+    "**Screen dims when left on a still screen**: with the TV Guide, On Demand, the bar, Info, Options, Teletext or a menu open and no key pressed for five minutes, the screen fades to a dim. Any key (or a touch on the phone) brings it back at once. A screen that stays put wears an OLED panel far more than moving video, so this matters most for OLED TVs. Nothing changes while a programme plays with nothing open.",
+    "**VHS OLED lines are softer** (lighter, a smaller step between line and gap), so they put less uneven wear on a panel. The VHS look itself is unchanged."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.91",
+      "date": "2026-11-15",
+      "notes": [
+        "**VHS OLED made fairer**: which of the two line positions shows now comes from the clock (a new one every ten minutes), not from when the app started. Before, every start began in the same position, so short viewings could leave one set of pixel rows dimmed far more than the other. The lines are also now a whole, even number of device pixels apart, so the swap lands exactly on pixel rows."
+      ]
+    },
     {
       "name": "Alpha 0.46.90",
       "date": "2026-11-15",
@@ -58,15 +66,6 @@ window.RELEASE = {
       "notes": [
         "**More Disney shorts**: the library's \"Walt Disney Cartoon\", \"Silly Symphony\", \"Disney Classic\" and \"Disney Cartoon\" uploads were on no channel. They are now on the Disney channel (about 580 more shorts). This comes from the show list, so it reaches the TV at the next start even before this version is installed.",
         "**Game Shows takes dated episodes**: a quiz show with no episode number now plays on Game Shows when it is dated 1999 or earlier, by its air date or a date in the file name (\"Blockbusters - 1:21:82\", \"Fifteen to One - TX 15 January 1988\"). That adds about 450 programmes: Blockbusters, Supermarket Sweep, Fifteen to One, Bullseye, University Challenge and others. Undated files still stay off, which keeps namesakes and fan videos out."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.83",
-      "date": "2026-11-15",
-      "notes": [
-        "**Audio & subtitles**: a new button on the bar (next to Options) lets you pick the sound track and turn subtitles on or off, like other media players. It shows up when the file has more than one sound track or any subtitles. Each choice shows the language and details such as \"Dolby Digital, 5.1\", \"Commentary\", \"Forced\" or \"SDH\". Both text subtitles and picture subtitles (DVD/Blu-ray style) are drawn over the picture, and move above the bar while it is open.",
-        "**Your choice carries on**: the sound language and subtitle setting you pick are kept, so the next programme starts the same way when it has a matching track. Turn subtitles off in the same menu to stop them.",
-        "Only the app's own player can see the tracks inside a file. Addon files and anything with Dolby/DTS sound already play there; plain archive files play in the web view, which has one sound and no subtitles, so the button stays hidden for those. Options > Videos that won't play > Always sends everything to the app's own player."
       ]
     }
   ]

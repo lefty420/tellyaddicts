@@ -5505,6 +5505,17 @@
     pr.addEventListener('touchend', function () { scrubApply(); }, { passive: true });
   })();
 
+  // A screen that stays put for minutes (the guide, On Demand, the bar, Info, Options, Teletext) is what wears an OLED panel, far more than moving
+  // video does. With one of them open and no key or touch for five minutes the screen fades to a dim; any key or touch brings it back.
+  var uiAt = Date.now();
+  function uiTouched() { uiAt = Date.now(); document.body.classList.remove('idle-dim'); }
+  window.addEventListener('keydown', uiTouched, true);
+  window.addEventListener('pointerdown', uiTouched, true);
+  setInterval(function () {
+    if (!started || Date.now() - uiAt < 300000) return;
+    var still = guideOpen || odOpen || osdOpen || optsOpen || infoOpen || relOpen || !!tt || !!cs || !!gm || quitOpen;
+    document.body.classList.toggle('idle-dim', !!still);
+  }, 20000);
   var lastKeyAt = 0;
   window.addEventListener('keydown', function (e) {
     lastKeyAt = Date.now();

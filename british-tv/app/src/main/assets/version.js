@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.97",
-  "version": "0.46.97",
-  "code": 4697,
+  "name": "Alpha 0.46.98",
+  "version": "0.46.98",
+  "code": 4698,
   "date": "2026-11-15",
   "notes": [
-    "Options > Artwork: new \"Episode lists from\" (TVmaze by default, or TheTVDB, or TMDB) and a \"TMDB key\" row beside the TheTVDB key, with an on-screen keyboard and a check when saved. A source with no key, or with no result, falls back to TVmaze.",
-    "Groundwork for the Debrid EPG experiment (nothing uses the choice yet)."
+    "Options > Artwork: \"Episode lists from\" now sits above the two keys, and its help text fits on one line."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.97",
+      "date": "2026-11-15",
+      "notes": [
+        "Options > Artwork: new \"Episode lists from\" (TVmaze by default, or TheTVDB, or TMDB) and a \"TMDB key\" row beside the TheTVDB key, with an on-screen keyboard and a check when saved. A source with no key, or with no result, falls back to TVmaze.",
+        "Groundwork for the Debrid EPG experiment (nothing uses the choice yet)."
+      ]
+    },
     {
       "name": "Alpha 0.46.96",
       "date": "2026-11-15",
@@ -63,14 +70,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**VHS OLED**: a new picture look, first in the list after Off (Options > Picture). It is the VHS look, but the scanlines swap places with the gaps between them every ten minutes (and when a new video starts, after two minutes), so no row of pixels on an OLED TV is always the dimmed one. The other looks are unchanged."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.89",
-      "date": "2026-11-15",
-      "notes": [
-        "**Films played from an addon keep their own details**: a film started from your addons lost its link to the library's film record (the TMDb plot, cast and poster), so Info and the artwork looked it up as a TV show by name. \"Lethal Weapon\" could pick up the 2016 series, \"Jumanji\" the cartoon. It now keeps the library's film record, also when replayed from Saved sources.",
-        "**Film backdrops never come from a TV show**: a film's picture is its own poster, or one you chose by hand. A TV show with the same name (Jumanji, Police Academy, Back to the Future, Dumb and Dumber) is no longer used for its backdrop."
       ]
     }
   ]

@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.88",
-  "version": "0.46.88",
-  "code": 4688,
+  "name": "Alpha 0.46.89",
+  "version": "0.46.89",
+  "code": 4689,
   "date": "2026-11-15",
   "notes": [
-    "**Saved film sources cleared once**: the app remembers the source that last worked for each title and plays it again without searching, so the wrong *Blackadder's Christmas Carol* link would have kept playing for Mickey's Christmas Carol for three days even after 0.46.87. Sources saved for films (in the replay memory and in Options > Saved sources) are forgotten one time, and looked up again with the stricter search. Saved sources for series are untouched."
+    "**Films played from an addon keep their own details**: a film started from your addons lost its link to the library's film record (the TMDb plot, cast and poster), so Info and the artwork looked it up as a TV show by name. \"Lethal Weapon\" could pick up the 2016 series, \"Jumanji\" the cartoon. It now keeps the library's film record, also when replayed from Saved sources.",
+    "**Film backdrops never come from a TV show**: a film's picture is its own poster, or one you chose by hand. A TV show with the same name (Jumanji, Police Academy, Back to the Future, Dumb and Dumber) is no longer used for its backdrop."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.88",
+      "date": "2026-11-15",
+      "notes": [
+        "**Saved film sources cleared once**: the app remembers the source that last worked for each title and plays it again without searching, so the wrong *Blackadder's Christmas Carol* link would have kept playing for Mickey's Christmas Carol for three days even after 0.46.87. Sources saved for films (in the replay memory and in Options > Saved sources) are forgotten one time, and looked up again with the stricter search. Saved sources for series are untouched."
+      ]
+    },
     {
       "name": "Alpha 0.46.87",
       "date": "2026-11-15",
@@ -61,14 +69,6 @@ window.RELEASE = {
       "notes": [
         "**Tiny guide cells**: a programme cell only a few letters wide no longer shows a useless \"Sc...\" or \"O...\". It shows the first word if that fits, otherwise a dot; the full title is in the big header when you focus it.",
         "**Update message moved**: \"Updated to Alpha ...\" now appears at the bottom of the screen instead of over the TV Guide header and clock."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.80",
-      "date": "2026-11-15",
-      "notes": [
-        "**Shorter hold-OK menu on a programme**: Fix artwork, Hide this show/film and Report a problem now sit behind one \"More...\" entry (Back returns to the main menu). Options stays last. When a menu has more entries than fit, its heading says which one you are on (\"item 10 of 11\").",
-        "**Bigger supporting text**: the small lines under menu entries, the dates inside guide cells, On Demand's menu and the Options hints at the bottom are a little larger, so they read from across the room."
       ]
     }
   ]

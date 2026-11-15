@@ -1393,13 +1393,13 @@
     if (!artP) loadArt();
     var out = { poster: '', back: '' };
     var fxa = store.get('artfix:' + normShow(p.show));
-    var a = (fxa && fxa.a) || artIdx && (function () {
+    var a = (fxa && fxa.a) || !film && artIdx && (function () {      // never for a film: "Jumanji" or "Police Academy" are also TV cartoons
       var w = p.show.split(/\s+/);
       for (var n = w.length; n >= 1; n--) { var h = artIdx[normShow(w.slice(0, n).join(' '))]; if (h && (n > 1 || w.length === 1)) return h; }
       return null;
     })();
     if (a) { out.poster = https(a.p); out.back = https(a.b); }
-    if (!out.poster || !out.back) {
+    if (!film && (!out.poster || !out.back)) {
       var i = store.get('info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0));
       if (i && i.d && i.d.show) { out.poster = out.poster || i.d.show.poster || ''; out.back = out.back || i.d.show.background || ''; }
       var g = store.get('art2:' + normShow(p.show));
@@ -3810,7 +3810,7 @@
     var ago = function (t) { var m = Math.round((Date.now() - t) / 60000); return m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; };
     var rows = adHist.map(function (h, i) {
       return { t: h.q ? h.q + 'p' : '\u2014', n: h.name + (h.film ? '' : '  S' + pad2(h.se || 1) + 'E' + pad2(h.ep || 1)), s: (h.deb ? 'debrid \u00b7 ' : '') + h.addon, d: ago(h.t), f: function () {
-        var ch = channels.filter(function (c) { return c.id === h.ch; })[0] || (cur && cur.ch) || ready()[0], g = { name: h.name, film: h.film }, ep = { s: h.se, e: h.ep };
+        var ch = channels.filter(function (c) { return c.id === h.ch; })[0] || (cur && cur.ch) || ready()[0], g = { name: h.name, film: h.film, fk: h.fk || '' }, ep = { s: h.se, e: h.ep };
         adFall = { ch: ch, g: g, ep: ep, q: [], retry: 1, auto: 1 };
         closeOpts(); adClose();
         adPlay(ch, g, ep, { s: h.s, addon: h.addon, label: h.label, q: h.q });
@@ -4039,7 +4039,9 @@
   }
   function adPlay(ch, g, ep, x) {
     var s = x.s, url = s.ytId ? 'yt:' + s.ytId : s.url;
+    var fk = g.fk || (g.film && g.eps && g.eps[0] && g.eps[0].p && g.eps[0].p.filmKey) || '';   // the library's own film record: Info and artwork come from it, not from a TV show search
     var prog = { id: 'addon/' + x.addon + '/' + (g.name || ''), item: 'addon', url: url, title: g.name + (g.film ? '' : ' S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1)), sub: x.addon, dur: 0, lenKnown: 0, show: g.name, group: g.name, addon: 1, afilm: !!g.film, q: x.q || adQuality(s) };
+    if (g.film && fk) { prog.filmKey = fk; prog.cert = (filmFor(prog) || {}).cert || ''; }
     var bgp = s.behaviorHints && s.behaviorHints.bingeGroup;
     if (bgp) { adBg[normShow(g.name)] = bgp; store.set('adbg1', adBg); }
     adLast[adKeyOf(g, ep)] = { t: Date.now(), s: s, addon: x.addon, label: x.label };
@@ -4048,7 +4050,7 @@
     // the record of what worked: one line per title, newest first, so "Saved sources" can start it again
     var hk = adKeyOf(g, ep);
     adHist = adHist.filter(function (h) { return h.k !== hk; });
-    adHist.unshift({ k: hk, name: g.name, film: !!g.film, se: ep.s || 0, ep: ep.e || 0, ch: ch && ch.id, addon: x.addon, label: x.label, q: x.q || 0, deb: adIsDebrid(s) ? 1 : 0, t: Date.now(), s: s });
+    adHist.unshift({ k: hk, name: g.name, film: !!g.film, fk: g.film ? fk : '', se: ep.s || 0, ep: ep.e || 0, ch: ch && ch.id, addon: x.addon, label: x.label, q: x.q || 0, deb: adIsDebrid(s) ? 1 : 0, t: Date.now(), s: s });
     if (adHist.length > 100) adHist.length = 100;
     store.set('adhist1', adHist);
     adClose(); if (odm) odmClose();
@@ -4068,7 +4070,7 @@
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!(p.filmKey || p.afilm);
     if (!film && !ref) return null;
     var name = film && p.filmKey ? (filmFor(p) || {}).title || gmName(p) : gmName(p);
-    return { g: { name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, year: film ? filmYear(p) : 0 }, ep: ref ? { s: ref.s, e: ref.e } : {} };
+    return { g: { name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, fk: film ? p.filmKey || '' : '', year: film ? filmYear(p) : 0 }, ep: ref ? { s: ref.s, e: ref.e } : {} };
   }
   /** Ask the addons without any screen of their own: resolves with the usable sources, best first (empty when none). */
   function amScrape(g, ep, ms) {
@@ -4143,7 +4145,7 @@
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!(p.filmKey || p.afilm);
     if (!film && !ref) { toast('This needs an episode number or a film', 3500); return; }
     var name = film && p.filmKey ? (filmFor(p) || {}).title || gmName(p) : gmName(p);
-    adSources({ name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, year: film ? filmYear(p) : 0 }, ref ? { s: ref.s, e: ref.e } : {}, !!p.addon, ch, !!auto);
+    adSources({ name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, fk: film ? p.filmKey || '' : '', year: film ? filmYear(p) : 0 }, ref ? { s: ref.s, e: ref.e } : {}, !!p.addon, ch, !!auto);
   }
   /** On Demand's hold-OK menu: add "Find sources" when Experimental is on and an addon is on. */
   function adOdm(g) {

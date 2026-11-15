@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.47.3 — 2026-11-15
+- Magic EPG reads the scraper's own episode file (data/epdb.json, v2): several files when it is split (epdb-1.json ...), a new copy only when the revision in index.json changes, and each episode's running time when it has one. Until the scraper publishes it, the packed copy from tools/build_epdb.py is used (the tool no longer overwrites a v2 file).
+- The episode database and the TV's own episode lists are kept in files, not the page's small storage.
+
 ## Alpha 0.47.2 — 2026-11-15
 - Magic EPG now means the addons for everything: with it on, every episode and film in the guides is looked up with your addons first (the library link is only the fallback), and the diamond mark and "From your addons" line are gone.
 - Magic On Demand: with Magic EPG on, On Demand lists every episode the scrapers know for each show (from data/epdb.json), not only the ones with a file, and plays them through your addons. An episode no addon has is skipped when you play it.

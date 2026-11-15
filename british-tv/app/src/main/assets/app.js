@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:|libtxt2:|adcat1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|epl1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   var kv = {
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
@@ -475,6 +475,7 @@
       epsMap = (j && j.eps && typeof j.eps === 'object') ? j.eps : null;
       removedRev = (j && j.removed) ? String(j.removed) : '';
       adsRev = (j && j.adverts) ? String(j.adverts) : '';
+      epdbRev = (j && j.epdb) ? String(j.epdb) : ''; epdbFiles = j && j.epdbFiles instanceof Array && j.epdbFiles.length ? j.epdbFiles : null;
       var chans = (j && j.channels) || {};
       libWant = (j && j.library) ? String(j.library) : '';
       if (!j || !j.library || !window.LIBROUTE) return chans;
@@ -1886,20 +1887,27 @@
   function depgActive() { return depgOn && expOn && adLive().length > 0; }
   // The complete-episodes database (data/epdb.json, built by tools/build_epdb.py from the whole library) comes first;
   // a show it does not have falls back to this device's own lookups (epl1:<show>).
-  var epdb = null, epdbP = null;
+  var epdb = null, epdbP = null, epdbRev = '', epdbFiles = null;
   function loadEpdb() {
     if (!depgActive()) return Promise.resolve();
     if (epdbP) return epdbP;
-    var c = store.get('epdb1');
-    if (c && c.d && Date.now() - c.t < 86400000) { epdb = c.d; return (epdbP = Promise.resolve()); }
-    epdbP = getJSON(DATA_BASE + 'epdb.json').then(function (j) {
-      if (j && j.shows) { epdb = j.shows; try { store.set('epdb1', { t: Date.now(), d: epdb }); } catch (e) { /* too big to keep: fetched again next start */ } }
-    }, function () { dlog('MAGIC EPG: no epdb.json published yet'); });
-    return epdbP;
+    return (epdbP = loadDataIndex().then(null, function () { /* no index: the plain file name below */ }).then(function () {
+      var c = store.get('epdb1'), kept = c && c.d;
+      if (kept && (epdbRev ? c.rev === epdbRev : Date.now() - c.t < 86400000)) { epdb = c.d; return; }
+      // the scraper publishes one file, or several (epdb-1.json ...) when it passes 10 MB; index.json lists them
+      return Promise.all((epdbFiles || ['epdb.json']).map(function (n) {
+        return getJSON(DATA_BASE + n).then(function (j) { return (j && j.shows) || {}; }, function () { return {}; });
+      })).then(function (parts) {
+        var all = {};
+        parts.forEach(function (p) { Object.keys(p).forEach(function (k) { all[k] = p[k]; }); });
+        if (Object.keys(all).length) { epdb = all; try { store.set('epdb1', { t: Date.now(), rev: epdbRev, d: all }); } catch (e) { /* too big to keep: fetched again next start */ } }
+        else { epdb = kept ? c.d : null; dlog('MAGIC EPG: no epdb.json published yet'); }
+      });
+    }));
   }
   function veGet(show) {
     var k = normShow(show), e = epdb && epdb[k];
-    if (e && e.e && e.e.length) return { imdb: e.i || '', eps: e.e };
+    if (e && e.e && e.e.length) return { imdb: e.imdb || e.i || '', eps: e.e };      // rows are [season, episode, title, date, minutes]: the last ones may be missing
     var c = store.get('epl1:' + k);
     return c && c.d && Date.now() - c.t < 30 * 86400000 ? c.d : null;
   }
@@ -1925,7 +1933,7 @@
         var id = 'virt/' + k + '/' + e[0] + '/' + e[1];
         if (!full && isSlow(id)) return;                        // no source last time
         n++;
-        out.push({ id: id, item: 'virtual', url: '', virtual: true, show: g.name, group: g.name, dur: dur,
+        out.push({ id: id, item: 'virtual', url: '', virtual: true, show: g.name, group: g.name, dur: e[4] > 5 ? e[4] * 60 : dur,
                    title: g.name + ' S' + pad2(e[0]) + 'E' + pad2(e[1]) + (e[2] ? ' ' + e[2] : ''), sub: '', aired: e[3] || '' });
       });
       veStat.virtual += n;

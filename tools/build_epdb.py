@@ -47,7 +47,11 @@ def build():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--force", action="store_true", help="overwrite a v2 file written by the scraper")
     a = ap.parse_args()
+    if OUT.exists() and not a.force and '"v":2' in OUT.read_text(encoding="utf-8")[:200]:
+        print("data/epdb.json is the scraper's (v2): not overwriting. Use --force to replace it.")
+        return 0
     text = json.dumps(build(), ensure_ascii=False, separators=(",", ":"), sort_keys=True) + "\n"
     stale = not OUT.exists() or OUT.read_text(encoding="utf-8") != text
     if a.check:

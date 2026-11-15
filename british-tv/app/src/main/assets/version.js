@@ -1,16 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.2",
-  "version": "0.47.2",
-  "code": 4702,
+  "name": "Alpha 0.47.3",
+  "version": "0.47.3",
+  "code": 4703,
   "date": "2026-11-15",
   "notes": [
-    "Magic EPG now means the addons for everything: with it on, every episode and film in the guides is looked up with your addons first (the library link is only the fallback), and the diamond mark and \"From your addons\" line are gone.",
-    "Magic On Demand: with Magic EPG on, On Demand lists every episode the scrapers know for each show (from data/epdb.json), not only the ones with a file, and plays them through your addons. An episode no addon has is skipped when you play it.",
-    "Turning Magic EPG on or off restarts the guides, as before. Needs Experimental on and an addon."
+    "Magic EPG reads the scraper's own episode file (data/epdb.json, v2): several files when it is split (epdb-1.json ...), a new copy only when the revision in index.json changes, and each episode's running time when it has one. Until the scraper publishes it, the packed copy from tools/build_epdb.py is used (the tool no longer overwrites a v2 file).",
+    "The episode database and the TV's own episode lists are kept in files, not the page's small storage."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.2",
+      "date": "2026-11-15",
+      "notes": [
+        "Magic EPG now means the addons for everything: with it on, every episode and film in the guides is looked up with your addons first (the library link is only the fallback), and the diamond mark and \"From your addons\" line are gone.",
+        "Magic On Demand: with Magic EPG on, On Demand lists every episode the scrapers know for each show (from data/epdb.json), not only the ones with a file, and plays them through your addons. An episode no addon has is skipped when you play it.",
+        "Turning Magic EPG on or off restarts the guides, as before. Needs Experimental on and an addon."
+      ]
+    },
     {
       "name": "Alpha 0.47.1",
       "date": "2026-11-15",
@@ -67,13 +75,6 @@ window.RELEASE = {
         "**A paused picture now dims too**: the five-minute dim only counted the guide, On Demand, the bar and the other panels, so a paused frame could sit on an OLED screen for hours. A paused programme now fades to the dim after five minutes with no key pressed, like any other still screen.",
         "**VHS OLED has no fixed edge tint**: the VHS look adds a faint red strip down the left edge and a blue one down the right. In VHS OLED they stayed in the same place for ever, so those pixels wore differently from the rest. The tint is now left out in VHS OLED (the normal VHS look keeps it).",
         "**The key that wakes a dimmed screen only wakes it**: before, pressing OK to bring the guide back also pressed OK on the highlighted programme and tuned to it. The first key is now used up waking the screen."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.94",
-      "date": "2026-11-15",
-      "notes": [
-        "**Subtitle diagnostics**: after you choose a subtitle track, the debug log now records the first few subtitle lines the player delivers (\"SUBTITLE cue: 1 text, 0 picture, 38 characters\"), with no words from the film. If a subtitle track is selected but nothing shows, the log now says whether the player sent nothing (an empty or forced-only track) or the screen failed to draw it."
       ]
     }
   ]

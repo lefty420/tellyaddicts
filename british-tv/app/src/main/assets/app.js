@@ -3901,10 +3901,50 @@
     body.push('{w}Source: Wikipedia, On this day');
     return ttPages(310, ' NEWS ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + pick.year, body, [100, 300, 110, 120], '{r}Index {g}Weather {y}On now {c}Tonight');
   }
+
+  // Film of the day: a film from the guide, picked by the date, with the TMDb details the app already holds (no network needed)
+  function ttFilms() {
+    var seen = {}, out = [];
+    channels.forEach(function (c) { (c.plan || []).forEach(function (pr) {
+      if (!pr.filmKey || pr.ad || seen[pr.filmKey] || blocked(pr)) return;
+      var f = filmFor(pr);
+      if (!f || !f.title || !f.plot || !String(f.cert || '').trim()) return;
+      seen[pr.filmKey] = { f: f, chans: [] };
+      out.push(seen[pr.filmKey]);
+    }); });
+    channels.forEach(function (c) { (c.plan || []).forEach(function (pr) { var o = pr.filmKey && seen[pr.filmKey]; if (o && o.chans.indexOf(c.n) < 0) o.chans.push(c.n); }); });
+    out.sort(function (a, b) { return a.f.title < b.f.title ? -1 : 1; });
+    return out;
+  }
+  function ttWrap(text, w, col) {
+    var out = [], ln = '';
+    ttAscii(text).split(' ').forEach(function (x) { if ((ln + ' ' + x).trim().length > w) { out.push(col + ln); ln = x; } else ln = (ln + ' ' + x).trim(); });
+    if (ln) out.push(col + ln);
+    return out;
+  }
+  function ttFilmPages(num) {
+    var all = ttFilms(), body = [''];
+    if (!all.length) { body.push('{w}No film details are stored yet.'); return ttPages(num, ' FILM OF THE DAY', body, [100, 300, 310, 120]); }
+    if (num === 321) {
+      all.forEach(function (o) { body.push('{c}' + ttPad((o.f.released || '').slice(0, 4), 5) + '{w}' + ttPad(o.f.title, 33)); });
+      return ttPages(321, ' MORE FILMS', body, [100, 320, 300, 310], '{r}Index {g}Film {y}Weather {c}News');
+    }
+    var d = new Date(), doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000), o = all[(doy * 13 + d.getFullYear()) % all.length], f = o.f;
+    body.push('{y}' + ttPad(String(f.title).replace(/\s*\(\d{4}\)\s*$/, ''), 38));
+    body.push('{c}' + ttPad([String(f.released || '').slice(0, 4), f.cert, f.mins ? Math.floor(f.mins / 60) + 'h ' + (f.mins % 60) + 'm' : ''].filter(Boolean).join('  '), 38));
+    if (f.genres) body.push('{c}' + ttPad(f.genres, 38));
+    body.push('');
+    body = body.concat(ttWrap(f.plot, 38, '{w}').slice(0, 7));
+    body.push('');
+    if (f.cast && f.cast.length) { body.push('{y}Starring'); body.push('{w}' + ttPad(f.cast.slice(0, 4).map(function (m) { return m.n; }).join(', '), 38)); }
+    if (o.chans.length) { body.push(''); body.push('{c}On channel ' + o.chans.slice(0, 6).map(function (n) { return ('0' + n).slice(-2); }).join(', ')); }
+    body.push(''); body.push('{w}More films ............ {y}321');
+    return ttPages(320, ' FILM OF THE DAY', body, [100, 321, 300, 310], '{r}Index {g}More {y}Weather {c}News');
+  }
   function ttBuild(num) {
     var now = Date.now(), body = [], i;
     if (num === 100) {
-      var items = [['On now', 110], ['Tonight on TV', 120], ['Coming up next', 130], ['On this day', 140], ['Weather', 300], ['News for today', 310], ['Channel schedules', 150], ['About Telly Addicts', 190]];
+      var items = [['On now', 110], ['Tonight on TV', 120], ['Coming up next', 130], ['On this day', 140], ['Weather', 300], ['News for today', 310], ['Film of the day', 320], ['Channel schedules', 150], ['About Telly Addicts', 190]];
       body.push('');
       items.forEach(function (it) { var d = ''; for (var k = it[0].length; k < 31; k++) d += '.'; body.push('{c}' + it[0] + ' ' + d + '{w} ' + it[1]); });
       body.push('');
@@ -3939,6 +3979,7 @@
       all.unshift('');
       return ttPages(140, ' ON THIS DAY', all, [100, 110, 130, 120], '{r}Index {g}On now {y}Next {c}Tonight');
     }
+    if (num === 320 || num === 321) return ttFilmPages(num);
     if (num === 150) {
       body = [''];
       ready().forEach(function (c) { if (c.n < 100) body.push('{c}' + ttPad(c.name, 30) + '{w}' + (200 + c.n)); });

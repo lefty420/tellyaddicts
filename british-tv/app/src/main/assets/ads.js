@@ -32,7 +32,7 @@
     games: 'games',
     music: 'music', mtv: 'music', xmasmusic: 'music',
     itvam: 'daytime', offschool: 'daytime',
-    comedy: 'prime', sitcoms: 'prime', drama: 'prime', gameshows: 'prime', tv70s: 'prime', tv80s: 'prime', tv90s: 'prime', noel: 'prime', cooking: 'prime', entertainment: 'prime', ussitcoms: 'prime',
+    comedy: 'prime', sitcoms: 'prime', drama: 'prime', gameshows: 'prime', tv70s: 'prime', tv80s: 'prime', tv90s: 'prime', noel: 'prime', cooking: 'prime', entertainment: 'prime', ussitcoms: 'prime', usdrama: 'prime',
     itv: 'prime', christmas: 'prime',
     adbreak: 'all'
   };

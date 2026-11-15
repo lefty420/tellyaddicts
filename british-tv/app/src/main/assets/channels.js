@@ -459,6 +459,14 @@ window.CHANNELS = [
     sources: [{ data: 'tv90s' }]
   },
   {
+    n: 32,
+    id: 'usdrama',
+    name: 'US Drama',
+    // American drama up to 1999 (Columbo, Magnum, Miami Vice, The X-Files). Stays hidden until the scraper has found some.
+    maxItems: 120,
+    sources: [{ data: 'usdrama' }]
+  },
+  {
     n: 31,
     id: 'adbreak',
     name: 'Adverts',

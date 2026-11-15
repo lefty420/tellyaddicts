@@ -106,11 +106,12 @@
   // play. Options > Debug log puts it on the home network for a phone or computer to open and copy.
   var DLOG = store.get('dbglog1') || [], dlogTimer = null, httpFails = 0;
   if (!(DLOG instanceof Array)) DLOG = [];
+  DLOG = DLOG.map(function (l) { return String(l).replace(/\/[A-Za-z0-9_-]{80,}/g, '/\u2026'); });       // lines kept by earlier versions may hold an addon's settings (the debrid key)
   function two(n) { return (n < 10 ? '0' : '') + n; }
   function dlog(text) {
     var d = new Date();
     DLOG.push(two(d.getDate()) + '/' + two(d.getMonth() + 1) + ' ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) +
-      '  ' + String(text).slice(0, 700));
+      '  ' + String(text).replace(/\/[A-Za-z0-9_-]{80,}/g, '/\u2026').slice(0, 700));        // a long path piece is an addon's settings (it holds the debrid key): never written down
     if (DLOG.length > 400) DLOG.splice(0, DLOG.length - 400);
     clearTimeout(dlogTimer);
     dlogTimer = setTimeout(function () { store.set('dbglog1', DLOG); }, 2000);
@@ -3733,8 +3734,8 @@
 
   // ---- finding a title's streams
   var adIds = store.get('adid1') || {};
-  function adResolve(name, film) {
-    var key = normShow(name) + (film ? '|f' : '');
+  function adResolve(name, film, year) {
+    var key = normShow(name) + (film ? '|f' + (year || '') : '');
     if (adIds[key]) return Promise.resolve(adIds[key]);
     var done = function (r) { if (r && r.imdb) { adIds[key] = r; var ks = Object.keys(adIds); if (ks.length > 300) delete adIds[ks[0]]; store.set('adid1', adIds); } return r; };
     if (!film) {
@@ -3743,7 +3744,7 @@
       }, function () { return null; });
     }
     // films: a title like "Family Plot (1976)" is searched as "Family Plot" and the year used to pick between films of the same name
-    var ym = /\s*\((\d{4})\)\s*$/.exec(name), wantYear = ym ? +ym[1] : 0, clean = String(name).replace(/\s*\(\d{4}\)\s*$/, '').trim();
+    var ym = /\s*\((\d{4})\)\s*$/.exec(name), wantYear = ym ? +ym[1] : (year || 0), clean = String(name).replace(/\s*\(\d{4}\)\s*$/, '').trim();
     var searchable = function (c) {
       if (c.type !== 'movie') return false;
       var ex = (c.extra || []).some(function (x) { return x && x.name === 'search'; }) || (c.extraSupported || []).indexOf('search') >= 0 || (c.extraRequired || []).indexOf('search') >= 0;
@@ -3828,7 +3829,7 @@
     }
     if (!live.length) { toast('No addon is on (Options > Experimental > Addons)', 4000); return; }
     adOpen({ title: name, sub: film ? 'Finding sources…' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  finding sources…', rows: [], empty: 'Looking up the title…', back: adClose });
-    adResolve(odArtName ? odArtName(g) : name, film).then(function (r) {
+    adResolve(odArtName ? odArtName(g) : name, film, film ? (g.year || (g.eps && g.eps[0] && filmYear(g.eps[0].p)) || 0) : 0).then(function (r) {
       if (!ad) return;
       if (!r || !r.imdb) { ad.rows = []; ad.empty = film ? 'Could not find this film in the film search (check the TV is online).' : 'Could not find this show’s IMDb number'; ad.sub = ''; adRender(); return; }
       if (adCut && r.year && r.year >= 2000) { ad.rows = []; ad.empty = 'From ' + r.year + ': not allowed while “Only before 2000” is on'; ad.sub = ''; adRender(); return; }
@@ -3844,7 +3845,7 @@
           if (!!a.why !== !!b.why) return a.why ? 1 : -1;
           var ba = bgOf(a) ? 1 : 0, bb = bgOf(b) ? 1 : 0;
           var da = adDeb !== 'off' && adIsDebrid(a.s) ? 1 : 0, db = adDeb !== 'off' && adIsDebrid(b.s) ? 1 : 0;
-          var ea = adLangs(a.s).en ? 1 : 0, eb = adLangs(b.s).en ? 1 : 0;
+          var la = adLangs(a.s), lb = adLangs(b.s), ea = la.en ? (la.other.length ? 0 : 2) : 1, eb = lb.en ? (lb.other.length ? 0 : 2) : 1;      // English only, then says nothing, then English plus other tracks
           return db - da || (adLang === 'en' ? eb - ea : 0) || bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
         });
         ad.rows = list.map(function (x) {
@@ -3901,7 +3902,7 @@
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!(p.filmKey || p.afilm);
     if (!film && !ref) { toast('This needs an episode number or a film', 3500); return; }
     var name = film && p.filmKey ? (filmFor(p) || {}).title || gmName(p) : gmName(p);
-    adSources({ name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film }, ref ? { s: ref.s, e: ref.e } : {}, !!p.addon, ch, !!auto);
+    adSources({ name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, year: film ? filmYear(p) : 0 }, ref ? { s: ref.s, e: ref.e } : {}, !!p.addon, ch, !!auto);
   }
   /** On Demand's hold-OK menu: add "Find sources" when Experimental is on and an addon is on. */
   function adOdm(g) {
@@ -4231,7 +4232,7 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'info', 'sched', 'od', 'src', 'find', 'options'];   // buttons on the bar, left to right
+  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'sched', 'od', 'src', 'find', 'options'];   // buttons on the bar, left to right
   /** The buttons showing now: Skip adverts is only there while a break is playing (and never on the Adverts channel, which is all adverts). */
   function obList() { return OB_ALL.filter(function (id) { return id === 'skipad' ? !!(cur && cur.ad && !isAdChan(cur.ch)) : (id === 'src' || id === 'find') ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;

@@ -455,7 +455,7 @@
   #gsub { font-size: 2.6vh; margin-top: .8vh; color: var(--gsoft, #b9d1ff); }
 
   #ggrid { position: absolute; left: 4vw; right: 4vw; top: 41vh; }
-  .trow, .grow { display: flex; height: 6.8vh; margin-bottom: .5vh; }
+  .trow, .grow { display: flex; height: 6.3vh; margin-bottom: .5vh; }
   .trow { height: 5.4vh; }
   .gch, .tday { width: 17vw; flex: none; margin-right: .5vw; }
   .tday { display: flex; align-items: center; padding: 0 1.2vw; font-size: 2.7vh; font-weight: 700; color: var(--gsoft2, #cfe0ff);
@@ -498,7 +498,7 @@
     background: linear-gradient(180deg, var(--g1), var(--g3)); color: var(--gtx, #fff); font-family: var(--gfont, inherit); }
   .orow.sel .otpv { display: block; }
   .otpv-in { position: absolute; left: 1vw; top: 1vh; width: 182%; transform: scale(.55); transform-origin: 0 0; }
-  .otpv .trow, .otpv .grow { display: flex; height: 6.8vh; margin-bottom: .5vh; }
+  .otpv .trow, .otpv .grow { display: flex; height: 6.3vh; margin-bottom: .5vh; }
   .otpv .trow { height: 5.4vh; }
   .otpv .gch { width: 17vw; flex: none; margin-right: .5vw; }
   .otpv .tline { position: relative; flex: 1; }
@@ -712,8 +712,8 @@
   #oprog.sel #othumb { opacity: 1; }
   #oprog.scrub #obar { background: #ffd24d; }
   #otime { position: absolute; right: 0; top: 1.8vh; font-size: 2vh; color: rgba(255,255,255,.75); }
-  #obtns { display: flex; gap: 1vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
-  .ob { flex: 1; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .6vw;
+  #obtns { display: flex; gap: .6vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
+  .ob { flex: 1; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .45vw;
     font-size: 2.5vh; font-weight: 600; background: rgba(255,255,255,.1); border-radius: .7vh; white-space: nowrap; }
   .ob .ic { font-size: 2.6vh; }
   .ob.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
@@ -911,7 +911,6 @@
     <div class="ob" id="ob-skipad"><span class="ic">&#9193;</span><span>Skip adverts</span></div>
     <div class="ob" id="ob-next"><span class="ic">&#9654;&#10072;</span><span>Play Next</span></div>
     <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
-    <div class="ob" id="ob-info"><span>Info</span></div>
     <div class="ob" id="ob-sched"><span>Schedule</span></div>
     <div class="ob" id="ob-od"><span>On Demand</span></div>
     <div class="ob" id="ob-src"><span>Auto play</span></div>

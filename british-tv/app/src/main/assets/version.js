@@ -1,14 +1,25 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.67",
-  "version": "0.46.67",
-  "code": 4667,
+  "name": "Alpha 0.46.68",
+  "version": "0.46.68",
+  "code": 4668,
   "date": "2026-11-15",
   "notes": [
-    "**New channel: US Drama (32)**: American drama from 1970 to 1999 as shown in the UK (Columbo, Magnum PI, The A-Team, Miami Vice, Hill Street Blues, The X-Files, Quantum Leap, Buffy and more, 38 shows), modelled on US Sitcoms. Like US Sitcoms it stays hidden until the scraper has put its list (`usdrama`) in the data. It has its own show list for the genre check and the Auto EPG searches, runs episodes of about 30 to 70 minutes, and gets prime-time adverts like the other drama channels."
+    "**Fix: the bottom of the guide was cut off**: the guide's rows are a little shorter, so the last row clears the bottom edge of the screen.",
+    "**Fix: Options stuck out of the on-screen bar**: the **Info** button is removed from the bar (hold OK on the guide or On Demand still has Info) and the buttons sit a little closer together, so all of them fit inside the bar.",
+    "**Fix: films played the wrong version**: Find sources and Auto play for a film now use the film's year (as well as its name) to pick it, so \"Robin Hood\" finds the right Robin Hood.",
+    "**Auto play prefers English-only links**: links that say English only come first, then links that say nothing about language, and last links that are English plus other languages (a dual-audio link with Hindi first could still play the Hindi track).",
+    "**Privacy**: the debug log no longer writes down the long settings part of an addon's address (it holds your debrid key), and older lines already in the log are cleaned when the app starts. If you shared the live-view page or log before this version, your debrid key was in it: it is worth making a new key on your debrid account."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.67",
+      "date": "2026-11-15",
+      "notes": [
+        "**New channel: US Drama (32)**: American drama from 1970 to 1999 as shown in the UK (Columbo, Magnum PI, The A-Team, Miami Vice, Hill Street Blues, The X-Files, Quantum Leap, Buffy and more, 38 shows), modelled on US Sitcoms. Like US Sitcoms it stays hidden until the scraper has put its list (`usdrama`) in the data. It has its own show list for the genre check and the Auto EPG searches, runs episodes of about 30 to 70 minutes, and gets prime-time adverts like the other drama channels."
+      ]
+    },
     {
       "name": "Alpha 0.46.66",
       "date": "2026-11-15",
@@ -56,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Guide menu**: **Watch now** is removed from the hold-OK menu (plain OK on a programme still joins it where it is now)."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.59",
-      "date": "2026-11-15",
-      "notes": [
-        "**Options at the bottom of every hold-OK menu**: the guide's and On Demand's long-press menus now end with **Options**. It is moved to the end, not added again, so it appears once (before it sat in the middle of the list)."
       ]
     }
   ]

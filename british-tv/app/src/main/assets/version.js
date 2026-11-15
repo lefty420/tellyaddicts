@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.92",
-  "version": "0.46.92",
-  "code": 4692,
+  "name": "Alpha 0.46.93",
+  "version": "0.46.93",
+  "code": 4693,
   "date": "2026-11-15",
   "notes": [
-    "**Screen dims when left on a still screen**: with the TV Guide, On Demand, the bar, Info, Options, Teletext or a menu open and no key pressed for five minutes, the screen fades to a dim. Any key (or a touch on the phone) brings it back at once. A screen that stays put wears an OLED panel far more than moving video, so this matters most for OLED TVs. Nothing changes while a programme plays with nothing open.",
-    "**VHS OLED lines are softer** (lighter, a smaller step between line and gap), so they put less uneven wear on a panel. The VHS look itself is unchanged."
+    "**English sound first**: when a file has several sound tracks, the app's own player now picks the English one unless you have chosen another language in Audio & subtitles. Before, it took whichever the file listed first, so a Lethal Weapon with Turkish and English tracks played in Turkish. If a file has no English track it plays as before. A language you choose is still kept for the next programme."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.92",
+      "date": "2026-11-15",
+      "notes": [
+        "**Screen dims when left on a still screen**: with the TV Guide, On Demand, the bar, Info, Options, Teletext or a menu open and no key pressed for five minutes, the screen fades to a dim. Any key (or a touch on the phone) brings it back at once. A screen that stays put wears an OLED panel far more than moving video, so this matters most for OLED TVs. Nothing changes while a programme plays with nothing open.",
+        "**VHS OLED lines are softer** (lighter, a smaller step between line and gap), so they put less uneven wear on a panel. The VHS look itself is unchanged."
+      ]
+    },
     {
       "name": "Alpha 0.46.91",
       "date": "2026-11-15",
@@ -58,14 +65,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Oswald the Lucky Rabbit** (about 365 cartoons in the library) is now on the Disney channel too."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.84",
-      "date": "2026-11-15",
-      "notes": [
-        "**More Disney shorts**: the library's \"Walt Disney Cartoon\", \"Silly Symphony\", \"Disney Classic\" and \"Disney Cartoon\" uploads were on no channel. They are now on the Disney channel (about 580 more shorts). This comes from the show list, so it reaches the TV at the next start even before this version is installed.",
-        "**Game Shows takes dated episodes**: a quiz show with no episode number now plays on Game Shows when it is dated 1999 or earlier, by its air date or a date in the file name (\"Blockbusters - 1:21:82\", \"Fifteen to One - TX 15 January 1988\"). That adds about 450 programmes: Blockbusters, Supermarket Sweep, Fifteen to One, Bullseye, University Challenge and others. Undated files still stay off, which keeps namesakes and fan videos out."
       ]
     }
   ]

@@ -60,7 +60,8 @@ final class NativePlayer {
     private int width, height;
     // the viewer's choices, kept from programme to programme: a sound language (null = the file's own choice) and a
     // subtitle language ("" = only the file's forced/default ones, "off" = none, "any" = whichever there is)
-    private String prefAudio, prefText = "";
+    // English unless the viewer has picked another sound language: a file that lists Turkish or Portuguese first otherwise plays that
+    private String prefAudio = "en", prefText = "";
 
     private final Runnable tick = new Runnable() {
         @Override
@@ -139,7 +140,7 @@ final class NativePlayer {
         main.post(new Runnable() {
             @Override
             public void run() {
-                prefAudio = audioLang == null || audioLang.isEmpty() ? null : audioLang;
+                prefAudio = audioLang == null || audioLang.isEmpty() ? "en" : audioLang;
                 prefText = textLang == null ? "" : textLang;
             }
         });

@@ -4381,23 +4381,29 @@
     }, 4000);
   }
   v.addEventListener('loadstart', function () { fxLast = null; if (fxLiteCount < 2) document.body.classList.remove('fx-lite'); });
-  // VHS OLED: the VHS lines swap places with their gaps every ten minutes (and at a new video once two minutes have passed), so no
-  // row of an OLED panel is always the dimmed one and wears differently from its neighbours.
-  var fxShifted = 0, fxShiftAt = 0, fxShiftTimer = null;
-  function fxShift(force) {                          // force: 0 = start, -1 = stop, undefined = swap now
-    clearInterval(fxShiftTimer); fxShiftTimer = null;
-    if (force === -1) { document.body.style.removeProperty('--fxs'); return; }
-    if (force !== 0) fxShifted = fxShifted ? 0 : 1;
-    fxShiftAt = Date.now();
-    document.body.style.setProperty('--fxs', fxShifted ? '.2vh' : '0px');
-    fxShiftTimer = setInterval(function () { fxShift(); }, 600000);
+  // VHS OLED: the VHS lines swap places with their gaps every ten minutes, so no row of an OLED panel is always the dimmed one.
+  // Which of the two positions is shown comes from the clock (ten-minute slots, odd or even), not from when the app started: a
+  // restart cannot favour one position, however short each viewing is. The line spacing is a whole, even number of device pixels
+  // so the swap lands exactly on pixel rows.
+  var fxShifted = -1, fxShiftTimer = null;
+  function fxShift(on) {                              // on: true = start, false = stop
+    clearInterval(fxShiftTimer); fxShiftTimer = null; fxShifted = -1;
+    var st = document.body.style;
+    if (!on) { st.removeProperty('--fxs'); st.removeProperty('--fxp'); return; }
+    var dpr = window.devicePixelRatio || 1, N = Math.max(4, 2 * Math.round(window.innerHeight * dpr * 0.004 / 2));
+    st.setProperty('--fxp', (N / dpr) + 'px');
+    function tick() {
+      var ph = Math.floor(Date.now() / 600000) % 2;
+      if (ph === fxShifted) return;
+      fxShifted = ph; st.setProperty('--fxs', ph ? (N / 2 / dpr) + 'px' : '0px');
+    }
+    tick(); fxShiftTimer = setInterval(tick, 30000);
   }
-  v.addEventListener('loadstart', function () { if (fxMode === 'vhsoled' && Date.now() - fxShiftAt > 120000) fxShift(); });
   function applyFx() {
     FXMODES.concat('vhs').forEach(function (m) { document.body.classList.remove('fx-' + m); });
     document.body.classList.add('fx-' + fxMode);
     if (fxMode === 'vhsoled') document.body.classList.add('fx-vhs');     // the VHS look, plus lines that move (below)
-    fxShift(fxMode === 'vhsoled' ? 0 : -1);
+    fxShift(fxMode === 'vhsoled');
     if (fxMode === 'vhs2') {
       // lines and gaps in whole device pixels, so they do not drift into thick and thin bands
       var dpr = window.devicePixelRatio || 1, N = Math.max(3, Math.round(window.innerHeight * dpr / 216));

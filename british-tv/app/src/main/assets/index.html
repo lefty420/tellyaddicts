@@ -53,6 +53,7 @@
   body.fx-vhs:not(.guide-open) #crt::before { background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0, rgba(0,0,0,.2) .2vh, rgba(0,0,0,0) .4vh); }
   body.fx-vhs:not(.guide-open) #crt::after { border-radius: 0; box-shadow: none; background: linear-gradient(90deg, rgba(255,0,60,.05), rgba(0,0,0,0) 8%, rgba(0,0,0,0) 92%, rgba(0,120,255,.05)); }
   body.fx-vhs:not(.guide-open) #crt i { display: none; }
+  body.fx-vhs.fx-vhsoled:not(.guide-open) #crt::after { background: none; }      /* VHS OLED: no fixed red/blue edge strips, they would wear the same pixels for ever */
   /* VHS OLED: the VHS look. The lines are a whole, even number of device pixels apart (--fxp) and are moved half a spacing (--fxs) now and
      then, so no pixel row is always the dimmed one. The layer reaches four spacings past the screen so its pattern lines up exactly. */
   body.fx-vhsoled:not(.guide-open) #crt::before { inset: calc(var(--fxp, 4px) * -4) 0;

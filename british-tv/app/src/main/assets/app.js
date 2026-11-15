@@ -3701,18 +3701,34 @@
         return done({ imdb: (s.externals && s.externals.imdb) || '', year: s.premiered ? +String(s.premiered).slice(0, 4) : 0 });
       }, function () { return null; });
     }
-    var srch = adLive().filter(function (a) { return (a.catalogs || 0) > 0; });
-    return pool(srch, 3, function (a) {
+    // films: a title like "Family Plot (1976)" is searched as "Family Plot" and the year used to pick between films of the same name
+    var ym = /\s*\((\d{4})\)\s*$/.exec(name), wantYear = ym ? +ym[1] : 0, clean = String(name).replace(/\s*\(\d{4}\)\s*$/, '').trim();
+    var searchable = function (c) {
+      if (c.type !== 'movie') return false;
+      var ex = (c.extra || []).some(function (x) { return x && x.name === 'search'; }) || (c.extraSupported || []).indexOf('search') >= 0 || (c.extraRequired || []).indexOf('search') >= 0;
+      return ex;
+    };
+    var pick = function (metas) {
+      var l = (metas || []).filter(function (x) { return /^tt\d+/.test(x.id || ''); });
+      var w = normShow(clean), yr = function (x) { return +String(x.releaseInfo || x.year || '').slice(0, 4) || 0; };
+      var hit = l.filter(function (x) { return normShow(x.name || '') === w && (!wantYear || yr(x) === wantYear); })[0] || l.filter(function (x) { return normShow(x.name || '') === w; })[0] || l[0];
+      return hit ? { imdb: hit.id, year: yr(hit) } : null;
+    };
+    var viaAddon = function (a) {
       return adTmo(adHttp(a.base + '/manifest.json'), 8000).then(function (t) {
-        var m = JSON.parse(t), cat = (m.catalogs || []).filter(function (c) { return c.type === 'movie' && (c.extra || []).some(function (x) { return x.name === 'search'; }); })[0];
-        if (!cat) return null;
-        return adTmo(adHttp(a.base + '/catalog/movie/' + encodeURIComponent(cat.id) + '/search=' + encodeURIComponent(name) + '.json'), 8000).then(function (t2) {
-          var l = (JSON.parse(t2).metas || []).filter(function (x) { return /^tt\d+/.test(x.id || ''); });
-          var w = normShow(name), hit = l.filter(function (x) { return normShow(x.name || '') === w; })[0] || l[0];
-          return hit ? { imdb: hit.id, year: +String(hit.releaseInfo || hit.year || '').slice(0, 4) || 0 } : null;
+        var m = JSON.parse(t), cat = (m.catalogs || []).filter(searchable)[0];
+        if (!cat) { dlog('ADDON film search: ' + a.name + ' has no movie search catalog'); return null; }
+        return adTmo(adHttp(a.base + '/catalog/movie/' + encodeURIComponent(cat.id) + '/search=' + encodeURIComponent(clean) + '.json'), 8000).then(function (t2) {
+          var r = pick(JSON.parse(t2).metas); dlog('ADDON film search: ' + a.name + ' for "' + clean + '" -> ' + (r ? r.imdb : 'nothing')); return r;
         });
-      }).catch(function () { return null; });
-    }).then(function (l) { return done((l || []).filter(Boolean)[0] || null); });
+      }).catch(function (e) { dlog('ADDON film search failed: ' + a.name + ' | ' + (e && e.message)); return null; });
+    };
+    var viaCinemeta = function () {
+      return adTmo(adHttp('https://v3-cinemeta.strem.io/catalog/movie/top/search=' + encodeURIComponent(clean) + '.json'), 10000).then(function (t) {
+        var r = pick(JSON.parse(t).metas); dlog('CINEMETA film search for "' + clean + '" -> ' + (r ? r.imdb : 'nothing')); return r;
+      }).catch(function (e) { dlog('CINEMETA film search failed | ' + (e && e.message)); return null; });
+    };
+    return pool(adLive(), 3, viaAddon).then(function (l) { return (l || []).filter(Boolean)[0] || viaCinemeta(); }).then(done);
   }
   function adQuality(s) { var t = (s.name || '') + ' ' + (s.title || '') + ' ' + (s.description || ''); return /2160p|\b4k\b|uhd/i.test(t) ? 2160 : /1080/.test(t) ? 1080 : /720/.test(t) ? 720 : /480|\bsd\b/i.test(t) ? 480 : 0; }
   function adSize(s) {
@@ -3743,7 +3759,7 @@
     adOpen({ title: name, sub: film ? 'Finding sources…' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  finding sources…', rows: [], empty: 'Looking up the title…', back: adClose });
     adResolve(odArtName ? odArtName(g) : name, film).then(function (r) {
       if (!ad) return;
-      if (!r || !r.imdb) { ad.rows = []; ad.empty = film ? 'Could not find this film. It needs an addon with a film search.' : 'Could not find this show’s IMDb number'; ad.sub = ''; adRender(); return; }
+      if (!r || !r.imdb) { ad.rows = []; ad.empty = film ? 'Could not find this film in the film search (check the TV is online).' : 'Could not find this show’s IMDb number'; ad.sub = ''; adRender(); return; }
       if (adCut && r.year && r.year >= 2000) { ad.rows = []; ad.empty = 'From ' + r.year + ': not allowed while “Only before 2000” is on'; ad.sub = ''; adRender(); return; }
       var id = film ? r.imdb : r.imdb + ':' + (ep.s || 1) + ':' + (ep.e || 1), type = film ? 'movie' : 'series';
       var all = [], asked = 0, answered = 0;

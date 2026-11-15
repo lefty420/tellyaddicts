@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.7",
-  "version": "0.47.7",
-  "code": 4707,
+  "name": "Alpha 0.47.8",
+  "version": "0.47.8",
+  "code": 4708,
   "date": "2026-11-15",
   "notes": [
-    "Magic EPG: the addons are now asked with the IMDb number the scraper found for each show (data/epdb.json has 704 of them), instead of searching TVmaze by name first. Shows the file has no number for still use the old lookup."
+    "Options > Experimental: new \"Real world\" (off by default). A show's episodes come in order down the guide (S01E01, S01E02 ...) instead of a shuffle, starting at the beginning of a season. Guide times do not change: each show keeps the slots it already had, and only which episode goes in each is decided. Programmes with no episode number (specials, one-offs, music, films) are left where they are. Turning it on or off restarts the guides. It works best with Magic EPG, which fills the gaps in a show's episode run."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.7",
+      "date": "2026-11-15",
+      "notes": [
+        "Magic EPG: the addons are now asked with the IMDb number the scraper found for each show (data/epdb.json has 704 of them), instead of searching TVmaze by name first. Shows the file has no number for still use the old lookup."
+      ]
+    },
     {
       "name": "Alpha 0.47.6",
       "date": "2026-11-15",
@@ -62,14 +69,6 @@ window.RELEASE = {
         "Magic EPG (Options > Experimental, off by default): fills the channel guides with every episode of each show, not only the ones the library has a file for. Missing episodes are marked with a diamond, and play through your addons when the clock reaches them. If no addon has one, it says so and moves on to the next programme (and remembers, so it is left out next time).",
         "It reads one new file, `data/epdb.json`, packed from the scraper's per-show episode files by `python3 tools/build_epdb.py` (no internet needed). Shows with no entry fall back to the TV's own lookups from Options > Artwork > Episode lists from, done slowly in the background and used the next time the app starts.",
         "Needs Experimental on and an addon. Turning it on or off restarts the guides."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.99",
-      "date": "2026-11-15",
-      "notes": [
-        "API keys from your phone: OK on \"TheTVDB key\" or \"TMDB key\" now shows a QR code. The phone page has a \"Get your key\" button that opens the sign-up page (thetvdb.com or themoviedb.org), then you paste the key and press Send. \"Type it with the remote instead\" is the second row.",
-        "Needs the new APK (the phone page is part of the app)."
       ]
     }
   ]

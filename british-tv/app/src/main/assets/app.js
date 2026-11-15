@@ -2008,6 +2008,43 @@
     clearTimeout(spanTimer);
     spanTimer = setTimeout(function () { location.reload(); }, 2200);
   }
+
+  // ---- Real world (experimental): a show's episodes air in order. The schedule already says WHEN each of a show's slots is;
+  // this decides WHICH episode goes in each, so they run S01E01, S01E02 ... down the guide, like a real channel.
+  // Programmes with no episode number (specials, one-offs, music, films) are left exactly where they are.
+  var rwOn = store.get('rw1') === 'on';
+  function realWorld(sched, progs, seed) {
+    if (!rwOn || !sched || !sched.order || !window.LINKS) return;
+    var byShow = {};
+    progs.forEach(function (p) {
+      if (p.ad || p.adBlock || p.song || p.filmKey) return;
+      var ref = LINKS.parseEp(p.title); if (!ref || !(ref.s > 0)) return;
+      var k = normShow(gmName(p)), g = byShow[k] = byShow[k] || { eps: [], seen: {} }, id = ref.s + ':' + ref.e;
+      if (!g.seen[id]) { g.seen[id] = 1; g.eps.push({ p: p, s: +ref.s, e: +ref.e }); }
+    });
+    var slots = {};
+    sched.order.forEach(function (p, i) {
+      if (p.ad || p.adBlock || p.song || p.filmKey) return;
+      var ref = LINKS.parseEp(p.title); if (!ref || !(ref.s > 0)) return;
+      var k = normShow(gmName(p)); if (byShow[k] && byShow[k].eps.length > 1) (slots[k] = slots[k] || []).push(i);
+    });
+    Object.keys(slots).forEach(function (k) {
+      var eps = byShow[k].eps.sort(function (a, b) { return (a.s - b.s) || (a.e - b.e); });
+      var firsts = []; eps.forEach(function (x, i) { if (x.e === 1) firsts.push(i); });      // begin at the start of a season, somewhere in the show
+      var pool = firsts.length ? firsts : eps.map(function (x, i) { return i; });
+      var st = pool[E.hash(k + '|' + seed) % pool.length];
+      slots[k].forEach(function (pos, j) {
+        var src = eps[(st + j) % eps.length].p, slotDur = sched.order[pos].dur;
+        sched.order[pos] = Object.assign({}, src, { dur: slotDur });     // the slot keeps its length, so the guide's times do not move
+      });
+    });
+  }
+  function changeRw() {
+    rwOn = !rwOn; store.set('rw1', rwOn ? 'on' : 'off'); renderOpts();
+    toast(rwOn ? 'Real world on: episodes in order. Rebuilding the guides\u2026' : 'Real world off: rebuilding the guides\u2026', 3000);
+    clearTimeout(spanTimer);
+    spanTimer = setTimeout(function () { location.reload(); }, 2200);
+  }
   function tvdbAllEpisodes(id) {
     var out = [];
     function page(n) {
@@ -5129,7 +5166,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'uk', 'rw', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -5144,6 +5181,7 @@
     if (id === 'depg') return !expOn ? 'Turn Experimental on first' : depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
     if (id === 'join') return !expOn ? 'Turn Experimental on first' : joinOn ? 'On  \u00b7  starts where the clock is' : 'Off  \u00b7  starts from the beginning';
     if (id === 'uk') return ukOn ? 'British  \u00b7  US shows that were never on UK TV are hidden' : 'Everything';
+    if (id === 'rw') return rwOn ? 'On  \u00b7  episodes run in order' : 'Off';
     if (id === 'adlang') return adLang === 'en' ? 'English only' : 'Any';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
@@ -5253,6 +5291,7 @@
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
     ammain: 'With this on, every programme that has an episode number, and every film, is first looked up with your addons while the loading screen or a "Scraping your debrid" message is showing, and plays from the best link they find. If they find nothing, or the link will not play, the library link plays instead. It plays from the start rather than joining part way through.',
+    rw: 'Episodes of a show come in order on the guide (S01E01, S01E02 ...) instead of a shuffle, starting at the beginning of a season. Programmes with no episode number, such as specials, one-offs and music, are left as they are. Guide times do not change.',
     uk: 'Everything shows the whole library. British hides shows the scraper has marked as never shown on UK TV (mostly US drama), and keeps UK-made shows and the US ones that did air here, such as cartoons. Shows it is unsure about stay.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
     join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',
@@ -5450,6 +5489,7 @@
     else if (id === 'exp') changeExp();
     else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
     else if (id === 'uk') changeUk();
+    else if (id === 'rw') changeRw();
     else if (id === 'depg') changeDepg();
     else if (id === 'join') { if (!expOn) toast('Turn Experimental on first', 3000); else { joinOn = !joinOn; store.set('join1', joinOn ? 'on' : 'off'); renderOpts(); } }
     else if (id === 'adlang') changeLang();
@@ -7021,6 +7061,7 @@
           var spanH = SPANS[spanIdx].h;
           c.sched = (window.DAYPARTS && DAYPARTS.has(c.id, realOn) && DAYPARTS.schedule(c.id, progs, seed, spanH / 24, { real: realOn })) ||
                     E.buildSchedule(E.selectSpan(progs, spanH * 3600, seed), seed);
+          realWorld(c.sched, progs, seed);
           c.status = 'ready';
           if (!isAdChan(c)) enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
         } else {

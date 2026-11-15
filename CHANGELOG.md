@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.77 — 2026-11-15
+
+- **The "Scraping your debrid..." message goes away** when you change channel while it is still looking.
+- **One ranking for addon links**: Find sources and Use addons as a main source now pick the best link the same way (English audio first, the release group that worked last time, then 1080p over 720p). The unused debrid switch behind the old code is gone.
+- **Teletext page text moved out of app.js** into its own file (ttpages.js), about 200 lines. Nothing changes on screen.
+
 ## Alpha 0.46.76 — 2026-11-15
 
 - **Saved sources opens again** (Options > Experimental): two things in the app shared a name, so the screen could not start.

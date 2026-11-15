@@ -2287,6 +2287,7 @@
 
   function playSlot(ch, index, offset, announce, tuning, progOverride) {
     var prog = progOverride || ch.sched.order[index];   // progOverride: Play Next plays an episode that is not in the schedule
+    if (amMsg) { amMsg = false; toast('', 1); }                  // a new channel or programme: the old scraping message goes
     if (amTake(ch, index, offset, announce, tuning, progOverride, prog)) return;
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
@@ -3545,7 +3546,6 @@
 
   var expOn = store.get('exp1') === 'on';
   var adLang = store.get('adlang1') || 'en';                 // audio language: en = skip links that say they are in another language, any = take everything
-  var adDeb = 'off';                                        // (no debrid settings: the addon does the debrid; links it has not cached are only skipped)
   var adHist = store.get('adhist1') || [];                  // sources that worked, newest first, so a title can start again at once
   var adLast = store.get('adlast1') || {}, adBg = store.get('adbg1') || {};   // the source that last worked per episode (1 hour), and the release group chosen per show
   function adKeyOf(g, ep) { return normShow(g.name) + '|' + (g.film ? 'f' : (ep.s || 1) + ':' + (ep.e || 1)); }
@@ -3810,7 +3810,6 @@
       if (s.behaviorHints && s.behaviorHints.proxyHeaders) return 'Needs special request headers (not supported yet)';
       if (adUncached(s)) return 'Not on the debrid service yet (it would have to download first)';
       if (adLang === 'en') { var L = adLangs(s); if (!L.en && L.other.length) return L.other[0] + ' audio (Audio language: English only)'; }
-      if (adDeb === 'only' && !adIsDebrid(s)) return 'Not a debrid link (Debrid only is on)';
       return '';
     }
     if (s.ytId) return '';
@@ -3821,6 +3820,18 @@
     return 'Not something this TV can play';
   }
   /** auto: play the best link by itself (Auto play with debrid); otherwise just list what the addons found and let the person choose (Find sources). */
+  /** Does this link belong to the release group (bingeGroup) that played this show last time? */
+  function adBgOf(x, g) { var h = x.s.behaviorHints, w = adBg[normShow(g.name)]; return !!(w && h && h.bingeGroup === w); }
+  /** The one order for addon links, used by Find sources and by Use addons as a main source: links with a problem last, then the
+   *  audio language (English only, then says nothing, then English plus other tracks), the same release group as last time, 1080p over 720p. */
+  function adRank(all, g) {
+    var pref = function (q) { return q === 1080 ? 3 : q === 720 ? 2 : 1; };
+    var lang = function (x) { var L = adLangs(x.s); return L.en ? (L.other.length ? 0 : 2) : 1; };
+    return all.map(function (x, k) { x.k = k; return x; }).sort(function (a, b) {
+      if (!!a.why !== !!b.why) return a.why ? 1 : -1;
+      return (adLang === 'en' ? lang(b) - lang(a) : 0) || (adBgOf(b, g) ? 1 : 0) - (adBgOf(a, g) ? 1 : 0) || pref(b.q) - pref(a.q) || a.k - b.k;
+    });
+  }
   function adSources(g, ep, noCache, chOv, auto) {
     var name = g.name, film = !!g.film, ch = chOv || odSel().c;
     adCurTitle = String(name || '');
@@ -3841,17 +3852,10 @@
       var all = [], asked = 0, answered = 0;
       var targets = live.filter(function (a) { var s = adRes(a, 'stream'); return s && s.types.indexOf(type) >= 0 && (!s.pre || s.pre.some(function (p) { return id.indexOf(p) === 0; })); });
       if (!targets.length) { ad.rows = []; ad.empty = 'None of your addons give streams for ' + (film ? 'films' : 'shows'); adRender(); return; }
-      var bgOf = function (x) { var h = x.s.behaviorHints, w = adBg[normShow(g.name)]; return !!(w && h && h.bingeGroup === w); };
+      var bgOf = function (x) { return adBgOf(x, g); };
       var show = function (final) {
         if (!ad) return;
-        var pref = function (q) { return q === 1080 ? 3 : q === 720 ? 2 : 1; };
-        var list = all.map(function (x, k) { x.k = k; return x; }).sort(function (a, b) {
-          if (!!a.why !== !!b.why) return a.why ? 1 : -1;
-          var ba = bgOf(a) ? 1 : 0, bb = bgOf(b) ? 1 : 0;
-          var da = adDeb !== 'off' && adIsDebrid(a.s) ? 1 : 0, db = adDeb !== 'off' && adIsDebrid(b.s) ? 1 : 0;
-          var la = adLangs(a.s), lb = adLangs(b.s), ea = la.en ? (la.other.length ? 0 : 2) : 1, eb = lb.en ? (lb.other.length ? 0 : 2) : 1;      // English only, then says nothing, then English plus other tracks
-          return db - da || (adLang === 'en' ? eb - ea : 0) || bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
-        });
+        var list = adRank(all, g);
         ad.rows = list.map(function (x) {
           return { t: x.q ? x.q + 'p' : '—', n: (function () { var L = adLangs(x.s); return (L.other.length && !L.en ? '[' + L.other[0].slice(0, 2).toUpperCase() + '] ' : '') + x.label; })(), s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
             f: function () { adFall = { ch: ch, g: g, ep: ep, q: list.filter(function (y) { return !y.why && y !== x && list.indexOf(y) > list.indexOf(x); }), auto: auto }; adPlay(ch, g, ep, x); } };
@@ -3860,7 +3864,7 @@
         ad.empty = final ? 'Nothing found. Try another addon.' : 'Asking your addons…';
         adRender();
         var q0 = auto && !ad.auto ? list.filter(function (x) { return !x.why; }) : [];
-        if (q0.length && (final || bgOf(q0[0]) || q0[0].q === 1080 || (adDeb !== 'off' && adIsDebrid(q0[0].s) && q0[0].q >= 720))) {    // a good one has arrived: no need to wait for the slow addons
+        if (q0.length && (final || bgOf(q0[0]) || q0[0].q === 1080)) {    // a good one has arrived: no need to wait for the slow addons
           var q = q0;
           ad.auto = 1;
           if (q.length) { adFall = { ch: ch, g: g, ep: ep, q: q.slice(1), auto: 1 }; adPlay(ch, g, ep, q[0]); toast('Playing the best source: ' + q[0].addon, 3500); }
@@ -3901,7 +3905,7 @@
   }
   // ---- Use addons as a main source (Options > Experimental): every programme with an episode number, and every film,
   // is first looked up with the addons and played from the best link; the library's own link is the fallback.
-  var amOn = store.get('am1') === 'on', amSkip = false, amPre = null;
+  var amOn = store.get('am1') === 'on', amSkip = false, amPre = null, amMsg = false;   // amMsg: the 'Scraping your debrid' message is on screen
   function amActive() { return amOn && expOn && adLive().length > 0; }
   /** The title and episode to look up for a programme, or null when it is not an episode or a film. */
   function amReq(p) {
@@ -3926,14 +3930,6 @@
         var targets = live.filter(function (a) { var x = adRes(a, 'stream'); return x && x.types.indexOf(type) >= 0 && (!x.pre || x.pre.some(function (q) { return id.indexOf(q) === 0; })); });
         if (!targets.length) { finish([]); return; }
         var all = [], answered = 0;
-        var rank = function () {
-          var pref = function (q) { return q === 1080 ? 3 : q === 720 ? 2 : 1; };
-          return all.filter(function (x) { return !x.why; }).map(function (x, k) { x.k = k; return x; }).sort(function (a, b) {
-            var la = adLangs(a.s), lb = adLangs(b.s), ea = la.en ? (la.other.length ? 0 : 2) : 1, eb = lb.en ? (lb.other.length ? 0 : 2) : 1;
-            var da = adIsDebrid(a.s) ? 1 : 0, db = adIsDebrid(b.s) ? 1 : 0;
-            return db - da || (adLang === 'en' ? eb - ea : 0) || pref(b.q) - pref(a.q) || a.k - b.k;
-          });
-        };
         targets.forEach(function (a) {
           adTmo(adHttp(a.base + '/stream/' + type + '/' + encodeURIComponent(id).replace(/%3A/g, ':') + '.json'), 8000).then(function (t) {
             (JSON.parse(t).streams || []).slice(0, 40).forEach(function (s) {
@@ -3941,8 +3937,8 @@
             });
           }).catch(function () { /* this addon did not answer */ }).then(function () {
             answered++;
-            var l = rank();
-            if (l.length && (answered >= targets.length || l[0].q === 1080 || (adIsDebrid(l[0].s) && l[0].q >= 720))) finish(l);
+            var l = adRank(all, g).filter(function (x) { return !x.why; });
+            if (l.length && (answered >= targets.length || l[0].q === 1080 || adBgOf(l[0], g))) finish(l);
             else if (answered >= targets.length) finish([]);
           });
         });
@@ -3972,6 +3968,7 @@
     var pre = amPre && amPre.k === adKeyOf(rq.g, rq.ep) ? amPre : null; amPre = null;
     var go = function (list) {
       if (cur !== me) return;                                  // the viewer changed channel while it was looking
+      amMsg = false;
       if (!list.length) { amFallback(lib, 'no source found'); return; }
       toast('', 1);
       adFall = { ch: ch, g: rq.g, ep: rq.ep, q: list.slice(1), auto: 0, lib: lib };
@@ -3980,7 +3977,7 @@
       if (cur && cur.prog && cur.prog.addon) { if (me.od) cur.od = me.od; else cur.am = { ch: ch, index: index }; }
     };
     if (pre) { go(pre.list); return true; }
-    toast('Scraping your debrid…', 15000);
+    toast('Scraping your debrid…', 15000); amMsg = true;
     amScrape(rq.g, rq.ep).then(go, function () { go([]); });
     return true;
   }
@@ -4007,199 +4004,8 @@
 
   // ------------------------------------------------------------------ Teletext (pages the app builds from its own guide)
   var tt = null;
-  var TT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], TT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  function ttAscii(s) { return String(s || '').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/[^\x20-\x7e]/g, '').replace(/[{}]/g, ''); }
-  function ttPad(s, n) { s = ttAscii(s).slice(0, n); while (s.length < n) s += ' '; return s; }
-  function ttHead(n) { var d = new Date(); return '{w}P' + n + '{y} TELLY ADDICTS {c}' + TT_DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + TT_MONTHS[d.getMonth()] + ' {y}' + fmtTime(d.getTime()); }
-  function ttPages(num, title, body, fast, foot) {
-    // body: lines for rows 4..22; more than fit makes sub-pages that turn over by themselves
-    var per = 18, out = [], n = Math.max(1, Math.ceil(body.length / per));
-    for (var i = 0; i < n; i++) {
-      var part = body.slice(i * per, (i + 1) * per), acts = {};
-      var ls = [ttHead(num), '', '{b}{nb}{y}{H}' + title, ''].concat(part.map(function (x, k) { if (x && x.act) acts[4 + k] = x.act; return x && x.t != null ? x.t : x; }));
-      while (ls.length < 23) ls.push('');
-      ls.push(n > 1 ? '{c}Page ' + (i + 1) + ' of ' + n : '');
-      ls.push(foot || '{r}Index {g}On now {y}Next {c}Tonight');
-      var pgo = T().page(num, ls, fast || [100, 110, 130, 120]);
-      pgo.acts = acts;
-      out.push(pgo);
-    }
-    return out;
-  }
-  function T() { return window.Teletext; }
-  function ttChanRows(at, next) {
-    var rows = [];
-    ready().forEach(function (c) {
-      var b = E.blockAt(c.sched, at);
-      if (b && next) b = E.stepBlock(c.sched, b, 1);
-      if (!b || !b.prog) return;
-      rows.push({ t: '{c}' + ('0' + c.n).slice(-2) + ' ' + ttPad(c.name, 11) + '{w}' + ttPad(gmName(b.prog), 24), act: { c: c, b: b } });
-    });
-    return rows;
-  }
-
-
-  // Weather (Open-Meteo) and the dated news page (Wikipedia's "on this day" for today's date, in a year from the timeline)
-  var TT_CITIES = [['London', 51.51, -0.13], ['Birmingham', 52.48, -1.9], ['Manchester', 53.48, -2.24], ['Cardiff', 51.48, -3.18], ['Glasgow', 55.86, -4.25], ['Belfast', 54.6, -5.93]];
-  var TT_WX = { 0: 'Clear', 1: 'Mostly clear', 2: 'Part cloud', 3: 'Cloudy', 45: 'Fog', 48: 'Fog', 51: 'Drizzle', 53: 'Drizzle', 55: 'Drizzle', 56: 'Frzg drizzle', 57: 'Frzg drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Frzg rain', 67: 'Frzg rain', 71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains', 80: 'Showers', 81: 'Showers', 82: 'Heavy showers', 85: 'Snow showers', 86: 'Snow showers', 95: 'Thunder', 96: 'Thunder', 99: 'Thunder' };
-  var ttCache = {};
-  function ttCached(key, ms, fetcher) {
-    var c = ttCache[key];
-    if (c && Date.now() - c.t < ms) return Promise.resolve(c.v);
-    return fetcher().then(function (v) { ttCache[key] = { t: Date.now(), v: v }; return v; });
-  }
-  function ttTemp(x) { return (x < 0 ? '-' : '') + Math.round(Math.abs(x)) + 'C'; }
-  function ttWeather() {
-    var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + TT_CITIES.map(function (c) { return c[1]; }).join(',') + '&longitude=' + TT_CITIES.map(function (c) { return c[2]; }).join(',') +
-      '&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=Europe%2FLondon&wind_speed_unit=mph';
-    return ttCached('wx', 900000, function () { return http(url).then(function (t) { var j = JSON.parse(t); return Array.isArray(j) ? j : [j]; }); });
-  }
-  function ttWxPages(num, j) {
-    var body = [''];
-    if (num === 300) {
-      body.push('{c}City         Now  Wind   Sky');
-      j.forEach(function (d, i) { var cu = d.current || {}; body.push('{w}' + ttPad(TT_CITIES[i][0], 12) + ' {y}' + ttPad(ttTemp(cu.temperature_2m), 4) + '{w}' + ttPad(Math.round(cu.wind_speed_10m) + 'mph', 6) + '{c}' + ttPad(TT_WX[cu.weather_code] || '', 14)); });
-      body.push(''); body.push('{w}Forecast for 3 days ............ {y}301');
-      return ttPages(300, ' WEATHER NOW', body, [100, 301, 310, 120], '{r}Index {g}Forecast {y}News {c}Tonight');
-    }
-    var days = ['Today', 'Tomorrow', 'Day 3'];
-    body.push('{c}City       ' + ' High/Low  Sky');
-    j.forEach(function (d, i) {
-      var dd = d.daily || {};
-      body.push('{y}' + ttPad(TT_CITIES[i][0], 38));
-      for (var k = 0; k < 3; k++) {
-        var date = new Date(dd.time[k] + 'T12:00:00');
-        body.push('{c} ' + ttPad(k < 2 ? days[k] : TT_DAYS[date.getDay()], 9) + '{w}' + ttPad(ttTemp(dd.temperature_2m_max[k]) + '/' + ttTemp(dd.temperature_2m_min[k]), 10) + '{w}' + ttPad(TT_WX[dd.weather_code[k]] || '', 17));
-      }
-    });
-    return ttPages(301, ' WEATHER FORECAST', body, [100, 300, 310, 120], '{r}Index {g}Now {y}News {c}Tonight');
-  }
-  /** The year used for today's news: one from the timeline (1970-1999) that has enough events on this date, picked by the date so it is the same all day. */
-  function ttNewsYear(ev) {
-    var by = {};
-    ev.forEach(function (e) { if (e.year >= 1970 && e.year <= 1999) (by[e.year] = by[e.year] || []).push(e); });
-    var yrs = Object.keys(by).filter(function (y) { return by[y].length >= 1; }).map(Number).sort();
-    if (!yrs.length) return null;
-    var d = new Date(), doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
-    var y = yrs[(doy * 7 + d.getFullYear()) % yrs.length];
-    return { year: y, items: by[y], others: yrs.filter(function (x) { return x !== y; }) };
-  }
-  function ttNews() {
-    var d = new Date(), url = 'https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/' + pad2(d.getMonth() + 1) + '/' + pad2(d.getDate());
-    return ttCached('news' + url, 3600000, function () { return http(url).then(function (t) { var j = JSON.parse(t); return (j.events || []).map(function (e) { return { year: e.year, text: ttAscii(e.text) }; }); }); });
-  }
-  function ttNewsPages(ev) {
-    var pick = ttNewsYear(ev), d = new Date(), body = [''];
-    var months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
-    if (!pick) { body.push('{w}No news is stored for this date.'); return ttPages(310, ' NEWS', body, [100, 300, 110, 120]); }
-    pick.items.forEach(function (e) {
-      var ln = '';
-      e.text.split(' ').forEach(function (w) { if ((ln + ' ' + w).trim().length > 38) { body.push('{w}' + ln); ln = w; } else ln = (ln + ' ' + w).trim(); });
-      if (ln) body.push('{w}' + ln);
-      body.push('');
-    });
-    body.push('{c}Other years with news: ' + pick.others.slice(0, 6).join(' '));
-    body.push('{w}Source: Wikipedia, On this day');
-    return ttPages(310, ' NEWS ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + pick.year, body, [100, 300, 110, 120], '{r}Index {g}Weather {y}On now {c}Tonight');
-  }
-
-  // Film of the day: a film from the guide, picked by the date, with the TMDb details the app already holds (no network needed)
-  function ttFilms() {
-    var seen = {}, out = [];
-    channels.forEach(function (c) { (c.plan || []).forEach(function (pr) {
-      if (!pr.filmKey || pr.ad || seen[pr.filmKey] || blocked(pr)) return;
-      var f = filmFor(pr);
-      if (!f || !f.title || !f.plot || !String(f.cert || '').trim()) return;
-      seen[pr.filmKey] = { f: f, chans: [] };
-      out.push(seen[pr.filmKey]);
-    }); });
-    channels.forEach(function (c) { (c.plan || []).forEach(function (pr) { var o = pr.filmKey && seen[pr.filmKey]; if (o && o.chans.indexOf(c.n) < 0) o.chans.push(c.n); }); });
-    out.sort(function (a, b) { return a.f.title < b.f.title ? -1 : 1; });
-    return out;
-  }
-  function ttWrap(text, w, col) {
-    var out = [], ln = '';
-    ttAscii(text).split(' ').forEach(function (x) { if ((ln + ' ' + x).trim().length > w) { out.push(col + ln); ln = x; } else ln = (ln + ' ' + x).trim(); });
-    if (ln) out.push(col + ln);
-    return out;
-  }
-  function ttFilmPages(num) {
-    var all = ttFilms(), body = [''];
-    if (!all.length) { body.push('{w}No film details are stored yet.'); return ttPages(num, ' FILM OF THE DAY', body, [100, 300, 310, 120]); }
-    if (num === 321) {
-      all.forEach(function (o) { body.push('{c}' + ttPad((o.f.released || '').slice(0, 4), 5) + '{w}' + ttPad(o.f.title, 33)); });
-      return ttPages(321, ' MORE FILMS', body, [100, 320, 300, 310], '{r}Index {g}Film {y}Weather {c}News');
-    }
-    var d = new Date(), doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000), o = all[(doy * 13 + d.getFullYear()) % all.length], f = o.f;
-    body.push('{y}' + ttPad(String(f.title).replace(/\s*\(\d{4}\)\s*$/, ''), 38));
-    body.push('{c}' + ttPad([String(f.released || '').slice(0, 4), f.cert, f.mins ? Math.floor(f.mins / 60) + 'h ' + (f.mins % 60) + 'm' : ''].filter(Boolean).join('  '), 38));
-    if (f.genres) body.push('{c}' + ttPad(f.genres, 38));
-    body.push('');
-    body = body.concat(ttWrap(f.plot, 38, '{w}').slice(0, 7));
-    body.push('');
-    if (f.cast && f.cast.length) { body.push('{y}Starring'); body.push('{w}' + ttPad(f.cast.slice(0, 4).map(function (m) { return m.n; }).join(', '), 38)); }
-    if (o.chans.length) { body.push(''); body.push('{c}On channel ' + o.chans.slice(0, 6).map(function (n) { return ('0' + n).slice(-2); }).join(', ')); }
-    body.push(''); body.push('{w}More films ............ {y}321');
-    return ttPages(320, ' FILM OF THE DAY', body, [100, 321, 300, 310], '{r}Index {g}More {y}Weather {c}News');
-  }
-  function ttBuild(num) {
-    var now = Date.now(), body = [], i;
-    if (num === 100) {
-      var items = [['On now', 110], ['Tonight on TV', 120], ['Coming up next', 130], ['On this day', 140], ['Weather', 300], ['News for today', 310], ['Film of the day', 320], ['Channel schedules', 150], ['About Telly Addicts', 190]];
-      body.push('');
-      items.forEach(function (it) { var d = ''; for (var k = it[0].length; k < 31; k++) d += '.'; body.push('{c}' + it[0] + ' ' + d + '{w} ' + it[1]); });
-      body.push('');
-      var bar = '{R}{#127}{#127}{#127}{G}{#127}{#127}{#127}{Y}{#127}{#127}{#127}{B}{#127}{#127}{#127}{M}{#127}{#127}{#127}{C}{#127}{#127}{#127}{W}{#127}{#127}{#127}';
-      body.push(bar); body.push(bar); body.push('');
-      body.push('{w}Move with the arrows, press OK on'); body.push('{w}a page number. Hold OK to type one.');
-      return ttPages(100, ' TELLY ADDICTS', body, [110, 120, 130, 140], '{r}On now {g}Tonight {y}Next {c}This day');
-    }
-    if (num === 110) return ttPages(110, ' ON NOW', [''].concat(ttChanRows(now, false)), [100, 120, 130, 140]);
-    if (num === 130) return ttPages(130, ' COMING UP NEXT', [''].concat(ttChanRows(now, true)), [100, 110, 120, 140]);
-    if (num === 120) {
-      var t8 = new Date(); t8.setHours(20, 0, 0, 0); if (t8.getTime() < now - 3600000) t8.setDate(t8.getDate() + 1);
-      return ttPages(120, ' TONIGHT AT 20:00', [''].concat(ttChanRows(t8.getTime(), false)), [100, 110, 130, 140]);
-    }
-    if (num === 140) {
-      var clips = (window.OTD || []).map(function (o) { var m = /^On This Day (\d{4}):\s*(.*)$/.exec(o[1] || ''); return m ? { y: +m[1], t: ttAscii(m[2]) } : null; }).filter(Boolean);
-      clips.sort(function (a, b) { return a.y - b.y; });
-      var blocks = [];
-      clips.forEach(function (c) {
-        var ws = c.t.split(' '), cur2 = '', ls = ['{c}' + c.y];
-        ws.forEach(function (w) { if ((cur2 + ' ' + w).trim().length > 38) { ls.push('{w}' + cur2); cur2 = w; } else cur2 = (cur2 + ' ' + w).trim(); });
-        if (cur2) ls.push('{w}' + cur2);
-        if (ls.length > 4) { ls = ls.slice(0, 4); ls[3] = ls[3].slice(0, 35).replace(/\s+$/, '') + '...'; }
-        ls.push(''); blocks.push(ls);
-      });
-      var pg = [], per = 18, curp = [];
-      blocks.forEach(function (b) { if (curp.length + b.length > per) { pg.push(curp); curp = []; } curp = curp.concat(b); });
-      if (curp.length) pg.push(curp);
-      var all = [];
-      pg.forEach(function (p) { while (p.length < per) p.push(''); all = all.concat(p); });
-      if (!all.length) all = ['', '{w}No archive clips are loaded.'];
-      all.unshift('');
-      return ttPages(140, ' ON THIS DAY', all, [100, 110, 130, 120], '{r}Index {g}On now {y}Next {c}Tonight');
-    }
-    if (num === 320 || num === 321) return ttFilmPages(num);
-    if (num === 150) {
-      body = [''];
-      ready().forEach(function (c) { if (c.n < 100) body.push('{c}' + ttPad(c.name, 30) + '{w}' + (200 + c.n)); });
-      return ttPages(150, ' CHANNELS', body, [100, 110, 130, 120]);
-    }
-    if (num >= 200 && num < 300) {
-      var ch = ready().filter(function (c) { return c.n === num - 200; })[0];
-      if (!ch) return null;
-      body = ['{y}' + ttPad(ch.name, 38)];
-      var bl = E.blockAt(ch.sched, now), k = 0;
-      while (bl && bl.prog && k < 40) { body.push({ t: '{c}' + fmtTime(bl.startMs) + ' {w}' + ttPad(gmName(bl.prog), 33), act: { c: ch, b: bl } }); bl = E.stepBlock(ch.sched, bl, 1); k++; }
-      return ttPages(num, ' ' + ttAscii(ch.name).toUpperCase().slice(0, 30), body, [150, 110, 130, 120]);
-    }
-    if (num === 190) {
-      body = ['', '{w}Telly Addicts is a free hobby project.', '{w}Every page here is built by the app', '{w}from your own guide, on this TV.', '', '{c}Arrows move between page numbers and', '{c}the four links on the bottom row.', '{c}OK opens one.', '', '{y}Hold OK to type a page number.', '{y}Back goes to the page before.'];
-      return ttPages(190, ' ABOUT', body, [100, 110, 130, 120]);
-    }
-    return null;
-  }
+  var TTP = window.TTPages({ ready: ready, channels: channels, E: E, fmtTime: fmtTime, gmName: gmName, http: http, pad2: pad2, filmFor: filmFor, blocked: blocked });
+  var T = TTP.T, ttAscii = TTP.ttAscii, ttPad = TTP.ttPad, ttPages = TTP.ttPages, ttBuild = TTP.ttBuild, ttWeather = TTP.ttWeather, ttWxPages = TTP.ttWxPages, ttNews = TTP.ttNews, ttNewsPages = TTP.ttNewsPages;
   function ttOpen(n) {
     if (!T()) return;
     tt = { num: 0, sub: 0, pages: null, links: [], li: 0, hist: [], pad: null };

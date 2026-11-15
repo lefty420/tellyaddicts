@@ -1,16 +1,25 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.76",
-  "version": "0.46.76",
-  "code": 4676,
+  "name": "Alpha 0.46.77",
+  "version": "0.46.77",
+  "code": 4677,
   "date": "2026-11-15",
   "notes": [
-    "**Saved sources opens again** (Options > Experimental): two things in the app shared a name, so the screen could not start.",
-    "**Use addons as a main source keeps your place in On Demand**: Next goes to the right episode, also when the library link has to take over.",
-    "**Use addons as a main source waits at most 6 seconds on the loading screen** before falling back to the library."
+    "**The \"Scraping your debrid...\" message goes away** when you change channel while it is still looking.",
+    "**One ranking for addon links**: Find sources and Use addons as a main source now pick the best link the same way (English audio first, the release group that worked last time, then 1080p over 720p). The unused debrid switch behind the old code is gone.",
+    "**Teletext page text moved out of app.js** into its own file (ttpages.js), about 200 lines. Nothing changes on screen."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.76",
+      "date": "2026-11-15",
+      "notes": [
+        "**Saved sources opens again** (Options > Experimental): two things in the app shared a name, so the screen could not start.",
+        "**Use addons as a main source keeps your place in On Demand**: Next goes to the right episode, also when the library link has to take over.",
+        "**Use addons as a main source waits at most 6 seconds on the loading screen** before falling back to the library."
+      ]
+    },
     {
       "name": "Alpha 0.46.75",
       "date": "2026-11-15",
@@ -58,17 +67,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Channels renumbered into groups** (the channels themselves are unchanged; only their numbers move):"
-      ]
-    },
-    {
-      "name": "Alpha 0.46.68",
-      "date": "2026-11-15",
-      "notes": [
-        "**Fix: the bottom of the guide was cut off**: the guide's rows are a little shorter, so the last row clears the bottom edge of the screen.",
-        "**Fix: Options stuck out of the on-screen bar**: the **Info** button is removed from the bar (hold OK on the guide or On Demand still has Info) and the buttons sit a little closer together, so all of them fit inside the bar.",
-        "**Fix: films played the wrong version**: Find sources and Auto play for a film now use the film's year (as well as its name) to pick it, so \"Robin Hood\" finds the right Robin Hood.",
-        "**Auto play prefers English-only links**: links that say English only come first, then links that say nothing about language, and last links that are English plus other languages (a dual-audio link with Hindi first could still play the Hindi track).",
-        "**Privacy**: the debug log no longer writes down the long settings part of an addon's address (it holds your debrid key), and older lines already in the log are cleaned when the app starts. If you shared the live-view page or log before this version, your debrid key was in it: it is worth making a new key on your debrid account."
       ]
     }
   ]

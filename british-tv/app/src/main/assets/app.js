@@ -4327,15 +4327,39 @@
   var vSkips = 0;
   /** A virtual episode no addon had: remember that, and go to the next programme (a real one after a few misses in a row). */
   function vMiss(ch, index, prog, announce) {
-    markSlow(prog.id); vSkips++;
-    dlog('DEBRID EPG: no source for ' + prog.title);
-    toast('No source for ' + prog.title + ', moving on', 3000);
-    var n = ch.sched.order.length, j = (index + 1) % n;
-    if (vSkips >= 3) { for (var t = 0; t < n && ch.sched.order[j].virtual; t++) j = (j + 1) % n; vSkips = 0; }
-    playSlot(ch, j, 0, announce, false);
+    var me = cur, skip = function () {
+      markSlow(prog.id); vSkips++;
+      dlog('MAGIC EPG: no source for ' + prog.title);
+      toast('No source for ' + prog.title + ', moving on', 3000);
+      var n = ch.sched.order.length, j = (index + 1) % n;
+      if (vSkips >= 3) { for (var t = 0; t < n && ch.sched.order[j].virtual; t++) j = (j + 1) % n; vSkips = 0; }
+      playSlot(ch, j, 0, announce, false);
+    };
+    // no addon had it: archive.org may (the same lookup Play Next uses, for this exact episode)
+    var ref = window.LINKS && LINKS.parseEp(prog.title);
+    if (!ref) { skip(); return; }
+    toast('No addon had it, trying archive.org\u2026', 15000);
+    var k = LINKS.key(ref.show, ref.s, ref.e);
+    var look = LINKS.get(k).then(function (hit) { return hit || searchAndSave(ref, '', k).then(function () { return LINKS.get(k); }); });
+    Promise.race([look, new Promise(function (res) { setTimeout(function () { res(null); }, 25000); })]).then(function (hit) {
+      if (cur !== me) return;                                    // the viewer changed channel meanwhile
+      var url = hit && (E.canonicalUrl(hit.url) || hit.url);
+      if (!url) { skip(); return; }
+      probeUrl(url, 15000).then(function (ok) {
+        if (cur !== me) return;
+        if (!ok) { skip(); return; }
+        toast('', 1); vSkips = 0;
+        dlog('MAGIC EPG: archive.org link for ' + prog.title);
+        amSkip = true;
+        try { playSlot(ch, index, 0, announce, false, { id: hit.id || prog.id, item: hit.item || 'archive', url: url, title: prog.title, sub: '', dur: hit.dur || prog.dur, show: prog.show, group: prog.group, aired: prog.aired }); }
+        finally { amSkip = false; }
+      });
+    }, skip);
   }
   /** Play the library's own link (the fallback), carrying On Demand's place in its list when there was one. */
   function amFallback(lib, why) {
+    var vp = lib.po || (lib.ch.sched && lib.ch.sched.order[lib.index]);
+    if (vp && vp.virtual) { vMiss(lib.ch, lib.index, vp, !!lib.announce); return; }     // a Magic EPG episode has no library file: archive.org, else on
     toast('', 1);
     dlog('ADDONS MAIN SOURCE: ' + why + ', playing the library link');
     amSkip = true;

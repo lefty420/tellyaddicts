@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.47.6 — 2026-11-15
+- Magic EPG: when none of your addons has an episode, the app now looks for it on archive.org (the same lookup Play Next uses, for that exact episode) and plays it if the link works, before skipping to the next programme. An episode with no addon source and no archive.org link is still skipped and remembered.
+- Debug log lines for Magic EPG now start "MAGIC EPG:".
+
 ## Alpha 0.47.5 — 2026-11-15
 - Content: British now writes to the debug log which shows it hid and how many programmes, so a wrongly hidden show is easy to spot.
 

@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.5",
-  "version": "0.47.5",
-  "code": 4705,
+  "name": "Alpha 0.47.6",
+  "version": "0.47.6",
+  "code": 4706,
   "date": "2026-11-15",
   "notes": [
-    "Content: British now writes to the debug log which shows it hid and how many programmes, so a wrongly hidden show is easy to spot."
+    "Magic EPG: when none of your addons has an episode, the app now looks for it on archive.org (the same lookup Play Next uses, for that exact episode) and plays it if the link works, before skipping to the next programme. An episode with no addon source and no archive.org link is still skipped and remembered.",
+    "Debug log lines for Magic EPG now start \"MAGIC EPG:\"."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.5",
+      "date": "2026-11-15",
+      "notes": [
+        "Content: British now writes to the debug log which shows it hid and how many programmes, so a wrongly hidden show is easy to spot."
+      ]
+    },
     {
       "name": "Alpha 0.47.4",
       "date": "2026-11-15",
@@ -62,14 +70,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "Options > Artwork: \"Episode lists from\" now sits above the two keys, and its help text fits on one line."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.97",
-      "date": "2026-11-15",
-      "notes": [
-        "Options > Artwork: new \"Episode lists from\" (TVmaze by default, or TheTVDB, or TMDB) and a \"TMDB key\" row beside the TheTVDB key, with an on-screen keyboard and a check when saved. A source with no key, or with no result, falls back to TVmaze.",
-        "Groundwork for the Debrid EPG experiment (nothing uses the choice yet)."
       ]
     }
   ]

@@ -4219,7 +4219,7 @@
       });
     });
   }
-  function adPlay(ch, g, ep, x) {
+  function adPlay(ch, g, ep, x, offset) {
     var s = x.s, url = s.ytId ? 'yt:' + s.ytId : s.url;
     var fk = g.fk || (g.film && g.eps && g.eps[0] && g.eps[0].p && g.eps[0].p.filmKey) || '';   // the library's own film record: Info and artwork come from it, not from a TV show search
     var prog = { id: 'addon/' + x.addon + '/' + (g.name || ''), item: 'addon', url: url, title: g.name + (g.film ? '' : ' S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1)), sub: x.addon, dur: 0, lenKnown: 0, show: g.name, group: g.name, addon: 1, afilm: !!g.film, q: x.q || adQuality(s) };
@@ -4240,7 +4240,7 @@
     if (osdOpen) closeOsd();
     if (odOpen) odClose(false);                               // the picture must not stay hidden behind On Demand
     dlog('ADDON PLAY ' + x.addon + ' | ' + x.label + ' | ' + url);
-    odStart(ch, [{ p: prog, s: 0, e: 0 }], 0, 0, '');
+    odStart(ch, [{ p: prog, s: 0, e: 0 }], 0, offset || 0, '');
   }
   // ---- Use addons as a main source (Options > Experimental): every programme with an episode number, and every film,
   // is first looked up with the addons and played from the best link; the library's own link is the fallback.
@@ -4284,6 +4284,7 @@
       }, function () { finish([]); });
     });
   }
+  var joinOn = store.get('join1') === 'on';
   var vSkips = 0;
   /** A virtual episode no addon had: remember that, and go to the next programme (a real one after a few misses in a row). */
   function vMiss(ch, index, prog, announce) {
@@ -4323,7 +4324,9 @@
       adFall = { ch: ch, g: rq.g, ep: rq.ep, q: list.slice(1), auto: 0, lib: lib };
       vSkips = 0;
       dlog('ADDONS MAIN SOURCE: ' + rq.g.name + ' | ' + list[0].addon);
-      adPlay(ch, rq.g, rq.ep, list[0]);
+      var jo = joinOn && offset > 30 ? Math.round(offset) : 0;                // Join in progress: where the clock says the programme has got to
+      if (jo) dlog('ADDONS MAIN SOURCE: joining ' + rq.g.name + ' at ' + jo + 's');
+      adPlay(ch, rq.g, rq.ep, list[0], jo);
       if (cur && cur.prog && cur.prog.addon) { if (me.od) cur.od = me.od; else cur.am = { ch: ch, index: index }; }
     };
     if (pre) { go(pre.list); return true; }
@@ -5058,7 +5061,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'ammain', 'depg', 'adlang', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -5071,6 +5074,7 @@
     if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'ammain') return !expOn ? 'Turn Experimental on first' : amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
     if (id === 'depg') return !expOn ? 'Turn Experimental on first' : depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
+    if (id === 'join') return !expOn ? 'Turn Experimental on first' : joinOn ? 'On  \u00b7  starts where the clock is' : 'Off  \u00b7  starts from the beginning';
     if (id === 'adlang') return adLang === 'en' ? 'English only' : 'Any';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
@@ -5181,6 +5185,7 @@
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
     ammain: 'With this on, every programme that has an episode number, and every film, is first looked up with your addons while the loading screen or a "Scraping your debrid" message is showing, and plays from the best link they find. If they find nothing, or the link will not play, the library link plays instead. It plays from the start rather than joining part way through.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Those episodes show a \u25c7 and play through your addons; if no addon has one it moves on to the next programme. Needs an addon, and works best with Use addons as a main source.',
+    join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
@@ -5375,6 +5380,7 @@
     else if (id === 'exp') changeExp();
     else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
     else if (id === 'depg') changeDepg();
+    else if (id === 'join') { if (!expOn) toast('Turn Experimental on first', 3000); else { joinOn = !joinOn; store.set('join1', joinOn ? 'on' : 'off'); renderOpts(); } }
     else if (id === 'adlang') changeLang();
     else if (id === 'adrec') { closeOpts(); adRecent(); }
     else if (id === 'adcut') changeAdcut();

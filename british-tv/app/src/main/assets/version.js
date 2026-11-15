@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.0",
-  "version": "0.47.0",
-  "code": 4700,
+  "name": "Alpha 0.47.1",
+  "version": "0.47.1",
+  "code": 4701,
   "date": "2026-11-15",
   "notes": [
-    "Magic EPG (Options > Experimental, off by default): fills the channel guides with every episode of each show, not only the ones the library has a file for. Missing episodes are marked with a diamond, and play through your addons when the clock reaches them. If no addon has one, it says so and moves on to the next programme (and remembers, so it is left out next time).",
-    "It reads one new file, `data/epdb.json`, packed from the scraper's per-show episode files by `python3 tools/build_epdb.py` (no internet needed). Shows with no entry fall back to the TV's own lookups from Options > Artwork > Episode lists from, done slowly in the background and used the next time the app starts.",
-    "Needs Experimental on and an addon. Turning it on or off restarts the guides."
+    "Options > Experimental: new \"Join in progress\" (off by default). For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on), the picture starts where the guide says the programme has got to, instead of from the beginning. The debug log says \"joining ... at Ns\" when it does."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.0",
+      "date": "2026-11-15",
+      "notes": [
+        "Magic EPG (Options > Experimental, off by default): fills the channel guides with every episode of each show, not only the ones the library has a file for. Missing episodes are marked with a diamond, and play through your addons when the clock reaches them. If no addon has one, it says so and moves on to the next programme (and remembers, so it is left out next time).",
+        "It reads one new file, `data/epdb.json`, packed from the scraper's per-show episode files by `python3 tools/build_epdb.py` (no internet needed). Shows with no entry fall back to the TV's own lookups from Options > Artwork > Episode lists from, done slowly in the background and used the next time the app starts.",
+        "Needs Experimental on and an addon. Turning it on or off restarts the guides."
+      ]
+    },
     {
       "name": "Alpha 0.46.99",
       "date": "2026-11-15",
@@ -65,14 +72,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**English sound first**: when a file has several sound tracks, the app's own player now picks the English one unless you have chosen another language in Audio & subtitles. Before, it took whichever the file listed first, so a Lethal Weapon with Turkish and English tracks played in Turkish. If a file has no English track it plays as before. A language you choose is still kept for the next programme."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.92",
-      "date": "2026-11-15",
-      "notes": [
-        "**Screen dims when left on a still screen**: with the TV Guide, On Demand, the bar, Info, Options, Teletext or a menu open and no key pressed for five minutes, the screen fades to a dim. Any key (or a touch on the phone) brings it back at once. A screen that stays put wears an OLED panel far more than moving video, so this matters most for OLED TVs. Nothing changes while a programme plays with nothing open.",
-        "**VHS OLED lines are softer** (lighter, a smaller step between line and gap), so they put less uneven wear on a panel. The VHS look itself is unchanged."
       ]
     }
   ]

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.64",
-  "version": "0.46.64",
-  "code": 4664,
+  "name": "Alpha 0.46.65",
+  "version": "0.46.65",
+  "code": 4665,
   "date": "2026-11-15",
   "notes": [
-    "**Hold-OK menu on the channel schedule**: hold OK on a programme in a channel schedule to get **Auto play with debrid**, **Find sources** and **Options** (the first two appear when Experimental is on and an addon is installed; hold OK used to just close the schedule, Back still does)."
+    "**Logo on the phone page**: the page that opens on your phone to send an addon link to the TV now shows the Telly Addicts logo at the top."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.64",
+      "date": "2026-11-15",
+      "notes": [
+        "**Hold-OK menu on the channel schedule**: hold OK on a programme in a channel schedule to get **Auto play with debrid**, **Find sources** and **Options** (the first two appear when Experimental is on and an addon is installed; hold OK used to just close the schedule, Back still does)."
+      ]
+    },
     {
       "name": "Alpha 0.46.63",
       "date": "2026-11-15",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**On Demand menu**: the hold-OK item **Find sources** is now called **Auto play with debrid**, like the bar and the guide. It does what it did before: asks your addons and plays the best link."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.56",
-      "date": "2026-11-15",
-      "notes": [
-        "**Auto play with debrid from the bar and the guide**: while watching, the on-screen bar (OK) has a new **Auto play** button after On Demand; on the guide, hold OK on a programme and choose **Auto play with debrid**. Either one asks your addons for that episode (or film) and plays the best link by itself, closing the guide or bar. From the bar on something an addon is already playing it looks again and skips a saved link. It needs Experimental on and an addon installed; programmes without an episode number (like \"Top of the Pops\") say so."
       ]
     }
   ]

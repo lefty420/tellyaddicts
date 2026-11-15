@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.63",
-  "version": "0.46.63",
-  "code": 4663,
+  "name": "Alpha 0.46.64",
+  "version": "0.46.64",
+  "code": 4664,
   "date": "2026-11-15",
   "notes": [
-    "**Polish links caught**: a stand-alone `PL` in a result's text (as in `Show.S01E01.PL.1080p`), or LEKTOR, NAPISY, PLDUB, is now read as Polish audio, so with Audio language on English only those links are greyed out and tagged `[PO]`. A link that also says ENG or Multi is kept."
+    "**Hold-OK menu on the channel schedule**: hold OK on a programme in a channel schedule to get **Auto play with debrid**, **Find sources** and **Options** (the first two appear when Experimental is on and an addon is installed; hold OK used to just close the schedule, Back still does)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.63",
+      "date": "2026-11-15",
+      "notes": [
+        "**Polish links caught**: a stand-alone `PL` in a result's text (as in `Show.S01E01.PL.1080p`), or LEKTOR, NAPISY, PLDUB, is now read as Polish audio, so with Audio language on English only those links are greyed out and tagged `[PO]`. A link that also says ENG or Multi is kept."
+      ]
+    },
     {
       "name": "Alpha 0.46.62",
       "date": "2026-11-15",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Auto play with debrid from the bar and the guide**: while watching, the on-screen bar (OK) has a new **Auto play** button after On Demand; on the guide, hold OK on a programme and choose **Auto play with debrid**. Either one asks your addons for that episode (or film) and plays the best link by itself, closing the guide or bar. From the bar on something an addon is already playing it looks again and skips a saved link. It needs Experimental on and an addon installed; programmes without an episode number (like \"Top of the Pops\") say so."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.55",
-      "date": "2026-11-15",
-      "notes": [
-        "**Auto play with debrid**: the Find sources auto-play setting (Options > Experimental) is now called **Auto play with debrid** and is **on by default**. Find sources asks every addon you have installed (your debrid addon included), and plays the best link it scrapes by itself with nothing to choose: 1080p first, then 720p, and the next link if one fails. The separate \"Debrid links\" setting from 0.46.54 is gone: the addon does the debrid, the app just plays what it returns (links the debrid service has not cached yet are still skipped). Saved sources stay."
       ]
     }
   ]

@@ -3506,6 +3506,19 @@
     if (!list.length) return;
     cs.c = list[((i < 0 ? 0 : i) + d + list.length) % list.length]; csLoad(); csRender();
   }
+  /** Hold OK on a programme in a channel schedule: Auto play with debrid, Find sources, Options. */
+  function csMenu() {
+    var b = cs.rows[cs.i], c = cs.c;
+    if (!b || !b.prog) return;
+    var p = b.prog, items = [];
+    if (expOn && adLive().length) {
+      items.push({ t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { gmClose(); csClose(); adFromProg(p, c, true); } });
+      items.push({ t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { gmClose(); csClose(); adFromProg(p, c, false); } });
+    }
+    items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); csClose(); openOpts(); } });
+    gm = { items: items, i: 0, title: gmName(p), sub: fmtTime(b.startMs) + '  ' + c.n + '  ' + c.name };
+    gmRender();
+  }
   function csKey(k) {
     var n = cs.rows.length;
     if (k === 'ArrowUp') { if (n) cs.i = (cs.i + n - 1) % n; }
@@ -3515,7 +3528,8 @@
     else if (k === 'ChannelUp') { csChannel(1); return; }
     else if (k === 'ChannelDown' || k === 'Blue') { csChannel(-1); return; }
     else if (k === 'Enter' || k === ' ') { csAct(); return; }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide' || k === 'Red' || k === 'Info') { csClose(); return; }
+    else if (k === 'Info' || k === 'Menu' || k === 'ContextMenu') { csMenu(); return; }              // hold OK
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Guide' || k === 'Red') { csClose(); return; }
     csRender();
   }
 
@@ -5400,6 +5414,7 @@
     if (kbShown) { kbKey(e); e.preventDefault(); return; }
     if (ad) { adnKey(k); e.preventDefault(); return; }
     if (tt) { ttKey(k); e.preventDefault(); return; }
+    if (gm && cs) { if (k !== 'Info') gmKey(k); e.preventDefault(); return; }
     if (cs) { csKey(k); e.preventDefault(); return; }
 
     if (relOpen) {                        // What's new sits above the options panel it was opened from

@@ -106,12 +106,12 @@
   // play. Options > Debug log puts it on the home network for a phone or computer to open and copy.
   var DLOG = store.get('dbglog1') || [], dlogTimer = null, httpFails = 0;
   if (!(DLOG instanceof Array)) DLOG = [];
-  DLOG = DLOG.map(function (l) { return String(l).replace(/\/[A-Za-z0-9_-]{80,}/g, '/\u2026'); });       // lines kept by earlier versions may hold an addon's settings (the debrid key)
+  DLOG = DLOG.map(function (l) { return String(l).replace(/\/(?:[A-Za-z0-9_-]{80,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/g, '/\u2026'); });       // lines kept by earlier versions may hold an addon's settings (the debrid key)
   function two(n) { return (n < 10 ? '0' : '') + n; }
   function dlog(text) {
     var d = new Date();
     DLOG.push(two(d.getDate()) + '/' + two(d.getMonth() + 1) + ' ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) +
-      '  ' + String(text).replace(/\/[A-Za-z0-9_-]{80,}/g, '/\u2026').slice(0, 700));        // a long path piece is an addon's settings (it holds the debrid key): never written down
+      '  ' + String(text).replace(/\/(?:[A-Za-z0-9_-]{80,}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/g, '/\u2026').slice(0, 700));        // a long path piece is an addon's settings (it holds the debrid key): never written down
     if (DLOG.length > 400) DLOG.splice(0, DLOG.length - 400);
     clearTimeout(dlogTimer);
     dlogTimer = setTimeout(function () { store.set('dbglog1', DLOG); }, 2000);

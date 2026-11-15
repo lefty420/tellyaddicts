@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.77",
-  "version": "0.46.77",
-  "code": 4677,
+  "name": "Alpha 0.46.78",
+  "version": "0.46.78",
+  "code": 4678,
   "date": "2026-11-15",
   "notes": [
-    "**The \"Scraping your debrid...\" message goes away** when you change channel while it is still looking.",
-    "**One ranking for addon links**: Find sources and Use addons as a main source now pick the best link the same way (English audio first, the release group that worked last time, then 1080p over 720p). The unused debrid switch behind the old code is gone.",
-    "**Teletext page text moved out of app.js** into its own file (ttpages.js), about 200 lines. Nothing changes on screen."
+    "**The debug log hides more of an addon's address**: an addon whose settings are a 36-character ID (the AIOStreams style) now shows as ... in the log and live view, like the long ones already did. Lines saved by earlier versions are cleaned when the log loads."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.77",
+      "date": "2026-11-15",
+      "notes": [
+        "**The \"Scraping your debrid...\" message goes away** when you change channel while it is still looking.",
+        "**One ranking for addon links**: Find sources and Use addons as a main source now pick the best link the same way (English audio first, the release group that worked last time, then 1080p over 720p). The unused debrid switch behind the old code is gone.",
+        "**Teletext page text moved out of app.js** into its own file (ttpages.js), about 200 lines. Nothing changes on screen."
+      ]
+    },
     {
       "name": "Alpha 0.46.76",
       "date": "2026-11-15",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**300 more shows on the channel lists** (from the scraper): CITV +76, US sitcoms +44, Drama +34, 70s TV +29, Off School +18, Game shows +16, TV archive +15, Sitcoms +14, Comedy +14, Children's +13, Music +12, Soaps +10, Cooking +5. They appear on each channel as the scraper finds episodes for them."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.69",
-      "date": "2026-11-15",
-      "notes": [
-        "**Channels renumbered into groups** (the channels themselves are unchanged; only their numbers move):"
       ]
     }
   ]

@@ -28,6 +28,13 @@ window.RELEASE = {
       ]
     },
     {
+      "name": "Alpha 0.46.82",
+      "date": "2026-11-15",
+      "notes": [
+        "**Disney Shorts**: Oswald the Lucky Rabbit (about 365 cartoons in the library) is now on the Disney channel. The Game Shows channel already plays dated episodes up to 1999, so Supermarket Sweep and Blockbusters need nothing more here."
+      ]
+    },
+    {
       "name": "Alpha 0.46.81",
       "date": "2026-11-15",
       "notes": [
@@ -64,15 +71,6 @@ window.RELEASE = {
         "**The \"Scraping your debrid...\" message goes away** when you change channel while it is still looking.",
         "**One ranking for addon links**: Find sources and Use addons as a main source now pick the best link the same way (English audio first, the release group that worked last time, then 1080p over 720p). The unused debrid switch behind the old code is gone.",
         "**Teletext page text moved out of app.js** into its own file (ttpages.js), about 200 lines. Nothing changes on screen."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.76",
-      "date": "2026-11-15",
-      "notes": [
-        "**Saved sources opens again** (Options > Experimental): two things in the app shared a name, so the screen could not start.",
-        "**Use addons as a main source keeps your place in On Demand**: Next goes to the right episode, also when the library link has to take over.",
-        "**Use addons as a main source waits at most 6 seconds on the loading screen** before falling back to the library."
       ]
     }
   ]

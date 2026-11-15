@@ -3273,6 +3273,12 @@
   }
   var gm = null;
   function gmName(p) { return (p && (p.show || p.group || parseTitle(p.title || '').show || p.title)) || ''; }
+  /** Every long-press menu ends with Options. */
+  function optsLast(items) {
+    var it = null;
+    for (var i = items.length - 1; i >= 0; i--) if (items[i].t === 'Options') { it = items.splice(i, 1)[0]; }
+    items.push(it || { t: 'Options', sub: 'Settings, help and debug', f: function () { if (gm) gmClose(); if (odm) odmClose(); closeGuide(); openOpts(); } });
+  }
   function gmOpen() {
     var c = gChan;
     if (!c) return;
@@ -3306,6 +3312,7 @@
       dlog('REPORT (menu) ch ' + c.n + ' ' + c.name + ' | ' + (p.title || '') + ' | show: ' + name + ' | item: ' + String(p.id || '').split('/')[0] + ' | file: ' + decodeURIComponent(String(p.url || '').replace('https://archive.org/download/', '')));
       toast('Noted in the debug log', 2500);
     } });
+    optsLast(items);
     gm = { items: items, i: 0, title: name, sub: c.n + '  ' + c.name };
     gmRender();
   }
@@ -6225,7 +6232,7 @@
       if (fixed && fixed.a) odm.items.push({ t: 'Back to automatic', sub: 'Forget the choices made for this film', f: function () {
         try { kv.removeItem('artfix:' + normShow(odArtName(g))); } catch (e) { /* ignore */ }
         g._k = null; odArtFor = ''; odBgFor = ''; odKGen++; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } });
-      adOdm(g); odmRender(); return;
+      adOdm(g); optsLast(odm.items); odmRender(); return;
     }
     odm = { mode: 'menu', g: g, i: 0, items: [
       { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = g.flat && g.flat[0]; if (e0) openInfo({ prog: e0.p, ch: g.chan }); } },
@@ -6240,7 +6247,7 @@
         try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
         g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } }
     ], title: g.name };
-    adOdm(g); odmRender();
+    adOdm(g); optsLast(odm.items); odmRender();
   }
   function odmClose() { odm = null; $('odmenu').className = 'hidden'; }
   function odmWait(text) { if (odm) { odm.mode = 'wait'; odm.items = []; odm.note = text; odmRender(); } }

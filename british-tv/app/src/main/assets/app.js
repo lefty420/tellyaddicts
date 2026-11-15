@@ -2146,12 +2146,12 @@
   var bannerTimer = null;
   var toastTimer = null;
 
-  function toast(msg, ms) {
-    var t = $('toast');
+  function toast(msg, ms, low) {          // low: bottom of the screen, so it never covers the guide's header or clock
+    var t = $('toast'), lo = low ? 'low ' : '';
     t.textContent = msg;
-    t.className = '';
+    t.className = lo.trim();
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.className = 'off'; }, ms || 2000);
+    toastTimer = setTimeout(function () { t.className = lo + 'off'; }, ms || 2000);
   }
 
   function fmtTime(ms) {
@@ -2791,6 +2791,15 @@
   // ------------------------------------------------------------------ guide (grid, Sky-style)
 
   var HALF = 30 * 60 * 1000;
+  // A cell only a few letters wide shows "Sc…" or "O…", which says nothing (the big header names it on focus): give it the first
+  // word if that fits, else a dot. Wider cells keep the whole title and let CSS trim it. Rough: a letter is ~.55 of the text height wide.
+  function fitTitle(t, frac, arrows) {
+    var cap = Math.floor((frac * window.innerWidth * 0.8 - window.innerHeight * 0.03) / (window.innerHeight * 0.026 * 0.55));
+    cap -= 2 * arrows;                    // the ◄ ► arrows take room too
+    if (cap >= 8) return t;
+    var w = String(t).split(/[\s:\-\u2013]+/)[0];
+    return w.length <= cap ? w : '\u2022';
+  }
   var SPAN = 4 * HALF;          // two hours visible
   var VISIBLE_ROWS = window.PHONE ? 4 : 7;   // the colour-button legend is gone, so the grid takes its space
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -2981,7 +2990,7 @@
           if (frac < 0.07) { line.appendChild(el); return; } // too narrow for text: no padding either, or it would stick out past the edge
           if (clipL) el.appendChild(div('arr l', '\u25c4'));
           if (clipR) el.appendChild(div('arr r', '\u25ba'));
-          el.appendChild(div('t', b.prog.title));
+          el.appendChild(div('t', fitTitle(b.prog.title, frac, (clipL ? 1 : 0) + (clipR ? 1 : 0))));
           el.appendChild(div('s', b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '')));
           line.appendChild(el);
         });
@@ -4690,7 +4699,7 @@
     if (!r || !r.name) return;
     if (store.get('relseen') === r.name) return;
     store.set('relseen', r.name);
-    toast('Updated to ' + r.name + '  ·  Options > What’s new', 6000);
+    toast('Updated to ' + r.name + '  ·  Options > What’s new', 6000, true);
   }
 
   // ---- Options panel (OSD > Options): picture, enhancements, adverts, Auto EPG, how long listings are kept

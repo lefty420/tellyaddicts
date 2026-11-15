@@ -1,15 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.80",
-  "version": "0.46.80",
-  "code": 4680,
+  "name": "Alpha 0.46.81",
+  "version": "0.46.81",
+  "code": 4681,
   "date": "2026-11-15",
   "notes": [
-    "**Shorter hold-OK menu on a programme**: Fix artwork, Hide this show/film and Report a problem now sit behind one \"More...\" entry (Back returns to the main menu). Options stays last. When a menu has more entries than fit, its heading says which one you are on (\"item 10 of 11\").",
-    "**Bigger supporting text**: the small lines under menu entries, the dates inside guide cells, On Demand's menu and the Options hints at the bottom are a little larger, so they read from across the room."
+    "**Tiny guide cells**: a programme cell only a few letters wide no longer shows a useless \"Sc...\" or \"O...\". It shows the first word if that fits, otherwise a dot; the full title is in the big header when you focus it.",
+    "**Update message moved**: \"Updated to Alpha ...\" now appears at the bottom of the screen instead of over the TV Guide header and clock."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.80",
+      "date": "2026-11-15",
+      "notes": [
+        "**Shorter hold-OK menu on a programme**: Fix artwork, Hide this show/film and Report a problem now sit behind one \"More...\" entry (Back returns to the main menu). Options stays last. When a menu has more entries than fit, its heading says which one you are on (\"item 10 of 11\").",
+        "**Bigger supporting text**: the small lines under menu entries, the dates inside guide cells, On Demand's menu and the Options hints at the bottom are a little larger, so they read from across the room."
+      ]
+    },
     {
       "name": "Alpha 0.46.79",
       "date": "2026-11-15",
@@ -61,13 +69,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**New experimental option: Use addons as a main source** (Options > Experimental; needs Experimental on and an addon on). With it on, every programme with an episode number, and every film, is first looked up with your addons and plays from the best link they find. While it looks, the loading screen (at start-up) or a \"Scraping your debrid...\" message (when you change channel or move on) is shown. If the addons find nothing in about 15 seconds, or the link will not play, the library link plays instead. It plays from the start of the programme rather than joining part way through, and when it ends the channel carries on to its next programme. Off by default."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.72",
-      "date": "2026-11-15",
-      "notes": [
-        "**OSD buttons wrap round**: pressing Left on the first button (TV Guide) goes to the last (Options), and Right on Options goes back to TV Guide."
       ]
     }
   ]

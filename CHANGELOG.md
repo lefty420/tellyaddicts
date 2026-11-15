@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.81 — 2026-11-15
+
+- **Tiny guide cells**: a programme cell only a few letters wide no longer shows a useless "Sc..." or "O...". It shows the first word if that fits, otherwise a dot; the full title is in the big header when you focus it.
+- **Update message moved**: "Updated to Alpha ..." now appears at the bottom of the screen instead of over the TV Guide header and clock.
+
 ## Alpha 0.46.80 — 2026-11-15
 
 - **Shorter hold-OK menu on a programme**: Fix artwork, Hide this show/film and Report a problem now sit behind one "More..." entry (Back returns to the main menu). Options stays last. When a menu has more entries than fit, its heading says which one you are on ("item 10 of 11").

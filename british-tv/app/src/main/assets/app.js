@@ -3292,6 +3292,7 @@
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
+    if (expOn && adLive().length) items.push({ t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { gmClose(); adFromProg(p, c); } });
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
     items.push({ t: 'Teletext', sub: 'Pages built from your guide', f: function () { gmClose(); ttOpen(100); } });
     items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
@@ -3835,7 +3836,7 @@
   }
   function adPlay(ch, g, ep, x) {
     var s = x.s, url = s.ytId ? 'yt:' + s.ytId : s.url;
-    var prog = { id: 'addon/' + x.addon + '/' + (g.name || ''), item: 'addon', url: url, title: g.name + (g.film ? '' : ' S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1)), sub: x.addon, dur: 0, lenKnown: 0, show: g.name, group: g.name, addon: 1 };
+    var prog = { id: 'addon/' + x.addon + '/' + (g.name || ''), item: 'addon', url: url, title: g.name + (g.film ? '' : ' S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1)), sub: x.addon, dur: 0, lenKnown: 0, show: g.name, group: g.name, addon: 1, afilm: !!g.film };
     var bgp = s.behaviorHints && s.behaviorHints.bingeGroup;
     if (bgp) { adBg[normShow(g.name)] = bgp; store.set('adbg1', adBg); }
     adLast[adKeyOf(g, ep)] = { t: Date.now(), s: s, addon: x.addon, label: x.label };
@@ -3848,9 +3849,20 @@
     if (adHist.length > 100) adHist.length = 100;
     store.set('adhist1', adHist);
     adClose(); if (odm) odmClose();
+    if (guideOpen) closeGuide();
+    if (osdOpen) closeOsd();
     if (odOpen) odClose(false);                               // the picture must not stay hidden behind On Demand
     dlog('ADDON PLAY ' + x.addon + ' | ' + x.label + ' | ' + url);
     odStart(ch, [{ p: prog, s: 0, e: 0 }], 0, 0, '');
+  }
+  /** Find sources and auto play for a programme from the guide or the one playing (the OSD bar and the guide's hold-OK menu). */
+  function adFromProg(p, ch) {
+    if (!p) return;
+    if (!expOn || !adLive().length) { toast('Turn on Experimental and an addon first (Options > Experimental)', 4000); return; }
+    var ref = window.LINKS && LINKS.parseEp(p.title), film = !!(p.filmKey || p.afilm);
+    if (!film && !ref) { toast('This needs an episode number or a film', 3500); return; }
+    var name = film && p.filmKey ? (filmFor(p) || {}).title || gmName(p) : gmName(p);
+    adSources({ name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film }, ref ? { s: ref.s, e: ref.e } : {}, !!p.addon, ch);
   }
   /** On Demand's hold-OK menu: add "Find sources" when Experimental is on and an addon is on. */
   function adOdm(g) {
@@ -4146,9 +4158,9 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'info', 'sched', 'od', 'options'];   // buttons on the bar, left to right
+  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'info', 'sched', 'od', 'src', 'options'];   // buttons on the bar, left to right
   /** The buttons showing now: Skip adverts is only there while a break is playing (and never on the Adverts channel, which is all adverts). */
-  function obList() { return OB_ALL.filter(function (id) { return id !== 'skipad' || (cur && cur.ad && !isAdChan(cur.ch)); }); }
+  function obList() { return OB_ALL.filter(function (id) { return id === 'skipad' ? !!(cur && cur.ad && !isAdChan(cur.ch)) : id === 'src' ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
   // The progress bar is a scrubber: Left / Right on it wind through the video (hold to go faster), Down reaches the buttons.
   var osdZone = 'btn', scrubT = null, scrubTimer = null, scrubLast = 0, scrubHold = 0, scrubDir = 0;
@@ -5277,6 +5289,7 @@
     else if (id === 'restart') { restartShow(); return; }
     else if (id === 'options') { openOpts(); return; }
     else if (id === 'od') { closeOsd(); odOpenUi(); return; }
+    else if (id === 'src') { closeOsd(); adFromProg(cur && cur.prog, cur && cur.ch); return; }
     else if (id === 'guide') { closeOsd(); openGuide(); }
     else if (id === 'info') { closeOsd(); openInfo(); return; }
     else if (id === 'sched') { closeOsd(); csOpen(cur && cur.ch, 'osd'); return; }

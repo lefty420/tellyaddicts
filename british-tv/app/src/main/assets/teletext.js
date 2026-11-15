@@ -48,7 +48,7 @@
         }
         while (codes.length < COLS) codes.push(32);
         if (n >= 0 && n < ROWS) p.rows[n] = codes;
-      } else if (k === 'FL') p.fast = v.split(',').map(function (x) { return parseInt(x, 16); });
+      } else if (k === 'FL') p.fast = v.split(',').map(function (x) { x = x.trim().slice(0, 3); return /^[1-8][0-9]{2}$/.test(x) ? +x : 0; });
     });
     return pages;
   }

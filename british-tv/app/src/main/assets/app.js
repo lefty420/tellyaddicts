@@ -3293,6 +3293,7 @@
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
+    items.push({ t: 'Teletext', sub: 'Pages built from your guide', f: function () { gmClose(); ttOpen(100); } });
     items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
     items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); closeGuide(); openOpts(); } });
     items.push({ t: film ? 'Hide this film' : 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { gmClose(); hideShow(film ? p.title : name, film); } });
@@ -3805,6 +3806,152 @@
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
   function changeAuto() { adAuto = !adAuto; store.set('adauto1', adAuto ? 'on' : 'off'); renderOpts(); }
   function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
+
+  // ------------------------------------------------------------------ Teletext (pages the app builds from its own guide)
+  var tt = null;
+  var TT_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], TT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  function ttAscii(s) { return String(s || '').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-').replace(/[^\x20-\x7e]/g, '').replace(/[{}]/g, ''); }
+  function ttPad(s, n) { s = ttAscii(s).slice(0, n); while (s.length < n) s += ' '; return s; }
+  function ttHead(n) { var d = new Date(); return '{w}P' + n + '{y} TELLY ADDICTS {c}' + TT_DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + TT_MONTHS[d.getMonth()] + ' {y}' + fmtTime(d.getTime()); }
+  function ttPages(num, title, body, fast, foot) {
+    // body: lines for rows 4..22; more than fit makes sub-pages that turn over by themselves
+    var per = 18, out = [], n = Math.max(1, Math.ceil(body.length / per));
+    for (var i = 0; i < n; i++) {
+      var ls = [ttHead(num), '', '{b}{nb}{y}{H}' + title, ''].concat(body.slice(i * per, (i + 1) * per));
+      while (ls.length < 23) ls.push('');
+      ls.push(n > 1 ? '{c}Page ' + (i + 1) + ' of ' + n : '');
+      ls.push(foot || '{r}Index {g}On now {y}Next {c}Tonight');
+      out.push(T().page(num, ls, fast || [100, 110, 130, 120]));
+    }
+    return out;
+  }
+  function T() { return window.Teletext; }
+  function ttChanRows(at, next) {
+    var rows = [];
+    ready().forEach(function (c) {
+      var b = E.blockAt(c.sched, at);
+      if (b && next) b = E.stepBlock(c.sched, b, 1);
+      if (!b || !b.prog) return;
+      rows.push('{c}' + ('0' + c.n).slice(-2) + ' ' + ttPad(c.name, 11) + '{w}' + ttPad(gmName(b.prog), 24));
+    });
+    return rows;
+  }
+  function ttBuild(num) {
+    var now = Date.now(), body = [], i;
+    if (num === 100) {
+      var items = [['On now', 110], ['Tonight on TV', 120], ['Coming up next', 130], ['On this day', 140], ['About Telly Addicts', 190]];
+      body.push('');
+      items.forEach(function (it) { var d = ''; for (var k = it[0].length; k < 31; k++) d += '.'; body.push('{c}' + it[0] + ' ' + d + '{w} ' + it[1]); });
+      body.push(''); body.push('');
+      var bar = '{R}{#127}{#127}{#127}{G}{#127}{#127}{#127}{Y}{#127}{#127}{#127}{B}{#127}{#127}{#127}{M}{#127}{#127}{#127}{C}{#127}{#127}{#127}{W}{#127}{#127}{#127}';
+      body.push(bar); body.push(bar); body.push('');
+      body.push('{w}Move with the arrows, press OK on'); body.push('{w}a page number. Hold OK to type one.');
+      return ttPages(100, ' TELLY ADDICTS', body, [110, 120, 130, 140], '{r}On now {g}Tonight {y}Next {c}This day');
+    }
+    if (num === 110) return ttPages(110, ' ON NOW', [''].concat(ttChanRows(now, false)), [100, 120, 130, 140]);
+    if (num === 130) return ttPages(130, ' COMING UP NEXT', [''].concat(ttChanRows(now, true)), [100, 110, 120, 140]);
+    if (num === 120) {
+      var t8 = new Date(); t8.setHours(20, 0, 0, 0); if (t8.getTime() < now - 3600000) t8.setDate(t8.getDate() + 1);
+      return ttPages(120, ' TONIGHT AT 20:00', [''].concat(ttChanRows(t8.getTime(), false)), [100, 110, 130, 140]);
+    }
+    if (num === 140) {
+      var clips = (window.OTD || []).map(function (o) { var m = /^On This Day (\d{4}):\s*(.*)$/.exec(o[1] || ''); return m ? { y: +m[1], t: ttAscii(m[2]) } : null; }).filter(Boolean);
+      clips.sort(function (a, b) { return a.y - b.y; });
+      var blocks = [];
+      clips.forEach(function (c) {
+        var ws = c.t.split(' '), cur2 = '', ls = ['{c}' + c.y];
+        ws.forEach(function (w) { if ((cur2 + ' ' + w).trim().length > 38) { ls.push('{w}' + cur2); cur2 = w; } else cur2 = (cur2 + ' ' + w).trim(); });
+        if (cur2) ls.push('{w}' + cur2);
+        if (ls.length > 4) { ls = ls.slice(0, 4); ls[3] = ls[3].slice(0, 35).replace(/\s+$/, '') + '...'; }
+        ls.push(''); blocks.push(ls);
+      });
+      var pg = [], per = 18, curp = [];
+      blocks.forEach(function (b) { if (curp.length + b.length > per) { pg.push(curp); curp = []; } curp = curp.concat(b); });
+      if (curp.length) pg.push(curp);
+      var all = [];
+      pg.forEach(function (p) { while (p.length < per) p.push(''); all = all.concat(p); });
+      if (!all.length) all = ['', '{w}No archive clips are loaded.'];
+      all.unshift('');
+      return ttPages(140, ' ON THIS DAY', all, [100, 110, 130, 120], '{r}Index {g}On now {y}Next {c}Tonight');
+    }
+    if (num === 190) {
+      body = ['', '{w}Telly Addicts is a free hobby project.', '{w}Every page here is built by the app', '{w}from your own guide.', '', '{c}Colour keys on the bottom row are', '{c}the four links under them: move to', '{c}one with the arrows and press OK.', '', '{y}Hold OK to type a page number.', '{y}Back goes to the page before.'];
+      return ttPages(190, ' ABOUT', body, [100, 110, 130, 120]);
+    }
+    return null;
+  }
+  function ttOpen(n) {
+    if (!T()) return;
+    tt = { num: 0, sub: 0, pages: null, links: [], li: 0, hist: [], pad: null };
+    $('tt').className = '';
+    ttGo(n || 100, true);
+    clearInterval(tt.timer);
+    tt.timer = setInterval(function () {
+      if (!tt || tt.pad || !tt.pages || tt.pages.length < 2) return;
+      tt.sub = (tt.sub + 1) % tt.pages.length; ttDraw();
+    }, 8000);
+  }
+  function ttClose() { if (tt) clearInterval(tt.timer); tt = null; $('tt').className = 'hidden'; }
+  function ttGo(n, noHist) {
+    var pg = ttBuild(n);
+    if (!pg) { toast('Page ' + n + ' is not available', 2500); return; }
+    if (!noHist && tt.num) tt.hist.push(tt.num);
+    tt.num = n; tt.pages = pg; tt.sub = 0; tt.li = 0;
+    ttDraw();
+  }
+  function ttDraw() {
+    var pg = tt.pages[tt.sub], cv = $('ttc');
+    tt.links = T().links(pg);
+    if (tt.li >= tt.links.length) tt.li = 0;
+    T().draw(cv, pg, true);
+    T().mark(cv, tt.links[tt.li]);
+  }
+  function ttPadRender() {
+    var el = $('ttpad');
+    if (!tt || !tt.pad) { el.className = 'hidden'; return; }
+    var p = tt.pad, keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Del', '0', 'Go'], h = '<div id="ttpn">P' + (p.d + '___').slice(0, 3) + '</div>';
+    keys.forEach(function (k, i) { h += '<b class="' + (i === p.i ? 'sel' : '') + '" data-k="' + k + '">' + k + '</b>'; });
+    el.innerHTML = h; el.className = '';
+  }
+  function ttPadPress(k) {
+    var p = tt.pad;
+    if (k === 'Del') p.d = p.d.slice(0, -1);
+    else if (k === 'Go') { if (p.d.length === 3) { var n = +p.d; tt.pad = null; ttPadRender(); ttGo(n); return; } }
+    else if (p.d.length < 3) p.d += k;
+    if (p.d.length === 3) { var m = +p.d; tt.pad = null; ttPadRender(); ttGo(m); return; }
+    ttPadRender();
+  }
+  function ttKey(k) {
+    if (tt.pad) {
+      var p = tt.pad;
+      if (/^[0-9]$/.test(k)) { ttPadPress(k); return; }
+      if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') { tt.pad = null; ttPadRender(); return; }
+      if (k === 'ArrowLeft') p.i = p.i % 3 ? p.i - 1 : p.i + 2;
+      else if (k === 'ArrowRight') p.i = p.i % 3 < 2 ? p.i + 1 : p.i - 2;
+      else if (k === 'ArrowUp') p.i = (p.i + 9) % 12;
+      else if (k === 'ArrowDown') p.i = (p.i + 3) % 12;
+      else if (k === 'Enter' || k === ' ') { ttPadPress(['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Del', '0', 'Go'][p.i]); return; }
+      ttPadRender();
+      return;
+    }
+    if (/^[0-9]$/.test(k)) { tt.pad = { d: '', i: 0 }; ttPadPress(k); return; }
+    if (k === 'Info' || k === 'Menu' || k === 'ContextMenu') { tt.pad = { d: '', i: 0 }; ttPadRender(); return; }
+    if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {
+      if (tt.hist.length) { var n = tt.hist.pop(); tt.num = 0; ttGo(n, true); } else ttClose();
+      return;
+    }
+    var L = tt.links;
+    if (k === 'ArrowDown' || k === 'ArrowRight') { if (L.length) { tt.li = (tt.li + 1) % L.length; ttDraw(); } }
+    else if (k === 'ArrowUp' || k === 'ArrowLeft') { if (L.length) { tt.li = (tt.li + L.length - 1) % L.length; ttDraw(); } }
+    else if (k === 'Enter' || k === ' ') { if (L[tt.li]) ttGo(L[tt.li].target); }
+    else if (k === 'PageDown' && tt.pages.length > 1) { tt.sub = (tt.sub + 1) % tt.pages.length; ttDraw(); }
+    else if (k === 'PageUp' && tt.pages.length > 1) { tt.sub = (tt.sub + tt.pages.length - 1) % tt.pages.length; ttDraw(); }
+  }
+  function ttTap(e) {
+    if (!tt || tt.pad) return;
+    var cv = $('ttc'), r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * T().COLS, y = (e.clientY - r.top) / r.height * T().ROWS;
+    for (var i = 0; i < tt.links.length; i++) { var l = tt.links[i]; if (Math.floor(y) === l.row && x >= l.c0 - .5 && x <= l.c1 + .5) { tt.li = i; ttGo(l.target); return; } }
+  }
 
   // ------------------------------------------------------------------ OSD bar (OK while watching)
 
@@ -5014,7 +5161,7 @@
       var nowT = Date.now();
       // only a Back pressed on the plain picture (or the guide with nothing playing) counts towards quitting:
       // one that closes the guide, the bar, the options or a panel never does
-      if (relOpen || infoOpen || optsOpen || osdOpen || gm || cs) lastBack = 0;
+      if (relOpen || infoOpen || optsOpen || osdOpen || gm || cs || tt) lastBack = 0;
       else if (!e.repeat && nowT - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); e.preventDefault(); return; }   // includes the guide a first Back has just opened
       else if (guideOpen && cur) lastBack = 0;               // a Back that closes the guide on its own never counts
       else if (!e.repeat) lastBack = nowT;
@@ -5022,6 +5169,7 @@
 
     if (kbShown) { kbKey(e); e.preventDefault(); return; }
     if (ad) { adnKey(k); e.preventDefault(); return; }
+    if (tt) { ttKey(k); e.preventDefault(); return; }
     if (cs) { csKey(k); e.preventDefault(); return; }
 
     if (relOpen) {                        // What's new sits above the options panel it was opened from

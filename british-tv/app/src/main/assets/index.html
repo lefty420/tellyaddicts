@@ -247,6 +247,14 @@
   #csched { position: fixed; inset: 0; z-index: 60; color: var(--gtx, #fff); font-family: var(--gfont, inherit);
     background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%); }
   #csched.hidden { display: none; }
+  #tt { position: fixed; inset: 0; background: #000; z-index: 90; display: flex; align-items: center; justify-content: center; }
+  #ttc { height: 92vh; max-width: 100vw; aspect-ratio: 4 / 3; image-rendering: pixelated; }
+  #ttf { position: absolute; left: 0; right: 0; bottom: .8vh; text-align: center; color: #888; font-size: 1.8vh; }
+  #ttpad { position: absolute; right: 4vw; bottom: 8vh; background: #000c; border: .4vh solid #fff; padding: 1.2vh; display: grid; grid-template-columns: repeat(3, 8vh); gap: .8vh; }
+  #ttpad #ttn, #ttpn { grid-column: 1 / 4; color: #ff0; font: 700 4vh monospace; text-align: center; }
+  #ttpad b { background: #223; color: #fff; text-align: center; font: 700 3.4vh monospace; padding: 1.2vh 0; }
+  #ttpad b.sel { background: #0ff; color: #000; }
+
   #cshd { position: absolute; left: 5vw; right: 5vw; top: 4vh; height: 9vh; display: flex; align-items: center; gap: 1.4vw; }
   #csnum { font-size: 6vh; font-weight: 800; color: var(--hi2); }
   #csname { font-size: 6vh; font-weight: 800; white-space: nowrap; }
@@ -1104,6 +1112,7 @@
   <canvas id="csqr" width="29" height="29"></canvas><div id="csqrnote">Scan with your phone's camera</div>
   <div id="csfoot"></div>
 </div>
+<div id="tt" class="hidden"><canvas id="ttc" width="800" height="600"></canvas><div id="ttpad" class="hidden"></div><div id="ttf">Arrows choose a page &middot; OK opens it &middot; hold OK to type a number &middot; Back</div></div>
 <div id="gmenu" class="hidden"><div id="gmbox"><h2 id="gmt"></h2><div id="gms"></div><div id="gml"></div></div></div>
 <div id="nosignal" class="hidden">
   <h1>NO SIGNAL</h1>
@@ -1113,6 +1122,7 @@
 
 <script src="version.js"></script>
 <script src="qr.js"></script>
+<script src="teletext.js"></script>
 <script src="engine.js"></script>
 <script src="player.js"></script>
 <script src="links.js"></script>

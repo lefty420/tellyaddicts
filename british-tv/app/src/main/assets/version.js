@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.71",
-  "version": "0.46.71",
-  "code": 4671,
+  "name": "Alpha 0.46.72",
+  "version": "0.46.72",
+  "code": 4672,
   "date": "2026-11-15",
   "notes": [
-    "Auto play with debrid and Find sources show in the long-press menus only when Experimental and an addon are on, as in 0.46.70 (a change to always show them was withdrawn)."
+    "**OSD buttons wrap round**: pressing Left on the first button (TV Guide) goes to the last (Options), and Right on Options goes back to TV Guide."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.71",
+      "date": "2026-11-15",
+      "notes": [
+        "Auto play with debrid and Find sources show in the long-press menus only when Experimental and an addon are on, as in 0.46.70 (a change to always show them was withdrawn)."
+      ]
+    },
     {
       "name": "Alpha 0.46.70",
       "date": "2026-11-15",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Hold-OK menu on the channel schedule**: hold OK on a programme in a channel schedule to get **Auto play with debrid**, **Find sources** and **Options** (the first two appear when Experimental is on and an addon is installed; hold OK used to just close the schedule, Back still does)."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.63",
-      "date": "2026-11-15",
-      "notes": [
-        "**Polish links caught**: a stand-alone `PL` in a result's text (as in `Show.S01E01.PL.1080p`), or LEKTOR, NAPISY, PLDUB, is now read as Polish audio, so with Audio language on English only those links are greyed out and tagged `[PO]`. A link that also says ENG or Multi is kept."
       ]
     }
   ]

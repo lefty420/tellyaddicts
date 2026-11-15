@@ -5375,7 +5375,7 @@
     osdTouch();
     if (k === 'ArrowLeft' || k === 'ArrowRight') {
       if (osdZone === 'bar') scrubKey(k === 'ArrowLeft' ? -1 : 1);
-      else { osdSel = Math.max(0, Math.min(obList().length - 1, osdSel + (k === 'ArrowLeft' ? -1 : 1))); renderOsd(); }
+      else { var _n = obList().length; osdSel = (osdSel + (k === 'ArrowLeft' ? -1 : 1) + _n) % _n; renderOsd(); }
     }
     else if (k === 'Enter') { if (osdZone === 'bar') { if (scrubT !== null) scrubApply(); else osdAct('pp'); } else osdAct(obList()[osdSel]); }
     else if (k === 'MediaRewind') scrubKey(-1);

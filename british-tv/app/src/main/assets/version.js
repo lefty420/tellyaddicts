@@ -1,17 +1,25 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.96",
-  "version": "0.46.96",
-  "code": 4696,
+  "name": "Alpha 0.46.97",
+  "version": "0.46.97",
+  "code": 4697,
   "date": "2026-11-15",
   "notes": [
-    "Guide header: the show name is big, with the episode (\"S02E46 · Episode name\") on the line under it; the series year is dropped.",
-    "Guide cells and header clean up file-style names: dots/underscores become spaces, codec and release tags (HEVC, x265, 1080p, WEB-DL...) and leading track numbers go.",
-    "Very narrow guide cells (under about 170 px) show the first word or a dot, with no arrows or \"…\".",
-    "On Demand \"OK Open\" hint is bigger; the guide's episode line is bigger."
+    "Options > Artwork: new \"Episode lists from\" (TVmaze by default, or TheTVDB, or TMDB) and a \"TMDB key\" row beside the TheTVDB key, with an on-screen keyboard and a check when saved. A source with no key, or with no result, falls back to TVmaze.",
+    "Groundwork for the Debrid EPG experiment (nothing uses the choice yet)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.96",
+      "date": "2026-11-15",
+      "notes": [
+        "Guide header: the show name is big, with the episode (\"S02E46 · Episode name\") on the line under it; the series year is dropped.",
+        "Guide cells and header clean up file-style names: dots/underscores become spaces, codec and release tags (HEVC, x265, 1080p, WEB-DL...) and leading track numbers go.",
+        "Very narrow guide cells (under about 170 px) show the first word or a dot, with no arrows or \"…\".",
+        "On Demand \"OK Open\" hint is bigger; the guide's episode line is bigger."
+      ]
+    },
     {
       "name": "Alpha 0.46.95",
       "date": "2026-11-15",
@@ -63,13 +71,6 @@ window.RELEASE = {
       "notes": [
         "**Films played from an addon keep their own details**: a film started from your addons lost its link to the library's film record (the TMDb plot, cast and poster), so Info and the artwork looked it up as a TV show by name. \"Lethal Weapon\" could pick up the 2016 series, \"Jumanji\" the cartoon. It now keeps the library's film record, also when replayed from Saved sources.",
         "**Film backdrops never come from a TV show**: a film's picture is its own poster, or one you chose by hand. A TV show with the same name (Jumanji, Police Academy, Back to the Future, Dumb and Dumber) is no longer used for its backdrop."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.88",
-      "date": "2026-11-15",
-      "notes": [
-        "**Saved film sources cleared once**: the app remembers the source that last worked for each title and plays it again without searching, so the wrong *Blackadder's Christmas Carol* link would have kept playing for Mickey's Christmas Carol for three days even after 0.46.87. Sources saved for films (in the replay memory and in Options > Saved sources) are forgotten one time, and looked up again with the stricter search. Saved sources for series are untouched."
       ]
     }
   ]

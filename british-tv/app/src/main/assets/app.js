@@ -1833,6 +1833,52 @@
       return o;
     });
   }
+  // ---- episode lists for the Debrid EPG experiment: one call, whichever source is chosen in Options (TVmaze unless changed)
+  var EPSRC = [{ id: 'tvmaze', label: 'TVmaze' }, { id: 'tvdb', label: 'TheTVDB' }, { id: 'tmdb', label: 'TMDB' }];
+  var tmdbKey = String(store.get('tmdbkey') || '');
+  var epSrcIdx = Math.max(0, EPSRC.map(function (x) { return x.id; }).indexOf(store.get('epsrc1') || 'tvmaze'));
+  function tmdbGet(path) { return getJSON('https://api.themoviedb.org/3' + path + (path.indexOf('?') < 0 ? '?' : '&') + 'api_key=' + encodeURIComponent(tmdbKey)); }
+  /** { imdb, eps: [{ season, number, name, airdate }] } or null. */
+  function tmdbEpisodes(name, year) {
+    if (!tmdbKey) return Promise.resolve(null);
+    return tmdbGet('/search/tv?query=' + encodeURIComponent(name) + (year ? '&first_air_date_year=' + year : '')).then(function (r) {
+      var w = normShow(name), l = (r && r.results) || [], hit = null;
+      for (var i = 0; i < l.length && !hit; i++) if (normShow(l[i].name) === w || normShow(l[i].original_name || '') === w) hit = l[i];
+      if (!hit) return null;
+      return tmdbGet('/tv/' + hit.id + '?append_to_response=external_ids').then(function (d) {
+        var ns = (d.seasons || []).filter(function (x) { return x.season_number > 0; }), eps = [];
+        return ns.reduce(function (p, sn) {
+          return p.then(function () { return tmdbGet('/tv/' + hit.id + '/season/' + sn.season_number).then(function (sj) {
+            (sj.episodes || []).forEach(function (e) { eps.push({ season: e.season_number, number: e.episode_number, name: e.name || '', airdate: e.air_date || '' }); });
+          }); });
+        }, Promise.resolve()).then(function () { return { imdb: (d.external_ids && d.external_ids.imdb_id) || '', eps: eps }; });
+      });
+    });
+  }
+  function tvdbEpisodeList(name, year) {
+    if (!tvdbReady()) return Promise.resolve(null);
+    return tvdbShow(name, year || 0).then(function (sh) { return sh ? tvdbAllEpisodes(sh.tvdb) : null; }).then(function (l) {
+      return l ? { imdb: '', eps: l.filter(function (e) { return e.seasonNumber > 0; }).map(function (e) { return { season: e.seasonNumber, number: e.number, name: e.name || '', airdate: e.aired || '' }; }) } : null;
+    });
+  }
+  function mazeEpisodeList(name) {
+    return getJSON('https://api.tvmaze.com/singlesearch/shows?q=' + encodeURIComponent(name) + '&embed=episodes').then(function (sh) {
+      return { imdb: (sh.externals && sh.externals.imdb) || '', eps: ((sh._embedded && sh._embedded.episodes) || []).filter(function (e) { return e.season > 0 && e.number; }).map(function (e) { return { season: e.season, number: e.number, name: e.name || '', airdate: e.airdate || '' }; }) };
+    }, function () { return null; });
+  }
+  function episodeList(name, year) {
+    var id = EPSRC[epSrcIdx].id, first = id === 'tmdb' ? tmdbEpisodes(name, year) : id === 'tvdb' ? tvdbEpisodeList(name, year) : Promise.resolve(null);
+    return first.then(function (r) { return r && r.eps.length ? r : mazeEpisodeList(name); }, function () { return mazeEpisodeList(name); });
+  }
+  function tmdbKeyOpen() {
+    kbOpen({ title: 'TMDB API key', label: 'Save', value: tmdbKey, save: function (key) {
+      tmdbKey = key; store.set('tmdbkey', key); renderOpts();
+      if (!key) { toast('TMDB key cleared', 3000); return; }
+      toast('Checking the key with TMDB\u2026', 3000);
+      tmdbGet('/search/tv?query=Fawlty%20Towers').then(function (r) { toast(r && r.results && r.results.length ? 'TMDB is working' : 'TMDB answered but found nothing', 4000); },
+        function (e) { toast(/401|403/.test(e.message) ? 'TMDB would not accept that key' : 'Could not reach TMDB to check the key', 5000); });
+    } });
+  }
   function tvdbAllEpisodes(id) {
     var out = [];
     function page(n) {
@@ -4879,7 +4925,7 @@
   var OCATS = [
     { id: 'picture', rows: ['ar', 'fx'] },
     { id: 'guide', rows: ['od', 'sched', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
-    { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
+    { id: 'art', rows: ['gart', 'tvdb', 'epsrc', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
     { id: 'exp', rows: ['exp', 'addons', 'ammain', 'adlang', 'adrec', 'adcut'] },
@@ -4903,6 +4949,8 @@
     if (id === 'real') return realOn ? 'On' : 'Off';
     if (id === 'scan') return scanUi.running ? (scanUi.i + ' of ' + scanUi.n + '  \u00b7  ' + scanUi.name + '  \u00b7  OK to cancel') : (scanUi.result || 'OK to start');
     if (id === 'tvdb') return !tvdbKey ? 'Not set  \u00b7  OK to enter' : (Date.now() < tvdbPause ? 'Key not accepted' : !(window.NativeHttp && NativeHttp.httpx) ? 'Needs a newer app' : 'On  \u00b7  ' + tvdbStat.found + ' found' + (tvdbStat.none ? ', ' + tvdbStat.none + ' no match' : '') + (tvdbStat.fail ? ', ' + tvdbStat.fail + ' failed' : '') + (tvdbStat.found + tvdbStat.none + tvdbStat.fail ? '' : '  \u00b7  OK to test'));
+    if (id === 'epsrc') return EPSRC[epSrcIdx].label + (epSrcIdx === 1 && !tvdbKey ? '  (needs a TheTVDB key)' : epSrcIdx === 2 && !tmdbKey ? '  (needs a TMDB key)' : '');
+    if (id === 'tmdb') return !tmdbKey ? 'Not set  \u00b7  OK to enter' : 'Saved  \u00b7  OK to change';
     if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
     if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
@@ -4995,7 +5043,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var ACTION = { scan: 1, tvdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1, addons: 1 };   // rows that do something on OK, so they show no left/right arrows
+  var ACTION = { scan: 1, tvdb: 1, tmdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1, addons: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
@@ -5020,6 +5068,8 @@
     span: 'How much airtime each channel\u2019s guide is built to cover before it repeats. Shorter picks a varied mix; longer shows more days. On Demand always lists everything.',
     keep: 'How often each channel\u2019s line-up of programmes is shuffled into a new running order. Shorter means the guide changes more often.',
     scan: 'Looks up every show in the library that is missing a poster, a backdrop or its episode pictures, and (with a TheTVDB key) every film missing a backdrop, one at a time, with TheTVDB first when a key is entered and TVmaze otherwise. Takes a few minutes the first time. OK again while it runs to cancel. Shows are skipped when they already have everything, so a second scan is quick.',
+    epsrc: 'Where full episode lists come from (used by the Debrid EPG experiment). TVmaze needs no key. TheTVDB and TMDB need your own key below, and fall back to TVmaze if they have nothing or the key is missing.',
+    tmdb: 'Your own free API key from themoviedb.org (Settings > API). Used when Episode lists is set to TMDB.',
     tvdb: 'Your own key from thetvdb.com (a free account gives you one). With a key, posters, backdrops, summaries, episode details and cast are looked up on TheTVDB first, and TVmaze fills in whatever it does not have. Clear the key to go back to TVmaze alone.',
     unhide: 'Shows hidden from the hold-OK menu (Hide this show). OK twice brings them all back.',
     refresh: 'Throws away every line-up and builds them all again in a new running order.',
@@ -5214,6 +5264,8 @@
     else if (id === 'refresh') refreshEpg();
     else if (id === 'unhide') unhideAll();
     else if (id === 'tvdb') kbOpen();
+    else if (id === 'tmdb') tmdbKeyOpen();
+    else if (id === 'epsrc') { epSrcIdx = (epSrcIdx + (d < 0 ? EPSRC.length - 1 : 1)) % EPSRC.length; store.set('epsrc1', EPSRC[epSrcIdx].id); renderOpts(); }
     else if (id === 'scan') scanStart();
     else if (id === 'rel') openRel('rel');
     else if (id === 'log') openRel('log');

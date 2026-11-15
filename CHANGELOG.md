@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.97 — 2026-11-15
+- Options > Artwork: new "Episode lists from" (TVmaze by default, or TheTVDB, or TMDB) and a "TMDB key" row beside the TheTVDB key, with an on-screen keyboard and a check when saved. A source with no key, or with no result, falls back to TVmaze.
+- Groundwork for the Debrid EPG experiment (nothing uses the choice yet).
+
 ## Alpha 0.46.96 — 2026-11-15
 - Guide header: the show name is big, with the episode ("S02E46 · Episode name") on the line under it; the series year is dropped.
 - Guide cells and header clean up file-style names: dots/underscores become spaces, codec and release tags (HEVC, x265, 1080p, WEB-DL...) and leading track numbers go.

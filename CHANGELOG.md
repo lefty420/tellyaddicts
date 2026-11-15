@@ -7,6 +7,18 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.69 — 2026-11-15
+
+- **Channels renumbered into groups** (the channels themselves are unchanged; only their numbers move):
+  - **1–3 Music**: Music, MTV, Video Games
+  - **4–9 Classic TV**: Classic BBC, ITV, ITV Morning, 70's TV, 80's TV, 90's TV
+  - **10–14 Comedy and entertainment**: Classic Sitcoms, US Sitcoms, Comedy, Entertainment, Game Shows
+  - **15–19 Drama and soaps**: Drama, US Drama, Soaps, Noel's House Party, Saturday Night TV
+  - **20–22 Films**: The Video Shop, Kids Movies, Christmas Movies
+  - **23–27 Kids**: CITV, Children's World, I'm Off School, Disney, Children's Christmas
+  - **28–32 The rest**: Food & Cooking, TV Archive, Christmas TV, Christmas Music, Adverts
+  Remembered things (the last channel, Saved sources, On Demand choices) follow the channel, not its number, so they carry over. Teletext schedule pages move with the numbers (page 200 plus the channel number).
+
 ## Alpha 0.46.68 — 2026-11-15
 
 - **Fix: the bottom of the guide was cut off**: the guide's rows are a little shorter, so the last row clears the bottom edge of the screen.

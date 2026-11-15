@@ -1,18 +1,25 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.68",
-  "version": "0.46.68",
-  "code": 4668,
+  "name": "Alpha 0.46.69",
+  "version": "0.46.69",
+  "code": 4669,
   "date": "2026-11-15",
   "notes": [
-    "**Fix: the bottom of the guide was cut off**: the guide's rows are a little shorter, so the last row clears the bottom edge of the screen.",
-    "**Fix: Options stuck out of the on-screen bar**: the **Info** button is removed from the bar (hold OK on the guide or On Demand still has Info) and the buttons sit a little closer together, so all of them fit inside the bar.",
-    "**Fix: films played the wrong version**: Find sources and Auto play for a film now use the film's year (as well as its name) to pick it, so \"Robin Hood\" finds the right Robin Hood.",
-    "**Auto play prefers English-only links**: links that say English only come first, then links that say nothing about language, and last links that are English plus other languages (a dual-audio link with Hindi first could still play the Hindi track).",
-    "**Privacy**: the debug log no longer writes down the long settings part of an addon's address (it holds your debrid key), and older lines already in the log are cleaned when the app starts. If you shared the live-view page or log before this version, your debrid key was in it: it is worth making a new key on your debrid account."
+    "**Channels renumbered into groups** (the channels themselves are unchanged; only their numbers move):"
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.68",
+      "date": "2026-11-15",
+      "notes": [
+        "**Fix: the bottom of the guide was cut off**: the guide's rows are a little shorter, so the last row clears the bottom edge of the screen.",
+        "**Fix: Options stuck out of the on-screen bar**: the **Info** button is removed from the bar (hold OK on the guide or On Demand still has Info) and the buttons sit a little closer together, so all of them fit inside the bar.",
+        "**Fix: films played the wrong version**: Find sources and Auto play for a film now use the film's year (as well as its name) to pick it, so \"Robin Hood\" finds the right Robin Hood.",
+        "**Auto play prefers English-only links**: links that say English only come first, then links that say nothing about language, and last links that are English plus other languages (a dual-audio link with Hindi first could still play the Hindi track).",
+        "**Privacy**: the debug log no longer writes down the long settings part of an addon's address (it holds your debrid key), and older lines already in the log are cleaned when the app starts. If you shared the live-view page or log before this version, your debrid key was in it: it is worth making a new key on your debrid account."
+      ]
+    },
     {
       "name": "Alpha 0.46.67",
       "date": "2026-11-15",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Audio language for addon links** (Options > Experimental > **Audio language**, default **English only**): the app now reads the language flags and words addons put in their results (the French or German flag, FRENCH, VOSTFR, ITA, LATINO and so on). A link that names another language and no English is greyed out (\"French audio\") so Auto play with debrid never picks it, and in the Find sources list it is tagged like `[FR]`. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Words that are part of the title itself (The Italian Job) are ignored. Set it to **Any** to take everything."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.60",
-      "date": "2026-11-15",
-      "notes": [
-        "**Guide menu**: **Watch now** is removed from the hold-OK menu (plain OK on a programme still joins it where it is now)."
       ]
     }
   ]

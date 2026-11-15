@@ -192,7 +192,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 3,
+    n: 4,
     id: 'bbc',
     name: 'Classic BBC',
     sources: [
@@ -201,7 +201,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 4,
+    n: 6,
     id: 'itvam',
     name: 'ITV Morning',
     sources: [
@@ -210,7 +210,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 5,
+    n: 10,
     id: 'sitcoms',
     name: 'Classic Sitcoms',
     sources: [
@@ -218,7 +218,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 6,
+    n: 14,
     id: 'gameshows',
     name: 'Game Shows',
     perItem: 40,   // keep one show from crowding out the others
@@ -231,7 +231,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 7,
+    n: 15,
     id: 'drama',
     name: 'Drama',
     sources: [
@@ -239,7 +239,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 8,
+    n: 30,
     id: 'christmas',
     name: 'Christmas TV',
     sources: [
@@ -248,7 +248,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 9,
+    n: 7,
     id: 'tv70s',
     name: "70's TV",
     decade: 1970,       // only programmes from this decade, from the whole library
@@ -256,7 +256,7 @@ window.CHANNELS = [
     sources: [{ data: 'tv70s' }]
   },
   {
-    n: 10,
+    n: 5,
     id: 'itv',
     name: 'ITV',
     sources: [
@@ -264,7 +264,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 11,
+    n: 18,
     id: 'noel',
     off: true,                       // switched off for now; remove this line to bring it back
     name: "Noel's House Party",
@@ -273,7 +273,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 12,
+    n: 23,
     id: 'citv',
     name: 'CITV',
     perItem: 30,   // cap per item so Art Attack / Ghostbusters can't crowd out the rest
@@ -281,7 +281,7 @@ window.CHANNELS = [
     sources: CITV_SOURCES
   },
   {
-    n: 13,
+    n: 3,
     id: 'games',
     name: 'Video Games',
     sources: [
@@ -291,7 +291,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 14,
+    n: 12,
     id: 'comedy',
     name: 'Comedy',
     perItem: 40,
@@ -308,7 +308,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 15,
+    n: 24,
     id: 'childrens',
     name: "Children's World",
     sources: [
@@ -316,7 +316,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 16,
+    n: 21,
     id: 'kidsmovies',
     name: 'Kids Movies',
     sources: [
@@ -324,7 +324,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 17,
+    n: 27,
     id: 'kidsxmas',
     name: "Children's Christmas",
     perItem: 25,
@@ -334,7 +334,7 @@ window.CHANNELS = [
     ])
   },
   {
-    n: 18,
+    n: 22,
     id: 'xmasmovies',
     name: 'Christmas Movies',
     // Christmas films and specials, 1970 to 1999, from the scraper's library (the list is in tools/christmas-movies.json).
@@ -342,14 +342,14 @@ window.CHANNELS = [
     sources: [{ data: 'xmasmovies' }]
   },
   {
-    n: 19,
+    n: 31,
     id: 'xmasmusic',
     name: 'Christmas Music',
     maxItems: 150,
     sources: XMAS_VIDEOS
   },
   {
-    n: 20,
+    n: 25,
     id: 'offschool',
     name: "I'm Off School",
     // What was actually on in the morning and afternoon when you were off school: soaps, talk shows and morning TV.
@@ -372,14 +372,14 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 21,
+    n: 26,
     id: 'disney',
     name: 'Disney',
     maxItems: 100,
     sources: DISNEY
   },
   {
-    n: 22,
+    n: 29,
     id: 'tvarchive',
     name: 'TV Archive',
     // Television from today's date, whatever the year: programmes whose air date falls on today's day and month
@@ -393,7 +393,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 23,
+    n: 19,
     id: 'saturday',
     name: 'Saturday Night TV',
     // The Saturday evening line-up, kept to Saturday's shape every day: lighter shows at teatime, the shows the
@@ -402,7 +402,7 @@ window.CHANNELS = [
     sources: [{ data: 'saturday' }]
   },
   {
-    n: 24,
+    n: 20,
     id: 'videoshop',
     name: 'The Video Shop',
     // What you came home with on a Friday night: the rental shelf, mostly 15s and 18s. The certificate decides
@@ -411,7 +411,7 @@ window.CHANNELS = [
     sources: [{ data: 'videoshop' }]
   },
   {
-    n: 25,
+    n: 17,
     id: 'soaps',
     name: 'Soaps',
     // EastEnders, Coronation Street, Crossroads, Neighbours and the rest, from the scraper's library
@@ -419,7 +419,7 @@ window.CHANNELS = [
     sources: [{ data: 'soaps' }]
   },
   {
-    n: 26,
+    n: 28,
     id: 'cooking',
     name: 'Food & Cooking',
     // Delia, Floyd, Rick Stein, Ready Steady Cook and the rest, from the scraper's library (1970 to 1999)
@@ -427,7 +427,7 @@ window.CHANNELS = [
     sources: [{ data: 'cooking' }]
   },
   {
-    n: 27,
+    n: 13,
     id: 'entertainment',
     name: 'Entertainment',
     // a mix of the best of everything: light entertainment, sketch and panel shows, cult drama and sitcoms
@@ -435,7 +435,7 @@ window.CHANNELS = [
     sources: [{ data: 'entertainment' }]
   },
   {
-    n: 28,
+    n: 11,
     id: 'ussitcoms',
     name: 'US Sitcoms',
     // American sitcoms up to 1999 (Friends, Frasier, Cheers). Stays hidden until the scraper has found some.
@@ -443,7 +443,7 @@ window.CHANNELS = [
     sources: [{ data: 'ussitcoms' }]
   },
   {
-    n: 29,
+    n: 8,
     id: 'tv80s',
     name: "80's TV",
     decade: 1980,
@@ -451,7 +451,7 @@ window.CHANNELS = [
     sources: [{ data: 'tv80s' }]
   },
   {
-    n: 30,
+    n: 9,
     id: 'tv90s',
     name: "90's TV",
     decade: 1990,
@@ -459,7 +459,7 @@ window.CHANNELS = [
     sources: [{ data: 'tv90s' }]
   },
   {
-    n: 32,
+    n: 16,
     id: 'usdrama',
     name: 'US Drama',
     // American drama up to 1999 (Columbo, Magnum, Miami Vice, The X-Files). Stays hidden until the scraper has found some.
@@ -467,7 +467,7 @@ window.CHANNELS = [
     sources: [{ data: 'usdrama' }]
   },
   {
-    n: 31,
+    n: 32,
     id: 'adbreak',
     name: 'Adverts',
     // built in the app from the checked advert catalogue (see loadPrograms), not searched for

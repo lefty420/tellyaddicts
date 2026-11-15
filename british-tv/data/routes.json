@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "13e2a478c1",
+ "rev": "e6b4648097",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
@@ -56,18 +56,6 @@
     "TV Offal",
     "Watching",
     "Whoops Apocalypse"
-   ]
-  },
-  "disney": {
-   "name": "Disney Shorts",
-   "shows": [
-    "Disney Cartoon",
-    "Disney Cartoons",
-    "Disney Classic",
-    "Disney Short",
-    "Oswald the Lucky Rabbit",
-    "Silly Symphony",
-    "Walt Disney Cartoon"
    ]
   },
   "drama": {
@@ -126,8 +114,11 @@
   "xmasmusic": {
    "name": "Christmas Songs (70s-90s)",
    "shows": [
+    "hits christmas",
+    "magic christmas hits",
     "mtv christmas",
-    "mtv xmas"
+    "mtv xmas",
+    "vhs christmas"
    ]
   }
  }

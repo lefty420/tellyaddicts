@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.84",
-  "version": "0.46.84",
-  "code": 4684,
+  "name": "Alpha 0.46.85",
+  "version": "0.46.85",
+  "code": 4685,
   "date": "2026-11-15",
   "notes": [
-    "**More Disney shorts**: the library's \"Walt Disney Cartoon\", \"Silly Symphony\", \"Disney Classic\" and \"Disney Cartoon\" uploads were on no channel. They are now on the Disney channel (about 580 more shorts). This comes from the show list, so it reaches the TV at the next start even before this version is installed.",
-    "**Game Shows takes dated episodes**: a quiz show with no episode number now plays on Game Shows when it is dated 1999 or earlier, by its air date or a date in the file name (\"Blockbusters - 1:21:82\", \"Fifteen to One - TX 15 January 1988\"). That adds about 450 programmes: Blockbusters, Supermarket Sweep, Fifteen to One, Bullseye, University Challenge and others. Undated files still stay off, which keeps namesakes and fan videos out."
+    "**Oswald the Lucky Rabbit** (about 365 cartoons in the library) is now on the Disney channel too."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.84",
+      "date": "2026-11-15",
+      "notes": [
+        "**More Disney shorts**: the library's \"Walt Disney Cartoon\", \"Silly Symphony\", \"Disney Classic\" and \"Disney Cartoon\" uploads were on no channel. They are now on the Disney channel (about 580 more shorts). This comes from the show list, so it reaches the TV at the next start even before this version is installed.",
+        "**Game Shows takes dated episodes**: a quiz show with no episode number now plays on Game Shows when it is dated 1999 or earlier, by its air date or a date in the file name (\"Blockbusters - 1:21:82\", \"Fifteen to One - TX 15 January 1988\"). That adds about 450 programmes: Blockbusters, Supermarket Sweep, Fifteen to One, Bullseye, University Challenge and others. Undated files still stay off, which keeps namesakes and fan videos out."
+      ]
+    },
     {
       "name": "Alpha 0.46.83",
       "date": "2026-11-15",
@@ -25,13 +32,6 @@ window.RELEASE = {
       "notes": [
         "**Debug log keeps your debrid key out**: addon and debrid addresses are now written down as just the site's name (for example `torrentio.strem.fun/…`), and any long key-shaped run of letters and digits is blanked. Before, a Torrentio-style link (`…/realdebrid=KEY/…`) went into the log whole. Logs already saved on the TV are cleaned the first time this version starts.",
         "**Live view and the shared log need the code on screen**: the Live view code is now 10 random characters instead of 4 digits, so it can no longer be guessed. The shared debug log (and the EPG and gaps pages) now has a code in its address too; before, anyone on the same Wi-Fi could read it. Open the address exactly as the TV shows it, including the part after the question mark."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.82",
-      "date": "2026-11-15",
-      "notes": [
-        "**Disney Shorts**: Oswald the Lucky Rabbit (about 365 cartoons in the library) is now on the Disney channel. The Game Shows channel already plays dated episodes up to 1999, so Supermarket Sweep and Blockbusters need nothing more here."
       ]
     },
     {

@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.85 — 2026-11-15
+
+- **Oswald the Lucky Rabbit** (about 365 cartoons in the library) is now on the Disney channel too.
+
 ## Alpha 0.46.84 — 2026-11-15
 
 - **More Disney shorts**: the library's "Walt Disney Cartoon", "Silly Symphony", "Disney Classic" and "Disney Cartoon" uploads were on no channel. They are now on the Disney channel (about 580 more shorts). This comes from the show list, so it reaches the TV at the next start even before this version is installed.
@@ -22,10 +26,6 @@ hurry gets a third number, `Alpha 0.1.1`.
 
 - **Debug log keeps your debrid key out**: addon and debrid addresses are now written down as just the site's name (for example `torrentio.strem.fun/…`), and any long key-shaped run of letters and digits is blanked. Before, a Torrentio-style link (`…/realdebrid=KEY/…`) went into the log whole. Logs already saved on the TV are cleaned the first time this version starts.
 - **Live view and the shared log need the code on screen**: the Live view code is now 10 random characters instead of 4 digits, so it can no longer be guessed. The shared debug log (and the EPG and gaps pages) now has a code in its address too; before, anyone on the same Wi-Fi could read it. Open the address exactly as the TV shows it, including the part after the question mark.
-
-## Alpha 0.46.82 — 2026-11-15
-
-- **Disney Shorts**: Oswald the Lucky Rabbit (about 365 cartoons in the library) is now on the Disney channel. The Game Shows channel already plays dated episodes up to 1999, so Supermarket Sweep and Blockbusters need nothing more here.
 
 ## Alpha 0.46.81 — 2026-11-15
 

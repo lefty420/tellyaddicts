@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.76 — 2026-11-15
+
+- **Saved sources opens again** (Options > Experimental): two things in the app shared a name, so the screen could not start.
+- **Use addons as a main source keeps your place in On Demand**: Next goes to the right episode, also when the library link has to take over.
+- **Use addons as a main source waits at most 6 seconds on the loading screen** before falling back to the library.
+
 ## Alpha 0.46.75 — 2026-11-15
 
 - **Source badge on the OSD**, beside the channel name: a blue ARCHIVE.ORG badge when the programme plays from the archive, and a green ⚡ ADDON badge (with the quality, such as 1080p, when the addon says) when it plays from an addon link.

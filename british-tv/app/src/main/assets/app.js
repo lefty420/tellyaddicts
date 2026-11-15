@@ -2369,7 +2369,7 @@
       return q;
     });
   }
-  var adRecent = [];                    // adverts shown lately, so a break does not repeat one
+  var adRecentAds = [];                 // adverts shown lately, so a break does not repeat one
   function adYear(ch, prog) {
     var y = prog && prog.aired ? parseInt(String(prog.aired).slice(0, 4), 10) : 0;
     if (y >= 1970 && y <= 1999) return y;
@@ -2435,9 +2435,9 @@
     if (!pool.length) return nextInChannel();
     var was = cur;
     var ad = ADS.pickNext(pool, was && was.ad ? was.prog.url : null,
-      { year: was ? was.adYear : 0, cat: ADS.categoryFor(ch.id), hour: new Date().getHours(), recent: adRecent });
+      { year: was ? was.adYear : 0, cat: ADS.categoryFor(ch.id), hour: new Date().getHours(), recent: adRecentAds });
     if (!ad) return nextInChannel();
-    adRecent.push(ad.url); if (adRecent.length > 24) adRecent.shift();
+    adRecentAds.push(ad.url); if (adRecentAds.length > 24) adRecentAds.shift();
     cur = { ch: ch, index: index, prog: { title: 'Advert', sub: ad.title, url: ad.url }, ad: true, adLeft: left, errors: 0, adYear: was ? was.adYear : 0 };
     v.dataset.offset = '0';
     pbStart(ad.url, 0);
@@ -3912,10 +3912,10 @@
     return { g: { name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, year: film ? filmYear(p) : 0 }, ep: ref ? { s: ref.s, e: ref.e } : {} };
   }
   /** Ask the addons without any screen of their own: resolves with the usable sources, best first (empty when none). */
-  function amScrape(g, ep) {
+  function amScrape(g, ep, ms) {
     return new Promise(function (resolve) {
       var done = false, finish = function (list) { if (!done) { done = true; resolve(list || []); } };
-      setTimeout(function () { finish([]); }, 15000);
+      setTimeout(function () { finish([]); }, ms || 15000);
       var hit = adLast[adKeyOf(g, ep)];
       if (hit && Date.now() - hit.t < 259200000) { finish([{ s: hit.s, addon: hit.addon, label: hit.label, q: 0 }]); return; }
       adCurTitle = String(g.name || '');
@@ -3954,7 +3954,8 @@
     toast('', 1);
     dlog('ADDONS MAIN SOURCE: ' + why + ', playing the library link');
     amSkip = true;
-    try { playSlot(lib.ch, lib.index, lib.offset, !!lib.announce, !!lib.tuning, lib.po); if (lib.od && cur) cur.od = lib.od; }
+    var od = lib.me && lib.me.od;
+    try { playSlot(lib.ch, lib.index, lib.offset, !!lib.announce, !!lib.tuning, lib.po); if (od && cur) cur.od = od; }
     finally { amSkip = false; }
   }
   /** Called at the top of playSlot: true when the addons are going to be tried first (the library plays only if they fail). */
@@ -3962,10 +3963,9 @@
     if (amSkip || !amActive()) return false;
     var rq = amReq(prog);
     if (!rq) return false;
-    var od = cur && cur.od, lib = { ch: ch, index: index, offset: offset, announce: announce, tuning: tuning, po: po, od: od };
+    var lib = { ch: ch, index: index, offset: offset, announce: announce, tuning: tuning, po: po };
     cur = { ch: ch, index: index, prog: prog, errors: 0, amWait: 1 };
-    if (od) cur.od = od;
-    var me = cur;
+    var me = cur; lib.me = me;                                   // On Demand saves its place on this (odStart does it just after playSlot returns)
     try { v.pause(); } catch (e) { /* nothing was playing */ }
     store.set('last', ch.id);
     if (announce) showBanner();
@@ -3977,7 +3977,7 @@
       adFall = { ch: ch, g: rq.g, ep: rq.ep, q: list.slice(1), auto: 0, lib: lib };
       dlog('ADDONS MAIN SOURCE: ' + rq.g.name + ' | ' + list[0].addon);
       adPlay(ch, rq.g, rq.ep, list[0]);
-      if (cur && cur.prog && cur.prog.addon) { if (od) cur.od = od; else cur.am = { ch: ch, index: index }; }
+      if (cur && cur.prog && cur.prog.addon) { if (me.od) cur.od = me.od; else cur.am = { ch: ch, index: index }; }
     };
     if (pre) { go(pre.list); return true; }
     toast('Scraping your debrid…', 15000);
@@ -6693,7 +6693,7 @@
     var rq = slot && amReq(pick.sched.order[slot.index]);
     if (!rq) { land(); return; }
     var sm = $('spmsg'); if (sm) sm.textContent = 'Scraping your debrid\u2026';
-    amScrape(rq.g, rq.ep).then(function (list) { amPre = { k: adKeyOf(rq.g, rq.ep), list: list }; land(); }, function () { land(); });
+    amScrape(rq.g, rq.ep, 6000).then(function (list) { amPre = { k: adKeyOf(rq.g, rq.ep), list: list }; land(); }, function () { land(); });
   }
 
   /** Throw away stored lineups for channels that no longer exist, so a retired channel (On This Day, which

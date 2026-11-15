@@ -414,12 +414,15 @@
     function cached(why) {
       var t = saved();
       if (!t) throw new Error('no library');
-      dlog('library.json: using the copy saved on this TV' + (why ? ' (' + why + ')' : ''));
-      return JSON.parse(t);
+      var t0 = Date.now(), j = JSON.parse(t);
+      dlog('library.json: using the copy saved on this TV' + (why ? ' (' + why + ')' : '') + ', read in ' + (Date.now() - t0) + ' ms');
+      return j;
     }
     function go() {
+      var d0 = Date.now();
       return http(url).then(function (txt) {
-        var j = JSON.parse(txt);
+        var t0 = Date.now(), j = JSON.parse(txt);
+        dlog('library.json: downloaded ' + (txt.length / 1048576).toFixed(1) + ' MB in ' + (t0 - d0) + ' ms, read in ' + (Date.now() - t0) + ' ms');
         try { kv.setItem('libtxt2:main', txt); store.set('librev1', (j && j.rev) || want || ''); } catch (e) { /* too big to keep: fine */ }
         try { kv.removeItem('libtxt1:main'); } catch (e) { /* the old double-wrapped copy */ }
         return j;
@@ -446,7 +449,9 @@
     libP = Promise.all([fetchLibrary(libRev), showsP, routesP, removedP]).then(function (r) {
       var lib = r[0], shows = r[1];
       if (!lib || !lib.shows || !shows || !window.LIBROUTE || (libRev && lib.rev && lib.rev !== libRev)) return null;
-      return LIBROUTE.route(lib, mergeRoutes(shows, r[2]), r[3]);
+      var t0 = Date.now(), routed = LIBROUTE.route(lib, mergeRoutes(shows, r[2]), r[3]);
+      dlog('library: sorted into channels in ' + (Date.now() - t0) + ' ms');
+      return routed;
     }).catch(function () { return null; });
     return libP;
   }

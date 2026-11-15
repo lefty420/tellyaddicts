@@ -125,6 +125,30 @@
   }
   var GAMEPLAY = /\b(longplays?|long play|playthrough|play-through|walkthrough|walk-through|gameplay|let'?s play|speedrun|full game)\b|\[(ps[1-5]|psx|psp|xbox( 360| one)?|pc|wii( u)?|switch|n64|snes|nes|gba|gbc|gamecube|3ds|nds|dreamcast|saturn|mega drive|genesis)\]/i;
   var LOOSE = { soaps: 1, offschool: 1, music: 1, mtv: 1, xmasmusic: 1, christmas: 1, kidsxmas: 1, noel: 1, tvarchive: 1, disney: 1, adverts: 1 };
+  // Channels that also take an unnumbered episode when it is dated up to 1999: most quiz shows were only ever dated
+  // ("Supermarket Sweep - 4:6:95", "Blockbusters - 1:21:82", "Fifteen to One - TX 15 January 1988"). Taking every
+  // unnumbered file instead lets in fan videos and namesakes.
+  var DATED = { gameshows: 1 };
+  var MONTHS = 'jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec';
+  /** The year a date in a file name gives (4:6:95, 14_4_05, 1984-04-27, 15 January 1988), or 0 when it has none. */
+  function fileYear(f) {
+    f = String(f || '');
+    var m = /(?:^|\D)(19\d\d|20\d\d)[-_.](\d\d)[-_.](\d\d)(?:\D|$)/.exec(f);
+    if (m) return +m[1];
+    m = new RegExp('\\b\\d{1,2}(?:st|nd|rd|th)?\\s+(?:' + MONTHS + ')[a-z]*\\.?,?\\s+(19\\d\\d|20\\d\\d)\\b', 'i').exec(f) ||
+      new RegExp('\\b(?:' + MONTHS + ')[a-z]*\\.?\\s+\\d{1,2}(?:st|nd|rd|th)?,?\\s+(19\\d\\d|20\\d\\d)\\b', 'i').exec(f);
+    if (m) return +m[1];
+    m = /(?:^|[^\d:._\/-])(\d{1,2})[:._\/-](\d{1,2})[:._\/-](\d{2}|\d{4})(?![\d:._\/-]*\d)/.exec(f);
+    if (m && +m[1] >= 1 && +m[2] >= 1 && (+m[1] <= 12 || +m[2] <= 12) && +m[1] <= 31 && +m[2] <= 31) {
+      var y = +m[3];
+      return y >= 100 ? y : y >= 30 ? 1900 + y : 2000 + y;
+    }
+    return 0;
+  }
+  function datedInEra(ep) {
+    var y = yearOf(ep) || fileYear(ep.f);
+    return y >= 1950 && y <= 1999;
+  }
   function yearOf(ep) {
     var y = parseInt(String((ep && ep.a) || '').slice(0, 4), 10);
     if (y > 1900) return y;
@@ -188,7 +212,7 @@
           // a video game's playthrough ("Lego Star Wars [PS3] Longplay" filed as the 1977 film, NES longplays on the
           // Disney channel) is not what the channel is for: only the games channel keeps them
           if (ch !== 'games' && GAMEPLAY.test(String(ep.t || '').replace(/[_]+/g, ' '))) return;
-          if (!LOOSE[ch] && !sh.film && !sh.song && !CODED.test(ep.c || '')) return;
+          if (!LOOSE[ch] && !sh.film && !sh.song && !CODED.test(ep.c || '') && !(DATED[ch] && datedInEra(ep))) return;
           var items = per[ch] = per[ch] || {};
           order[ch] = order[ch] || [];
           var it = items[ep.id];
@@ -238,6 +262,6 @@
     return (show ? show + ' ' : '') + (d.c && d.c !== 'Special' ? d.c + ' ' : '') + d.n;
   }
 
-  var LibRoute = { yearOf: yearOf, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, titleFor: titleFor };
+  var LibRoute = { yearOf: yearOf, fileYear: fileYear, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, titleFor: titleFor };
   if (typeof module !== 'undefined' && module.exports) module.exports = LibRoute; else root.LIBROUTE = LibRoute;
 })(typeof window !== 'undefined' ? window : this);

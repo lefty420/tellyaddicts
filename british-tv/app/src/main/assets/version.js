@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.4",
-  "version": "0.47.4",
-  "code": 4704,
+  "name": "Alpha 0.47.5",
+  "version": "0.47.5",
+  "code": 4705,
   "date": "2026-11-15",
   "notes": [
-    "Options > Experimental: new \"Content\" (Everything by default, or British). British hides the shows the scraper has flagged as never shown on UK TV (mostly US drama) from the guides, On Demand and Magic EPG; UK-made shows, US shows that aired here, and any show it is unsure about stay. It reads data/uk.json (flags with u:0 are the ones hidden), which the scraper has still to publish: until then nothing is hidden. Turning it on or off restarts the guides."
+    "Content: British now writes to the debug log which shows it hid and how many programmes, so a wrongly hidden show is easy to spot."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.4",
+      "date": "2026-11-15",
+      "notes": [
+        "Options > Experimental: new \"Content\" (Everything by default, or British). British hides the shows the scraper has flagged as never shown on UK TV (mostly US drama) from the guides, On Demand and Magic EPG; UK-made shows, US shows that aired here, and any show it is unsure about stay. It reads data/uk.json (flags with u:0 are the ones hidden), which the scraper has still to publish: until then nothing is hidden. Turning it on or off restarts the guides."
+      ]
+    },
     {
       "name": "Alpha 0.47.3",
       "date": "2026-11-15",
@@ -63,16 +70,6 @@ window.RELEASE = {
       "notes": [
         "Options > Artwork: new \"Episode lists from\" (TVmaze by default, or TheTVDB, or TMDB) and a \"TMDB key\" row beside the TheTVDB key, with an on-screen keyboard and a check when saved. A source with no key, or with no result, falls back to TVmaze.",
         "Groundwork for the Debrid EPG experiment (nothing uses the choice yet)."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.96",
-      "date": "2026-11-15",
-      "notes": [
-        "Guide header: the show name is big, with the episode (\"S02E46 · Episode name\") on the line under it; the series year is dropped.",
-        "Guide cells and header clean up file-style names: dots/underscores become spaces, codec and release tags (HEVC, x265, 1080p, WEB-DL...) and leading track numbers go.",
-        "Very narrow guide cells (under about 170 px) show the first word or a dot, with no arrows or \"…\".",
-        "On Demand \"OK Open\" hint is bigger; the guide's episode line is bigger."
       ]
     }
   ]

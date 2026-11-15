@@ -1908,7 +1908,9 @@
   /** British: drop the flagged shows; never leaves a channel with fewer than three programmes. */
   function ukFilter(progs) {
     if (!ukOn || !ukMap) return progs;
-    var f = progs.filter(function (p) { return !ukHide(p); });
+    var f = progs.filter(function (p) { return !ukHide(p); }), gone = {};
+    progs.forEach(function (p) { if (ukHide(p)) gone[gmName(p)] = (gone[gmName(p)] || 0) + 1; });
+    if (progs.length !== f.length) dlog('CONTENT British: hid ' + (progs.length - f.length) + ' programmes: ' + Object.keys(gone).map(function (k) { return k + ' x' + gone[k]; }).join(', '));
     return f.length >= 3 ? f : progs;
   }
   function changeUk() {

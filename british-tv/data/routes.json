@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "252e869859",
+ "rev": "13e2a478c1",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
@@ -109,7 +109,6 @@
    "name": "Saturday Night TV",
    "shows": [
     "Barrymore",
-    "Big Night Out",
     "Little and Large",
     "Live from the Palladium",
     "Saturday Live",

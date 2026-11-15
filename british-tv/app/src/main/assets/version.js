@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.79",
-  "version": "0.46.79",
-  "code": 4679,
+  "name": "Alpha 0.46.80",
+  "version": "0.46.80",
+  "code": 4680,
   "date": "2026-11-15",
   "notes": [
-    "**The debug log now times the scraper's library**: how long it took to download, to read and to sort into channels. Nothing changes on screen; it is there to show what the library really costs on this TV."
+    "**Shorter hold-OK menu on a programme**: Fix artwork, Hide this show/film and Report a problem now sit behind one \"More...\" entry (Back returns to the main menu). Options stays last. When a menu has more entries than fit, its heading says which one you are on (\"item 10 of 11\").",
+    "**Bigger supporting text**: the small lines under menu entries, the dates inside guide cells, On Demand's menu and the Options hints at the bottom are a little larger, so they read from across the room."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.79",
+      "date": "2026-11-15",
+      "notes": [
+        "**The debug log now times the scraper's library**: how long it took to download, to read and to sort into channels. Nothing changes on screen; it is there to show what the library really costs on this TV."
+      ]
+    },
     {
       "name": "Alpha 0.46.78",
       "date": "2026-11-15",
@@ -60,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**OSD buttons wrap round**: pressing Left on the first button (TV Guide) goes to the last (Options), and Right on Options goes back to TV Guide."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.71",
-      "date": "2026-11-15",
-      "notes": [
-        "Auto play with debrid and Find sources show in the long-press menus only when Experimental and an addon are on, as in 0.46.70 (a change to always show them was withdrawn)."
       ]
     }
   ]

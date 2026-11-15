@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.80 — 2026-11-15
+
+- **Shorter hold-OK menu on a programme**: Fix artwork, Hide this show/film and Report a problem now sit behind one "More..." entry (Back returns to the main menu). Options stays last. When a menu has more entries than fit, its heading says which one you are on ("item 10 of 11").
+- **Bigger supporting text**: the small lines under menu entries, the dates inside guide cells, On Demand's menu and the Options hints at the bottom are a little larger, so they read from across the room.
+
 ## Alpha 0.46.79 — 2026-11-15
 
 - **The debug log now times the scraper's library**: how long it took to download, to read and to sort into channels. Nothing changes on screen; it is there to show what the library really costs on this TV.

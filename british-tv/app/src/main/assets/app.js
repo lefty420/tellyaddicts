@@ -3322,8 +3322,16 @@
       dlog('REPORT (menu) ch ' + c.n + ' ' + c.name + ' | ' + (p.title || '') + ' | show: ' + name + ' | item: ' + String(p.id || '').split('/')[0] + ' | file: ' + decodeURIComponent(String(p.url || '').replace('https://archive.org/download/', '')));
       toast('Noted in the debug log', 2500);
     } });
+    // the rarely used actions go behind one entry, so what is used most stays on the first screen
+    var rare = items.filter(function (x) { return /^(Fix artwork|Hide this|Report a problem)/.test(x.t); });
+    items = items.filter(function (x) { return rare.indexOf(x) < 0; });
+    var top = { title: name, sub: c.n + '  ' + c.name };
+    items.push({ t: 'More\u2026', sub: 'Fix artwork, hide this ' + (film ? 'film' : 'show') + ', report a problem', f: function () {
+      gm = { items: rare, i: 0, title: name, sub: 'More', parent: gm };
+      gmRender();
+    } });
     optsLast(items);
-    gm = { items: items, i: 0, title: name, sub: c.n + '  ' + c.name };
+    gm = { items: items, i: 0, title: top.title, sub: top.sub };
     gmRender();
   }
 
@@ -3424,7 +3432,7 @@
     var N = 8, n = gm.items.length;                       // more choices than fit: show eight at a time, following the highlight
     gm.top = Math.max(0, Math.min(gm.top || 0, n - N));
     if (gm.i < gm.top) gm.top = gm.i; else if (gm.i >= gm.top + N) gm.top = gm.i - N + 1;
-    $('gms').textContent = gm.sub + (gm.top > 0 ? '   \u25b2' : '') + (gm.top + N < n ? '   \u25bc' : '');
+    $('gms').textContent = gm.sub + (n > N ? '   item ' + (gm.i + 1) + ' of ' + n : '') + (gm.top > 0 ? '   \u25b2' : '') + (gm.top + N < n ? '   \u25bc' : '');
     gm.items.forEach(function (it, i) {
       if (i < gm.top || i >= gm.top + N) return;
       var r = document.createElement('div'); r.className = 'gmr' + (i === gm.i ? ' sel' : '');
@@ -3438,7 +3446,7 @@
     if (k === 'ArrowUp') gm.i = (gm.i + gm.items.length - 1) % gm.items.length;
     else if (k === 'ArrowDown') gm.i = (gm.i + 1) % gm.items.length;
     else if (k === 'Enter' || k === ' ') { gm.items[gm.i].f(); return; }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'ArrowLeft' || k === 'Menu' || k === 'ContextMenu') { gmClose(); return; }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'ArrowLeft' || k === 'Menu' || k === 'ContextMenu') { if (gm.parent) { gm = gm.parent; gmRender(); } else gmClose(); return; }
     gmRender();
   }
 

@@ -3765,7 +3765,7 @@
   }
   /** Which spoken languages a stream says it has, from the flags and words addons put in its text: {en: bool, other: ['French', ...]}. Nothing said = unknown. */
   var AD_FLAGS = { '🇬🇧': 'en', '🇺🇸': 'en', '🇦🇺': 'en', '🇨🇦': 'en', '🇫🇷': 'French', '🇩🇪': 'German', '🇮🇹': 'Italian', '🇪🇸': 'Spanish', '🇲🇽': 'Spanish', '🇵🇹': 'Portuguese', '🇧🇷': 'Portuguese', '🇷🇺': 'Russian', '🇯🇵': 'Japanese', '🇰🇷': 'Korean', '🇨🇳': 'Chinese', '🇮🇳': 'Hindi', '🇵🇱': 'Polish', '🇳🇱': 'Dutch', '🇹🇷': 'Turkish', '🇸🇪': 'Swedish', '🇺🇦': 'Ukrainian', '🇨🇿': 'Czech', '🇷🇴': 'Romanian', '🇬🇷': 'Greek', '🇸🇦': 'Arabic' };
-  var AD_WORDS = [[/\b(french|vostfr|vff|vfq|truefrench|fran[cç]ais)\b/i, 'French'], [/\b(german|deutsch|ger)\b/i, 'German'], [/\b(italian|ita)\b/i, 'Italian'], [/\b(spanish|castellano|latino)\b/i, 'Spanish'], [/\b(portuguese|dublado)\b/i, 'Portuguese'], [/\b(russian|rus)\b/i, 'Russian'], [/\b(hindi|tamil|telugu)\b/i, 'Hindi'], [/\b(japanese|jpn)\b/i, 'Japanese'], [/\b(korean|kor)\b/i, 'Korean'], [/\b(chinese|mandarin|cantonese)\b/i, 'Chinese'], [/\b(polish|pl dub|lektor)\b/i, 'Polish'], [/\b(dutch)\b/i, 'Dutch'], [/\b(turkish)\b/i, 'Turkish'], [/\b(arabic)\b/i, 'Arabic']];
+  var AD_WORDS = [[/\b(french|vostfr|vff|vfq|truefrench|fran[cç]ais)\b/i, 'French'], [/\b(german|deutsch|ger)\b/i, 'German'], [/\b(italian|ita)\b/i, 'Italian'], [/\b(spanish|castellano|latino)\b/i, 'Spanish'], [/\b(portuguese|dublado)\b/i, 'Portuguese'], [/\b(russian|rus|rusub|lostfilm|kerob|hdrezka|rezka|newstudio|alexfilm|jaskier|baibako|coldfilm|kubik|kinozal|rutor|rutracker|nnmclub|toloka|dub(?:bed)?\s*ru|ru\s*dub|sub\s*ru)\b/i, 'Russian'], [/[\u0400-\u04FF]/, 'Russian'], [/\b(hindi|tamil|telugu)\b/i, 'Hindi'], [/\b(japanese|jpn)\b/i, 'Japanese'], [/\b(korean|kor)\b/i, 'Korean'], [/\b(chinese|mandarin|cantonese)\b/i, 'Chinese'], [/\b(polish|pl dub|lektor)\b/i, 'Polish'], [/\b(dutch)\b/i, 'Dutch'], [/\b(turkish)\b/i, 'Turkish'], [/\b(arabic)\b/i, 'Arabic']];
   var adCurTitle = '';                                      // the title being searched: its own words ("The Italian Job") are not a language
   function adLangs(s) {
     var t = (s.name || '') + ' ' + (s.title || '') + ' ' + (s.description || '') + ' ' + ((s.behaviorHints && s.behaviorHints.filename) || ''), en = false, other = [];
@@ -3830,7 +3830,8 @@
           if (!!a.why !== !!b.why) return a.why ? 1 : -1;
           var ba = bgOf(a) ? 1 : 0, bb = bgOf(b) ? 1 : 0;
           var da = adDeb !== 'off' && adIsDebrid(a.s) ? 1 : 0, db = adDeb !== 'off' && adIsDebrid(b.s) ? 1 : 0;
-          return db - da || bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
+          var ea = adLangs(a.s).en ? 1 : 0, eb = adLangs(b.s).en ? 1 : 0;
+          return db - da || (adLang === 'en' ? eb - ea : 0) || bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
         });
         ad.rows = list.map(function (x) {
           return { t: x.q ? x.q + 'p' : '—', n: (function () { var L = adLangs(x.s); return (L.other.length && !L.en ? '[' + L.other[0].slice(0, 2).toUpperCase() + '] ' : '') + x.label; })(), s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,

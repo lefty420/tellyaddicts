@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.61",
-  "version": "0.46.61",
-  "code": 4661,
+  "name": "Alpha 0.46.62",
+  "version": "0.46.62",
+  "code": 4662,
   "date": "2026-11-15",
   "notes": [
-    "**Audio language for addon links** (Options > Experimental > **Audio language**, default **English only**): the app now reads the language flags and words addons put in their results (the French or German flag, FRENCH, VOSTFR, ITA, LATINO and so on). A link that names another language and no English is greyed out (\"French audio\") so Auto play with debrid never picks it, and in the Find sources list it is tagged like `[FR]`. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Words that are part of the title itself (The Italian Job) are ignored. Set it to **Any** to take everything."
+    "**Russian links caught**: addon results in Russian are now recognised by their Cyrillic letters and by the usual Russian release names and sites (LostFilm, HDRezka, NewStudio, Kerob, Rutor and so on, or RUS), so with Audio language on English only they are greyed out and never auto-played. Links that clearly say English now also rank ahead of links that say nothing about language."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.61",
+      "date": "2026-11-15",
+      "notes": [
+        "**Audio language for addon links** (Options > Experimental > **Audio language**, default **English only**): the app now reads the language flags and words addons put in their results (the French or German flag, FRENCH, VOSTFR, ITA, LATINO and so on). A link that names another language and no English is greyed out (\"French audio\") so Auto play with debrid never picks it, and in the Find sources list it is tagged like `[FR]`. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Words that are part of the title itself (The Italian Job) are ignored. Set it to **Any** to take everything."
+      ]
+    },
     {
       "name": "Alpha 0.46.60",
       "date": "2026-11-15",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Find sources: debrid option and saved sources** (Options > Experimental):"
-      ]
-    },
-    {
-      "name": "Alpha 0.46.53",
-      "date": "2026-11-15",
-      "notes": [
-        "**Fix: Find sources for films said \"Could not find this film\"**: the film lookup now (1) searches a film as its plain title (a title like \"Family Plot (1976)\" is searched as \"Family Plot\", and the year picks between films of the same name), (2) understands the newer way addons say they can search (`extraSupported`), and (3) if no addon can find the film, asks Stremio's public film catalogue (Cinemeta) for its IMDb number. What it tried and found is written to the debug log lines starting `ADDON film search` / `CINEMETA`."
       ]
     }
   ]

@@ -3837,10 +3837,74 @@
     return rows;
   }
 
+
+  // Weather (Open-Meteo) and the dated news page (Wikipedia's "on this day" for today's date, in a year from the timeline)
+  var TT_CITIES = [['London', 51.51, -0.13], ['Birmingham', 52.48, -1.9], ['Manchester', 53.48, -2.24], ['Cardiff', 51.48, -3.18], ['Glasgow', 55.86, -4.25], ['Belfast', 54.6, -5.93]];
+  var TT_WX = { 0: 'Clear', 1: 'Mostly clear', 2: 'Part cloud', 3: 'Cloudy', 45: 'Fog', 48: 'Fog', 51: 'Drizzle', 53: 'Drizzle', 55: 'Drizzle', 56: 'Frzg drizzle', 57: 'Frzg drizzle', 61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Frzg rain', 67: 'Frzg rain', 71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains', 80: 'Showers', 81: 'Showers', 82: 'Heavy showers', 85: 'Snow showers', 86: 'Snow showers', 95: 'Thunder', 96: 'Thunder', 99: 'Thunder' };
+  var ttCache = {};
+  function ttCached(key, ms, fetcher) {
+    var c = ttCache[key];
+    if (c && Date.now() - c.t < ms) return Promise.resolve(c.v);
+    return fetcher().then(function (v) { ttCache[key] = { t: Date.now(), v: v }; return v; });
+  }
+  function ttTemp(x) { return (x < 0 ? '-' : '') + Math.round(Math.abs(x)) + 'C'; }
+  function ttWeather() {
+    var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + TT_CITIES.map(function (c) { return c[1]; }).join(',') + '&longitude=' + TT_CITIES.map(function (c) { return c[2]; }).join(',') +
+      '&current=temperature_2m,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=3&timezone=Europe%2FLondon&wind_speed_unit=mph';
+    return ttCached('wx', 900000, function () { return http(url).then(function (t) { var j = JSON.parse(t); return Array.isArray(j) ? j : [j]; }); });
+  }
+  function ttWxPages(num, j) {
+    var body = [''];
+    if (num === 300) {
+      body.push('{c}City         Now  Wind   Sky');
+      j.forEach(function (d, i) { var cu = d.current || {}; body.push('{w}' + ttPad(TT_CITIES[i][0], 12) + ' {y}' + ttPad(ttTemp(cu.temperature_2m), 4) + '{w}' + ttPad(Math.round(cu.wind_speed_10m) + 'mph', 6) + '{c}' + ttPad(TT_WX[cu.weather_code] || '', 14)); });
+      body.push(''); body.push('{w}Forecast for 3 days ............ {y}301');
+      return ttPages(300, ' WEATHER NOW', body, [100, 301, 310, 120], '{r}Index {g}Forecast {y}News {c}Tonight');
+    }
+    var days = ['Today', 'Tomorrow', 'Day 3'];
+    body.push('{c}City       ' + ' High/Low  Sky');
+    j.forEach(function (d, i) {
+      var dd = d.daily || {};
+      body.push('{y}' + ttPad(TT_CITIES[i][0], 38));
+      for (var k = 0; k < 3; k++) {
+        var date = new Date(dd.time[k] + 'T12:00:00');
+        body.push('{c} ' + ttPad(k < 2 ? days[k] : TT_DAYS[date.getDay()], 9) + '{w}' + ttPad(ttTemp(dd.temperature_2m_max[k]) + '/' + ttTemp(dd.temperature_2m_min[k]), 10) + '{w}' + ttPad(TT_WX[dd.weather_code[k]] || '', 17));
+      }
+    });
+    return ttPages(301, ' WEATHER FORECAST', body, [100, 300, 310, 120], '{r}Index {g}Now {y}News {c}Tonight');
+  }
+  /** The year used for today's news: one from the timeline (1970-1999) that has enough events on this date, picked by the date so it is the same all day. */
+  function ttNewsYear(ev) {
+    var by = {};
+    ev.forEach(function (e) { if (e.year >= 1970 && e.year <= 1999) (by[e.year] = by[e.year] || []).push(e); });
+    var yrs = Object.keys(by).filter(function (y) { return by[y].length >= 1; }).map(Number).sort();
+    if (!yrs.length) return null;
+    var d = new Date(), doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+    var y = yrs[(doy * 7 + d.getFullYear()) % yrs.length];
+    return { year: y, items: by[y], others: yrs.filter(function (x) { return x !== y; }) };
+  }
+  function ttNews() {
+    var d = new Date(), url = 'https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/' + pad2(d.getMonth() + 1) + '/' + pad2(d.getDate());
+    return ttCached('news' + url, 3600000, function () { return http(url).then(function (t) { var j = JSON.parse(t); return (j.events || []).map(function (e) { return { year: e.year, text: ttAscii(e.text) }; }); }); });
+  }
+  function ttNewsPages(ev) {
+    var pick = ttNewsYear(ev), d = new Date(), body = [''];
+    var months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+    if (!pick) { body.push('{w}No news is stored for this date.'); return ttPages(310, ' NEWS', body, [100, 300, 110, 120]); }
+    pick.items.forEach(function (e) {
+      var ln = '';
+      e.text.split(' ').forEach(function (w) { if ((ln + ' ' + w).trim().length > 38) { body.push('{w}' + ln); ln = w; } else ln = (ln + ' ' + w).trim(); });
+      if (ln) body.push('{w}' + ln);
+      body.push('');
+    });
+    body.push('{c}Other years with news: ' + pick.others.slice(0, 6).join(' '));
+    body.push('{w}Source: Wikipedia, On this day');
+    return ttPages(310, ' NEWS ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + pick.year, body, [100, 300, 110, 120], '{r}Index {g}Weather {y}On now {c}Tonight');
+  }
   function ttBuild(num) {
     var now = Date.now(), body = [], i;
     if (num === 100) {
-      var items = [['On now', 110], ['Tonight on TV', 120], ['Coming up next', 130], ['On this day', 140], ['Channel schedules', 150], ['About Telly Addicts', 190]];
+      var items = [['On now', 110], ['Tonight on TV', 120], ['Coming up next', 130], ['On this day', 140], ['Weather', 300], ['News for today', 310], ['Channel schedules', 150], ['About Telly Addicts', 190]];
       body.push('');
       items.forEach(function (it) { var d = ''; for (var k = it[0].length; k < 31; k++) d += '.'; body.push('{c}' + it[0] + ' ' + d + '{w} ' + it[1]); });
       body.push('');
@@ -3907,6 +3971,18 @@
   }
   function ttClose() { if (tt) { clearInterval(tt.timer); } tt = null; $('tt').className = 'hidden'; }
   function ttGo(n, noHist) {
+    if (n === 300 || n === 301 || n === 310) {
+      if (!noHist && tt.num) tt.hist.push(tt.num);
+      tt.num = n; tt.sub = 0; tt.li = 0;
+      tt.pages = ttPages(n, n === 310 ? ' NEWS' : ' WEATHER', ['', '{y}One moment, loading\u2026'], [100, 300, 310, 120]);
+      ttDraw();
+      (n === 310 ? ttNews().then(ttNewsPages) : ttWeather().then(function (j) { return ttWxPages(n, j); })).then(function (pg) {
+        if (tt && tt.num === n) { tt.pages = pg; tt.sub = 0; tt.li = 0; ttDraw(); }
+      }, function () {
+        if (tt && tt.num === n) { tt.pages = ttPages(n, ' NOT AVAILABLE', ['', '{r}Could not load this page.', '{w}Check the TV is online and try again.'], [100, 300, 310, 120]); tt.sub = 0; ttDraw(); }
+      });
+      return;
+    }
     var pg = ttBuild(n);
     if (!pg) { toast('Page ' + n + ' is not available', 2500); return; }
     if (!noHist && tt.num) tt.hist.push(tt.num);

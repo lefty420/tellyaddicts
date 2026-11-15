@@ -52,6 +52,9 @@ public class MainActivity extends Activity {
     // fetches itself; this is here so anything that does go through the bridge is not blocked.
     private static final String ALLOWED_PREFIX_4 = "https://image.tmdb.org/";
     // TheTVDB (artwork and details, when the person has entered their own key in Options). Only this host, only through httpx.
+    // Teletext weather (Open-Meteo forecast) and the "on this day" news page (Wikipedia's feed): these two paths only
+    private static final String WEATHER_PREFIX = "https://api.open-meteo.com/v1/forecast?";
+    private static final String OTD_PREFIX = "https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/";
     private static final String TVDB_PREFIX = "https://api4.thetvdb.com/";
     private static final int MAX_BODY_BYTES = 48 * 1024 * 1024;  // searches and episode lists; item metadata is trimmed as it is read
     private static final int HTTP_THREADS = 8;                  // archive.org is happier with a few connections than with hundreds
@@ -425,7 +428,8 @@ public class MainActivity extends Activity {
                     HttpURLConnection c = null;
                     try {
                         if (url == null || !(url.startsWith(ALLOWED_PREFIX) || url.startsWith(ALLOWED_PREFIX_2)
-                                || url.startsWith(ALLOWED_PREFIX_3) || url.startsWith(ALLOWED_PREFIX_4))) {
+                                || url.startsWith(ALLOWED_PREFIX_3) || url.startsWith(ALLOWED_PREFIX_4)
+                                || url.startsWith(WEATHER_PREFIX) || url.startsWith(OTD_PREFIX))) {
                             throw new SecurityException("blocked url");
                         }
                         c = (HttpURLConnection) new URL(url).openConnection();

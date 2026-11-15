@@ -3298,8 +3298,10 @@
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });
-    items.push({ t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { gmClose(); adFromProg(p, c, true); } });
-    items.push({ t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { gmClose(); adFromProg(p, c, false); } });
+    if (expOn && adLive().length) {
+      items.push({ t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { gmClose(); adFromProg(p, c, true); } });
+      items.push({ t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { gmClose(); adFromProg(p, c, false); } });
+    }
     items.push({ t: 'Info', sub: 'Details, cast and the file it plays', f: function () { gmClose(); openInfo({ prog: p, ch: c }); } });
     items.push({ t: 'Teletext', sub: 'Pages built from your guide', f: function () { gmClose(); ttOpen(100); } });
     items.push({ t: 'Fix artwork & details', sub: 'Look its artwork and episode details up again', f: function () { gmClose(); gmScrape(c, p, name, film); } });
@@ -3510,8 +3512,10 @@
     var b = cs.rows[cs.i], c = cs.c;
     if (!b || !b.prog) return;
     var p = b.prog, items = [];
-    items.push({ t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { gmClose(); csClose(); adFromProg(p, c, true); } });
-    items.push({ t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { gmClose(); csClose(); adFromProg(p, c, false); } });
+    if (expOn && adLive().length) {
+      items.push({ t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { gmClose(); csClose(); adFromProg(p, c, true); } });
+      items.push({ t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { gmClose(); csClose(); adFromProg(p, c, false); } });
+    }
     items.push({ t: 'Options', sub: 'Settings, help and debug', f: function () { gmClose(); csClose(); openOpts(); } });
     gm = { items: items, i: 0, title: gmName(p), sub: fmtTime(b.startMs) + '  ' + c.n + '  ' + c.name };
     gmRender();
@@ -3902,11 +3906,11 @@
   }
   /** On Demand's hold-OK menu: add "Find sources" when Experimental is on and an addon is on. */
   function adOdm(g) {
-    if (!odm) return;
+    if (!odm || !adLive().length) return;
     var ep = (odView === 'show' && g.sea && g.sea[odSea] && g.sea[odSea].eps[odEi] && g.sea[odSea].eps[odEi].p) || (g.flat && g.flat[0] && g.flat[0].p) || {};
     odm.items.splice(2, 0,
-      { t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { odmClose(); if (!adLive().length) { toast('Turn on Experimental and an addon first (Options > Experimental)', 4000); return; } adSources(g, { s: ep.s, e: ep.e }, false, null, true); } },
-      { t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { odmClose(); if (!adLive().length) { toast('Turn on Experimental and an addon first (Options > Experimental)', 4000); return; } adSources(g, { s: ep.s, e: ep.e }, false, null, false); } });
+      { t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, true); } },
+      { t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, false); } });
   }
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
   function changeLang() { adLang = adLang === 'en' ? 'any' : 'en'; store.set('adlang1', adLang); renderOpts(); }

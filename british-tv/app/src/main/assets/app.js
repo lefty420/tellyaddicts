@@ -1904,7 +1904,7 @@
     return c && c.d && Date.now() - c.t < 30 * 86400000 ? c.d : null;
   }
   /** Add the episodes the channel has no file for, from the kept episode lists. */
-  function virtualFill(c, progs) {
+  function virtualFill(c, progs, full) {         // full: On Demand lists every episode, with no cap and none left out for having had no source
     if (!depgActive()) return progs;
     var by = {}, out = progs.slice();
     progs.forEach(function (p) {
@@ -1921,9 +1921,9 @@
       g.durs.sort(function (a, b) { return a - b; });
       var dur = g.durs.length ? g.durs[g.durs.length >> 1] : 1800, n = 0, today = new Date().toISOString().slice(0, 10);
       d.eps.forEach(function (e) {
-        if (g.have[e[0] + ':' + e[1]] || (e[3] && e[3] > today) || n >= 400) return;
+        if (g.have[e[0] + ':' + e[1]] || (e[3] && e[3] > today) || (!full && n >= 400)) return;
         var id = 'virt/' + k + '/' + e[0] + '/' + e[1];
-        if (isSlow(id)) return;                                 // no source last time
+        if (!full && isSlow(id)) return;                        // no source last time
         n++;
         out.push({ id: id, item: 'virtual', url: '', virtual: true, show: g.name, group: g.name, dur: dur,
                    title: g.name + ' S' + pad2(e[0]) + 'E' + pad2(e[1]) + (e[2] ? ' ' + e[2] : ''), sub: '', aired: e[3] || '' });
@@ -3148,7 +3148,7 @@
       var esub = fb.prog.sub || '';
       $('gsub').textContent = fb.count > 1
         ? 'Plus ' + (fb.count - 1) + ' more programme' + (fb.count > 2 ? 's' : '')
-        : (fb.prog.virtual ? '\u25c7 From your addons' + (sp.ep ? ' \u00b7 ' + sp.ep : '') : sp.ep ? sp.ep + (esub && sp.ep.indexOf(esub) < 0 ? ' \u00b7 ' + esub : '') : esub);
+        : (sp.ep ? sp.ep + (esub && sp.ep.indexOf(esub) < 0 ? ' \u00b7 ' + esub : '') : esub);
     }
     guideArt(fb ? fb.prog : null);
   }
@@ -3250,7 +3250,7 @@
           var focused = (ch === list[gRow]) && b.startMs <= gFocus && gFocus < b.endMs;
           var frac = (e - s) / SPAN;
           var clipL = b.startMs < lo, clipR = b.endMs > hi;
-          var base = 'blk' + (clipL ? ' cl' : '') + (clipR ? ' cr' : '') + (frac < 0.07 ? ' nw' : '') + (b.prog.virtual ? ' virt' : '');
+          var base = 'blk' + (clipL ? ' cl' : '') + (clipR ? ' cr' : '') + (frac < 0.07 ? ' nw' : '');
           var el = div(base + (focused ? ' foc' : '') + (b.startMs <= now && now < b.endMs ? ' now' : ''));
           el.style.left = ((s - gWin) / SPAN * 100) + '%';
           el.style.width = 'calc(' + (frac * 100) + '% - .4vw)';
@@ -4306,7 +4306,7 @@
   }
   /** Called at the top of playSlot: true when the addons are going to be tried first (the library plays only if they fail). */
   function amTake(ch, index, offset, announce, tuning, po, prog) {
-    if (amSkip || !(amActive() || (prog && prog.virtual && depgActive()))) return false;
+    if (amSkip || !(amActive() || depgActive())) return false;          // Magic EPG: every episode and film is looked up with the addons first
     var rq = amReq(prog);
     if (!rq) return false;
     var lib = { ch: ch, index: index, offset: offset, announce: announce, tuning: tuning, po: po };
@@ -5184,7 +5184,7 @@
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
     ammain: 'With this on, every programme that has an episode number, and every film, is first looked up with your addons while the loading screen or a "Scraping your debrid" message is showing, and plays from the best link they find. If they find nothing, or the link will not play, the library link plays instead. It plays from the start rather than joining part way through.',
-    depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Those episodes show a \u25c7 and play through your addons; if no addon has one it moves on to the next programme. Needs an addon, and works best with Use addons as a main source.',
+    depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
     join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
@@ -5998,7 +5998,10 @@
     }).then(function (all) {
       return ytLoad().then(function (yt) { var y = ytProgs(yt, ch.id); return y.length ? all.concat(y) : all; });
     }).then(function (all) {
+      return loadEpdb().then(function () { return all; });          // Magic EPG: the episode database is in before the shows are grouped
+    }).then(function (all) {
       var progs = all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); });
+      if (!OD_FILMS[ch.id]) progs = virtualFill(ch, progs, true);      // Magic EPG: every episode the scrapers know, not only the ones with a file
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
       rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);

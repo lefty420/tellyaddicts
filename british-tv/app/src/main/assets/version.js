@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.1",
-  "version": "0.47.1",
-  "code": 4701,
+  "name": "Alpha 0.47.2",
+  "version": "0.47.2",
+  "code": 4702,
   "date": "2026-11-15",
   "notes": [
-    "Options > Experimental: new \"Join in progress\" (off by default). For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on), the picture starts where the guide says the programme has got to, instead of from the beginning. The debug log says \"joining ... at Ns\" when it does."
+    "Magic EPG now means the addons for everything: with it on, every episode and film in the guides is looked up with your addons first (the library link is only the fallback), and the diamond mark and \"From your addons\" line are gone.",
+    "Magic On Demand: with Magic EPG on, On Demand lists every episode the scrapers know for each show (from data/epdb.json), not only the ones with a file, and plays them through your addons. An episode no addon has is skipped when you play it.",
+    "Turning Magic EPG on or off restarts the guides, as before. Needs Experimental on and an addon."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.1",
+      "date": "2026-11-15",
+      "notes": [
+        "Options > Experimental: new \"Join in progress\" (off by default). For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on), the picture starts where the guide says the programme has got to, instead of from the beginning. The debug log says \"joining ... at Ns\" when it does."
+      ]
+    },
     {
       "name": "Alpha 0.47.0",
       "date": "2026-11-15",
@@ -65,13 +74,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Subtitle diagnostics**: after you choose a subtitle track, the debug log now records the first few subtitle lines the player delivers (\"SUBTITLE cue: 1 text, 0 picture, 38 characters\"), with no words from the film. If a subtitle track is selected but nothing shows, the log now says whether the player sent nothing (an empty or forced-only track) or the screen failed to draw it."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.93",
-      "date": "2026-11-15",
-      "notes": [
-        "**English sound first**: when a file has several sound tracks, the app's own player now picks the English one unless you have chosen another language in Audio & subtitles. Before, it took whichever the file listed first, so a Lethal Weapon with Turkish and English tracks played in Turkish. If a file has no English track it plays as before. A language you choose is still kept for the next programme."
       ]
     }
   ]

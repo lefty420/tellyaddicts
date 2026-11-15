@@ -3837,39 +3837,10 @@
     return rows;
   }
 
-  // user-added teletext services: an https address of .tti page files (one file with many pages, or an address with {page} in it)
-  var ttSvcs = store.get('ttsvc1') || [];
-  function ttSvcSave() { store.set('ttsvc1', ttSvcs); }
-  function ttHost(u) { return String(u).replace(/^https?:\/\//, '').split('/')[0]; }
-  function ttSvcParse(svc, text) {
-    T().parseTTI(text).forEach(function (p) { (svc.pages[p.num] = svc.pages[p.num] || []).push(p); });
-    Object.keys(svc.pages).forEach(function (k) { svc.pages[k].sort(function (a, b) { return a.sub - b.sub; }); });
-  }
-  /** Fetch page n of a service (cached for this session) and hand its sub-pages on; null when the service has no such page. */
-  function ttSvcPage(svc, n, fn) {
-    if (svc.pages[n]) { fn(svc.pages[n]); return; }
-    var multi = svc.url.indexOf('{page}') < 0;
-    if (multi && svc.loaded) { fn(null); return; }
-    adHttp(multi ? svc.url : svc.url.replace('{page}', n)).then(function (txt) {
-      if (multi) svc.loaded = true;
-      ttSvcParse(svc, txt);
-      fn(svc.pages[n] || null);
-    }, function () { fn(null); });
-  }
-  function ttSvcAdd(txt) {
-    txt = String(txt || '').trim();
-    if (!/^https:\/\/[^\s]{4,300}$/.test(txt)) { toast('Use a full web address starting https://', 4000); return false; }
-    if (ttSvcs.length >= 9) { toast('Remove a service first (nine at most)', 4000); return false; }
-    if (ttSvcs.some(function (x) { return x.url === txt; })) { toast('That service is already there', 3000); return false; }
-    ttSvcs.push({ url: txt, name: ttHost(txt) }); ttSvcSave();
-    toast('Added ' + ttHost(txt), 3000);
-    return true;
-  }
-  function ttPhoneStop() { clearInterval(tt && tt.poll); if (tt) tt.poll = null; try { NativeHttp.addonStop(); } catch (e) { /* ignore */ } }
   function ttBuild(num) {
     var now = Date.now(), body = [], i;
     if (num === 100) {
-      var items = [['On now', 110], ['Tonight on TV', 120], ['Coming up next', 130], ['On this day', 140], ['Other services', 900], ['About Telly Addicts', 190]];
+      var items = [['On now', 110], ['Tonight on TV', 120], ['Coming up next', 130], ['On this day', 140], ['Channel schedules', 150], ['About Telly Addicts', 190]];
       body.push('');
       items.forEach(function (it) { var d = ''; for (var k = it[0].length; k < 31; k++) d += '.'; body.push('{c}' + it[0] + ' ' + d + '{w} ' + it[1]); });
       body.push('');
@@ -3904,35 +3875,21 @@
       all.unshift('');
       return ttPages(140, ' ON THIS DAY', all, [100, 110, 130, 120], '{r}Index {g}On now {y}Next {c}Tonight');
     }
-    if (num === 900) {
+    if (num === 150) {
       body = [''];
-      if (!ttSvcs.length) body.push('{w}No services added yet.');
-      ttSvcs.forEach(function (x, i) { body.push('{c}' + ttPad(x.name, 26) + '{w}' + (901 + i) + ' {r}x' + (911 + i)); });
-      body.push(''); body.push('{c}Add by typing the address ..... {w}990'); body.push('{c}Add from your phone ......... {w}991');
-      body.push(''); body.push('{w}A service is an https address of'); body.push('{w}.tti teletext page files. Its pages'); body.push('{w}come from its owners.');
-      body.push('{w}Only add services you may use.'); body.push('{w}The app keeps only the address.');
-      return ttPages(900, ' OTHER SERVICES', body, [100, 110, 130, 120]);
+      ready().forEach(function (c) { if (c.n < 100) body.push('{c}' + ttPad(c.name, 30) + '{w}' + (200 + c.n)); });
+      return ttPages(150, ' CHANNELS', body, [100, 110, 130, 120]);
     }
-    if (num === 991) {
-      var addr = '';
-      try { tt.code = tt.code || String(1000 + Math.floor(Math.random() * 9000)); addr = NativeHttp.addonInbox(tt.code) || ''; } catch (e) { addr = ''; }
-      body = [''];
-      if (!addr) { body.push('{r}The TV is not on a network.'); }
-      else {
-        body.push('{w}On a phone on the same Wi-Fi open:'); body.push('{y}' + addr.replace(/^http:\/\//, '')); body.push(''); body.push('{w}Code {y}' + tt.code); body.push('');
-        body.push('{w}Paste the service address and press'); body.push('{w}Send. This page waits for it.');
-        clearInterval(tt.poll);
-        tt.poll = setInterval(function () {
-          var l = ''; try { l = NativeHttp.addonTake() || ''; } catch (e) { l = ''; }
-          if (!l) return;
-          ttPhoneStop();
-          if (ttSvcAdd(l)) { tt.num = 0; ttGo(900, true); }
-        }, 1500);
-      }
-      return ttPages(991, ' FROM YOUR PHONE', body, [100, 900, 130, 120]);
+    if (num >= 200 && num < 300) {
+      var ch = ready().filter(function (c) { return c.n === num - 200; })[0];
+      if (!ch) return null;
+      body = ['{y}' + ttPad(ch.name, 38)];
+      var bl = E.blockAt(ch.sched, now), k = 0;
+      while (bl && bl.prog && k < 40) { body.push('{c}' + fmtTime(bl.startMs) + ' {w}' + ttPad(gmName(bl.prog), 33)); bl = E.stepBlock(ch.sched, bl, 1); k++; }
+      return ttPages(num, ' ' + ttAscii(ch.name).toUpperCase().slice(0, 30), body, [150, 110, 130, 120]);
     }
     if (num === 190) {
-      body = ['', '{w}Telly Addicts is a free hobby project.', '{w}Every page here is built by the app', '{w}from your own guide.', '', '{c}Colour keys on the bottom row are', '{c}the four links under them: move to', '{c}one with the arrows and press OK.', '', '{y}Hold OK to type a page number.', '{y}Back goes to the page before.'];
+      body = ['', '{w}Telly Addicts is a free hobby project.', '{w}Every page here is built by the app', '{w}from your own guide, on this TV.', '', '{c}Arrows move between page numbers and', '{c}the four links on the bottom row.', '{c}OK opens one.', '', '{y}Hold OK to type a page number.', '{y}Back goes to the page before.'];
       return ttPages(190, ' ABOUT', body, [100, 110, 130, 120]);
     }
     return null;
@@ -3948,36 +3905,8 @@
       tt.sub = (tt.sub + 1) % tt.pages.length; ttDraw();
     }, 8000);
   }
-  function ttClose() { if (tt) { clearInterval(tt.timer); ttPhoneStop(); } tt = null; $('tt').className = 'hidden'; }
+  function ttClose() { if (tt) { clearInterval(tt.timer); } tt = null; $('tt').className = 'hidden'; }
   function ttGo(n, noHist) {
-    if (tt.poll) ttPhoneStop();
-    if (n === 990) { kbOpen({ title: 'Teletext service address (https)', label: 'Add', sym: 1, value: 'https://', save: function (txt) { if (tt && ttSvcAdd(txt)) { tt.num = 0; ttGo(900, true); } } }); return; }
-    if (n >= 911 && n <= 919 && !tt.svc) { var x = ttSvcs.splice(n - 911, 1); if (x.length) { ttSvcSave(); toast('Removed ' + x[0].name, 2500); } tt.num = 0; ttGo(900, true); return; }
-    if (n >= 901 && n <= 909 && !tt.svc) {
-      var sv = ttSvcs[n - 901];
-      if (!sv) { toast('Page ' + n + ' is not available', 2500); return; }
-      sv.pages = sv.pages || {};
-      toast('Loading ' + sv.name + '\u2026', 8000);
-      ttSvcPage(sv, 100, function (pg) {
-        if (!tt) return;
-        if (!pg) { toast('Could not load ' + sv.name + '. Check the address and the TV is online.', 6000); return; }
-        toast('', 1);
-        if (!noHist && tt.num) tt.hist.push(tt.num);
-        tt.svc = sv; tt.num = 100; tt.pages = pg; tt.sub = 0; tt.li = 0; ttDraw();
-      });
-      return;
-    }
-    if (tt.svc) {
-      if (n === 900 || n < 100) { tt.svc = null; tt.num = 0; ttGo(900, true); return; }
-      var sv2 = tt.svc;
-      ttSvcPage(sv2, n, function (pg) {
-        if (!tt || tt.svc !== sv2) return;
-        if (!pg) { toast('Page ' + n + ' is not on ' + sv2.name, 3000); return; }
-        if (!noHist && tt.num) tt.hist.push(tt.num);
-        tt.num = n; tt.pages = pg; tt.sub = 0; tt.li = 0; ttDraw();
-      });
-      return;
-    }
     var pg = ttBuild(n);
     if (!pg) { toast('Page ' + n + ' is not available', 2500); return; }
     if (!noHist && tt.num) tt.hist.push(tt.num);
@@ -3990,7 +3919,6 @@
     if (tt.li >= tt.links.length) tt.li = 0;
     T().draw(cv, pg, true);
     T().mark(cv, tt.links[tt.li]);
-    $('ttf').textContent = tt.svc ? 'Pages from ' + tt.svc.name + ' \u00b7 Back for the previous page' : 'Arrows choose a page \u00b7 OK opens it \u00b7 hold OK to type a number \u00b7 Back';
   }
   function ttPadRender() {
     var el = $('ttpad');
@@ -4023,7 +3951,7 @@
     if (/^[0-9]$/.test(k)) { tt.pad = { d: '', i: 0 }; ttPadPress(k); return; }
     if (k === 'Info' || k === 'Menu' || k === 'ContextMenu') { tt.pad = { d: '', i: 0 }; ttPadRender(); return; }
     if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {
-      if (tt.hist.length) { var n = tt.hist.pop(); tt.num = 0; ttGo(n, true); } else if (tt.svc) { tt.svc = null; tt.num = 0; ttGo(900, true); } else ttClose();
+      if (tt.hist.length) { var n = tt.hist.pop(); tt.num = 0; ttGo(n, true); } else ttClose();
       return;
     }
     var L = tt.links;

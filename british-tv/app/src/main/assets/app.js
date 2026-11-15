@@ -3880,7 +3880,7 @@
   }
   function adPlay(ch, g, ep, x) {
     var s = x.s, url = s.ytId ? 'yt:' + s.ytId : s.url;
-    var prog = { id: 'addon/' + x.addon + '/' + (g.name || ''), item: 'addon', url: url, title: g.name + (g.film ? '' : ' S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1)), sub: x.addon, dur: 0, lenKnown: 0, show: g.name, group: g.name, addon: 1, afilm: !!g.film };
+    var prog = { id: 'addon/' + x.addon + '/' + (g.name || ''), item: 'addon', url: url, title: g.name + (g.film ? '' : ' S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1)), sub: x.addon, dur: 0, lenKnown: 0, show: g.name, group: g.name, addon: 1, afilm: !!g.film, q: x.q || adQuality(s) };
     var bgp = s.behaviorHints && s.behaviorHints.bingeGroup;
     if (bgp) { adBg[normShow(g.name)] = bgp; store.set('adbg1', adBg); }
     adLast[adKeyOf(g, ep)] = { t: Date.now(), s: s, addon: x.addon, label: x.label };
@@ -5333,12 +5333,22 @@
     return (h ? h + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (s < 10 ? '0' : '') + s;
   }
 
+  /** The source badge for what is playing: the addons (green) or the archive (blue); nothing for anything else (adverts, YouTube). */
+  function osdSource(p) {
+    if (!p || p.ad) return null;
+    if (p.addon) return { c: 'addon', t: '\u26A1 ADDON' + (p.q ? ' \u00b7 ' + (p.q === 2160 ? '4K' : p.q + 'p') : '') };
+    if (/^https?:\/\/([a-z0-9-]+\.)*archive\.org\//i.test(String(p.url || ''))) return { c: 'archive', t: 'ARCHIVE.ORG' };
+    return null;
+  }
   function renderOsd() {
     if (!cur) return;
     var sched = cur.ch.sched;
     var next = cur.od ? odPeek() : sched.order[(cur.index + 1) % sched.order.length];
     $('onum').textContent = cur.ch.n;
     $('ochan').textContent = cur.ch.name;
+    // where the picture comes from: a badge beside the channel name
+    var sb = osdSource(cur.prog);
+    if (sb) { var bd = document.createElement('span'); bd.className = 'srcb ' + sb.c; bd.textContent = sb.t; $('ochan').appendChild(bd); }
     $('otitle').textContent = cur.prog.title;
     $('osub').textContent = cur.prog.sub || '';
     $('onext').textContent = '';

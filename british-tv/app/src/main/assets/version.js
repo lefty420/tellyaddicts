@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.89",
-  "version": "0.46.89",
-  "code": 4689,
+  "name": "Alpha 0.46.90",
+  "version": "0.46.90",
+  "code": 4690,
   "date": "2026-11-15",
   "notes": [
-    "**Films played from an addon keep their own details**: a film started from your addons lost its link to the library's film record (the TMDb plot, cast and poster), so Info and the artwork looked it up as a TV show by name. \"Lethal Weapon\" could pick up the 2016 series, \"Jumanji\" the cartoon. It now keeps the library's film record, also when replayed from Saved sources.",
-    "**Film backdrops never come from a TV show**: a film's picture is its own poster, or one you chose by hand. A TV show with the same name (Jumanji, Police Academy, Back to the Future, Dumb and Dumber) is no longer used for its backdrop."
+    "**VHS OLED**: a new picture look, first in the list after Off (Options > Picture). It is the VHS look, but the scanlines swap places with the gaps between them every ten minutes (and when a new video starts, after two minutes), so no row of pixels on an OLED TV is always the dimmed one. The other looks are unchanged."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.89",
+      "date": "2026-11-15",
+      "notes": [
+        "**Films played from an addon keep their own details**: a film started from your addons lost its link to the library's film record (the TMDb plot, cast and poster), so Info and the artwork looked it up as a TV show by name. \"Lethal Weapon\" could pick up the 2016 series, \"Jumanji\" the cartoon. It now keeps the library's film record, also when replayed from Saved sources.",
+        "**Film backdrops never come from a TV show**: a film's picture is its own poster, or one you chose by hand. A TV show with the same name (Jumanji, Police Academy, Back to the Future, Dumb and Dumber) is no longer used for its backdrop."
+      ]
+    },
     {
       "name": "Alpha 0.46.88",
       "date": "2026-11-15",
@@ -61,14 +68,6 @@ window.RELEASE = {
       "notes": [
         "**Debug log keeps your debrid key out**: addon and debrid addresses are now written down as just the site's name (for example `torrentio.strem.fun/…`), and any long key-shaped run of letters and digits is blanked. Before, a Torrentio-style link (`…/realdebrid=KEY/…`) went into the log whole. Logs already saved on the TV are cleaned the first time this version starts.",
         "**Live view and the shared log need the code on screen**: the Live view code is now 10 random characters instead of 4 digits, so it can no longer be guessed. The shared debug log (and the EPG and gaps pages) now has a code in its address too; before, anyone on the same Wi-Fi could read it. Open the address exactly as the TV shows it, including the part after the question mark."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.81",
-      "date": "2026-11-15",
-      "notes": [
-        "**Tiny guide cells**: a programme cell only a few letters wide no longer shows a useless \"Sc...\" or \"O...\". It shows the first word if that fits, otherwise a dot; the full title is in the big header when you focus it.",
-        "**Update message moved**: \"Updated to Alpha ...\" now appears at the bottom of the screen instead of over the TV Guide header and clock."
       ]
     }
   ]

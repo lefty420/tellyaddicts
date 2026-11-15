@@ -62,7 +62,8 @@ but no picture are skipped.
 - The guide redraws rather than rebuilds: moving the highlight only changes the highlight.
 - On Demand moves only the highlight when a key stays inside the posters on screen, remembers pictures it has found,
   and loads the large background only once the highlight rests.
-- VHS and VHS 2 filter the video itself. If more than a fifth of the frames in a 4 second window are dropped, only
+- VHS OLED is VHS with its scanlines moved half a spacing every ten minutes (and at a new video after two minutes), so an OLED panel does not always dim the same pixel rows.
+- VHS, VHS OLED and VHS 2 filter the video itself. If more than a fifth of the frames in a 4 second window are dropped, only
   the blur is removed until the next programme.
 
 ## On Demand

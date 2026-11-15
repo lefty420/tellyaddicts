@@ -4349,8 +4349,8 @@
   }
 
   // ---- picture looks: CSS only (filters on the video, plus an overlay for CRT)
-  var FXMODES = ['off', 'vhs', 'vhs2', 'vivid', 'sharp', 'lines', 'grille', 'glass', 'portable', 'dots'];
-  var FXLABEL = { off: 'Off', vhs: 'VHS', vhs2: 'VHS 2', vivid: 'Vivid', sharp: 'Sharp',
+  var FXMODES = ['off', 'vhsoled', 'vhs', 'vhs2', 'vivid', 'sharp', 'lines', 'grille', 'glass', 'portable', 'dots'];
+  var FXLABEL = { off: 'Off', vhsoled: 'VHS OLED', vhs: 'VHS', vhs2: 'VHS 2', vivid: 'Vivid', sharp: 'Sharp',
                   lines: 'Scanlines', grille: 'Aperture grille', glass: 'Curved glass',
                   portable: 'Portable set', dots: 'Shadow mask' };
   var fxMode = 'off';
@@ -4367,7 +4367,7 @@
     clearInterval(fxTimer); fxLast = null;
     if (fxLiteCount >= 2) { document.body.classList.add('fx-lite'); return; }      // this TV cannot keep up with the blur: no point dropping frames to find out again
     document.body.classList.remove('fx-lite');
-    if ((fxMode !== 'vhs' && fxMode !== 'vhs2') || !v.getVideoPlaybackQuality) return;
+    if ((fxMode !== 'vhs' && fxMode !== 'vhsoled' && fxMode !== 'vhs2') || !v.getVideoPlaybackQuality) return;
     fxTimer = setInterval(function () {
       if (v.paused || document.body.classList.contains('guide-open')) { fxLast = null; return; }
       var q = v.getVideoPlaybackQuality(), p = fxLast;
@@ -4381,9 +4381,23 @@
     }, 4000);
   }
   v.addEventListener('loadstart', function () { fxLast = null; if (fxLiteCount < 2) document.body.classList.remove('fx-lite'); });
+  // VHS OLED: the VHS lines swap places with their gaps every ten minutes (and at a new video once two minutes have passed), so no
+  // row of an OLED panel is always the dimmed one and wears differently from its neighbours.
+  var fxShifted = 0, fxShiftAt = 0, fxShiftTimer = null;
+  function fxShift(force) {                          // force: 0 = start, -1 = stop, undefined = swap now
+    clearInterval(fxShiftTimer); fxShiftTimer = null;
+    if (force === -1) { document.body.style.removeProperty('--fxs'); return; }
+    if (force !== 0) fxShifted = fxShifted ? 0 : 1;
+    fxShiftAt = Date.now();
+    document.body.style.setProperty('--fxs', fxShifted ? '.2vh' : '0px');
+    fxShiftTimer = setInterval(function () { fxShift(); }, 600000);
+  }
+  v.addEventListener('loadstart', function () { if (fxMode === 'vhsoled' && Date.now() - fxShiftAt > 120000) fxShift(); });
   function applyFx() {
-    FXMODES.forEach(function (m) { document.body.classList.remove('fx-' + m); });
+    FXMODES.concat('vhs').forEach(function (m) { document.body.classList.remove('fx-' + m); });
     document.body.classList.add('fx-' + fxMode);
+    if (fxMode === 'vhsoled') document.body.classList.add('fx-vhs');     // the VHS look, plus lines that move (below)
+    fxShift(fxMode === 'vhsoled' ? 0 : -1);
     if (fxMode === 'vhs2') {
       // lines and gaps in whole device pixels, so they do not drift into thick and thin bands
       var dpr = window.devicePixelRatio || 1, N = Math.max(3, Math.round(window.innerHeight * dpr / 216));
@@ -4975,7 +4989,7 @@
     mclear: 'Forgets the saved artwork, episode details and downloaded pictures, so they are fetched again fresh. Shows what is stored now.',
     od: 'Browse every channel\u2019s shows, series and episodes, and play any of them from the start.',
     ar: 'Auto, Smart, 4:3, 16:9, Zoom or Stretch. Auto shows each programme in the ratio it was made in. Smart keeps old 4:3 pictures the right shape and fills the sides with a soft copy of the picture.',
-    fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness.',
+    fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness. VHS OLED is the VHS look with its lines swapped with the gaps every ten minutes, so an OLED screen wears evenly.',
     gart: 'Posters and backdrops in the guide and on the bar. Off keeps things plain.',
     ads: 'Adverts between programmes, matched to the year of what you are watching. UK first, and never on the BBC.',
     player: 'A few videos have no sound, or will not play at all, in the normal player. When that happens the app can switch to a second, built-in player that handles them. Automatic does this by itself, only for the videos that need it, and remembers them. Never keeps the normal player for everything. Always uses the second player for every video (the VHS and Smart ratio looks do not work with it).',

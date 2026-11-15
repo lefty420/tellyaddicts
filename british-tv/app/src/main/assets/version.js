@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.3",
-  "version": "0.47.3",
-  "code": 4703,
+  "name": "Alpha 0.47.4",
+  "version": "0.47.4",
+  "code": 4704,
   "date": "2026-11-15",
   "notes": [
-    "Magic EPG reads the scraper's own episode file (data/epdb.json, v2): several files when it is split (epdb-1.json ...), a new copy only when the revision in index.json changes, and each episode's running time when it has one. Until the scraper publishes it, the packed copy from tools/build_epdb.py is used (the tool no longer overwrites a v2 file).",
-    "The episode database and the TV's own episode lists are kept in files, not the page's small storage."
+    "Options > Experimental: new \"Content\" (Everything by default, or British). British hides the shows the scraper has flagged as never shown on UK TV (mostly US drama) from the guides, On Demand and Magic EPG; UK-made shows, US shows that aired here, and any show it is unsure about stay. It reads data/uk.json (flags with u:0 are the ones hidden), which the scraper has still to publish: until then nothing is hidden. Turning it on or off restarts the guides."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.3",
+      "date": "2026-11-15",
+      "notes": [
+        "Magic EPG reads the scraper's own episode file (data/epdb.json, v2): several files when it is split (epdb-1.json ...), a new copy only when the revision in index.json changes, and each episode's running time when it has one. Until the scraper publishes it, the packed copy from tools/build_epdb.py is used (the tool no longer overwrites a v2 file).",
+        "The episode database and the TV's own episode lists are kept in files, not the page's small storage."
+      ]
+    },
     {
       "name": "Alpha 0.47.2",
       "date": "2026-11-15",
@@ -66,15 +73,6 @@ window.RELEASE = {
         "Guide cells and header clean up file-style names: dots/underscores become spaces, codec and release tags (HEVC, x265, 1080p, WEB-DL...) and leading track numbers go.",
         "Very narrow guide cells (under about 170 px) show the first word or a dot, with no arrows or \"…\".",
         "On Demand \"OK Open\" hint is bigger; the guide's episode line is bigger."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.95",
-      "date": "2026-11-15",
-      "notes": [
-        "**A paused picture now dims too**: the five-minute dim only counted the guide, On Demand, the bar and the other panels, so a paused frame could sit on an OLED screen for hours. A paused programme now fades to the dim after five minutes with no key pressed, like any other still screen.",
-        "**VHS OLED has no fixed edge tint**: the VHS look adds a faint red strip down the left edge and a blue one down the right. In VHS OLED they stayed in the same place for ever, so those pixels wore differently from the rest. The tint is now left out in VHS OLED (the normal VHS look keeps it).",
-        "**The key that wakes a dimmed screen only wakes it**: before, pressing OK to bring the guide back also pressed OK on the highlighted programme and tuned to it. The first key is now used up waking the screen."
       ]
     }
   ]

@@ -475,6 +475,7 @@
       epsMap = (j && j.eps && typeof j.eps === 'object') ? j.eps : null;
       removedRev = (j && j.removed) ? String(j.removed) : '';
       adsRev = (j && j.adverts) ? String(j.adverts) : '';
+      ukRev = (j && j.uk) ? String(j.uk) : '';
       epdbRev = (j && j.epdb) ? String(j.epdb) : ''; epdbFiles = j && j.epdbFiles instanceof Array && j.epdbFiles.length ? j.epdbFiles : null;
       var chans = (j && j.channels) || {};
       libWant = (j && j.library) ? String(j.library) : '';
@@ -1888,6 +1889,34 @@
   // The complete-episodes database (data/epdb.json, built by tools/build_epdb.py from the whole library) comes first;
   // a show it does not have falls back to this device's own lookups (epl1:<show>).
   var epdb = null, epdbP = null, epdbRev = '', epdbFiles = null;
+  // ---- Content: British hides the shows the scraper flags as never on UK TV (data/uk.json, u:0). Unknown shows stay in.
+  var ukOn = store.get('uk1') === 'on', ukMap = null, ukP = null, ukRev = '';
+  function loadUk() {
+    if (!ukOn) return Promise.resolve();
+    if (ukP) return ukP;
+    return (ukP = loadDataIndex().then(null, function () { /* no index: the plain file name below */ }).then(function () {
+      var c = store.get('uk1m'), kept = c && c.d;
+      if (kept && (ukRev ? c.rev === ukRev : Date.now() - c.t < 86400000)) { ukMap = c.d; return; }
+      return getJSON(DATA_BASE + 'uk.json').then(function (j) {
+        var m = {};
+        if (j && j.shows) Object.keys(j.shows).forEach(function (k) { if (j.shows[k] && j.shows[k].u === 0) m[k] = 1; });   // only the "no"s matter
+        ukMap = m; try { store.set('uk1m', { t: Date.now(), rev: ukRev, d: m }); } catch (e) { /* fetched again next start */ }
+      }, function () { ukMap = kept ? c.d : null; dlog('CONTENT: no uk.json published yet'); });
+    }));
+  }
+  function ukHide(p) { return !!(ukOn && ukMap && ukMap[normShow(gmName(p))]); }
+  /** British: drop the flagged shows; never leaves a channel with fewer than three programmes. */
+  function ukFilter(progs) {
+    if (!ukOn || !ukMap) return progs;
+    var f = progs.filter(function (p) { return !ukHide(p); });
+    return f.length >= 3 ? f : progs;
+  }
+  function changeUk() {
+    ukOn = !ukOn; store.set('uk1', ukOn ? 'on' : 'off'); renderOpts();
+    toast(ukOn ? 'Content: British. Rebuilding the guides\u2026' : 'Content: Everything. Rebuilding the guides\u2026', 3000);
+    clearTimeout(spanTimer);
+    spanTimer = setTimeout(function () { location.reload(); }, 2200);
+  }
   function loadEpdb() {
     if (!depgActive()) return Promise.resolve();
     if (epdbP) return epdbP;
@@ -5069,7 +5098,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -5083,6 +5112,7 @@
     if (id === 'ammain') return !expOn ? 'Turn Experimental on first' : amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
     if (id === 'depg') return !expOn ? 'Turn Experimental on first' : depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
     if (id === 'join') return !expOn ? 'Turn Experimental on first' : joinOn ? 'On  \u00b7  starts where the clock is' : 'Off  \u00b7  starts from the beginning';
+    if (id === 'uk') return ukOn ? 'British  \u00b7  US shows that were never on UK TV are hidden' : 'Everything';
     if (id === 'adlang') return adLang === 'en' ? 'English only' : 'Any';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
@@ -5192,6 +5222,7 @@
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
     ammain: 'With this on, every programme that has an episode number, and every film, is first looked up with your addons while the loading screen or a "Scraping your debrid" message is showing, and plays from the best link they find. If they find nothing, or the link will not play, the library link plays instead. It plays from the start rather than joining part way through.',
+    uk: 'Everything shows the whole library. British hides shows the scraper has marked as never shown on UK TV (mostly US drama), and keeps UK-made shows and the US ones that did air here, such as cartoons. Shows it is unsure about stay.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
     join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
@@ -5387,6 +5418,7 @@
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
     else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
+    else if (id === 'uk') changeUk();
     else if (id === 'depg') changeDepg();
     else if (id === 'join') { if (!expOn) toast('Turn Experimental on first', 3000); else { joinOn = !joinOn; store.set('join1', joinOn ? 'on' : 'off'); renderOpts(); } }
     else if (id === 'adlang') changeLang();
@@ -6006,9 +6038,9 @@
     }).then(function (all) {
       return ytLoad().then(function (yt) { var y = ytProgs(yt, ch.id); return y.length ? all.concat(y) : all; });
     }).then(function (all) {
-      return loadEpdb().then(function () { return all; });          // Magic EPG: the episode database is in before the shows are grouped
+      return Promise.all([loadEpdb(), loadUk()]).then(function () { return all; });          // Content, and Magic EPG: the episode database is in before the shows are grouped
     }).then(function (all) {
-      var progs = all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); });
+      var progs = ukFilter(all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); }));
       if (!OD_FILMS[ch.id]) progs = virtualFill(ch, progs, true);      // Magic EPG: every episode the scrapers know, not only the ones with a file
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
@@ -6945,12 +6977,12 @@
     });
     order.forEach(function (c) {
       loadPrograms(c).then(function (progs) {
-        return loadEpdb().then(function () { return progs; });   // Magic EPG: the episode database is in before the first guide is built
+        return Promise.all([loadEpdb(), loadUk()]).then(function () { return progs; });   // Magic EPG and Content: their data is in before the first guide is built
       }).then(function (progs) {
         return progs;   // Auto EPG stands on the library alone; a channel it has nothing for stays empty
       }).then(function (progs) {
         if (progs && progs.length) {
-          progs = dropSlow(virtualFill(c, progs));
+          progs = dropSlow(virtualFill(c, ukFilter(progs)));
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           progs = withBreaks(c, progs);
           var seed = c.id + (epgGen ? ':' + epgGen : '');

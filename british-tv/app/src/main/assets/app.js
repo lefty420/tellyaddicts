@@ -2287,6 +2287,7 @@
 
   function playSlot(ch, index, offset, announce, tuning, progOverride) {
     var prog = progOverride || ch.sched.order[index];   // progOverride: Play Next plays an episode that is not in the schedule
+    if (amTake(ch, index, offset, announce, tuning, progOverride, prog)) return;
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
     pbStart(prog.url, offset);
@@ -2461,6 +2462,7 @@
       cur.adYear = y;                                // carried onto the first advert
       return playAd(cur.ch, cur.index, cur.prog.adPad);
     }
+    if (cur && cur.am && !cur.od) { var am = cur.am; adFall = null; playSlot(am.ch, (am.index + 1) % am.ch.sched.order.length, 0, true); return; }   // main-source mode: on to the channel's next programme
     if (cur && cur.prog && cur.prog.addon) {                  // it played to the end: nothing to fall back to
       var fe = adFall; adFall = null;
       if (fe && fe.auto && !fe.g.film && fe.ep) { adSources(fe.g, { s: fe.ep.s || 1, e: (fe.ep.e || 1) + 1 }, false, fe.ch, true); return; }     // auto-play: the next episode, same release group first
@@ -2607,7 +2609,9 @@
       var nx = adFall.q.shift();
       if (!nx && adFall.retry) { var f0 = adFall; adFall = null; toast('That source has stopped working, looking again', 3000); adSources(f0.g, f0.ep, true, f0.ch, !!f0.auto); return; }
       if (nx) { toast('That source failed, trying the next', 3000); adPlay(adFall.ch, adFall.g, adFall.ep, nx); return; }
-      adFall = null; v.pause(); toast('No other source worked', 4000); odOpenUi(); return;
+      var fl = adFall.lib; adFall = null;
+      if (fl) { toast('No addon source worked, using the library', 3500); amFallback(fl, 'every source failed'); return; }
+      v.pause(); toast('No other source worked', 4000); odOpenUi(); return;
     }
     if (cur.od) return odStep(1);               // On Demand: the next episode of the show, not the channel's running order
     playSlot(cur.ch, (cur.index + 1) % cur.ch.sched.order.length, 0, true);
@@ -3895,6 +3899,91 @@
     dlog('ADDON PLAY ' + x.addon + ' | ' + x.label + ' | ' + url);
     odStart(ch, [{ p: prog, s: 0, e: 0 }], 0, 0, '');
   }
+  // ---- Use addons as a main source (Options > Experimental): every programme with an episode number, and every film,
+  // is first looked up with the addons and played from the best link; the library's own link is the fallback.
+  var amOn = store.get('am1') === 'on', amSkip = false, amPre = null;
+  function amActive() { return amOn && expOn && adLive().length > 0; }
+  /** The title and episode to look up for a programme, or null when it is not an episode or a film. */
+  function amReq(p) {
+    if (!p || p.ad || p.adBlock || p.addon || p.song) return null;
+    var ref = window.LINKS && LINKS.parseEp(p.title), film = !!(p.filmKey || p.afilm);
+    if (!film && !ref) return null;
+    var name = film && p.filmKey ? (filmFor(p) || {}).title || gmName(p) : gmName(p);
+    return { g: { name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, year: film ? filmYear(p) : 0 }, ep: ref ? { s: ref.s, e: ref.e } : {} };
+  }
+  /** Ask the addons without any screen of their own: resolves with the usable sources, best first (empty when none). */
+  function amScrape(g, ep) {
+    return new Promise(function (resolve) {
+      var done = false, finish = function (list) { if (!done) { done = true; resolve(list || []); } };
+      setTimeout(function () { finish([]); }, 15000);
+      var hit = adLast[adKeyOf(g, ep)];
+      if (hit && Date.now() - hit.t < 259200000) { finish([{ s: hit.s, addon: hit.addon, label: hit.label, q: 0 }]); return; }
+      adCurTitle = String(g.name || '');
+      var film = !!g.film, live = adLive();
+      adResolve(g.name, film, film ? (g.year || 0) : 0).then(function (r) {
+        if (!r || !r.imdb || (adCut && r.year && r.year >= 2000)) { finish([]); return; }
+        var id = film ? r.imdb : r.imdb + ':' + (ep.s || 1) + ':' + (ep.e || 1), type = film ? 'movie' : 'series';
+        var targets = live.filter(function (a) { var x = adRes(a, 'stream'); return x && x.types.indexOf(type) >= 0 && (!x.pre || x.pre.some(function (q) { return id.indexOf(q) === 0; })); });
+        if (!targets.length) { finish([]); return; }
+        var all = [], answered = 0;
+        var rank = function () {
+          var pref = function (q) { return q === 1080 ? 3 : q === 720 ? 2 : 1; };
+          return all.filter(function (x) { return !x.why; }).map(function (x, k) { x.k = k; return x; }).sort(function (a, b) {
+            var la = adLangs(a.s), lb = adLangs(b.s), ea = la.en ? (la.other.length ? 0 : 2) : 1, eb = lb.en ? (lb.other.length ? 0 : 2) : 1;
+            var da = adIsDebrid(a.s) ? 1 : 0, db = adIsDebrid(b.s) ? 1 : 0;
+            return db - da || (adLang === 'en' ? eb - ea : 0) || pref(b.q) - pref(a.q) || a.k - b.k;
+          });
+        };
+        targets.forEach(function (a) {
+          adTmo(adHttp(a.base + '/stream/' + type + '/' + encodeURIComponent(id).replace(/%3A/g, ':') + '.json'), 8000).then(function (t) {
+            (JSON.parse(t).streams || []).slice(0, 40).forEach(function (s) {
+              all.push({ s: s, q: adQuality(s), size: adSize(s), why: adWhy(s), label: String(s.title || s.description || s.name || 'Stream').split('\n')[0].slice(0, 90), addon: a.name });
+            });
+          }).catch(function () { /* this addon did not answer */ }).then(function () {
+            answered++;
+            var l = rank();
+            if (l.length && (answered >= targets.length || l[0].q === 1080 || (adIsDebrid(l[0].s) && l[0].q >= 720))) finish(l);
+            else if (answered >= targets.length) finish([]);
+          });
+        });
+      }, function () { finish([]); });
+    });
+  }
+  /** Play the library's own link (the fallback), carrying On Demand's place in its list when there was one. */
+  function amFallback(lib, why) {
+    hideNoSignal();
+    dlog('ADDONS MAIN SOURCE: ' + why + ', playing the library link');
+    amSkip = true;
+    try { playSlot(lib.ch, lib.index, lib.offset, !!lib.announce, !!lib.tuning, lib.po); if (lib.od && cur) cur.od = lib.od; }
+    finally { amSkip = false; }
+  }
+  /** Called at the top of playSlot: true when the addons are going to be tried first (the library plays only if they fail). */
+  function amTake(ch, index, offset, announce, tuning, po, prog) {
+    if (amSkip || !amActive()) return false;
+    var rq = amReq(prog);
+    if (!rq) return false;
+    var od = cur && cur.od, lib = { ch: ch, index: index, offset: offset, announce: announce, tuning: tuning, po: po, od: od };
+    cur = { ch: ch, index: index, prog: prog, errors: 0, amWait: 1 };
+    if (od) cur.od = od;
+    var me = cur;
+    try { v.pause(); } catch (e) { /* nothing was playing */ }
+    store.set('last', ch.id);
+    if (announce) showBanner();
+    var pre = amPre && amPre.k === adKeyOf(rq.g, rq.ep) ? amPre : null; amPre = null;
+    var go = function (list) {
+      if (cur !== me) return;                                  // the viewer changed channel while it was looking
+      if (!list.length) { amFallback(lib, 'no source found'); return; }
+      hideNoSignal();
+      adFall = { ch: ch, g: rq.g, ep: rq.ep, q: list.slice(1), auto: 0, lib: lib };
+      dlog('ADDONS MAIN SOURCE: ' + rq.g.name + ' | ' + list[0].addon);
+      adPlay(ch, rq.g, rq.ep, list[0]);
+      if (cur && cur.prog && cur.prog.addon) { if (od) cur.od = od; else cur.am = { ch: ch, index: index }; }
+    };
+    if (pre) { go(pre.list); return true; }
+    showNoSignal('Scraping your debrid…');
+    amScrape(rq.g, rq.ep).then(go, function () { go([]); });
+    return true;
+  }
   /** Find sources and auto play for a programme from the guide or the one playing (the OSD bar and the guide's hold-OK menu). */
   function adFromProg(p, ch, auto) {
     if (!p) return;
@@ -4793,7 +4882,7 @@
     { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'adlang', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'addons', 'ammain', 'adlang', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -4804,6 +4893,7 @@
   function optValue(id) {
     if (id === 'exp') return expOn ? 'On' : 'Off';
     if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
+    if (id === 'ammain') return !expOn ? 'Turn Experimental on first' : amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
     if (id === 'adlang') return adLang === 'en' ? 'English only' : 'Any';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
@@ -4910,6 +5000,7 @@
   var OPT_HELP = {
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
+    ammain: 'With this on, every programme that has an episode number, and every film, is first looked up with your addons while the loading screen or a "Scraping your debrid" message is showing, and plays from the best link they find. If they find nothing, or the link will not play, the library link plays instead. It plays from the start rather than joining part way through.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
@@ -5100,6 +5191,7 @@
     var id = OPTS[optsSel];
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
+    else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
     else if (id === 'adlang') changeLang();
     else if (id === 'adrec') { closeOpts(); adRecent(); }
     else if (id === 'adcut') changeAdcut();
@@ -6578,12 +6670,20 @@
     // stay on the loading screen until every channel has answered (or a slow connection runs out the clock)
     if (Date.now() - bootedAt < ALL_WAIT && channels.some(function (c) { return c.status === 'loading'; })) return;
     started = true;
-    $('splash').className = 'hidden';
-    clearInterval(spNoiseTimer); spNoiseTimer = null; clearInterval(bootTimer);   // nothing needs waking up 9 times a second now
     var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];
-    tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
-    openGuide();               // ... but land in the TV guide
-    greetRelease();            // and say once if this is a version they have not run before
+    var land = function () {
+      $('splash').className = 'hidden';
+      clearInterval(spNoiseTimer); spNoiseTimer = null; clearInterval(bootTimer);   // nothing needs waking up 9 times a second now
+      tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
+      openGuide();               // ... but land in the TV guide
+      greetRelease();            // and say once if this is a version they have not run before
+    };
+    // Use addons as a main source: look the first programme up while the loading screen is still up
+    var slot = amActive() && pick && pick.sched && E.at(pick.sched, Date.now());
+    var rq = slot && amReq(pick.sched.order[slot.index]);
+    if (!rq) { land(); return; }
+    var sm = $('spmsg'); if (sm) sm.textContent = 'Scraping your debrid\u2026';
+    amScrape(rq.g, rq.ep).then(function (list) { amPre = { k: adKeyOf(rq.g, rq.ep), list: list }; land(); }, function () { land(); });
   }
 
   /** Throw away stored lineups for channels that no longer exist, so a retired channel (On This Day, which

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.72",
-  "version": "0.46.72",
-  "code": 4672,
+  "name": "Alpha 0.46.73",
+  "version": "0.46.73",
+  "code": 4673,
   "date": "2026-11-15",
   "notes": [
-    "**OSD buttons wrap round**: pressing Left on the first button (TV Guide) goes to the last (Options), and Right on Options goes back to TV Guide."
+    "**New experimental option: Use addons as a main source** (Options > Experimental; needs Experimental on and an addon on). With it on, every programme with an episode number, and every film, is first looked up with your addons and plays from the best link they find. While it looks, the loading screen (at start-up) or a \"Scraping your debrid...\" message (when you change channel or move on) is shown. If the addons find nothing in about 15 seconds, or the link will not play, the library link plays instead. It plays from the start of the programme rather than joining part way through, and when it ends the channel carries on to its next programme. Off by default."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.72",
+      "date": "2026-11-15",
+      "notes": [
+        "**OSD buttons wrap round**: pressing Left on the first button (TV Guide) goes to the last (Options), and Right on Options goes back to TV Guide."
+      ]
+    },
     {
       "name": "Alpha 0.46.71",
       "date": "2026-11-15",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Logo on the phone page**: the page that opens on your phone to send an addon link to the TV now shows the Telly Addicts logo at the top."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.64",
-      "date": "2026-11-15",
-      "notes": [
-        "**Hold-OK menu on the channel schedule**: hold OK on a programme in a channel schedule to get **Auto play with debrid**, **Find sources** and **Options** (the first two appear when Experimental is on and an addon is installed; hold OK used to just close the schedule, Back still does)."
       ]
     }
   ]

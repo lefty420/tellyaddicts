@@ -11,7 +11,7 @@ hurry gets a third number, `Alpha 0.1.1`.
 
 - **Audio & subtitles**: a new button on the bar (next to Options) lets you pick the sound track and turn subtitles on or off, like other media players. It shows up when the file has more than one sound track or any subtitles. Each choice shows the language and details such as "Dolby Digital, 5.1", "Commentary", "Forced" or "SDH". Both text subtitles and picture subtitles (DVD/Blu-ray style) are drawn over the picture, and move above the bar while it is open.
 - **Your choice carries on**: the sound language and subtitle setting you pick are kept, so the next programme starts the same way when it has a matching track. Turn subtitles off in the same menu to stop them.
-- Only the app's own player can see the tracks inside a file. Addon files and anything with Dolby/DTS sound already play there; plain archive files play in the web view, which has one sound and no subtitles, so the button stays hidden for those. Options > Backup player > Always sends everything to the app's own player.
+- Only the app's own player can see the tracks inside a file. Addon files and anything with Dolby/DTS sound already play there; plain archive files play in the web view, which has one sound and no subtitles, so the button stays hidden for those. Options > Videos that won't play > Always sends everything to the app's own player.
 
 ## Alpha 0.46.82 — 2026-11-15
 

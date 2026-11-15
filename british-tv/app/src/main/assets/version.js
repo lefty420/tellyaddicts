@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.86",
-  "version": "0.46.86",
-  "code": 4686,
+  "name": "Alpha 0.46.87",
+  "version": "0.46.87",
+  "code": 4687,
   "date": "2026-11-15",
   "notes": [
-    "**Rescrape a film from the TV Guide**: \"Fix artwork & details\" on a film used to say \"Films use the details that came with them\" and do nothing. It now opens that film's artwork menu in On Demand: Scrape artwork, Choose the right film (for when the wrong film was matched), Choose a poster or background. Film artwork needs the TheTVDB key (Options > Artwork), as in On Demand."
+    "**Wrong film from an addon**: Mickey's Christmas Carol played *Blackadder's Christmas Carol* with a green ADDON badge. When the film search found no result with the right name, the app took the first result, whatever it was, and remembered it. It now only accepts the same name (or a close name with the same year) and otherwise says it could not find the film, so the library copy plays instead. Films matched wrongly before are forgotten, so they are looked up again."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.86",
+      "date": "2026-11-15",
+      "notes": [
+        "**Rescrape a film from the TV Guide**: \"Fix artwork & details\" on a film used to say \"Films use the details that came with them\" and do nothing. It now opens that film's artwork menu in On Demand: Scrape artwork, Choose the right film (for when the wrong film was matched), Choose a poster or background. Film artwork needs the TheTVDB key (Options > Artwork), as in On Demand."
+      ]
+    },
     {
       "name": "Alpha 0.46.85",
       "date": "2026-11-15",
@@ -62,13 +69,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**The debug log now times the scraper's library**: how long it took to download, to read and to sort into channels. Nothing changes on screen; it is there to show what the library really costs on this TV."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.78",
-      "date": "2026-11-15",
-      "notes": [
-        "**The debug log hides more of an addon's address**: an addon whose settings are a 36-character ID (the AIOStreams style) now shows as ... in the log and live view, like the long ones already did. Lines saved by earlier versions are cleaned when the log loads."
       ]
     }
   ]

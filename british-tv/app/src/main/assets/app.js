@@ -3884,11 +3884,11 @@
   }
 
   // ---- finding a title's streams
-  var adIds = store.get('adid1') || {};
+  var adIds = store.get('adid2') || {};
   function adResolve(name, film, year) {
     var key = normShow(name) + (film ? '|f' + (year || '') : '');
     if (adIds[key]) return Promise.resolve(adIds[key]);
-    var done = function (r) { if (r && r.imdb) { adIds[key] = r; var ks = Object.keys(adIds); if (ks.length > 300) delete adIds[ks[0]]; store.set('adid1', adIds); } return r; };
+    var done = function (r) { if (r && r.imdb) { adIds[key] = r; var ks = Object.keys(adIds); if (ks.length > 300) delete adIds[ks[0]]; store.set('adid2', adIds); } return r; };
     if (!film) {
       return adTmo(getJSON('https://api.tvmaze.com/singlesearch/shows?q=' + encodeURIComponent(name)), 10000).then(function (s) {
         return done({ imdb: (s.externals && s.externals.imdb) || '', year: s.premiered ? +String(s.premiered).slice(0, 4) : 0 });
@@ -3904,7 +3904,10 @@
     var pick = function (metas) {
       var l = (metas || []).filter(function (x) { return /^tt\d+/.test(x.id || ''); });
       var w = normShow(clean), yr = function (x) { return +String(x.releaseInfo || x.year || '').slice(0, 4) || 0; };
-      var hit = l.filter(function (x) { return normShow(x.name || '') === w && (!wantYear || yr(x) === wantYear); })[0] || l.filter(function (x) { return normShow(x.name || '') === w; })[0] || l[0];
+      // Only a result that really is this film: the same name, or one name inside the other with the same year. Taking the first result
+      // played "Blackadder's Christmas Carol" for "Mickey's Christmas Carol". Nothing found is better than the wrong film.
+      var near = function (x) { var n = normShow(x.name || ''); return n && w && (n.indexOf(w) >= 0 || w.indexOf(n) >= 0) && wantYear && yr(x) === wantYear; };
+      var hit = l.filter(function (x) { return normShow(x.name || '') === w && (!wantYear || yr(x) === wantYear); })[0] || l.filter(function (x) { return normShow(x.name || '') === w; })[0] || l.filter(near)[0];
       return hit ? { imdb: hit.id, year: yr(hit) } : null;
     };
     var viaAddon = function (a) {

@@ -253,6 +253,9 @@
   #ttpad { position: absolute; right: 4vw; bottom: 8vh; background: #000c; border: .4vh solid #fff; padding: 1.2vh; display: grid; grid-template-columns: repeat(3, 8vh); gap: .8vh; }
   #ttpad #ttn, #ttpn { grid-column: 1 / 4; color: #ff0; font: 700 4vh monospace; text-align: center; }
   #ttpad b { background: #223; color: #fff; text-align: center; font: 700 3.4vh monospace; padding: 1.2vh 0; }
+  #ttq { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #000; border: .5vh solid #fff; padding: 3vh 4vw; text-align: center; color: #fff; min-width: 40vw; z-index: 2; }
+  #ttqt { font: 700 4vh monospace; color: #ff0; } #ttqs { font: 2.6vh monospace; color: #0ff; margin: 1vh 0 2.5vh; }
+  #ttqb { display: flex; gap: 3vw; justify-content: center; } #ttqb b { background: #223; font: 700 3.6vh monospace; padding: 1.4vh 4vw; } #ttqb b.sel { background: #0ff; color: #000; }
   #ttpad b.sel { background: #0ff; color: #000; }
 
   #cshd { position: absolute; left: 5vw; right: 5vw; top: 4vh; height: 9vh; display: flex; align-items: center; gap: 1.4vw; }
@@ -1115,7 +1118,7 @@
   <canvas id="csqr" width="29" height="29"></canvas><div id="csqrnote">Scan with your phone's camera</div>
   <div id="csfoot"></div>
 </div>
-<div id="tt" class="hidden"><canvas id="ttc" width="800" height="600"></canvas><div id="ttpad" class="hidden"></div><div id="ttf">Arrows choose a page &middot; OK opens it &middot; hold OK to type a number &middot; Back</div></div>
+<div id="tt" class="hidden"><canvas id="ttc" width="800" height="600"></canvas><div id="ttpad" class="hidden"></div><div id="ttq" class="hidden"></div><div id="ttf">Arrows choose &middot; OK opens a page or plays a programme &middot; hold OK to type a number &middot; Back</div></div>
 <div id="gmenu" class="hidden"><div id="gmbox"><h2 id="gmt"></h2><div id="gms"></div><div id="gml"></div></div></div>
 <div id="nosignal" class="hidden">
   <h1>NO SIGNAL</h1>

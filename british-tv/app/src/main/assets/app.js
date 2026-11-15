@@ -3925,11 +3925,14 @@
     // body: lines for rows 4..22; more than fit makes sub-pages that turn over by themselves
     var per = 18, out = [], n = Math.max(1, Math.ceil(body.length / per));
     for (var i = 0; i < n; i++) {
-      var ls = [ttHead(num), '', '{b}{nb}{y}{H}' + title, ''].concat(body.slice(i * per, (i + 1) * per));
+      var part = body.slice(i * per, (i + 1) * per), acts = {};
+      var ls = [ttHead(num), '', '{b}{nb}{y}{H}' + title, ''].concat(part.map(function (x, k) { if (x && x.act) acts[4 + k] = x.act; return x && x.t != null ? x.t : x; }));
       while (ls.length < 23) ls.push('');
       ls.push(n > 1 ? '{c}Page ' + (i + 1) + ' of ' + n : '');
       ls.push(foot || '{r}Index {g}On now {y}Next {c}Tonight');
-      out.push(T().page(num, ls, fast || [100, 110, 130, 120]));
+      var pgo = T().page(num, ls, fast || [100, 110, 130, 120]);
+      pgo.acts = acts;
+      out.push(pgo);
     }
     return out;
   }
@@ -3940,7 +3943,7 @@
       var b = E.blockAt(c.sched, at);
       if (b && next) b = E.stepBlock(c.sched, b, 1);
       if (!b || !b.prog) return;
-      rows.push('{c}' + ('0' + c.n).slice(-2) + ' ' + ttPad(c.name, 11) + '{w}' + ttPad(gmName(b.prog), 24));
+      rows.push({ t: '{c}' + ('0' + c.n).slice(-2) + ' ' + ttPad(c.name, 11) + '{w}' + ttPad(gmName(b.prog), 24), act: { c: c, b: b } });
     });
     return rows;
   }
@@ -4098,7 +4101,7 @@
       if (!ch) return null;
       body = ['{y}' + ttPad(ch.name, 38)];
       var bl = E.blockAt(ch.sched, now), k = 0;
-      while (bl && bl.prog && k < 40) { body.push('{c}' + fmtTime(bl.startMs) + ' {w}' + ttPad(gmName(bl.prog), 33)); bl = E.stepBlock(ch.sched, bl, 1); k++; }
+      while (bl && bl.prog && k < 40) { body.push({ t: '{c}' + fmtTime(bl.startMs) + ' {w}' + ttPad(gmName(bl.prog), 33), act: { c: ch, b: bl } }); bl = E.stepBlock(ch.sched, bl, 1); k++; }
       return ttPages(num, ' ' + ttAscii(ch.name).toUpperCase().slice(0, 30), body, [150, 110, 130, 120]);
     }
     if (num === 190) {
@@ -4118,7 +4121,7 @@
       tt.sub = (tt.sub + 1) % tt.pages.length; ttDraw();
     }, 8000);
   }
-  function ttClose() { if (tt) { clearInterval(tt.timer); } tt = null; $('tt').className = 'hidden'; }
+  function ttClose() { $('ttq').className = 'hidden'; if (tt) { clearInterval(tt.timer); } tt = null; $('tt').className = 'hidden'; }
   function ttGo(n, noHist) {
     if (n === 300 || n === 301 || n === 310) {
       if (!noHist && tt.num) tt.hist.push(tt.num);
@@ -4140,7 +4143,9 @@
   }
   function ttDraw() {
     var pg = tt.pages[tt.sub], cv = $('ttc');
-    tt.links = T().links(pg);
+    tt.links = T().links(pg).filter(function (l) { return !(pg.acts && pg.acts[l.row]); });
+    Object.keys(pg.acts || {}).forEach(function (r) { tt.links.push({ row: +r, c0: 0, c1: 40, act: pg.acts[r] }); });
+    tt.links.sort(function (a, b) { return a.row - b.row || a.c0 - b.c0; });
     if (tt.li >= tt.links.length) tt.li = 0;
     T().draw(cv, pg, true);
     T().mark(cv, tt.links[tt.li]);
@@ -4160,7 +4165,34 @@
     if (p.d.length === 3) { var m = +p.d; tt.pad = null; ttPadRender(); ttGo(m); return; }
     ttPadRender();
   }
+  /** OK on a programme row: ask, then play it (now if it is on, otherwise from its start). */
+  function ttAsk(act) {
+    var now = Date.now(), live = act.b.startMs <= now && now < act.b.endMs, el = $('ttq');
+    tt.q = { act: act, i: 0 };
+    el.innerHTML = '<div id="ttqt">Play ' + ttAscii(gmName(act.b.prog)).replace(/[<>&]/g, '') + '?</div><div id="ttqs">' + ttAscii(act.c.name).replace(/[<>&]/g, '') + ' \u00b7 ' + (live ? 'on now' : 'from the start (' + fmtTime(act.b.startMs) + ')') + '</div><div id="ttqb"><b data-i="0" class="sel">Yes</b><b data-i="1">No</b></div>';
+    el.className = '';
+    Array.prototype.forEach.call(el.querySelectorAll('b'), function (b) { b.onclick = function () { tt.q.i = +b.getAttribute('data-i'); ttQKey('Enter'); }; });
+  }
+  function ttQKey(k) {
+    var q = tt.q;
+    if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') q.i = 1 - q.i;
+    else if (k === 'Enter' || k === ' ') {
+      var act = q.act, yes = q.i === 0;
+      tt.q = null; $('ttq').className = 'hidden';
+      if (yes) {
+        var now = Date.now(), b = act.b;
+        ttClose();
+        if (osdOpen) closeOsd();
+        gChan = act.c; gFocus = b.startMs <= now && now < b.endMs ? now : b.startMs + 1000;
+        watchFromGuide();
+      }
+      return;
+    }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { tt.q = null; $('ttq').className = 'hidden'; return; }
+    Array.prototype.forEach.call($('ttq').querySelectorAll('b'), function (b, n) { b.className = n === q.i ? 'sel' : ''; });
+  }
   function ttKey(k) {
+    if (tt.q) { ttQKey(k); return; }
     if (tt.pad) {
       var p = tt.pad;
       if (/^[0-9]$/.test(k)) { ttPadPress(k); return; }
@@ -4182,14 +4214,14 @@
     var L = tt.links;
     if (k === 'ArrowDown' || k === 'ArrowRight') { if (L.length) { tt.li = (tt.li + 1) % L.length; ttDraw(); } }
     else if (k === 'ArrowUp' || k === 'ArrowLeft') { if (L.length) { tt.li = (tt.li + L.length - 1) % L.length; ttDraw(); } }
-    else if (k === 'Enter' || k === ' ') { if (L[tt.li]) ttGo(L[tt.li].target); }
+    else if (k === 'Enter' || k === ' ') { if (L[tt.li]) { if (L[tt.li].act) ttAsk(L[tt.li].act); else ttGo(L[tt.li].target); } }
     else if (k === 'PageDown' && tt.pages.length > 1) { tt.sub = (tt.sub + 1) % tt.pages.length; ttDraw(); }
     else if (k === 'PageUp' && tt.pages.length > 1) { tt.sub = (tt.sub + tt.pages.length - 1) % tt.pages.length; ttDraw(); }
   }
   function ttTap(e) {
     if (!tt || tt.pad) return;
     var cv = $('ttc'), r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * T().COLS, y = (e.clientY - r.top) / r.height * T().ROWS;
-    for (var i = 0; i < tt.links.length; i++) { var l = tt.links[i]; if (Math.floor(y) === l.row && x >= l.c0 - .5 && x <= l.c1 + .5) { tt.li = i; ttGo(l.target); return; } }
+    for (var i = 0; i < tt.links.length; i++) { var l = tt.links[i]; if (Math.floor(y) === l.row && (l.act || (x >= l.c0 - .5 && x <= l.c1 + .5))) { tt.li = i; if (l.act) ttAsk(l.act); else ttGo(l.target); return; } }
   }
 
   // ------------------------------------------------------------------ OSD bar (OK while watching)

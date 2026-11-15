@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.65",
-  "version": "0.46.65",
-  "code": 4665,
+  "name": "Alpha 0.46.66",
+  "version": "0.46.66",
+  "code": 4666,
   "date": "2026-11-15",
   "notes": [
-    "**Logo on the phone page**: the page that opens on your phone to send an addon link to the TV now shows the Telly Addicts logo at the top."
+    "**Teletext: play a programme**: on the pages that list programmes (110 On now, 120 Tonight, 130 Coming up next, and each channel's schedule page 2xx), the arrows now also step down the programme rows, and OK on one asks **Play it? Yes / No**. Yes closes Teletext and plays it (joined where it is now if it is on, otherwise from its start); No goes back to the page. Tapping a row on a phone does the same."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.65",
+      "date": "2026-11-15",
+      "notes": [
+        "**Logo on the phone page**: the page that opens on your phone to send an addon link to the TV now shows the Telly Addicts logo at the top."
+      ]
+    },
     {
       "name": "Alpha 0.46.64",
       "date": "2026-11-15",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Find sources and Auto play with debrid are now two separate things**, on the On Demand hold-OK menu, the guide's hold-OK menu and the on-screen bar:"
-      ]
-    },
-    {
-      "name": "Alpha 0.46.57",
-      "date": "2026-11-15",
-      "notes": [
-        "**On Demand menu**: the hold-OK item **Find sources** is now called **Auto play with debrid**, like the bar and the guide. It does what it did before: asks your addons and plays the best link."
       ]
     }
   ]

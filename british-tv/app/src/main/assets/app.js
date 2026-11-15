@@ -3566,12 +3566,22 @@
     renderGuide(true);
   }
 
+  /** Real world: a channel plays only what is on now. Any other programme opens in On Demand, with a Yes / No to play it. */
+  function rwAsk(c, prog) {
+    odOpenUi();
+    odJump(c, prog, function () {
+      var g = odSel().g, ep = g && (g.film ? g.flat[0] : g.sea && g.sea[odSea] && g.sea[odSea].eps[odEi]);
+      if (!ep) return;
+      askYesNo('Play it now?', (prog.title || 'This episode') + ' is not on this channel at this time.', function () { odPlay(ep); }, function () { odClose(true); });
+    }, true);
+  }
   function watchFromGuide(fromStart) {
     var c = gChan;
     if (!c) return;
     if (c.status !== 'ready') { toast(c.name + ' is still loading', 2000); return; }
     var now = Date.now();
     var b = E.blockAt(c.sched, gFocus);
+    if (rwOn && b && c.sched._rw && !(b.startMs <= now && now < b.endMs)) { rwAsk(c, c.sched.order[c.sched.groups[b.gi].first]); return; }
     closeGuide();
     if (b && (fromStart || !(b.startMs <= now && now < b.endMs))) {
       // any other programme in the guide: play it from the start, whatever the time; the channel carries on from there
@@ -3598,21 +3608,30 @@
     $('qyes').className = quitSel === 0 ? 'sel' : '';
     $('qno').className = quitSel === 1 ? 'sel' : '';
   }
+  var quitYes = null, quitNo = null;           // set when the dialog asks something else (Real world: play it now?)
   function openQuit() {
+    quitYes = quitNo = null; $('qh').textContent = 'Quit Telly Addicts?'; $('qp').textContent = 'You will go back to the Google TV home screen.';
     quitOpen = true; quitSel = 1;                         // No is already chosen: an accidental OK does no harm
     renderQuit();
     $('quit').className = '';
   }
   function closeQuit() { quitOpen = false; $('quit').className = 'hidden'; }
-  $('qyes').addEventListener('click', function () { exitApp(); });
-  $('qno').addEventListener('click', closeQuit);
+  function quitDo(yes) { var f = yes ? quitYes : quitNo; closeQuit(); if (f) f(); else if (yes) exitApp(); }
+  /** The same Yes / No box, asking something else. No is chosen to start with. */
+  function askYesNo(head, text, onYes, onNo) {
+    $('qh').textContent = head; $('qp').textContent = text;
+    quitYes = onYes; quitNo = onNo || function () {};
+    quitOpen = true; quitSel = 1; renderQuit(); $('quit').className = '';
+  }
+  $('qyes').addEventListener('click', function () { quitDo(true); });
+  $('qno').addEventListener('click', function () { quitDo(false); });
   $('qyes').addEventListener('mouseenter', function () { quitSel = 0; renderQuit(); });
   $('qno').addEventListener('mouseenter', function () { quitSel = 1; renderQuit(); });
   function quitKey(k) {
     if (k === 'ArrowLeft') quitSel = 0;
     else if (k === 'ArrowRight') quitSel = 1;
-    else if (k === 'Enter' || k === ' ') { if (quitSel === 0) exitApp(); else closeQuit(); return true; }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { closeQuit(); return true; }
+    else if (k === 'Enter' || k === ' ') { quitDo(quitSel === 0); return true; }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { quitDo(false); return true; }
     renderQuit();
     return true;
   }
@@ -6571,23 +6590,25 @@
     if (odFrom === 'watch' && cur && cur.prog && !cur.ad && at >= 0) odJump(cur.ch, cur.prog);
   }
   /** Opened while something is playing: go straight to that show's page, on the season and episode that is on. */
-  function odJump(c, prog, after) {
+  function rwSame(a, b) { return a.virtual || b.virtual ? a.id === b.id : a.url === b.url; }      // virtual episodes have no url: they are told apart by id
+  function odJump(c, prog, after, always) {
     odLoadChannel(c).then(function () {
       odBusy = false;
       if (!odOpen || odView !== 'home') return;
       var rows = odRowList(), ri = rows.indexOf(c), sh = odShowsOf(c) || [];
       var name = prog.show || prog.group || (parseTitle(prog.title || '').show) || '', key = LIBROUTE.norm(name), si = -1;
-      sh.forEach(function (g, i) { if (si < 0 && (LIBROUTE.norm(g.name) === key || g.eps.some(function (ep) { return ep.p.url === prog.url; }))) si = i; });
+      sh.forEach(function (g, i) { if (si < 0 && (LIBROUTE.norm(g.name) === key || g.eps.some(function (ep) { return rwSame(ep.p, prog); }))) si = i; });
       if (ri < 0 || si < 0) { odRender(); return; }
       odRi = ri; odRc = c; odPos[c.id] = si;
       if (sh[si].film) { odRender(); if (after) after(); return; }      // a film is one video: land on its poster, don't start it again
       odOpenShow();
       var g = sh[si];
       for (var s = 0; s < g.sea.length; s++) {
-        var e = g.sea[s].eps.map(function (ep) { return ep.p.url; }).indexOf(prog.url);
+        var e = -1; g.sea[s].eps.forEach(function (ep, n) { if (e < 0 && rwSame(ep.p, prog)) e = n; });
         if (e >= 0) { odSea = s; odEi = e; odZone = 2; break; }
       }
       odRender();
+      if (always && after) after();
     });
   }
   function odClose(restore) {

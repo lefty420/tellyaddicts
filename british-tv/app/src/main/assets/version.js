@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.9",
-  "version": "0.47.9",
-  "code": 4709,
-  "date": "2026-11-15",
+  "name": "Alpha 0.48.0",
+  "version": "0.48.0",
+  "code": 4800,
+  "date": "2026-11-16",
   "notes": [
-    "Real world now lives day by day. Each show's run carries on where the last day stopped: today S01E01 and S01E02, tomorrow S01E03 and S01E04, and so on round the whole show. The change happens at midnight by the TV's own clock (UK time on a UK TV) and the guide updates by itself if it is open. Weekly channels move on once a week."
+    "Real world: a channel now plays only what is on at that time. You can still move around the guide as usual, but pressing OK on a programme that is not on now opens it in On Demand with a \"Play it now?\" Yes / No box. Yes plays that episode, No takes you back to the guide where you were. The box starts on No."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.9",
+      "date": "2026-11-15",
+      "notes": [
+        "Real world now lives day by day. Each show's run carries on where the last day stopped: today S01E01 and S01E02, tomorrow S01E03 and S01E04, and so on round the whole show. The change happens at midnight by the TV's own clock (UK time on a UK TV) and the guide updates by itself if it is open. Weekly channels move on once a week."
+      ]
+    },
     {
       "name": "Alpha 0.47.8",
       "date": "2026-11-15",
@@ -60,13 +67,6 @@ window.RELEASE = {
         "Magic EPG now means the addons for everything: with it on, every episode and film in the guides is looked up with your addons first (the library link is only the fallback), and the diamond mark and \"From your addons\" line are gone.",
         "Magic On Demand: with Magic EPG on, On Demand lists every episode the scrapers know for each show (from data/epdb.json), not only the ones with a file, and plays them through your addons. An episode no addon has is skipped when you play it.",
         "Turning Magic EPG on or off restarts the guides, as before. Needs Experimental on and an addon."
-      ]
-    },
-    {
-      "name": "Alpha 0.47.1",
-      "date": "2026-11-15",
-      "notes": [
-        "Options > Experimental: new \"Join in progress\" (off by default). For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on), the picture starts where the guide says the programme has got to, instead of from the beginning. The debug log says \"joining ... at Ns\" when it does."
       ]
     }
   ]

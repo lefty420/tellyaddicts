@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.46.57 — 2026-11-15
+
+- **On Demand menu**: the hold-OK item **Find sources** is now called **Auto play with debrid**, like the bar and the guide. It does what it did before: asks your addons and plays the best link.
+
 ## Alpha 0.46.56 — 2026-11-15
 
 - **Auto play with debrid from the bar and the guide**: while watching, the on-screen bar (OK) has a new **Auto play** button after On Demand; on the guide, hold OK on a programme and choose **Auto play with debrid**. Either one asks your addons for that episode (or film) and plays the best link by itself, closing the guide or bar. From the bar on something an addon is already playing it looks again and skips a saved link. It needs Experimental on and an addon installed; programmes without an episode number (like "Top of the Pops") say so.

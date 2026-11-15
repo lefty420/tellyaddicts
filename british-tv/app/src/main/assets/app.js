@@ -3868,7 +3868,7 @@
   function adOdm(g) {
     if (!odm || !adLive().length) return;
     var ep = (odView === 'show' && g.sea && g.sea[odSea] && g.sea[odSea].eps[odEi] && g.sea[odSea].eps[odEi].p) || (g.flat && g.flat[0] && g.flat[0].p) || {};
-    odm.items.splice(2, 0, { t: 'Find sources', sub: 'Ask your addons for streams (experimental)', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }); } });
+    odm.items.splice(2, 0, { t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }); } });
   }
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
   function changeAuto() { adAuto = !adAuto; store.set('adauto1', adAuto ? 'on' : 'off'); renderOpts(); }

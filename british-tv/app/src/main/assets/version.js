@@ -1,16 +1,26 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.95",
-  "version": "0.46.95",
-  "code": 4695,
+  "name": "Alpha 0.46.96",
+  "version": "0.46.96",
+  "code": 4696,
   "date": "2026-11-15",
   "notes": [
-    "**A paused picture now dims too**: the five-minute dim only counted the guide, On Demand, the bar and the other panels, so a paused frame could sit on an OLED screen for hours. A paused programme now fades to the dim after five minutes with no key pressed, like any other still screen.",
-    "**VHS OLED has no fixed edge tint**: the VHS look adds a faint red strip down the left edge and a blue one down the right. In VHS OLED they stayed in the same place for ever, so those pixels wore differently from the rest. The tint is now left out in VHS OLED (the normal VHS look keeps it).",
-    "**The key that wakes a dimmed screen only wakes it**: before, pressing OK to bring the guide back also pressed OK on the highlighted programme and tuned to it. The first key is now used up waking the screen."
+    "Guide header: the show name is big, with the episode (\"S02E46 · Episode name\") on the line under it; the series year is dropped.",
+    "Guide cells and header clean up file-style names: dots/underscores become spaces, codec and release tags (HEVC, x265, 1080p, WEB-DL...) and leading track numbers go.",
+    "Very narrow guide cells (under about 170 px) show the first word or a dot, with no arrows or \"…\".",
+    "On Demand \"OK Open\" hint is bigger; the guide's episode line is bigger."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.95",
+      "date": "2026-11-15",
+      "notes": [
+        "**A paused picture now dims too**: the five-minute dim only counted the guide, On Demand, the bar and the other panels, so a paused frame could sit on an OLED screen for hours. A paused programme now fades to the dim after five minutes with no key pressed, like any other still screen.",
+        "**VHS OLED has no fixed edge tint**: the VHS look adds a faint red strip down the left edge and a blue one down the right. In VHS OLED they stayed in the same place for ever, so those pixels wore differently from the rest. The tint is now left out in VHS OLED (the normal VHS look keeps it).",
+        "**The key that wakes a dimmed screen only wakes it**: before, pressing OK to bring the guide back also pressed OK on the highlighted programme and tuned to it. The first key is now used up waking the screen."
+      ]
+    },
     {
       "name": "Alpha 0.46.94",
       "date": "2026-11-15",
@@ -60,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "**Saved film sources cleared once**: the app remembers the source that last worked for each title and plays it again without searching, so the wrong *Blackadder's Christmas Carol* link would have kept playing for Mickey's Christmas Carol for three days even after 0.46.87. Sources saved for films (in the replay memory and in Options > Saved sources) are forgotten one time, and looked up again with the stricter search. Saved sources for series are untouched."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.87",
-      "date": "2026-11-15",
-      "notes": [
-        "**Wrong film from an addon**: Mickey's Christmas Carol played *Blackadder's Christmas Carol* with a green ADDON badge. When the film search found no result with the right name, the app took the first result, whatever it was, and remembered it. It now only accepts the same name (or a close name with the same year) and otherwise says it could not find the film, so the library copy plays instead. Films matched wrongly before are forgotten, so they are looked up again."
       ]
     }
   ]

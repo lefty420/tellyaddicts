@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.46.54",
-  "version": "0.46.54",
-  "code": 4654,
+  "name": "Alpha 0.46.55",
+  "version": "0.46.55",
+  "code": 4655,
   "date": "2026-11-15",
   "notes": [
-    "**Find sources: debrid option and saved sources** (Options > Experimental):"
+    "**Auto play with debrid**: the Find sources auto-play setting (Options > Experimental) is now called **Auto play with debrid** and is **on by default**. Find sources asks every addon you have installed (your debrid addon included), and plays the best link it scrapes by itself with nothing to choose: 1080p first, then 720p, and the next link if one fails. The separate \"Debrid links\" setting from 0.46.54 is gone: the addon does the debrid, the app just plays what it returns (links the debrid service has not cached yet are still skipped). Saved sources stay."
   ],
   "history": [
+    {
+      "name": "Alpha 0.46.54",
+      "date": "2026-11-15",
+      "notes": [
+        "**Find sources: debrid option and saved sources** (Options > Experimental):"
+      ]
+    },
     {
       "name": "Alpha 0.46.53",
       "date": "2026-11-15",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-14",
       "notes": [
         "**Fix: an addon file played behind the On Demand screen**: choosing a source started the video but left On Demand covering it, so it looked as if nothing played. On Demand now closes first. Addon files also always use the app's own player, since they are often mkv files with Dolby audio that the web view cannot play."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.46",
-      "date": "2026-11-14",
-      "notes": [
-        "**Clear message when an addon cannot be added**: instead of a brief pop-up that was easy to miss, a screen now says why (could not reach it, or the address answered with an error) and stays until you press Back. The reason is also written to the debug log."
       ]
     }
   ]

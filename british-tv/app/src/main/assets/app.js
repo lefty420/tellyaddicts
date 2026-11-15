@@ -3515,9 +3515,9 @@
   // for streams; only plain web links and YouTube are played. Torrents, usenet and archives are never started.
 
   var expOn = store.get('exp1') === 'on';
-  var adDeb = store.get('addeb1') || 'prefer';              // debrid links: off, prefer (first) or only
+  var adDeb = 'off';                                        // (no debrid settings: the addon does the debrid; links it has not cached are only skipped)
   var adHist = store.get('adhist1') || [];                  // sources that worked, newest first, so a title can start again at once
-  var adAuto = store.get('adauto1') === 'on';               // play the best source straight away
+  var adAuto = store.get('adauto1') !== 'off';               // play the best source straight away
   var adLast = store.get('adlast1') || {}, adBg = store.get('adbg1') || {};   // the source that last worked per episode (1 hour), and the release group chosen per show
   function adKeyOf(g, ep) { return normShow(g.name) + '|' + (g.film ? 'f' : (ep.s || 1) + ':' + (ep.e || 1)); }
   var adFall = null;                                          // the sources still to try if the one playing fails
@@ -3808,7 +3808,7 @@
           return db - da || bb - ba || pref(b.q) - pref(a.q) || a.k - b.k;
         });
         ad.rows = list.map(function (x) {
-          return { t: x.q ? x.q + 'p' : '—', n: (adIsDebrid(x.s) ? '[debrid] ' : '') + x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
+          return { t: x.q ? x.q + 'p' : '—', n: x.label, s: x.addon, d: x.size ? (x.size >= 1024 ? (x.size / 1024).toFixed(1) + ' GB' : Math.round(x.size) + ' MB') : '', dim: !!x.why, why: x.why,
             f: function () { adFall = { ch: ch, g: g, ep: ep, q: list.filter(function (y) { return !y.why && y !== x && list.indexOf(y) > list.indexOf(x); }) }; adPlay(ch, g, ep, x); } };
         });
         ad.sub = (film ? '' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  ') + (final ? list.length + ' found' : 'asking ' + (targets.length - answered) + ' addon' + (targets.length - answered === 1 ? '' : 's') + '…');
@@ -3859,7 +3859,6 @@
     odm.items.splice(2, 0, { t: 'Find sources', sub: 'Ask your addons for streams (experimental)', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }); } });
   }
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
-  function changeDeb() { adDeb = adDeb === 'prefer' ? 'only' : adDeb === 'only' ? 'off' : 'prefer'; store.set('addeb1', adDeb); renderOpts(); }
   function changeAuto() { adAuto = !adAuto; store.set('adauto1', adAuto ? 'on' : 'off'); renderOpts(); }
   function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
 
@@ -4708,7 +4707,7 @@
     { id: 'art', rows: ['gart', 'tvdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'addons', 'adauto', 'addeb', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'addons', 'adauto', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -4720,7 +4719,6 @@
     if (id === 'exp') return expOn ? 'On' : 'Off';
     if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'adauto') return adAuto ? 'On' : 'Off';
-    if (id === 'addeb') return adDeb === 'only' ? 'Debrid only' : adDeb === 'prefer' ? 'Debrid first' : 'Off';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
     if (id === 'ar') return AR[arIdx].label;
@@ -4826,9 +4824,8 @@
   var OPT_HELP = {
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
-    addeb: 'Debrid links (Real-Debrid, AllDebrid, Premiumize and the like, from an addon you set up with your own debrid account). Debrid first: those links are tried before any others. Debrid only: everything else is greyed out. Links the debrid service has not cached yet are never played.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
-    adauto: 'When on, Find sources plays the best working source straight away (1080p, then 720p). If it fails, the next one is tried, and so on.',
+    adauto: 'Find sources asks every addon you have installed (your debrid addon included) and plays the best working link by itself, with nothing to choose: 1080p first, then 720p. If a link fails the next one is tried, and so on. Turn off to pick the source yourself.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
     theme: 'How the TV guide looks. It only changes when you change it here.',
@@ -5018,7 +5015,6 @@
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
     else if (id === 'adauto') changeAuto();
-    else if (id === 'addeb') changeDeb();
     else if (id === 'adrec') { closeOpts(); adRecent(); }
     else if (id === 'adcut') changeAdcut();
     else if (id === 'addons') { if (!expOn) toast('Turn Experimental on first', 3000); else { adList(0); } }

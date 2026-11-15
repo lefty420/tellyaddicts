@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.6",
-  "version": "0.47.6",
-  "code": 4706,
+  "name": "Alpha 0.47.7",
+  "version": "0.47.7",
+  "code": 4707,
   "date": "2026-11-15",
   "notes": [
-    "Magic EPG: when none of your addons has an episode, the app now looks for it on archive.org (the same lookup Play Next uses, for that exact episode) and plays it if the link works, before skipping to the next programme. An episode with no addon source and no archive.org link is still skipped and remembered.",
-    "Debug log lines for Magic EPG now start \"MAGIC EPG:\"."
+    "Magic EPG: the addons are now asked with the IMDb number the scraper found for each show (data/epdb.json has 704 of them), instead of searching TVmaze by name first. Shows the file has no number for still use the old lookup."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.6",
+      "date": "2026-11-15",
+      "notes": [
+        "Magic EPG: when none of your addons has an episode, the app now looks for it on archive.org (the same lookup Play Next uses, for that exact episode) and plays it if the link works, before skipping to the next programme. An episode with no addon source and no archive.org link is still skipped and remembered.",
+        "Debug log lines for Magic EPG now start \"MAGIC EPG:\"."
+      ]
+    },
     {
       "name": "Alpha 0.47.5",
       "date": "2026-11-15",
@@ -63,13 +70,6 @@ window.RELEASE = {
       "notes": [
         "API keys from your phone: OK on \"TheTVDB key\" or \"TMDB key\" now shows a QR code. The phone page has a \"Get your key\" button that opens the sign-up page (thetvdb.com or themoviedb.org), then you paste the key and press Send. \"Type it with the remote instead\" is the second row.",
         "Needs the new APK (the phone page is part of the app)."
-      ]
-    },
-    {
-      "name": "Alpha 0.46.98",
-      "date": "2026-11-15",
-      "notes": [
-        "Options > Artwork: \"Episode lists from\" now sits above the two keys, and its help text fits on one line."
       ]
     }
   ]

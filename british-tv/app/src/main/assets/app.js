@@ -4113,6 +4113,11 @@
   var adIds = store.get('adid2') || {};
   function adResolve(name, film, year) {
     var key = normShow(name) + (film ? '|f' + (year || '') : '');
+    var ed = !film && epdb && epdb[normShow(name)];                       // the scrapers' own IMDb number beats a name search
+    if (ed && ed.imdb) {
+      var y0 = 9999; (ed.e || []).forEach(function (e) { var y = +String(e[3] || '').slice(0, 4); if (y && y < y0) y0 = y; });
+      return Promise.resolve({ imdb: ed.imdb, year: y0 < 9999 ? y0 : 0 });
+    }
     if (adIds[key]) return Promise.resolve(adIds[key]);
     var done = function (r) { if (r && r.imdb) { adIds[key] = r; var ks = Object.keys(adIds); if (ks.length > 300) delete adIds[ks[0]]; store.set('adid2', adIds); } return r; };
     if (!film) {

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.47.8",
-  "version": "0.47.8",
-  "code": 4708,
+  "name": "Alpha 0.47.9",
+  "version": "0.47.9",
+  "code": 4709,
   "date": "2026-11-15",
   "notes": [
-    "Options > Experimental: new \"Real world\" (off by default). A show's episodes come in order down the guide (S01E01, S01E02 ...) instead of a shuffle, starting at the beginning of a season. Guide times do not change: each show keeps the slots it already had, and only which episode goes in each is decided. Programmes with no episode number (specials, one-offs, music, films) are left where they are. Turning it on or off restarts the guides. It works best with Magic EPG, which fills the gaps in a show's episode run."
+    "Real world now lives day by day. Each show's run carries on where the last day stopped: today S01E01 and S01E02, tomorrow S01E03 and S01E04, and so on round the whole show. The change happens at midnight by the TV's own clock (UK time on a UK TV) and the guide updates by itself if it is open. Weekly channels move on once a week."
   ],
   "history": [
+    {
+      "name": "Alpha 0.47.8",
+      "date": "2026-11-15",
+      "notes": [
+        "Options > Experimental: new \"Real world\" (off by default). A show's episodes come in order down the guide (S01E01, S01E02 ...) instead of a shuffle, starting at the beginning of a season. Guide times do not change: each show keeps the slots it already had, and only which episode goes in each is decided. Programmes with no episode number (specials, one-offs, music, films) are left where they are. Turning it on or off restarts the guides. It works best with Magic EPG, which fills the gaps in a show's episode run."
+      ]
+    },
     {
       "name": "Alpha 0.47.7",
       "date": "2026-11-15",
@@ -60,15 +67,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "Options > Experimental: new \"Join in progress\" (off by default). For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on), the picture starts where the guide says the programme has got to, instead of from the beginning. The debug log says \"joining ... at Ns\" when it does."
-      ]
-    },
-    {
-      "name": "Alpha 0.47.0",
-      "date": "2026-11-15",
-      "notes": [
-        "Magic EPG (Options > Experimental, off by default): fills the channel guides with every episode of each show, not only the ones the library has a file for. Missing episodes are marked with a diamond, and play through your addons when the clock reaches them. If no addon has one, it says so and moves on to the next programme (and remembers, so it is left out next time).",
-        "It reads one new file, `data/epdb.json`, packed from the scraper's per-show episode files by `python3 tools/build_epdb.py` (no internet needed). Shows with no entry fall back to the TV's own lookups from Options > Artwork > Episode lists from, done slowly in the background and used the next time the app starts.",
-        "Needs Experimental on and an addon. Turning it on or off restarts the guides."
       ]
     }
   ]

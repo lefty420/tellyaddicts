@@ -2009,36 +2009,63 @@
     spanTimer = setTimeout(function () { location.reload(); }, 2200);
   }
 
-  // ---- Real world (experimental): a show's episodes air in order. The schedule already says WHEN each of a show's slots is;
-  // this decides WHICH episode goes in each, so they run S01E01, S01E02 ... down the guide, like a real channel.
-  // Programmes with no episode number (specials, one-offs, music, films) are left exactly where they are.
+  // ---- Real world (experimental): a show's episodes air in order, and each day carries on where the last one stopped.
+  // The schedule already says WHEN each of a show's slots is; this decides WHICH episode goes in each: S01E01, S01E02 ...
+  // and the next day (the next time the schedule's cycle comes round) the next ones, like a real channel. The days follow the
+  // TV's own clock, which is UK time on a UK TV. Programmes with no episode number (specials, one-offs, music, films) are left alone.
   var rwOn = store.get('rw1') === 'on';
-  function realWorld(sched, progs, seed) {
-    if (!rwOn || !sched || !sched.order || !window.LINKS) return;
-    var byShow = {};
-    progs.forEach(function (p) {
-      if (p.ad || p.adBlock || p.song || p.filmKey) return;
-      var ref = LINKS.parseEp(p.title); if (!ref || !(ref.s > 0)) return;
-      var k = normShow(gmName(p)), g = byShow[k] = byShow[k] || { eps: [], seen: {} }, id = ref.s + ':' + ref.e;
-      if (!g.seen[id]) { g.seen[id] = 1; g.eps.push({ p: p, s: +ref.s, e: +ref.e }); }
-    });
-    var slots = {};
-    sched.order.forEach(function (p, i) {
-      if (p.ad || p.adBlock || p.song || p.filmKey) return;
-      var ref = LINKS.parseEp(p.title); if (!ref || !(ref.s > 0)) return;
-      var k = normShow(gmName(p)); if (byShow[k] && byShow[k].eps.length > 1) (slots[k] = slots[k] || []).push(i);
-    });
-    Object.keys(slots).forEach(function (k) {
-      var eps = byShow[k].eps.sort(function (a, b) { return (a.s - b.s) || (a.e - b.e); });
-      var firsts = []; eps.forEach(function (x, i) { if (x.e === 1) firsts.push(i); });      // begin at the start of a season, somewhere in the show
-      var pool = firsts.length ? firsts : eps.map(function (x, i) { return i; });
-      var st = pool[E.hash(k + '|' + seed) % pool.length];
-      slots[k].forEach(function (pos, j) {
-        var src = eps[(st + j) % eps.length].p, slotDur = sched.order[pos].dur;
-        sched.order[pos] = Object.assign({}, src, { dur: slotDur });     // the slot keeps its length, so the guide's times do not move
+  /** Which time through its cycle the schedule is on at tMs: a new number each day (or week) at midnight. */
+  function rwCycle(sched, tMs) {
+    var d = new Date(tMs), di = Math.floor((tMs / 60000 - d.getTimezoneOffset()) / 1440);    // whole local days since 1 Jan 1970
+    if (sched.cycle === 'multi') return sched.unit === 604800 ? Math.floor(Math.floor((di + 4) / 7) / sched.n) : Math.floor(di / sched.n);
+    if (sched.cycle === 'week') return Math.floor((di + 4) / 7);
+    if (sched.cycle) return di;
+    return Math.floor(tMs / 1000 / (sched.total || 86400));
+  }
+  function rwApply(sched, C) {
+    var r = sched._rw; r.C = C;
+    Object.keys(r.slots).forEach(function (k) {
+      var eps = r.by[k].eps, pos = r.slots[k], n = eps.length;
+      pos.forEach(function (at, j) {
+        var src = eps[(r.st[k] + C * pos.length + j) % n].p;
+        sched.order[at] = Object.assign({}, src, { dur: r.base[at].dur });      // the slot keeps its length, so the guide's times do not move
       });
     });
   }
+  function realWorld(sched, progs, seed) {
+    if (!rwOn || !sched || !sched.order || !window.LINKS) return;
+    var by = {};
+    progs.forEach(function (p) {
+      if (p.ad || p.adBlock || p.song || p.filmKey) return;
+      var ref = LINKS.parseEp(p.title); if (!ref || !(ref.s > 0)) return;
+      var k = normShow(gmName(p)), g = by[k] = by[k] || { eps: [], seen: {} }, id = ref.s + ':' + ref.e;
+      if (!g.seen[id]) { g.seen[id] = 1; g.eps.push({ p: p, s: +ref.s, e: +ref.e }); }
+    });
+    var slots = {}, st = {};
+    sched.order.forEach(function (p, i) {
+      if (p.ad || p.adBlock || p.song || p.filmKey) return;
+      var ref = LINKS.parseEp(p.title); if (!ref || !(ref.s > 0)) return;
+      var k = normShow(gmName(p)); if (by[k] && by[k].eps.length > 1) (slots[k] = slots[k] || []).push(i);
+    });
+    Object.keys(slots).forEach(function (k) {
+      by[k].eps.sort(function (a, b) { return (a.s - b.s) || (a.e - b.e); });
+      var firsts = []; by[k].eps.forEach(function (x, i) { if (x.e === 1) firsts.push(i); });      // begin at the start of a season, somewhere in the show
+      var pool = firsts.length ? firsts : by[k].eps.map(function (x, i) { return i; });
+      st[k] = pool[E.hash(k + '|' + seed) % pool.length];
+    });
+    sched._rw = { by: by, slots: slots, st: st, base: sched.order.slice(), C: 0 };
+    rwApply(sched, rwCycle(sched, Date.now()));
+  }
+  /** At midnight every channel moves on to the next episodes. */
+  setInterval(function () {
+    if (!rwOn) return;
+    var now = Date.now(), moved = false;
+    channels.forEach(function (c) {
+      var r = c.sched && c.sched._rw;
+      if (r) { var C = rwCycle(c.sched, now); if (C !== r.C) { rwApply(c.sched, C); moved = true; } }
+    });
+    if (moved && guideOpen) renderGuide();
+  }, 60000);
   function changeRw() {
     rwOn = !rwOn; store.set('rw1', rwOn ? 'on' : 'off'); renderOpts();
     toast(rwOn ? 'Real world on: episodes in order. Rebuilding the guides\u2026' : 'Real world off: rebuilding the guides\u2026', 3000);

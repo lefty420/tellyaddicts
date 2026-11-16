@@ -6099,6 +6099,20 @@
   // with the same episodes. Until the scraper settles on one name, these are brought together here.
   var SHOW_ALIAS = { 'poirot': "Agatha Christie's Poirot", 'agatha christies poirot': "Agatha Christie's Poirot", 'agatha christie poirot': "Agatha Christie's Poirot" };
   /** A channel's programmes grouped into shows, each with its seasons and episodes in order. */
+  /** "Choose the right show" renames the show: a library name picked as another show reads, groups and fills as that show. */
+  function odRenamed(name) {
+    var fx = store.get('artfix:' + normShow(name));
+    return fx && fx.rn && fx.a && fx.a.name ? fx.a.name : name;
+  }
+  function odRenameProgs(progs) {
+    var memo = {};
+    return progs.map(function (p) {
+      if (p.filmKey) return p;
+      var n = p.show || p.group || parseTitle(p.title || '').show; if (!n) return p;
+      var r = memo[n] || (memo[n] = odRenamed(n));
+      return r === n ? p : Object.assign({}, p, { show: r, group: r });
+    });
+  }
   function odGroup(progs, films) {          // films: a film channel, where every video is its own title
     var by = {}, shows = [];
     progs.forEach(function (p) {
@@ -6158,7 +6172,7 @@
       return Promise.all([loadEpdb(), loadUk()]).then(function () { return all; });          // Content, and Magic EPG: the episode database is in before the shows are grouped
     }).then(function (all) {
       var progs = ukFilter(all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); }));
-      if (!OD_FILMS[ch.id]) progs = virtualFill(ch, progs, true);      // Magic EPG: every episode the scrapers know, not only the ones with a file
+      if (!OD_FILMS[ch.id]) progs = virtualFill(ch, odRenameProgs(progs), true);      // Magic EPG: every episode the scrapers know, not only the ones with a file
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
       rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);
@@ -6730,10 +6744,10 @@
     return https((pick || { url: x && x.main || '' }).url);
   }
   /** Apply a pick only once its picture has really loaded, so a choice never looks like nothing happened. */
-  function odFixDone(g, entry, msg, testUrl) {
+  function odFixDone(g, entry, msg, testUrl, rename) {
     var test = testUrl || entry.p, shown = false;
     if (!entry.name) entry.name = g.name;
-    if (!test) { odFixApply(g, entry, msg); return; }
+    if (!test) { odFixApply(g, entry, msg, rename); return; }
     odmWait('Loading the picture\u2026');
     var im = new Image(), timer = setTimeout(function () { fail(); }, 20000);
     function fail() {
@@ -6741,14 +6755,31 @@
       dlog('ARTWORK picture would not load: ' + test);
       odmClose(); toast('That picture would not load, so nothing was changed', 4500);
     }
-    im.onload = function () { if (shown) return; shown = true; clearTimeout(timer); odFixApply(g, entry, msg); };
+    im.onload = function () { if (shown) return; shown = true; clearTimeout(timer); odFixApply(g, entry, msg, rename); };
     im.onerror = fail;
     im.src = test;
   }
   /** The name a show's or film's chosen artwork is filed under (a film: its own title, as the loading screen looks it up). */
   function odArtName(g) { return g.film && g.eps && g.eps[0] ? filmArtName(g.eps[0].p) : g.name; }
-  function odFixApply(g, entry, msg) {
-    store.set('artfix:' + normShow(odArtName(g)), { a: entry });
+  /** Throw away a channel's grouped shows and build them again (after a show is renamed), landing on the show called `name`. */
+  function odRegroup(g, name) {
+    var c = g.chan; if (!c || !odData[c.id]) { odRender(); return; }
+    delete odData[c.id]; odRowsMemo = null;
+    odLoadChannel(c).then(function () {
+      var sh = odShowsOf(c) || [], k = LIBROUTE.norm(name), i = -1;
+      sh.forEach(function (x, n) { if (i < 0 && LIBROUTE.norm(x.name) === k) i = n; });
+      if (i >= 0) { odPos[c.id] = i; odSea = 0; odEi = 0; }
+      if (odOpen) odRender();
+    });
+  }
+  function odFixApply(g, entry, msg, rename) {
+    var old = odArtName(g);
+    store.set('artfix:' + normShow(old), rename ? { a: entry, rn: 1 } : { a: entry });
+    if (rename && entry.name && normShow(entry.name) !== normShow(old)) {
+      store.set('artfix:' + normShow(entry.name), { a: entry, from: normShow(old) });      // the new name finds the same pick
+      odmClose(); toast(msg, 3500); dlog('SHOW renamed ' + old + ' -> ' + entry.name);
+      odArtFor = ''; odBgFor = ''; odKGen++; odRegroup(g, entry.name); return;
+    }
     if (!g.film) { try { kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ } }
     g.art = entry; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odKGen++;
     dlog('ARTWORK picked for ' + g.name + ': ' + (entry.name || '') + (entry.tvdb ? ' (TheTVDB ' + entry.tvdb + ')' : ' (TVmaze ' + (entry.i || '?') + ')') + (entry.p ? ' poster ' + entry.p : '') + (entry.b ? ' background ' + entry.b : ''));
@@ -6787,8 +6818,10 @@
       optsItem,
       { t: 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { hideShow(g.name, false); } },
       { t: 'Back to automatic', sub: 'Forget the choices made for this show', f: function () {
-        try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); } catch (e) { /* ignore */ }
-        g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } }
+        var fx = store.get('artfix:' + normShow(g.name)), back = fx && fx.from ? fx.from : '';
+        try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); if (back) kv.removeItem('artfix:' + back); } catch (e) { /* ignore */ }
+        g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500);
+        if (back) odRegroup(g, g.name); else odRender(); } }
     ], title: g.name };
     adOdm(g); optsLast(odm.items); odmRender();
   }
@@ -6899,7 +6932,7 @@
           odmWait('Getting pictures\u2026');
           tvdbExtended(r).then(function (d) {
             dlog('TVDB pick ' + d.name + ' (' + d.tvdb + ') for ' + g.name);
-            odFixDone(g, tvdbEntry(d), 'Using ' + d.name + (d.year ? ' (' + d.year + ')' : ''));
+            odFixDone(g, tvdbEntry(d), 'Using ' + d.name + (d.year ? ' (' + d.year + ')' : ''), null, true);
           }, function (e) { dlog('TVDB pick failed: ' + e.message); if (odm) { odm.note = 'Could not reach TheTVDB'; odmRender(); } });
         } };
       });
@@ -6917,7 +6950,7 @@
           var bg = imgs.filter(function (x) { return x.type === 'background'; })[0];
           if (bg) e.b = odImgUrl(bg, true, 'background');
           if (!e.p) { var po = imgs.filter(function (x) { return x.type === 'poster'; })[0]; if (po) e.p = odImgUrl(po, true, 'poster'); }
-          odFixDone(g, e, 'Using ' + e.name + (e.y ? ' (' + e.y + ')' : ''));
+          odFixDone(g, e, 'Using ' + e.name + (e.y ? ' (' + e.y + ')' : ''), null, true);
         });
       } };
     });

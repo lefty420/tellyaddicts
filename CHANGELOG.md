@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.48.1 — 2026-11-16
+- On Demand > hold OK > "Choose the right show" now really changes the show. The show is renamed to the one you pick, its episodes are filled in from that show (Magic EPG, the scrapers' episode guide, TVmaze) and the pictures change with it. The choice is remembered. "Back to automatic" puts the original name and episodes back. Scrape artwork, Choose a poster and Choose a background do not rename anything.
+
 ## Alpha 0.48.0 — 2026-11-16
 - Real world: a channel now plays only what is on at that time. You can still move around the guide as usual, but pressing OK on a programme that is not on now opens it in On Demand with a "Play it now?" Yes / No box. Yes plays that episode, No takes you back to the guide where you were. The box starts on No.
 

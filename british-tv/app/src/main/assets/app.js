@@ -3457,6 +3457,7 @@
 
   var gMem = null;                       // where the guide was left: openGuide puts it back (see there)
   function closeGuide() {
+    osdStopped = false;
     if (guideOpen && gChan) gMem = { cur: cur, chan: gChan, top: gTop, win: gWin, focus: gFocus, t: Date.now() };
     gPaint = null;
     guideOpen = false;
@@ -4631,10 +4632,18 @@
     { id: 'zoom', label: 'Zoom' }, { id: 'stretch', label: 'Stretch' }
   ];
   var arIdx = 0;
-  var OB_ALL = ['guide', 'pp', 'skipad', 'next', 'restart', 'sched', 'od', 'src', 'find', 'tracks', 'options'];   // buttons on the bar, left to right
-  /** The buttons showing now: Skip adverts is only there while a break is playing (and never on the Adverts channel, which is all adverts). */
-  function obList() { return OB_ALL.filter(function (id) { return id === 'tracks' ? trHas() : id === 'skipad' ? !!(cur && cur.ad && !isAdChan(cur.ch)) : (id === 'src' || id === 'find') ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
+  // Buttons on the bar, left to right: playback on the left, then two short lists (Guide, Sources) and the settings.
+  // During an ad break Next reads "Skip adverts" (it always skipped the break there).
+  var OB_ALL = ['stop', 'restart', 'pp', 'next', 'gguide', 'gsrc', 'tracks', 'options'];
+  var OB_POP = {
+    gguide: [{ id: 'guide', t: 'TV Guide', key: 'GUIDE' }, { id: 'sched', t: 'Channel schedule' }, { id: 'od', t: 'On Demand' }],
+    gsrc: [{ id: 'src', t: 'Auto play from addons' }, { id: 'find', t: 'Find sources' }]
+  };
+  /** The buttons showing now: Audio & subs only when the file has tracks to pick; Sources only with Experimental on and an addon. */
+  function obList() { return OB_ALL.filter(function (id) { return id === 'tracks' ? trHas() : id === 'gsrc' ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
+  var osdPop = null;                     // the open list above the bar: { g: 'gguide' | 'gsrc', i: row }
+  var osdStopped = false;                // Stop pressed: the picture is held and the guide is up; Back from the guide joins the channel again
   // The progress bar is a scrubber: Left / Right on it wind through the video (hold to go faster), Down reaches the buttons.
   var osdZone = 'btn', scrubT = null, scrubTimer = null, scrubLast = 0, scrubHold = 0, scrubDir = 0;
   function scrubApply() {
@@ -5721,11 +5730,36 @@
     $('otime').textContent = (scrubT !== null ? '\u25b6\u25b6 ' : '') + fmtPos(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtPos(dur) : '') +
       (secs > 1 ? '   ·   ' + fmtPos(secs) + ' ahead' + (playingLocally() ? ' on this device' : '') : '');
     $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
+    var inBreak = !!(cur.ad && !isAdChan(cur.ch));
+    $('olbl-next').textContent = inBreak ? 'Skip adverts' : 'Next';
+    $('oic-next').textContent = inBreak ? '\u23e9' : '\u25b6\u2758';
     $('oic-pp').textContent = v.paused ? '▶' : '❚❚';
     var ob = obList();
     if (osdSel > ob.length - 1) osdSel = ob.length - 1;
+    if (osdPop && ob.indexOf(osdPop.g) < 0) osdPop = null;
     OB_ALL.forEach(function (id) { var i = ob.indexOf(id), e = $('ob-' + id); e.className = 'ob' + (i < 0 ? ' hidden' : '') + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
+    renderPop();
   }
+
+  /** The short list above a Guide or Sources button. */
+  function renderPop() {
+    var box = $('opop');
+    if (!osdPop) { box.className = 'hidden'; return; }
+    var rows = OB_POP[osdPop.g], btn = $('ob-' + osdPop.g);
+    box.textContent = '';
+    rows.forEach(function (r, i) {
+      var d = document.createElement('div');
+      d.className = 'opi' + (i === osdPop.i ? ' sel' : '');
+      d.setAttribute('data-id', r.id);
+      d.appendChild(document.createTextNode(r.t));
+      if (r.key) { var k = document.createElement('span'); k.className = 'key'; k.textContent = r.key; d.appendChild(k); }
+      box.appendChild(d);
+    });
+    box.className = '';
+    box.style.left = Math.max(0, btn.offsetLeft - box.offsetWidth / 2 + btn.offsetWidth / 2) + 'px';
+  }
+  function popOpen(g) { osdPop = { g: g, i: 0 }; renderOsd(); }
+  function popClose() { osdPop = null; renderPop(); }
 
   function osdTouch() {
     clearTimeout(osdTimer);
@@ -5770,7 +5804,7 @@
     document.body.classList.add('osdup');      // lifts any subtitles above the bar
     osdArt();
     osdSel = obList().indexOf('pp');      // start on play/pause
-    osdZone = 'btn'; scrubT = null;
+    osdZone = 'btn'; scrubT = null; osdPop = null;
     clearTimeout(bannerTimer);
     $('banner').className = 'off';
     renderOsd();
@@ -5783,6 +5817,7 @@
   function closeOsd() {
     scrubApply();
     osdOpen = false;
+    osdPop = null; $('opop').className = 'hidden';
     document.body.classList.remove('osdup');
     clearTimeout(osdTimer);
     clearInterval(osdTick);
@@ -5811,7 +5846,27 @@
     toast('Starting again from the beginning', 2000);
   }
 
+  /** Stop: hold the picture and bring up the guide to pick something else. Back from the guide joins the channel again where it is now. */
+  function stopShow() {
+    closeOsd();
+    scrubT = null;
+    try { v.pause(); } catch (e) { /* nothing playing */ }
+    openGuide();
+    osdStopped = guideOpen;
+    toast('Stopped', 1500);
+  }
+  /** Back (or Guide) in the guide: to what was playing; after Stop, tune the channel again (or carry on with an On Demand show). */
+  function guideBack() {
+    var again = osdStopped && cur && v.paused;
+    closeGuide();
+    if (!again) return;
+    if (cur.od || !cur.ch.sched) { var p = v.play(); if (p && p.catch) p.catch(function () { /* ignore */ }); }
+    else tune(cur.ch);
+  }
+
   function osdAct(id) {
+    if (OB_POP[id]) { popOpen(id); return; }
+    if (id === 'stop') { stopShow(); return; }
     if (id === 'pp') togglePlay();
     else if (id === 'next') { closeOsd(); if (cur && cur.ad && !isAdChan(cur.ch)) skipAds(); else playNext(); return; }
     else if (id === 'skipad') { closeOsd(); skipAds(); return; }
@@ -5829,6 +5884,14 @@
 
   function osdKey(k) {
     osdTouch();
+    if (osdPop) {                       // a list is open above the bar: Up/Down pick, OK runs it, Left/Right go back to the bar
+      var rows = OB_POP[osdPop.g];
+      if (k === 'ArrowUp') { osdPop.i = Math.max(0, osdPop.i - 1); renderPop(); return true; }
+      if (k === 'ArrowDown') { if (osdPop.i < rows.length - 1) { osdPop.i++; renderPop(); } else popClose(); return true; }
+      if (k === 'Enter') { var id = rows[osdPop.i].id; popClose(); osdAct(id); return true; }
+      if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { popClose(); return true; }
+      if (k === 'ArrowLeft' || k === 'ArrowRight') popClose();
+    }
     if (k === 'ArrowLeft' || k === 'ArrowRight') {
       if (osdZone === 'bar') scrubKey(k === 'ArrowLeft' ? -1 : 1);
       else { var _n = obList().length; osdSel = (osdSel + (k === 'ArrowLeft' ? -1 : 1) + _n) % _n; renderOsd(); }
@@ -5855,9 +5918,14 @@
   // can tap or drag.
   if (window.PHONE) (function () {
     $('obtns').addEventListener('click', function (e) {
-      var t = e.target.closest && e.target.closest('.ob');
-      if (!t || !osdOpen) return;
-      osdTouch(); osdAct(t.id.slice(3));
+      if (!osdOpen || !e.target.closest) return;
+      var pi = e.target.closest('.opi');
+      if (pi) { osdTouch(); popClose(); osdAct(pi.getAttribute('data-id')); return; }
+      var t = e.target.closest('.ob');
+      if (!t) return;
+      osdTouch();
+      var g = t.id.slice(3);
+      if (osdPop && osdPop.g === g) popClose(); else { popClose(); osdAct(g); }
     });
     var pr = $('oprog');
     pr.setAttribute('data-own', '1');
@@ -5957,8 +6025,8 @@
       else if (k === 'Enter' || k === ' ') watchFromGuide();
       else if (k === 'Blue') watchFromGuide();
       // in the guide: Back goes back to what is playing; with nothing playing, Back twice leaves the app
-      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { if (cur) closeGuide(); else pressBackToExit(); }
-      else if (k === 'Guide') closeGuide();
+      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { if (cur) guideBack(); else pressBackToExit(); }
+      else if (k === 'Guide') guideBack();
       else if (k === 'Info') gmOpen();
       else handled = false;
     } else if (optsOpen) {

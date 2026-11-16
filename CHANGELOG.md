@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.48.2 — 2026-11-16
+- The bar you get with OK while watching has fewer, clearer buttons: Stop, Restart, Play/Pause, Next, then Guide, Sources, Audio & subs and Options. Guide opens a short list (TV Guide, Channel schedule, On Demand); Sources (only with Experimental on and an addon) holds Auto play from addons and Find sources. Up/Down pick in the list, OK runs it, Left/Right or Back close it.
+- New Stop button: stops the programme and opens the TV Guide. Back from the guide joins the channel again where it is now.
+- Skip adverts is no longer a separate button: during an ad break Next reads "Skip adverts".
+
 ## Alpha 0.48.1 — 2026-11-16
 - On Demand > hold OK > "Choose the right show" now really changes the show. The show is renamed to the one you pick, its episodes are filled in from that show (Magic EPG, the scrapers' episode guide, TVmaze) and the pictures change with it. The choice is remembered. "Back to automatic" puts the original name and episodes back. Scrape artwork, Choose a poster and Choose a background do not rename anything.
 

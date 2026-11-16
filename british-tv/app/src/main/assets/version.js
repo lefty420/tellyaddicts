@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.48.1",
-  "version": "0.48.1",
-  "code": 4801,
+  "name": "Alpha 0.48.2",
+  "version": "0.48.2",
+  "code": 4802,
   "date": "2026-11-16",
   "notes": [
-    "On Demand > hold OK > \"Choose the right show\" now really changes the show. The show is renamed to the one you pick, its episodes are filled in from that show (Magic EPG, the scrapers' episode guide, TVmaze) and the pictures change with it. The choice is remembered. \"Back to automatic\" puts the original name and episodes back. Scrape artwork, Choose a poster and Choose a background do not rename anything."
+    "The bar you get with OK while watching has fewer, clearer buttons: Stop, Restart, Play/Pause, Next, then Guide, Sources, Audio & subs and Options. Guide opens a short list (TV Guide, Channel schedule, On Demand); Sources (only with Experimental on and an addon) holds Auto play from addons and Find sources. Up/Down pick in the list, OK runs it, Left/Right or Back close it.",
+    "New Stop button: stops the programme and opens the TV Guide. Back from the guide joins the channel again where it is now.",
+    "Skip adverts is no longer a separate button: during an ad break Next reads \"Skip adverts\"."
   ],
   "history": [
+    {
+      "name": "Alpha 0.48.1",
+      "date": "2026-11-16",
+      "notes": [
+        "On Demand > hold OK > \"Choose the right show\" now really changes the show. The show is renamed to the one you pick, its episodes are filled in from that show (Magic EPG, the scrapers' episode guide, TVmaze) and the pictures change with it. The choice is remembered. \"Back to automatic\" puts the original name and episodes back. Scrape artwork, Choose a poster and Choose a background do not rename anything."
+      ]
+    },
     {
       "name": "Alpha 0.48.0",
       "date": "2026-11-16",
@@ -57,14 +66,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "Options > Experimental: new \"Content\" (Everything by default, or British). British hides the shows the scraper has flagged as never shown on UK TV (mostly US drama) from the guides, On Demand and Magic EPG; UK-made shows, US shows that aired here, and any show it is unsure about stay. It reads data/uk.json (flags with u:0 are the ones hidden), which the scraper has still to publish: until then nothing is hidden. Turning it on or off restarts the guides."
-      ]
-    },
-    {
-      "name": "Alpha 0.47.3",
-      "date": "2026-11-15",
-      "notes": [
-        "Magic EPG reads the scraper's own episode file (data/epdb.json, v2): several files when it is split (epdb-1.json ...), a new copy only when the revision in index.json changes, and each episode's running time when it has one. Until the scraper publishes it, the packed copy from tools/build_epdb.py is used (the tool no longer overwrites a v2 file).",
-        "The episode database and the TV's own episode lists are kept in files, not the page's small storage."
       ]
     }
   ]

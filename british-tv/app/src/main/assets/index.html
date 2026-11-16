@@ -654,6 +654,8 @@
   html.phone #obtns { flex-wrap: wrap; gap: 1.2vh 1vw; padding: 5vh 2vw 1.6vh 2vw; }
   html.phone .ob { flex: 1 1 22%; min-height: 9vh; font-size: 3.2vh; }
   html.phone .ob .ic { font-size: 3.4vh; }
+  html.phone #obsp { display: none; }
+  html.phone .opi { font-size: 3.4vh; padding: 2.2vh 3vw; }
   /* phone: menus, On Demand menus and Options at a size a thumb can use */
   html.phone #gmbox { width: 76vw; padding: 3vh 3vw 2.4vh; }
   html.phone #gmt { font-size: 4.8vh; }
@@ -734,9 +736,19 @@
   #oprog.scrub #obar { background: #ffd24d; }
   #otime { position: absolute; right: 0; top: 1.8vh; font-size: 2vh; color: rgba(255,255,255,.75); }
   #obtns { display: flex; gap: .6vw; padding: 3.8vh 2vw 1.8vh 9.2vw; }
-  .ob { flex: 1; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .45vw;
+  .ob { flex: none; display: flex; align-items: center; justify-content: center; gap: .9vw; padding: 1.2vh .45vw;
     font-size: 2.5vh; font-weight: 600; background: rgba(255,255,255,.1); border-radius: .7vh; white-space: nowrap; }
   .ob .ic { font-size: 2.6vh; }
+  .ob { padding-left: 1.2vw; padding-right: 1.2vw; }
+  .ob .chev { font-size: 2vh; opacity: .8; margin-left: -.3vw; }
+  #obsp { flex: 1; }
+  /* the Guide and Sources buttons open a short list above the bar */
+  #opop { position: absolute; bottom: calc(100% - 2.4vh); min-width: 19vw; padding: .8vh; display: flex; flex-direction: column; gap: .4vh;
+    background: #071d66; border: .2vh solid rgba(255,255,255,.25); border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); z-index: 2; }
+  #opop.hidden { display: none; }
+  .opi { display: flex; justify-content: space-between; align-items: center; gap: 2vw; padding: 1.5vh 1.2vw; font-size: 2.5vh; font-weight: 600; border-radius: .7vh; white-space: nowrap; }
+  .opi.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
+  .opi .key { font-size: 1.6vh; font-weight: 700; letter-spacing: .1em; padding: .3vh .5vw; border-radius: .5vh; background: var(--red); color: #fff; }
   .ob.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
   /* On Demand: a hero and a poster row per channel, then a page for the show with its seasons. Flat colours and
      plain outlines only (no blur or shadows on moving parts), so even an old box keeps up. */
@@ -929,17 +941,16 @@
   </div>
   <div id="oprog"><i id="obuf"></i><i id="obar"></i><i id="othumb"></i><span id="otime"></span></div>
   <div id="obtns">
-    <div class="ob" id="ob-guide"><span>TV Guide</span></div>
-    <div class="ob" id="ob-pp"><span class="ic" id="oic-pp"></span><span id="olbl-pp"></span></div>
-    <div class="ob" id="ob-skipad"><span class="ic">&#9193;</span><span>Skip adverts</span></div>
-    <div class="ob" id="ob-next"><span class="ic">&#9654;&#10072;</span><span>Play Next</span></div>
+    <div class="ob" id="ob-stop"><span class="ic">&#9632;</span><span>Stop</span></div>
     <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
-    <div class="ob" id="ob-sched"><span>Schedule</span></div>
-    <div class="ob" id="ob-od"><span>On Demand</span></div>
-    <div class="ob" id="ob-src"><span>Auto play</span></div>
-    <div class="ob" id="ob-find"><span>Find sources</span></div>
-    <div class="ob" id="ob-tracks"><span class="ic">&#9835;</span><span>Audio &amp; subtitles</span></div>
+    <div class="ob" id="ob-pp"><span class="ic" id="oic-pp"></span><span id="olbl-pp"></span></div>
+    <div class="ob" id="ob-next"><span class="ic" id="oic-next">&#9654;&#10072;</span><span id="olbl-next">Next</span></div>
+    <i id="obsp"></i>
+    <div class="ob" id="ob-gguide"><span>Guide</span><span class="chev">&#9652;</span></div>
+    <div class="ob" id="ob-gsrc"><span>Sources</span><span class="chev">&#9652;</span></div>
+    <div class="ob" id="ob-tracks"><span class="ic">&#9835;</span><span>Audio &amp; subs</span></div>
     <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
+    <div id="opop" class="hidden"></div>
   </div>
 </div>
 <div id="od" class="hidden">

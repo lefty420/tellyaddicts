@@ -7,6 +7,15 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.48.3 — 2026-11-16
+- Info is now a screen you can use, not just read. Up/Down move between its rows, Left/Right along a row, OK presses what is highlighted (gold) and Back goes back a step. OK no longer closes it.
+- Buttons: Watch now (Keep watching if you opened Info while watching), Next episode for a series, and Hide this film / show.
+- Cast: OK on a name lists everything else with them that this TV can play, with their part in each, and OK on one opens its Info. A small gold number on a photo says how many others there are. Films are all included; a series joins once its Info has shown its cast. Films now really get their cast from the library (it was being dropped on the way to the film channels).
+- A gold line under the summary says when it is on next in the guides ("Next on Kids Movies: 19:49", or "On now on ...").
+- A series shows its episodes in a row, starting at this one: the series numbers across the top, how many of that series are in your library, and the episodes the episode guide (data/epdb.json) knows but the library has not got shown dashed as "Not in library". OK plays an episode and carries on through the show.
+- More like this: for a film, other films that share a genre, the same decade first; for a series, more shows on its channel. OK opens its Info, Back comes back.
+- A film's title no longer shows its year twice.
+
 ## Alpha 0.48.2 — 2026-11-16
 - The bar you get with OK while watching has fewer, clearer buttons: Stop, Restart, Play/Pause, Next, then Guide, Sources, Audio & subs and Options. Guide opens a short list (TV Guide, Channel schedule, On Demand); Sources (only with Experimental on and an addon) holds Auto play from addons and Find sources. Up/Down pick in the list, OK runs it, Left/Right or Back close it.
 - New Stop button: stops the programme and opens the TV Guide. Back from the guide joins the channel again where it is now.

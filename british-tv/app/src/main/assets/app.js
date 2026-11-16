@@ -1919,8 +1919,8 @@
     clearTimeout(spanTimer);
     spanTimer = setTimeout(function () { location.reload(); }, 2200);
   }
-  function loadEpdb() {
-    if (!depgActive()) return Promise.resolve();
+  function loadEpdb(any) {           // any: Info's episode row wants it even when Magic EPG is off
+    if (!any && !depgActive()) return Promise.resolve();
     if (epdbP) return epdbP;
     return (epdbP = loadDataIndex().then(null, function () { /* no index: the plain file name below */ }).then(function () {
       var c = store.get('epdb1'), kept = c && c.d;
@@ -2222,43 +2222,61 @@
     }, 1200);
   }
 
-  function openInfo(over) {
+  // ---- Info: the details, then rows the remote moves through: buttons, cast, and below them the episodes and
+  // "more like this". OK presses what is highlighted, Back goes back one step (an actor's list > Info > closed).
+  var info = null;          // { cp, live, film, rows: {id: {items, ...}}, order: [ids], r: row id, at: {id: index}, actor }
+  var infoStack = [];       // what Back returns to: { over } or { actor }
+  function openInfo(over, keep) {
     var cp = over || cur;          // a programme picked in the guide, or what is playing
     if (!cp) return;
+    if (!keep) infoStack = [];
     if (!over) reportProgramme('Info opened');
     infoOpen = true;
     var token = ++infoToken;
     var title = cp.prog.title || '';
     $('info').className = '';
+    $('iactor').className = 'hidden';
+    $('ipanel').className = '';
     $('ibg').style.backgroundImage = 'none';
     $('iposter').className = 'hidden';
     $('ishow').textContent = title;
     $('iep').textContent = '';
     $('imeta').textContent = cp.ch.name;
     $('isum').textContent = '';
+    $('inext').textContent = '';
     $('icast').textContent = '';
-    $('isrc').textContent = 'Looking up details…   (Back to close)';
-    if (cp.ad) { $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cp.prog.url || '').replace('https://archive.org/download/', '')); $('isrc').textContent = 'Back to close'; return; }
+    $('ilow').textContent = '';
+    $('isrc').textContent = 'Looking up details…';
     var film = filmFor(cp.prog);
+    info = { cp: cp, live: !over, film: !!film, rows: {}, order: [], r: 'btns', at: {}, token: token, actor: null };
+    if (cp.ad) {
+      $('isum').textContent = 'An advert between programmes: ' + decodeURIComponent(String(cp.prog.url || '').replace('https://archive.org/download/', ''));
+      infoFoot(''); infoSetRow('btns', infoButtons(cp, false)); return;
+    }
+    infoSetRow('btns', infoButtons(cp, !!film));
+    infoNextOn(cp);
+    infoMore(cp, !!film);
     if (film) { showFilmInfo(film, cp); return; }                 // a film: TMDb already told us everything
+    infoEpisodes(cp);
     var p = parseTitle(title);
     if (cp.prog && cp.prog.show) p.show = cp.prog.show;
-    if (!p.show) { $('isrc').textContent = 'Back to close'; return; }
+    if (!p.show) { infoFoot(''); return; }
     tvmInfo(p).then(function (d) {
       if (token !== infoToken || !infoOpen) return;
       if (!d) {
         $('isum').textContent = 'No online details found for this one.';
-        $('isrc').textContent = 'Back to close';
+        infoFoot('');
         return;
       }
       var s = d.show, e = d.ep;
       $('ishow').textContent = s.name;
       var bits = [];
-      if (s.year) bits.push(s.year + (s.ended && s.ended !== s.year ? '\u2013' + s.ended : ''));
+      if (s.year) bits.push(s.year + (s.ended && s.ended !== s.year ? '–' + s.ended : ''));
       if (s.network) bits.push(s.network);
       if (s.genres) bits.push(s.genres);
-      if (s.rating) bits.push('\u2605 ' + s.rating);
-      $('imeta').textContent = bits.join('   \u00b7   ');
+      if (s.rating) bits.push('★ ' + s.rating);
+      bits.push(cp.ch.name);
+      $('imeta').textContent = bits.join('   ·   ');
       var parts = [];
       if (e) {
         $('iep').textContent = 'S' + e.season + 'E' + e.number + '  ' + e.name + (e.airdate ? '   (' + e.airdate.split('-').reverse().join('/') + ')' : '');
@@ -2273,14 +2291,18 @@
       var ph = $('iposter');
       if (s.poster) { ph.src = s.poster; ph.className = ''; }
       if (s.background || pic) $('ibg').style.backgroundImage = 'url("' + (s.background || pic) + '")';
-      $('isrc').textContent = 'Details from ' + (s.tvdb ? 'TheTVDB' : 'TVmaze') + '   \u00b7   Back to close';
-      if (s.cast && s.cast.length) showCast(s.cast);
-      else if (s.id) tvmCast(s.id).then(function (list) { if (token === infoToken && infoOpen) showCast(list); });
+      infoFoot(s.tvdb ? 'TheTVDB' : 'TVmaze');
+      var keepCast = function (list) { castLearn(gmName(cp.prog) || s.name, cp.ch, list); showCast(list); };
+      if (s.cast && s.cast.length) keepCast(s.cast);
+      else if (s.id) tvmCast(s.id).then(function (list) { if (token === infoToken && infoOpen) keepCast(list); });
     }, function () {
       if (token !== infoToken || !infoOpen) return;
       $('isum').textContent = 'Could not look this up right now.';
-      $('isrc').textContent = 'Back to close';
+      infoFoot('');
     });
+  }
+  function infoFoot(from) {
+    $('isrc').textContent = (from ? 'Details from ' + from + '   ·   ' : '') + 'OK select   ·   Back ' + (infoStack.length ? 'go back' : 'close');
   }
 
   /** The main cast of a show (TVmaze, free): name, character and a photo. Kept once per show. */
@@ -2298,25 +2320,25 @@
       return l;
     }, function () { return (c && c.l) || []; });
   }
-  /** A row of round photos on the Info screen. A film's cast comes with the scraper's film details. */
+  /** A row of round photos on the Info screen. A film's cast comes with the scraper's film details. OK on one lists
+   *  what else they are in; the small gold number says how many. */
   function showCast(list) {
-    var box = $('icast');
-    box.textContent = '';
+    if (!info) return;
+    var cp = info.cp, items = [];
     (list || []).slice(0, 8).forEach(function (m) {
       if (!m || !m.n) return;
-      var card = document.createElement('div'); card.className = 'icm';
-      var ph = document.createElement('div'); ph.className = 'icp';
-      if (m.p) ph.style.backgroundImage = 'url("' + m.p + '")'; else ph.textContent = m.n.charAt(0);
-      var nm = document.createElement('b'); nm.textContent = m.n;
-      card.appendChild(ph); card.appendChild(nm);
-      if (m.c) { var ch = document.createElement('small'); ch.textContent = m.c; card.appendChild(ch); }
-      box.appendChild(card);
+      items.push({ m: m, f: function () {
+        if (actIdx && !actorCount(m.n)) { toast('Nothing else with ' + m.n + ' on this TV yet', 3000); return; }
+        infoActor(m.n);
+      } });
     });
+    infoSetRow('cast', items);
+    actorIndex().then(function () { if (info && info.cp === cp) infoDraw(); });      // the gold numbers, once the films are in
   }
 
   /** A film's Info screen, straight from the details the scraper gathered: no lookup, so it is up at once. */
   function showFilmInfo(f, cp) {
-    $('ishow').textContent = f.title || (cp.prog.title || '');
+    $('ishow').textContent = String(f.title || cp.prog.title || '').replace(/\s*\((19|20)\d\d\)\s*$/, '');    // the year is on the line below
     var bits = [];
     if (f.released) bits.push(String(f.released).slice(0, 4));
     if (f.cert) bits.push(f.cert);
@@ -2334,16 +2356,390 @@
     }
     // just where it came from, as the TVmaze screens say. The credit TMDb's terms ask for, with their logo,
     // lives in Options > About & credits rather than on top of every film.
-    $('isrc').textContent = 'Details from TMDB   ·   Back to close';
+    infoFoot('TMDB');
     showCast(f.cast);
+  }
+
+  // ---- the rows
+  /** Watch now (or Keep watching), the next episode, and Hide. */
+  function infoButtons(cp, film) {
+    var p = cp.prog, b = [], live = !!(info && info.live), ref = window.LINKS && LINKS.parseEp(p.title || '');
+    if (live) b.push({ t: 'Keep watching', play: 1, f: function () { closeInfo(); } });
+    else b.push({ t: 'Watch now', play: 1, f: function () { infoPlay(cp.ch, p, 0); } });
+    if (ref && !p.ad) b.push({ t: 'Next episode', f: function () { infoPlay(cp.ch, p, 1); } });
+    if (!p.ad && !live) b.push({ t: film ? 'Hide this film' : 'Hide this show', f: function () {
+      var name = film ? p.title : gmName(p);
+      closeInfo(); hideShow(name, film);
+    } });
+    return b;
+  }
+  /** Play this programme (d 0) or the one after it (d 1) as On Demand does, carrying on through the show. */
+  function infoPlay(c, p, d) {
+    if (!c || !p) return;
+    gmFind(c, p, function (g, i) {
+      if (d && (!g || i < 0 || i + d >= g.flat.length)) { toast('No next episode of ' + gmName(p) + ' is stored', 3500); return; }
+      closeInfo();
+      if (gm) gmClose();
+      if (odOpen) odClose(false);
+      if (guideOpen) closeGuide();
+      if (g && i >= 0) odStart(c, g.flat, i + d, 0, g.name);
+      else odStart(c, [{ p: p }], 0);
+    });
+  }
+  /** Where this show or film is on next in the guides (today and tomorrow), under the summary. */
+  function infoNextOn(cp) {
+    var p = cp.prog, key = p.filmKey ? 'f' + p.filmKey : 's' + normShow(gmName(p)), now = Date.now(), best = null;
+    if (!p || p.ad || key.length < 2) return;
+    guideList().forEach(function (c) {
+      if (c.status !== 'ready' || !c.sched) return;
+      var bl = [];
+      try { bl = E.blocks(c.sched, now, now + 2 * 86400000); } catch (e) { return; }
+      bl.forEach(function (b) {
+        var q = b.prog;
+        if (!q || q === p || b.endMs <= now || q.ad) return;
+        if ((q.filmKey ? 'f' + q.filmKey : 's' + normShow(gmName(q))) !== key) return;
+        if (!best || b.startMs < best.b.startMs) best = { b: b, c: c };
+      });
+    });
+    if (!best) return;
+    var t = best.b.startMs, day = new Date(t).toDateString() === new Date(now).toDateString() ? '' : ['Sun ', 'Mon ', 'Tue ', 'Wed ', 'Thu ', 'Fri ', 'Sat '][new Date(t).getDay()];
+    $('inext').textContent = t <= now ? 'On now on ' + best.c.name : 'Next on ' + best.c.name + ': ' + day + fmtTime(t);
+  }
+  /** A series: its episodes, from On Demand (with Magic EPG, every one the scrapers know), and the episode guide
+   *  (data/epdb.json) for the ones there is no file for, shown as not in the library. */
+  function infoEpisodes(cp) {
+    var c = cp.ch, p = cp.prog, cpNow = cp;
+    if (!c || p.filmKey || p.ad) return;
+    Promise.all([loadEpdb(true).then(null, function () {}), new Promise(function (res) { gmFind(c, p, function (g, i) { res({ g: g, i: i }); }); })]).then(function (r) {
+      if (!info || info.cp !== cpNow) return;
+      var g = r[1].g, at = r[1].i;
+      var list = [], have = {};
+      if (g) g.flat.forEach(function (ep, n) {
+        if (ep.s > 0) have[ep.s + ':' + ep.e] = 1;
+        list.push({ s: ep.s, e: ep.e, t: String(ep.label || '').replace(/^E\d+\s*/, ''), miss: !!ep.p.virtual, n: n, here: n === at });
+      });
+      var d = veGet(gmName(p));
+      if (d && d.eps) d.eps.forEach(function (row) {
+        if (!row[0] || have[row[0] + ':' + row[1]]) return;
+        list.push({ s: row[0], e: row[1], t: row[2] || '', miss: true, n: -1, gone: true });
+      });
+      list = list.filter(function (x) { return x.s > 0; });
+      if (list.length < 2) return;
+      list.sort(function (a, b) { return (a.s - b.s) || (a.e - b.e); });
+      var items = list.map(function (x) {
+        x.f = x.gone ? function () { toast('Series ' + x.s + ' episode ' + x.e + ' is not in the library yet', 3000); }
+                     : function () { infoPlayAt(c, g, x.n); };
+        return x;
+      });
+      var here = 0; items.forEach(function (x, n) { if (x.here) here = n; });
+      info.at.eps = here;
+      infoSetRow('eps', items);
+    });
+  }
+  function infoPlayAt(c, g, n) {
+    closeInfo();
+    if (gm) gmClose();
+    if (odOpen) odClose(false);
+    if (guideOpen) closeGuide();
+    odStart(c, g.flat, n, 0, g.name);
+  }
+  /** More like this: for a film, the other films that share a genre (the same decade first); for a series, the other
+   *  shows on its channel. OK opens its Info. */
+  function infoMore(cp, film) {
+    var c = cp.ch, p = cp.prog, cpNow = cp;
+    if (!c || p.ad || !c.id || c.id.charAt(0) === '_') return;
+    var chans = film ? odChannels().filter(function (x) { return OD_FILMS[x.id]; }) : [c];
+    if (!chans.length) chans = [c];
+    Promise.all(chans.map(odLoadChannel)).then(function () {
+      if (!info || info.cp !== cpNow) return;
+      var me = infoKeyFor(p), out = [], seen = {};
+      var f0 = film ? filmFor(p) : null, gs = f0 ? String(f0.genres || '').split(/\s*,\s*/).filter(Boolean) : [];
+      var yr = f0 ? +String(f0.released || '').slice(0, 4) : 0;
+      chans.forEach(function (ch) {
+        (odShowsOf(ch) || []).forEach(function (g) {
+          var k = infoKeyG(g), e0 = g.flat && g.flat[0];
+          if (!e0 || k === me || seen[k]) return;
+          seen[k] = 1;
+          var sc = 0;
+          if (film) {
+            var f = filmFor(e0.p); if (!f) return;
+            var share = String(f.genres || '').split(/\s*,\s*/).filter(function (x) { return gs.indexOf(x) >= 0; }).length;
+            if (!share) return;
+            var y = +String(f.released || '').slice(0, 4);
+            sc = share * 10 + (yr && y && Math.floor(y / 10) === Math.floor(yr / 10) ? 25 : 0) - (yr && y ? Math.min(20, Math.abs(y - yr)) / 4 : 5);
+          } else {
+            var h = 0; for (var i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) % 997;    // a steady mix, not always A to Z
+            sc = h;
+          }
+          out.push({ g: g, sc: sc });
+        });
+      });
+      out.sort(function (a, b) { return b.sc - a.sc; });
+      var items = out.slice(0, 12).map(function (x) {
+        var g = x.g;
+        return { g: g, f: function () { var e0 = g.flat[0]; infoStack.push(infoHere()); openInfo({ prog: e0.p, ch: g.chan || c }, true); } };
+      });
+      if (!items.length) return;
+      info.moreTitle = film ? 'More like this' : 'More on ' + c.name;
+      infoSetRow('more', items);
+    });
+  }
+  /** Where Back should come back to. */
+  /** One key per title, so a film filed under two file names, or on two channels, counts once. */
+  function infoKeyFor(p) {
+    var f = p && p.filmKey ? filmFor(p) : null;
+    return f ? 'f' + (f.tmdb || LIBROUTE.norm(f.title || p.title || '')) : 's' + LIBROUTE.norm(gmName(p));
+  }
+  function infoKeyG(g) { var e0 = g && g.flat && g.flat[0]; return e0 ? infoKeyFor(e0.p) : 's' + LIBROUTE.norm(g ? g.name : ''); }
+  /** A title as people know it: a film's own name rather than its file's, without the year in brackets. */
+  function infoNameG(g) {
+    var e0 = g && g.flat && g.flat[0], f = e0 && e0.p.filmKey ? filmFor(e0.p) : null;
+    return String((f && f.title) || (g && g.name) || '').replace(/\s*\((19|20)\d\d\)\s*$/, '');
+  }
+  function infoMe() { return info ? infoKeyFor(info.cp.prog) : ''; }
+  function infoHere() { return { over: info && !info.live ? info.cp : null, actor: info && info.actor || null }; }
+
+  // ---- actors: who is in what, across the film channels and the series whose cast has been seen on Info
+  var actIdx = null, actP = null;
+  function actorIndex() {
+    if (actP) return actP;
+    var fc = odChannels().filter(function (x) { return OD_FILMS[x.id]; });
+    actP = Promise.all(fc.map(odLoadChannel)).then(function () {
+      var m = {}, seen = {};
+      fc.forEach(function (ch) {
+        (odShowsOf(ch) || []).forEach(function (g) {
+          var e0 = g.flat && g.flat[0], f = e0 && filmFor(e0.p), k = infoKeyG(g);
+          if (!f || !f.cast || seen[k]) return;
+          seen[k] = 1;
+          f.cast.forEach(function (x) { if (x && x.n) (m[x.n] = m[x.n] || []).push({ g: g, role: x.c || '', ch: ch, f: f, k: k }); });
+        });
+      });
+      actIdx = m;
+      return m;
+    }, function () { actIdx = {}; return actIdx; });
+    return actP;
+  }
+  /** A series' cast, kept when its Info shows it, so the actor lists can include it. */
+  function castLearn(name, ch, list) {
+    if (!name || !ch || !ch.id || ch.id.charAt(0) === '_' || !list || !list.length) return;
+    var m = store.get('castidx1') || {}, k = LIBROUTE.norm(name);
+    m[k] = { n: name, ch: ch.id, c: list.slice(0, 10).map(function (x) { return [x.n || '', x.c || '']; }) };
+    try { store.set('castidx1', m); } catch (e) { /* not kept: the films still work */ }
+  }
+  /** Everything an actor is in that this TV can play: films first, then series. */
+  function actorTitles(name) {
+    var out = (actIdx && actIdx[name] || []).map(function (x) { return { g: x.g, ch: x.ch, role: x.role, film: x.f, k: x.k }; });
+    var m = store.get('castidx1') || {};
+    Object.keys(m).forEach(function (k) {
+      var s = m[k];
+      (s.c || []).forEach(function (x) {
+        if (x[0] !== name) return;
+        var ch = channels.filter(function (c) { return c.id === s.ch; })[0];
+        if (ch) out.push({ show: s.n, ch: ch, role: x[1] || '', k: 's' + k });
+      });
+    });
+    return out;
+  }
+  function actorCount(name) {
+    var me = infoMe();
+    return actorTitles(name).filter(function (x) { return x.k !== me; }).length;
+  }
+  function infoActor(name, keep) {
+    if (!info) return;
+    if (!keep) infoStack.push(infoHere());
+    var cpNow = info.cp;
+    actorIndex().then(function () {
+      if (!info || info.cp !== cpNow) return;
+      var list = actorTitles(name);
+      info.actor = name;
+      info.al = list;
+      info.ai = 0;
+      var me = infoMe(), first = -1;
+      list.forEach(function (x, n) { if (first < 0 && x.k !== me) first = n; });
+      info.ai = Math.max(0, first);
+      $('ipanel').className = 'hidden';
+      $('ilow').textContent = '';
+      $('iactor').className = '';
+      $('ianame').textContent = name;
+      var fl = list.filter(function (x) { return x.g; }).length, sl = list.length - fl;
+      var chs = {}; list.forEach(function (x) { chs[x.ch.name] = 1; });
+      $('iasub').textContent = (list.length ? (fl ? fl + (fl === 1 ? ' film' : ' films') : '') + (fl && sl ? ' and ' : '') + (sl ? sl + (sl === 1 ? ' series' : ' series') : '') +
+        ' you can watch   ·   ' + Object.keys(chs).join(', ') : 'Nothing else with them yet');
+      var ph = $('iaph'), pic = '';
+      ((info.rows.cast && info.rows.cast.items) || []).forEach(function (it) { if (it.m.n === name && it.m.p) pic = it.m.p; });
+      ph.style.backgroundImage = pic ? 'url("' + pic + '")' : 'none';
+      ph.textContent = pic ? '' : name.charAt(0);
+      $('isrc').textContent = 'OK open   ·   Back go back';
+      infoActorDraw();
+    });
+  }
+  function infoActorDraw() {
+    var box = $('iagrid'), list = info.al || [], me = infoMe();
+    box.textContent = '';
+    var top = Math.max(0, Math.floor(info.ai / 3) - 1) * 3;           // two rows of three at a time
+    list.slice(top, top + 6).forEach(function (x, n) {
+      var i = top + n, card = document.createElement('div');
+      card.className = 'iac' + (i === info.ai ? ' ifoc' : '');
+      var pic = document.createElement('div'); pic.className = 'iacp';
+      var k = x.g ? odKnown(x.g) : knownArt({ title: x.show, show: x.show });
+      var url = x.film && x.film.poster || (k && k.poster) || '';
+      if (url) pic.style.backgroundImage = 'url("' + url + '")'; else pic.style.background = odTone(x.g ? infoNameG(x.g) : x.show);
+      var tx = document.createElement('div'); tx.className = 'iact';
+      var b = document.createElement('b'); b.textContent = x.g ? infoNameG(x.g) : x.show;
+      var yr = x.film && x.film.released ? String(x.film.released).slice(0, 4) + '   ·   ' : '';
+      var s1 = document.createElement('span'); s1.textContent = yr + x.ch.name;
+      tx.appendChild(b); tx.appendChild(s1);
+      if (x.role) { var s2 = document.createElement('small'); s2.textContent = x.role; tx.appendChild(s2); }
+      if (x.k === me) { var y = document.createElement('i'); y.textContent = 'YOU CAME FROM HERE'; tx.appendChild(y); }
+      card.appendChild(pic); card.appendChild(tx);
+      card.addEventListener('click', function () { info.ai = i; infoActorOpen(); });
+      box.appendChild(card);
+    });
+    if (list.length > top + 6) { var more = document.createElement('div'); more.className = 'iamore'; more.textContent = '▼ ' + (list.length - top - 6) + ' more'; box.appendChild(more); }
+  }
+  function infoActorOpen() {
+    var x = info.al && info.al[info.ai];
+    if (!x) return;
+    if (x.k === infoMe()) { infoBack(); return; }           // the title Info came from: just go back to it
+    var go = function (g, ch) {
+      var e0 = g && g.flat && g.flat[0];
+      if (!e0) { toast('Could not find ' + (x.show || '') + ' on ' + ch.name + ' any more', 3000); return; }
+      infoStack.push(infoHere());
+      openInfo({ prog: e0.p, ch: g.chan || ch }, true);
+    };
+    if (x.g) { go(x.g, x.ch); return; }
+    odLoadChannel(x.ch).then(function () {
+      var k = LIBROUTE.norm(x.show);
+      go((odShowsOf(x.ch) || []).filter(function (g) { return LIBROUTE.norm(g.name) === k; })[0], x.ch);
+    });
+  }
+
+  // ---- drawing and keys
+  var INFO_ORDER = ['btns', 'cast', 'eps', 'more'];
+  function infoSetRow(id, items) {
+    if (!info) return;
+    if (items && items.length) info.rows[id] = { items: items }; else delete info.rows[id];
+    info.order = INFO_ORDER.filter(function (x) { return info.rows[x]; });
+    if (!info.rows[info.r]) info.r = info.order[0] || 'btns';
+    if (!info.actor) infoDraw();
+  }
+  function infoAt(id) {
+    var r = info.rows[id], n = r ? r.items.length : 0;
+    var i = Math.max(0, Math.min(info.at[id] || 0, n - 1));
+    info.at[id] = i;
+    return i;
+  }
+  function infoDraw() {
+    if (!info || info.actor) return;
+    var foc = info.r;
+    // buttons
+    var bb = $('ibtns'); bb.textContent = '';
+    ((info.rows.btns && info.rows.btns.items) || []).forEach(function (b, i) {
+      var el = document.createElement('button');
+      el.className = 'ib' + (b.play ? ' play' : '') + (foc === 'btns' && i === infoAt('btns') ? ' ifoc' : '');
+      el.textContent = b.t;
+      el.addEventListener('click', function () { info.r = 'btns'; info.at.btns = i; b.f(); });
+      bb.appendChild(el);
+    });
+    // cast
+    var cb = $('icast'); cb.textContent = '';
+    var cast = info.rows.cast;
+    $('icasth').textContent = cast ? 'Cast   ·   OK on a name for what else they are in' : '';
+    if (cast) {
+      var ci = infoAt('cast'), c0 = Math.max(0, Math.min(ci - 2, cast.items.length - 6));
+      cast.items.slice(c0, c0 + 6).forEach(function (it, n) {
+        var m = it.m, i = c0 + n;
+        var card = document.createElement('div'); card.className = 'icm' + (foc === 'cast' && i === ci ? ' ifoc' : '');
+        var ph = document.createElement('div'); ph.className = 'icp';
+        if (m.p) ph.style.backgroundImage = 'url("' + m.p + '")'; else ph.textContent = m.n.charAt(0);
+        var cnt = actIdx ? actorCount(m.n) : 0;
+        if (cnt) { var bd = document.createElement('span'); bd.className = 'icn'; bd.textContent = '+' + cnt; ph.appendChild(bd); }
+        var nm = document.createElement('b'); nm.textContent = m.n;
+        card.appendChild(ph); card.appendChild(nm);
+        if (m.c) { var ch = document.createElement('small'); ch.textContent = m.c.replace(/\s*\(voice\)\s*$/i, ''); card.appendChild(ch); }
+        card.addEventListener('click', function () { info.r = 'cast'; info.at.cast = i; it.f(); });
+        cb.appendChild(card);
+      });
+    }
+    // the low row: the one with the highlight, else the first there is
+    var low = (foc === 'eps' || foc === 'more') ? foc : (info.rows.eps ? 'eps' : info.rows.more ? 'more' : '');
+    var lb = $('ilow'); lb.textContent = '';
+    $('ipanel').className = low ? 'withlow' : '';
+    if (!low) return;
+    var r = info.rows[low], li = infoAt(low), N = 6, s0 = Math.max(0, Math.min(li - 1, r.items.length - N));
+    var head = document.createElement('div'); head.className = 'ilh';
+    if (low === 'eps') {
+      var cur0 = r.items[li], seas = [], tot = 0, got = 0;
+      r.items.forEach(function (x) { if (seas.indexOf(x.s) < 0) seas.push(x.s); if (x.s === cur0.s) { tot++; if (!x.gone) got++; } });
+      var h = document.createElement('span'); h.textContent = 'Episodes'; head.appendChild(h);
+      seas.slice(0, 14).forEach(function (sn) { var b = document.createElement('i'); b.textContent = sn === cur0.s ? 'Series ' + sn : String(sn); if (sn === cur0.s) b.className = 'on'; head.appendChild(b); });
+      var cnt = document.createElement('em'); cnt.textContent = 'Series ' + cur0.s + ': ' + got + ' of ' + tot + ' in your library'; head.appendChild(cnt);
+    } else {
+      var h2 = document.createElement('span'); h2.textContent = info.moreTitle || 'More like this'; head.appendChild(h2);
+    }
+    lb.appendChild(head);
+    var row = document.createElement('div'); row.className = 'ilr';
+    r.items.slice(s0, s0 + N).forEach(function (x, n) {
+      var i = s0 + n, card = document.createElement('div');
+      card.className = 'ilc' + (foc === low && i === li ? ' ifoc' : '') + (x.gone ? ' gone' : '');
+      var pic = document.createElement('div'); pic.className = 'ilp';
+      var cap = document.createElement('div'); cap.className = 'ilt';
+      if (low === 'eps') {
+        var tag = document.createElement('b'); tag.textContent = 'S' + x.s + ' E' + x.e; pic.appendChild(tag);
+        if (x.here) { var hh = document.createElement('i'); hh.textContent = 'THIS ONE'; pic.appendChild(hh); }
+        if (x.gone) { var gg = document.createElement('em'); gg.textContent = 'Not in library'; pic.appendChild(gg); }
+        else if (x.miss) { var vv = document.createElement('em'); vv.textContent = 'From your addons'; pic.appendChild(vv); }
+        cap.textContent = x.t || ('Episode ' + x.e);
+      } else {
+        var k = odKnown(x.g), f = x.g.film && filmFor(x.g.flat[0].p);
+        var url = (k && (k.back || k.poster)) || (f && f.poster) || '';
+        if (url) pic.style.backgroundImage = 'url("' + url + '")'; else pic.style.background = odTone(x.g.name);
+        cap.textContent = infoNameG(x.g);
+      }
+      card.appendChild(pic); card.appendChild(cap);
+      card.addEventListener('click', function () { info.r = low; info.at[low] = i; x.f(); });
+      row.appendChild(card);
+    });
+    lb.appendChild(row);
+  }
+  function infoKey(k) {
+    if (k === 'Info') { closeInfo(); return; }
+    if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { infoBack(); return; }
+    if (!info) { closeInfo(); return; }
+    if (info.actor) {
+      var n = (info.al || []).length;
+      if (k === 'ArrowLeft') info.ai = Math.max(0, info.ai - 1);
+      else if (k === 'ArrowRight') info.ai = Math.min(n - 1, info.ai + 1);
+      else if (k === 'ArrowUp') info.ai = Math.max(0, info.ai - 3);
+      else if (k === 'ArrowDown') info.ai = Math.min(n - 1, info.ai + 3);
+      else if (k === 'Enter' || k === ' ') { infoActorOpen(); return; }
+      else return;
+      infoActorDraw();
+      return;
+    }
+    var o = info.order, ri = o.indexOf(info.r), r = info.rows[info.r];
+    if (k === 'ArrowUp' && ri > 0) info.r = o[ri - 1];
+    else if (k === 'ArrowDown' && ri < o.length - 1) info.r = o[ri + 1];
+    else if (k === 'ArrowLeft' && r) info.at[info.r] = Math.max(0, infoAt(info.r) - 1);
+    else if (k === 'ArrowRight' && r) info.at[info.r] = Math.min(r.items.length - 1, infoAt(info.r) + 1);
+    else if ((k === 'Enter' || k === ' ') && r) { var it = r.items[infoAt(info.r)]; if (it) it.f(); return; }
+    else return;
+    infoDraw();
+  }
+  function infoBack() {
+    var b = infoStack.pop();
+    if (!b) { closeInfo(); return; }
+    openInfo(b.over || null, true);
+    if (b.actor) infoActor(b.actor, true);
   }
 
   function closeInfo() {
     infoOpen = false;
     infoToken++;
+    info = null;
+    infoStack = [];
     $('info').className = 'hidden';
   }
-
   // ------------------------------------------------------------------ tuning static
 
   var sToken = 0, sbHoldUntil = 0, sbHoldTimer = null;
@@ -5994,8 +6390,8 @@
       return;
     }
 
-    if (infoOpen) {                       // info panel: any of these closes it, everything else is ignored
-      if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Enter' || k === ' ' || k === 'Info') closeInfo();
+    if (infoOpen) {                       // Info: the arrows move through its rows, OK presses, Back goes back a step
+      if (!(e.repeat && (k === 'Enter' || k === ' '))) infoKey(k);     // an OK still held from opening Info presses nothing
       e.preventDefault();
       return;
     }

@@ -236,6 +236,7 @@
             if (ep.g) d.g = ep.g;
             if (ep.rt) d.rt = ep.rt;
             if (ep.tm) d.tm = ep.tm;
+            if (ep.cast) d.cast = ep.cast;      // Info's cast row, and the actor lists
           }
           it.m[ep.f] = d;
         });

@@ -1,16 +1,29 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.48.2",
-  "version": "0.48.2",
-  "code": 4802,
+  "name": "Alpha 0.48.3",
+  "version": "0.48.3",
+  "code": 4803,
   "date": "2026-11-16",
   "notes": [
-    "The bar you get with OK while watching has fewer, clearer buttons: Stop, Restart, Play/Pause, Next, then Guide, Sources, Audio & subs and Options. Guide opens a short list (TV Guide, Channel schedule, On Demand); Sources (only with Experimental on and an addon) holds Auto play from addons and Find sources. Up/Down pick in the list, OK runs it, Left/Right or Back close it.",
-    "New Stop button: stops the programme and opens the TV Guide. Back from the guide joins the channel again where it is now.",
-    "Skip adverts is no longer a separate button: during an ad break Next reads \"Skip adverts\"."
+    "Info is now a screen you can use, not just read. Up/Down move between its rows, Left/Right along a row, OK presses what is highlighted (gold) and Back goes back a step. OK no longer closes it.",
+    "Buttons: Watch now (Keep watching if you opened Info while watching), Next episode for a series, and Hide this film / show.",
+    "Cast: OK on a name lists everything else with them that this TV can play, with their part in each, and OK on one opens its Info. A small gold number on a photo says how many others there are. Films are all included; a series joins once its Info has shown its cast. Films now really get their cast from the library (it was being dropped on the way to the film channels).",
+    "A gold line under the summary says when it is on next in the guides (\"Next on Kids Movies: 19:49\", or \"On now on ...\").",
+    "A series shows its episodes in a row, starting at this one: the series numbers across the top, how many of that series are in your library, and the episodes the episode guide (data/epdb.json) knows but the library has not got shown dashed as \"Not in library\". OK plays an episode and carries on through the show.",
+    "More like this: for a film, other films that share a genre, the same decade first; for a series, more shows on its channel. OK opens its Info, Back comes back.",
+    "A film's title no longer shows its year twice."
   ],
   "history": [
+    {
+      "name": "Alpha 0.48.2",
+      "date": "2026-11-16",
+      "notes": [
+        "The bar you get with OK while watching has fewer, clearer buttons: Stop, Restart, Play/Pause, Next, then Guide, Sources, Audio & subs and Options. Guide opens a short list (TV Guide, Channel schedule, On Demand); Sources (only with Experimental on and an addon) holds Auto play from addons and Find sources. Up/Down pick in the list, OK runs it, Left/Right or Back close it.",
+        "New Stop button: stops the programme and opens the TV Guide. Back from the guide joins the channel again where it is now.",
+        "Skip adverts is no longer a separate button: during an ad break Next reads \"Skip adverts\"."
+      ]
+    },
     {
       "name": "Alpha 0.48.1",
       "date": "2026-11-16",
@@ -59,13 +72,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "Content: British now writes to the debug log which shows it hid and how many programmes, so a wrongly hidden show is easy to spot."
-      ]
-    },
-    {
-      "name": "Alpha 0.47.4",
-      "date": "2026-11-15",
-      "notes": [
-        "Options > Experimental: new \"Content\" (Everything by default, or British). British hides the shows the scraper has flagged as never shown on UK TV (mostly US drama) from the guides, On Demand and Magic EPG; UK-made shows, US shows that aired here, and any show it is unsure about stay. It reads data/uk.json (flags with u:0 are the ones hidden), which the scraper has still to publish: until then nothing is hidden. Turning it on or off restarts the guides."
       ]
     }
   ]

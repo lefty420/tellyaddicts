@@ -423,19 +423,70 @@
   #info.hidden { display: none; }
   #ibg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: .42; }
   #ishade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,10,42,.96) 0%, rgba(5,10,42,.86) 45%, rgba(5,10,42,.55) 100%); }
-  #ipanel { position: absolute; left: 6vw; right: 6vw; top: 8vh; bottom: 10vh; display: flex; gap: 4vw; align-items: flex-start; }
-  #iposter { flex: 0 0 24vw; max-height: 74vh; width: 24vw; object-fit: contain; border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); }
+  #ipanel { position: absolute; left: 6vw; right: 6vw; top: 6vh; display: flex; gap: 3.6vw; align-items: flex-start; }
+  #ipanel.hidden { display: none; }
+  #iposter { flex: 0 0 18vw; max-height: 48vh; width: 18vw; object-fit: contain; border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); }
+  #ipanel.withlow #iposter { max-height: 40vh; }
   #iposter.hidden { display: none; }
   #itext { flex: 1; min-width: 0; }
   #ishow { font-size: 5.2vh; font-weight: 800; line-height: 1.1; }
-  #iep { font-size: 3.4vh; font-weight: 700; color: #ffd24d; margin-top: 1.4vh; }
+  #iep { font-size: 3.4vh; font-weight: 700; color: #ffd24d; margin-top: 1.2vh; }
+  #iep:empty { display: none; }
   #imeta { font-size: 2.4vh; color: #b9c6ff; margin-top: 1.2vh; }
-  #isum { font-size: 2.7vh; line-height: 1.45; margin-top: 2.6vh; max-height: 34vh; overflow: hidden; }
-  #icast { display: flex; gap: 1.6vw; margin-top: 2.4vh; }
-  .icm { width: 8.4vw; text-align: center; }
-  .icp { width: 7.4vw; height: 7.4vw; margin: 0 auto 1vh; border-radius: 50%; background: #243067 center top / cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: 3.6vh; font-weight: 800; box-shadow: 0 .6vh 2vh rgba(0,0,0,.55); }
+  #isum { font-size: 2.7vh; line-height: 1.45; margin-top: 1.8vh; max-height: 12vh; overflow: hidden; }
+  #ipanel:not(.withlow) #isum { max-height: 20vh; }
+  #inext { font-size: 2.3vh; font-weight: 500; color: #ffd24d; margin-top: .6vh; }
+  #inext:empty { display: none; }
+  #ibtns { display: flex; flex-wrap: wrap; gap: 1.1vw; margin-top: 2vh; }
+  .ib { font: inherit; font-size: 2.5vh; font-weight: 500; height: 6.6vh; padding: 0 2vw; border-radius: 3.3vh; border: .4vh solid transparent;
+    background: #1b2560; color: #fff; cursor: pointer; }
+  .ib.play { font-weight: 700; }
+  .ib.ifoc { background: #ffd24d; border-color: #ffd24d; color: #050a2a; }
+  #icasth { font-size: 1.8vh; letter-spacing: .14em; text-transform: uppercase; color: #aeb9e8; margin-top: 2.6vh; }
+  #icasth:empty { display: none; }
+  #icast { display: flex; gap: 1.4vw; margin-top: 1.4vh; }
+  .icm { width: 8.4vw; text-align: center; cursor: pointer; border-radius: 1.2vh; padding: .6vh 0; }
+  .icp { position: relative; width: 6.4vw; height: 6.4vw; margin: 0 auto 1vh; border-radius: 50%; background: #243067 center top / cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: 3.6vh; font-weight: 800; box-shadow: 0 .6vh 2vh rgba(0,0,0,.55); }
+  .icm.ifoc .icp { box-shadow: 0 0 0 .5vh #ffd24d, 0 .6vh 2vh rgba(0,0,0,.55); }
+  .icm.ifoc b { color: #ffd24d; }
+  .icn { position: absolute; right: -.3vw; bottom: -.2vh; min-width: 3vh; height: 3vh; padding: 0 .6vh; box-sizing: border-box; border-radius: 1.5vh;
+    background: #ffd24d; color: #050a2a; font-size: 1.7vh; font-weight: 800; display: flex; align-items: center; justify-content: center; }
   .icm b { display: block; font-size: 1.9vh; line-height: 1.2; }
   .icm small { display: block; font-size: 1.6vh; color: #aeb9e8; margin-top: .3vh; line-height: 1.2; }
+  #ilow { position: absolute; left: 6vw; right: 6vw; bottom: 8vh; }
+  .ilh { display: flex; align-items: center; gap: .8vw; margin-bottom: 1.4vh; font-size: 2vh; }
+  .ilh span { letter-spacing: .14em; text-transform: uppercase; color: #aeb9e8; margin-right: .6vw; }
+  .ilh i { font-style: normal; padding: .5vh 1vw; border-radius: 2vh; background: #1b2560; }
+  .ilh i.on { background: #fff; color: #050a2a; font-weight: 700; }
+  .ilh em { font-style: normal; margin-left: auto; color: #b9c6ff; }
+  .ilr { display: flex; gap: 1.2vw; }
+  .ilc { width: 13.9vw; cursor: pointer; }
+  .ilp { position: relative; height: 14vh; border-radius: 1vh; background: #1b2560 center / cover no-repeat; box-sizing: border-box; }
+  .ilp b { position: absolute; left: .7vw; top: .8vh; font-size: 1.8vh; color: #b9c6ff; text-shadow: 0 0 .6vh #000; }
+  .ilp i { position: absolute; left: .7vw; bottom: .8vh; font-style: normal; font-size: 1.5vh; font-weight: 700; color: #050a2a; background: #b9c6ff; border-radius: .5vh; padding: .1vh .6vh; }
+  .ilp em { position: absolute; right: .7vw; bottom: .8vh; font-style: normal; font-size: 1.6vh; color: #d6deff; }
+  .ilc.gone .ilp { background: transparent; border: .3vh dashed #5b6aa8; }
+  .ilc.gone .ilt { color: #aeb9e8; }
+  .ilc.ifoc .ilp { box-shadow: 0 0 0 .5vh #ffd24d, 0 1vh 3vh rgba(0,0,0,.6); }
+  .ilc.ifoc .ilt { color: #ffd24d; }
+  .ilt { font-size: 2vh; margin-top: .8vh; line-height: 1.25; max-height: 5vh; overflow: hidden; }
+  #iactor { position: absolute; left: 6vw; right: 6vw; top: 7vh; bottom: 9vh; }
+  #iactor.hidden { display: none; }
+  #iahead { display: flex; align-items: center; gap: 2.4vw; }
+  #iaph { width: 17vh; height: 17vh; border-radius: 50%; background: #243067 center top / cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: 6vh; font-weight: 800; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); }
+  #iakick { font-size: 1.9vh; letter-spacing: .14em; text-transform: uppercase; color: #aeb9e8; }
+  #ianame { font-size: 6vh; font-weight: 800; line-height: 1.1; margin-top: .6vh; }
+  #iasub { font-size: 2.4vh; color: #b9c6ff; margin-top: .8vh; }
+  #iagrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3vh 1.8vw; margin-top: 4.4vh; }
+  .iac { display: flex; gap: 1.2vw; padding: 1.6vh; border-radius: 1.4vh; background: #0d1645; border: .4vh solid transparent; cursor: pointer; }
+  .iac.ifoc { background: #1b2560; border-color: #ffd24d; box-shadow: 0 1vh 3vh rgba(0,0,0,.6); }
+  .iacp { flex: 0 0 6.8vw; height: 15vh; border-radius: .8vh; background: #1b2560 center / cover no-repeat; }
+  .iact { display: flex; flex-direction: column; gap: .7vh; min-width: 0; }
+  .iact b { font-size: 2.5vh; line-height: 1.2; }
+  .iact span { font-size: 2vh; color: #b9c6ff; }
+  .iact small { font-size: 1.9vh; color: #aeb9e8; line-height: 1.25; }
+  .iact i { align-self: flex-start; font-style: normal; font-size: 1.5vh; font-weight: 700; color: #050a2a; background: #b9c6ff; border-radius: .5vh; padding: .2vh .7vh; margin-top: auto; }
+  .iamore { grid-column: 1 / -1; font-size: 2vh; color: #8a98d8; }
   #idbg { font-size: 2vh; color: #8a98d8; margin-top: 3vh; font-family: monospace; white-space: pre-line; line-height: 1.6; }
   #isum p { margin: 0 0 1.4vh; }
   #isrc { position: absolute; left: 6vw; right: 6vw; bottom: 4vh; font-size: 2vh; color: #8a98d8;
@@ -1076,7 +1127,13 @@
   <div id="ibg"></div><div id="ishade"></div>
   <div id="ipanel">
     <img id="iposter" class="hidden" alt="">
-    <div id="itext"><div id="ishow"></div><div id="iep"></div><div id="imeta"></div><div id="isum"></div><div id="icast"></div></div>
+    <div id="itext"><div id="ishow"></div><div id="iep"></div><div id="imeta"></div><div id="isum"></div><div id="inext"></div>
+      <div id="ibtns"></div><div id="icasth"></div><div id="icast"></div></div>
+  </div>
+  <div id="ilow"></div>
+  <div id="iactor" class="hidden">
+    <div id="iahead"><div id="iaph"></div><div><div id="iakick">Also on Telly Addicts</div><div id="ianame"></div><div id="iasub"></div></div></div>
+    <div id="iagrid"></div>
   </div>
   <div id="isrc">Back to close</div>
 </div>

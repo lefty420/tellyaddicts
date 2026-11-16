@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-15T22:27:53Z",
+ "updated": "2026-11-16T21:47:33Z",
  "channels": {
   "bbc": "24c32c04f5",
   "childrens": "db5d36bcdb",
@@ -58,14 +58,14 @@
   "xmasmovies": 49,
   "xmasmusic": 65
  },
- "library": "9ee28e4064",
+ "library": "11bcf7c636",
  "library_counts": {
-  "shows": 817,
-  "episodes": 60759,
-  "copies": 160440
+  "shows": 814,
+  "episodes": 60535,
+  "copies": 160022
  },
  "routes": "e6b4648097",
- "art": "4dabf3cc57",
+ "art": "746f149e4b",
  "eps": {
   "2point4-children": "38cf7ce50e",
   "3-2-1": "db1acfe603",
@@ -317,7 +317,6 @@
   "fort-boyard": "2df19c68e9",
   "fraggle-rock": "58d17c878a",
   "freakazoid": "84d0c0e84e",
-  "french-chef": "ca296888a8",
   "friends": "c36ae9d1e9",
   "full-house": "1e6cdf2374",
   "full-swing": "6ea2bac8a5",
@@ -797,6 +796,5 @@
   "z-cars": "efe0d0df33",
   "zillion": "bb965baf1a"
  },
- "adverts": "be61407605",
- "epdb": "c0c9282b3d"
+ "adverts": "be61407605"
 }

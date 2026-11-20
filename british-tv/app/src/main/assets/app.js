@@ -2018,16 +2018,19 @@
     var have = {}, out = progs.slice(), gen = MC_FILM_GENRES[c.id], n = 0;
     progs.forEach(function (p) { if (p.filmKey) have[p.filmKey] = 1; });
     filmdb.forEach(function (f) {
-      if (!f || !f.t || !f.y || !f.cert) return;                 // a film with no certificate cannot be given a time on the clock
+      if (!f || !f.t || !f.y) return;
       var chs = f.ch || [];
+      // No certificate means no safe slot on the clock. Our own kids and Christmas lists are family films, so they get U / PG; the adult shelf skips it.
+      var cert = f.cert || (chs.indexOf('kidsmovies') >= 0 ? 'U' : chs.indexOf('xmasmovies') >= 0 ? 'PG' : '');
+      if (!cert) return;
       if (gen ? !(chs.indexOf('videoshop') >= 0 && String(f.g || '').split(/\s*,\s*/).some(function (x) { return gen.indexOf(x) >= 0; })) : chs.indexOf(c.id) < 0) return;
       if (adCut && f.y >= 2000) return;
-      var title = f.t + ' (' + f.y + ')', key = keepFilm({ tm: f.tm, n: title, ov: f.ov, p: f.p, lg: f.lg, g: f.g, rt: f.rt, a: String(f.y), cert: f.cert, cast: f.cast });
+      var title = f.t + ' (' + f.y + ')', key = keepFilm({ tm: f.tm, n: title, ov: f.ov, p: f.p, lg: f.lg, g: f.g, rt: f.rt, a: String(f.y), cert: cert, cast: f.cast });
       if (!key || have[key]) return;
       var id = 'virt/film/' + key;
       if (!full && isSlow(id)) return;
       have[key] = 1; n++;
-      out.push({ id: id, item: 'virtual', url: '', virtual: true, afilm: true, imdb: f.im || '', filmKey: key, cert: f.cert, show: title, group: title,
+      out.push({ id: id, item: 'virtual', url: '', virtual: true, afilm: true, imdb: f.im || '', filmKey: key, cert: cert, show: title, group: title,
                  title: title, sub: '', dur: (f.rt > 20 ? f.rt : 100) * 60, aired: String(f.y) });
     });
     veStat.virtual += n;

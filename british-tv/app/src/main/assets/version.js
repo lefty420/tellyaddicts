@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.50.0",
-  "version": "0.50.0",
-  "code": 5000,
+  "name": "Alpha 0.50.1",
+  "version": "0.50.1",
+  "code": 5001,
   "date": "2026-11-20",
   "notes": [
-    "Magic EPG now covers films. With Magic EPG on, every film in the new film database (`data/filmdb.json`, published by the scraper) appears in the film channels and the Magic movie channels even when no file was scraped for it. It plays through your addons, exactly like the missing TV episodes. Nothing changes until the scraper publishes the database."
+    "Magic EPG films: a film with no certificate in the film database is now kept on the Kids Movies channel (as U) and the Christmas movie channels (as PG). The Video Shop and the Magic genre channels still skip it, because it could be an adult film."
   ],
   "history": [
+    {
+      "name": "Alpha 0.50.0",
+      "date": "2026-11-20",
+      "notes": [
+        "Magic EPG now covers films. With Magic EPG on, every film in the new film database (`data/filmdb.json`, published by the scraper) appears in the film channels and the Magic movie channels even when no file was scraped for it. It plays through your addons, exactly like the missing TV episodes. Nothing changes until the scraper publishes the database."
+      ]
+    },
     {
       "name": "Alpha 0.49.16",
       "date": "2026-11-20",
@@ -69,15 +76,6 @@ window.RELEASE = {
       "notes": [
         "Quicker guide fill after start-up. Every channel waited for the \"Content: British\" list before its guide could be built. That list isn't published yet, so the request came back empty, but it queued behind the other downloads and took anywhere from 5 to 40 seconds. \"Nothing published yet\" is now remembered for six hours, and a new list is still picked up as soon as one is published.",
         "Laying out each channel's week (Real time EPG) does less repeat work: the season and episode of a programme are read once, not at every comparison. The schedules come out exactly the same."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.9",
-      "date": "2026-11-20",
-      "notes": [
-        "Fixed the slow start. The metadata scrapers were not the cause: the app was sorting the whole 60,000-episode library on the TV itself, and doing it again every time On Demand loaded. Now each channel's sorted list is saved the first time and read back at the next start, and the sort works in small pieces so the tuning counter keeps moving instead of freezing.",
-        "The channels now build with a short pause between each, so the \"TUNING 0 / 66\" count really counts up.",
-        "The debug log has new START lines saying how many channel lists were found already saved and how many had to be built, so a slow start can be traced exactly."
       ]
     }
   ]

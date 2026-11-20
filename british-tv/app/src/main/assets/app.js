@@ -3530,6 +3530,7 @@
       var style = store.get('sbstyle') === 'card' ? 'card' : 'tv';
       /** Put a picture (or none: static) on the set. */
       function paint(art) {
+        if (art && !art.back) art = null;        // the screen shown while something starts is fan art or a backdrop only: never a poster, static instead
         var cls = art ? 'withart ' + style : (style === 'tv' ? 'withart tv noart' : '');   // no art: the set stays, tuned to static
         sb.className = cls;
         // the little TV: a backdrop fills its screen; with only a poster, a blurred copy fills it and the poster sits on top

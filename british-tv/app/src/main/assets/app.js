@@ -3651,15 +3651,15 @@
     var now = Date.now();
     $('gclock').textContent = fmtTime(now);
     gPaint.rows.forEach(function (row, i) {
-      var want = 'gch' + ((gPaint.first || 0) + i === gRow ? ' sel' : '') + (cur && !cur.ad && cur.ch === row.ch ? ' on' : '');
+      var want = 'gch' + (!gOd && (gPaint.first || 0) + i === gRow ? ' sel' : '') + (cur && !cur.ad && cur.ch === row.ch ? ' on' : '');
       if (row.cell.className !== want) row.cell.className = want;
       if (row.ld) {                                 // channel still loading: one wide block, highlighted or not
-        var lw = 'blk ld' + (row.ch === list[gRow] ? ' foc' : '');
+        var lw = 'blk ld' + (!gOd && row.ch === list[gRow] ? ' foc' : '');
         if (row.ld.className !== lw) row.ld.className = lw;
       }
       row.blocks.forEach(function (bl) {
         var w = bl.base +
-          ((row.ch === list[gRow] && bl.b.startMs <= gFocus && gFocus < bl.b.endMs) ? ' foc' : '') +
+          ((!gOd && row.ch === list[gRow] && bl.b.startMs <= gFocus && gFocus < bl.b.endMs) ? ' foc' : '') +
           ((bl.b.startMs <= now && now < bl.b.endMs) ? ' now' : '') +
           (isPlayingBlock(row.ch, bl.b, now) ? ' play' : '');
         if (bl.el.className !== w) bl.el.className = w;
@@ -3906,7 +3906,10 @@
   }
 
   var gOd = false;
-  function gOdSet(on) { gOd = on; $('godbtn').className = on ? 'sel' : ''; }
+  function gOdSet(on) {
+    var was = gOd; gOd = on; $('godbtn').className = on ? 'sel' : '';
+    if (was !== on && guideOpen) renderGuide(true);      // one highlight at a time: the grid's gold goes while the On Demand button has it
+  }
   function gMove(delta, wrap) {
     gFree = false;
     var list = guideList();
@@ -6930,8 +6933,13 @@
     if (d._g !== gen) {
       d._g = gen; d.textContent = '';
       var k = odKnown(g);
-      if (k && (k.poster || k.back)) d.style.backgroundImage = 'url("' + (k.poster || k.back) + '")';
-      else { d.style.backgroundImage = odTone(g.name); d.appendChild(odEl('b', '', g.name)); }
+      var pu = k && (k.poster || k.back);
+      if (pu) {
+        d.style.backgroundImage = 'url("' + pu + '")';
+        var pim = new Image();                  // a poster that will not load leaves a blank tile: show the name instead
+        pim.onerror = function () { if (d._g === gen) { d.style.backgroundImage = odTone(g.name); if (!d.querySelector('b')) d.appendChild(odEl('b', '', g.name)); } };
+        pim.src = pu;
+      } else { d.style.backgroundImage = odTone(g.name); d.appendChild(odEl('b', '', g.name)); }
       var w = g._cw && g._cw.dur ? Math.min(100, Math.round(100 * g._cw.pos / g._cw.dur)) : 0;
       if (w > 1 && rowIsCw) { var pg = odEl('div', 'odpg'); var bar = odEl('i'); bar.style.width = w + '%'; pg.appendChild(bar); d.appendChild(pg); }
     }

@@ -764,6 +764,7 @@
   #oart { flex: 0 0 auto; height: 21vh; width: 14vh; margin: -8vh 1vw 1vh 1.6vw; object-fit: cover; border-radius: .8vh; box-shadow: 0 .8vh 3vh rgba(0,0,0,.7); border: .2vh solid rgba(255,255,255,.35); background: #0a1f66; }
   #oart.hidden { display: none; }
   #oart ~ #onum { min-width: 5.5vw; padding-left: 0; }
+  #oart.hidden ~ #onum { min-width: 8vw; padding-left: 2.2vw; }       /* no picture: the number must not sit on the gold edge */
   #onow { display: flex; align-items: stretch; }
   #onum { padding: 1.6vh 2.2vw; font-size: 6vh; font-weight: 700; color: var(--hi2); min-width: 8vw; text-align: center; }
   #oinfo { padding: 1.6vh 1vw 1vh 0; flex: 1; min-width: 0; }

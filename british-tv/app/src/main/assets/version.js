@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.3",
-  "version": "0.49.3",
-  "code": 4903,
+  "name": "Alpha 0.49.4",
+  "version": "0.49.4",
+  "code": 4904,
   "date": "2026-11-20",
   "notes": [
-    "Faster rebuild of the guides (first start, Refresh listings, turning Magic Channels on). Every channel build re-saved every film's details to the TV's storage even when nothing had changed, thousands of synced file writes with Magic Channels on. A film is now saved only when it differs from the copy already there, and checked once per start. Not yet timed on the Shield."
+    "Guide: stepping onto the On Demand button no longer leaves the programme gold as well. One highlight at a time; moving back drops you where you were.",
+    "Playback bar: a two-digit channel number (31, 32 ...) no longer sits on the gold edge when there is no picture beside it.",
+    "On Demand: a show whose poster will not load now shows its name on the card instead of a blank tile."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.3",
+      "date": "2026-11-20",
+      "notes": [
+        "Faster rebuild of the guides (first start, Refresh listings, turning Magic Channels on). Every channel build re-saved every film's details to the TV's storage even when nothing had changed, thousands of synced file writes with Magic Channels on. A film is now saved only when it differs from the copy already there, and checked once per start. Not yet timed on the Shield."
+      ]
+    },
     {
       "name": "Alpha 0.49.2",
       "date": "2026-11-20",
@@ -67,13 +76,6 @@ window.RELEASE = {
       "date": "2026-11-16",
       "notes": [
         "On Demand > hold OK > \"Choose the right show\" now really changes the show. The show is renamed to the one you pick, its episodes are filled in from that show (Magic EPG, the scrapers' episode guide, TVmaze) and the pictures change with it. The choice is remembered. \"Back to automatic\" puts the original name and episodes back. Scrape artwork, Choose a poster and Choose a background do not rename anything."
-      ]
-    },
-    {
-      "name": "Alpha 0.48.0",
-      "date": "2026-11-16",
-      "notes": [
-        "Real world: a channel now plays only what is on at that time. You can still move around the guide as usual, but pressing OK on a programme that is not on now opens it in On Demand with a \"Play it now?\" Yes / No box. Yes plays that episode, No takes you back to the guide where you were. The box starts on No."
       ]
     }
   ]

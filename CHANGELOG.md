@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.49.4 — 2026-11-20
+- Guide: stepping onto the On Demand button no longer leaves the programme gold as well. One highlight at a time; moving back drops you where you were.
+- Playback bar: a two-digit channel number (31, 32 ...) no longer sits on the gold edge when there is no picture beside it.
+- On Demand: a show whose poster will not load now shows its name on the card instead of a blank tile.
+
 ## Alpha 0.49.3 — 2026-11-20
 - Faster rebuild of the guides (first start, Refresh listings, turning Magic Channels on). Every channel build re-saved every film's details to the TV's storage even when nothing had changed, thousands of synced file writes with Magic Channels on. A film is now saved only when it differs from the copy already there, and checked once per start. Not yet timed on the Shield.
 

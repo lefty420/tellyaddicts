@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.50.4",
-  "version": "0.50.4",
-  "code": 5004,
+  "name": "Alpha 0.50.5",
+  "version": "0.50.5",
+  "code": 5005,
   "date": "2026-11-20",
   "notes": [
-    "Info screen: the episode strip now shows each episode's real still (from the scraper's episode guide, else TVmaze) instead of a green box. Before, it only used an archive.org thumbnail, so most shows (Buffy, for one) showed empty boxes. The stills arrive a moment after the strip, and episodes that are not in the library yet get theirs too."
+    "Faster guide with Magic EPG on: each channel now gets at most 800 missing episodes (the earliest of each show, taken in turn) instead of every gap in every show. 80's and 90's TV were carrying over 20,000 programmes each, and all 66 channels were laid out again at every start, which froze the guide for half a minute after it opened. On Demand still lists every episode."
   ],
   "history": [
+    {
+      "name": "Alpha 0.50.4",
+      "date": "2026-11-20",
+      "notes": [
+        "Info screen: the episode strip now shows each episode's real still (from the scraper's episode guide, else TVmaze) instead of a green box. Before, it only used an archive.org thumbnail, so most shows (Buffy, for one) showed empty boxes. The stills arrive a moment after the strip, and episodes that are not in the library yet get theirs too."
+      ]
+    },
     {
       "name": "Alpha 0.50.3",
       "date": "2026-11-20",
@@ -68,13 +75,6 @@ window.RELEASE = {
       "notes": [
         "Artwork is back on the \"Please stand by\" screen. A show or film with a backdrop shows the backdrop; one with only a poster shows it as a dim, blurred background (never as a framed poster) while the app looks for a backdrop, and swaps it in when one is found. Films need your TheTVDB key for that lookup.",
         "New in Options > Experimental: **Open debug address**. On, the debug log and Live view addresses have no code on the end, so the same plain address works every time. Anyone on your home network can then open them, so it is off unless you turn it on. This needs the app rebuilt and installed."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.13",
-      "date": "2026-11-20",
-      "notes": [
-        "The \"Please stand by\" TV now comes and goes through static like a real set: a burst of snow when it comes up that clears to the picture, and the picture breaking into snow and fading out when the programme starts."
       ]
     }
   ]

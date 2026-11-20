@@ -2055,23 +2055,40 @@
       var k = normShow(nm), g = by[k] = by[k] || { name: nm, have: {}, durs: [] };
       g.have[ref.s + ':' + ref.e] = 1; if (p.dur > 600) g.durs.push(p.dur);
     });
+    // A guide channel gets at most MAX_STORED missing episodes (as many as it keeps real ones), the earliest of each
+    // show taken in turn: filling every gap put 20,000 programmes on 80's TV, all laid out again at every start.
+    // On Demand (full) still lists every one.
+    var each = [], today = new Date().toISOString().slice(0, 10);
     Object.keys(by).forEach(function (k) {
       var g = by[k], d = veGet(g.name);
       if (!d || !d.eps || !d.eps.length) return;
       var first = 9999; d.eps.forEach(function (e) { var y = +String(e[3] || '').slice(0, 4); if (y && y < first) first = y; });
       if (adCut && first >= 2000) return;                       // the addons only look up older titles, like the rest of the app
       g.durs.sort(function (a, b) { return a - b; });
-      var dur = g.durs.length ? g.durs[g.durs.length >> 1] : 1800, n = 0, today = new Date().toISOString().slice(0, 10);
-      d.eps.forEach(function (e) {
-        if (g.have[e[0] + ':' + e[1]] || (e[3] && e[3] > today) || (!full && n >= 400)) return;
-        var id = 'virt/' + k + '/' + e[0] + '/' + e[1];
-        if (!full && isSlow(id)) return;                        // no source last time
-        n++;
-        out.push({ id: id, item: 'virtual', url: '', virtual: true, show: g.name, group: g.name, dur: e[4] > 5 ? e[4] * 60 : dur,
-                   title: g.name + ' S' + pad2(e[0]) + 'E' + pad2(e[1]) + (e[2] ? ' ' + e[2] : ''), sub: '', aired: e[3] || '' });
-      });
-      veStat.virtual += n;
+      each.push({ k: k, g: g, eps: d.eps, i: 0, n: 0, dur: g.durs.length ? g.durs[g.durs.length >> 1] : 1800 });
     });
+    /** The show's next missing episode, or null when it has none left (or has given its 400). */
+    function nextOf(w) {
+      while (w.i < w.eps.length && (full || w.n < 400)) {
+        var e = w.eps[w.i++];
+        if (w.g.have[e[0] + ':' + e[1]] || (e[3] && e[3] > today)) continue;
+        var id = 'virt/' + w.k + '/' + e[0] + '/' + e[1];
+        if (!full && isSlow(id)) continue;                      // no source last time
+        w.n++;
+        return { id: id, item: 'virtual', url: '', virtual: true, show: w.g.name, group: w.g.name, dur: e[4] > 5 ? e[4] * 60 : w.dur,
+                 title: w.g.name + ' S' + pad2(e[0]) + 'E' + pad2(e[1]) + (e[2] ? ' ' + e[2] : ''), sub: '', aired: e[3] || '' };
+      }
+      return null;
+    }
+    var added = 0;
+    if (full) each.forEach(function (w) { for (var p = nextOf(w); p; p = nextOf(w)) { out.push(p); added++; } });   // show by show, as before
+    else while (each.length && added < MAX_STORED) {
+      each = each.filter(function (w) {
+        var p = added < MAX_STORED && nextOf(w); if (!p) return false;
+        out.push(p); added++; return true;
+      });
+    }
+    veStat.virtual += added;
     return out;
   }
   /** One show at a time, a moment apart: look up every show in the guides that has no kept episode list yet. */

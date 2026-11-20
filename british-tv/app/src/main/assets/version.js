@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.50.7",
-  "version": "0.50.7",
-  "code": 5007,
+  "name": "Alpha 0.50.8",
+  "version": "0.50.8",
+  "code": 5008,
   "date": "2026-11-20",
   "notes": [
-    "Magic EPG films: a guide channel now takes at most 800 programmes in all from the film database, like the missing episodes do, so a big film database cannot slow the guide down at start. On Demand still shows every film."
+    "Faster start: each channel's finished schedule (what plays when) is now kept on the device and read back at the next start, instead of being laid out again for all 60-odd channels. It is used only when the channel's list, the guide span, the Broadcast schedule setting and the app version are all the same; otherwise that channel is laid out again and kept. Live TV mode's daily episodes are still worked out at each start, so they move on as before. \"Build every channel afresh\" clears the kept schedules. The debug log shows how many were read and how many were laid out."
   ],
   "history": [
+    {
+      "name": "Alpha 0.50.7",
+      "date": "2026-11-20",
+      "notes": [
+        "Magic EPG films: a guide channel now takes at most 800 programmes in all from the film database, like the missing episodes do, so a big film database cannot slow the guide down at start. On Demand still shows every film."
+      ]
+    },
     {
       "name": "Alpha 0.50.6",
       "date": "2026-11-20",
@@ -58,17 +65,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "Magic EPG now covers films. With Magic EPG on, every film in the new film database (`data/filmdb.json`, published by the scraper) appears in the film channels and the Magic movie channels even when no file was scraped for it. It plays through your addons, exactly like the missing TV episodes. Nothing changes until the scraper publishes the database."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.16",
-      "date": "2026-11-20",
-      "notes": [
-        "On Demand home redesigned: a slimmer title area so two full rows fit, ten posters across each, and a count on the row (\"3 of 140\"). The channel badge and the fake \"OK Open\" button are gone.",
-        "On Demand: a Search button in the header. Press Up from the top row to reach it and OK to search (Yellow still works, but most remotes have no Yellow). A search with no match now shows a page with \"Search again\" and \"Back to browsing\" instead of a short message.",
-        "On Demand: key hints along the bottom, with what each key does.",
-        "Show page: the season list and episode list say how many more there are (\"▼ 20 more\"), the episode list says \"Season 1 · 43 episodes · 3 of 43\", only the highlighted episode shows its picture and description (so six episodes fit), and an episode you can resume says so. With no artwork the poster is the same coloured tile as on the home page.",
-        "Hold OK menu: Info, Search, Fix artwork…, Options and Hide on top level. Scrape artwork, Choose the right show, Choose a poster, Choose a background and Back to automatic are inside Fix artwork…."
       ]
     }
   ]

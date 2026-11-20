@@ -749,7 +749,7 @@
   var Engine = {
     hash: hash, shuffle: shuffle, parseLength: parseLength, describe: describe,
     pickPrograms: pickPrograms, whyEmpty: whyEmpty, buildSchedule: buildSchedule, at: at, upcoming: upcoming,
-    buildClockSchedule: buildClockSchedule, joinCycles: joinCycles, spread: spread, selectSpan: selectSpan, clockSec: clockSec,
+    buildClockSchedule: buildClockSchedule, buildGroups: buildGroups, joinCycles: joinCycles, spread: spread, selectSpan: selectSpan, clockSec: clockSec,
     cleanShow: cleanShow, cleanItemTitle: cleanItemTitle, sample: sample, blockAt: blockAt, stepBlock: stepBlock, blocks: blocks,
     DEFAULT_DURATION: DEFAULT_DURATION, encodePath: encodePath, archiveUrl: archiveUrl, canonicalUrl: canonicalUrl
   };

@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|filmdb1$|epl1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|sched1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|filmdb1$|epl1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   // The files' names, read from the app once per start and kept up to date here: listing the folder over the bridge
   // was done for every channel built, and the folder holds thousands of files.
@@ -6032,7 +6032,7 @@
     try {
       var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
         var kn = _ks[k];
-        if (kn && /^plan7[ad]?:/.test(kn)) kv.removeItem(kn);
+        if (kn && /^(plan7[ad]?|sched1):/.test(kn)) kv.removeItem(kn);
       }
     } catch (e) { /* ignore */ }
     toast('Building every channel afresh\u2026', 4000);
@@ -7792,6 +7792,47 @@
     } catch (e) { /* storage unavailable: nothing to tidy */ }
   }
 
+  // ---- The built schedule of each channel (what plays when) is kept, so a start reads it back instead of laying it out again.
+  // It is a list of places in the channel's programme list, so it is only used when that list is exactly as it was: the key
+  // carries a fingerprint of the list, the span, the Broadcast schedule setting and the app version.
+  function schedKey(c, progs, seed, spanH) {
+    if (!KV_NATIVE) return '';
+    var sig = progs.map(function (p) { return (p.url || p.id) + ':' + p.dur; }).join('|');
+    return 'sched1:' + c.id + ':' + E.hash([(window.RELEASE || {}).version, seed, spanH, realOn ? 1 : 0, progs.length, sig].join('~'));
+  }
+  function schedRead(key, progs) {
+    if (!key) return null;
+    try {
+      var t = kv.getItem(key); if (!t) return null;
+      var r = JSON.parse(t), order = [];
+      if (r.v !== 1 || !r.o || r.o.length !== r.s.length || r.d.length !== r.o.length) return null;
+      for (var i = 0; i < r.o.length; i++) {
+        var p = progs[r.o[i]]; if (!p) return null;
+        order.push(r.d[i] && r.d[i] !== p.dur ? Object.assign({}, p, { dur: r.d[i] }) : p);
+      }
+      var g = E.buildGroups(order, r.s), s = { order: order, starts: r.s, total: r.t, groups: g.groups, gstarts: g.gstarts };
+      if (r.c) s.cycle = r.c; if (r.b !== undefined) s.base = r.b; if (r.u) s.unit = r.u; if (r.n) s.n = r.n;
+      return s;
+    } catch (e) { return null; }
+  }
+  function schedKeep(c, key, s, progs) {
+    if (!key || !s || !s.order || !s.starts) return;
+    try {
+      var idx = {}; progs.forEach(function (p, i) { var k = p.url || p.id; if (!(k in idx)) idx[k] = i; });
+      var o = [], d = [];
+      for (var i = 0; i < s.order.length; i++) {
+        var p = s.order[i], j = idx[p.url || p.id], q = progs[j];
+        if (j === undefined || q.id !== p.id || q.title !== p.title) return;       // not a plain copy of a listed programme: not kept
+        o.push(j); d.push(q.dur === p.dur ? 0 : p.dur);
+      }
+      var rec = { v: 1, o: o, d: d, s: s.starts, t: s.total };
+      if (s.cycle) rec.c = s.cycle; if (s.base !== undefined) rec.b = s.base; if (s.unit) rec.u = s.unit; if (s.n) rec.n = s.n;
+      kv.setItem(key, JSON.stringify(rec));
+      Object.keys(kvNative()).forEach(function (kn) { if (kn !== key && kn.indexOf('sched1:' + c.id + ':') === 0) kv.removeItem(kn); });
+    } catch (e) { /* too big to keep: laid out again next start */ }
+  }
+
+  var schedStat = { hit: 0, miss: 0 };
   function startLoading() {
     spSeen = {}; spRecent = [];                                     // each load starts with every picture unseen
     forgetOldChannels();
@@ -7820,8 +7861,15 @@
           var seed = c.id + (epgGen ? ':' + epgGen : '');
           // a channel with a daypart plan is laid out against the clock; the rest are one shuffled loop
           var spanH = SPANS[spanIdx].h;
-          c.sched = (window.DAYPARTS && DAYPARTS.has(c.id, realOn) && DAYPARTS.schedule(c.id, progs, seed, spanH / 24, { real: realOn })) ||
-                    E.buildSchedule(E.selectSpan(progs, spanH * 3600, seed), seed);
+          var sk = schedKey(c, progs, seed, spanH);
+          c.sched = schedRead(sk, progs);
+          if (c.sched) schedStat.hit++;
+          else {
+            schedStat.miss++;
+            c.sched = (window.DAYPARTS && DAYPARTS.has(c.id, realOn) && DAYPARTS.schedule(c.id, progs, seed, spanH / 24, { real: realOn })) ||
+                      E.buildSchedule(E.selectSpan(progs, spanH * 3600, seed), seed);
+            schedKeep(c, sk, c.sched, progs);
+          }
           // Real world plays a series in order; a Christmas channel's specials are one-offs, so they keep their shuffle
           if (!(window.ADS && ADS.isXmasChannel(c.id))) realWorld(c.sched, progs, seed);
           c.status = 'ready';
@@ -7831,7 +7879,7 @@
         }
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
-        if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
+        if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
         renderStatus();
         if (finished === channels.length) setTimeout(seedLinks, 4000);
         if (finished === channels.length) setTimeout(veFill, 30000);

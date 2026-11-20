@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.50.3 — 2026-11-20
+- Two Options names no longer clash. In Guide, "Realistic TV schedule" is now **Broadcast schedule** (it sets when things air). In Experimental, "Real world" is now **Live TV mode** (a new episode each day, and a channel plays only what is on now). The Live TV mode help now says all of that.
+
 ## Alpha 0.50.2 — 2026-11-20
 - The Christmas Movies channel now follows the watershed like the Video Shop: U, PG and 12 films through the day, 15s from eight, and 18s (Die Hard, Lethal Weapon and the like) only after nine at night. Before this it had no rules, so any film could air at any time.
 - Magic EPG films with no certificate are no longer given PG on the Christmas channel (they are skipped, as on the Video Shop). The Kids Movies default of U stays.

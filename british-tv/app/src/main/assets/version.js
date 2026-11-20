@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.50.2",
-  "version": "0.50.2",
-  "code": 5002,
+  "name": "Alpha 0.50.3",
+  "version": "0.50.3",
+  "code": 5003,
   "date": "2026-11-20",
   "notes": [
-    "The Christmas Movies channel now follows the watershed like the Video Shop: U, PG and 12 films through the day, 15s from eight, and 18s (Die Hard, Lethal Weapon and the like) only after nine at night. Before this it had no rules, so any film could air at any time.",
-    "Magic EPG films with no certificate are no longer given PG on the Christmas channel (they are skipped, as on the Video Shop). The Kids Movies default of U stays."
+    "Two Options names no longer clash. In Guide, \"Realistic TV schedule\" is now **Broadcast schedule** (it sets when things air). In Experimental, \"Real world\" is now **Live TV mode** (a new episode each day, and a channel plays only what is on now). The Live TV mode help now says all of that."
   ],
   "history": [
+    {
+      "name": "Alpha 0.50.2",
+      "date": "2026-11-20",
+      "notes": [
+        "The Christmas Movies channel now follows the watershed like the Video Shop: U, PG and 12 films through the day, 15s from eight, and 18s (Die Hard, Lethal Weapon and the like) only after nine at night. Before this it had no rules, so any film could air at any time.",
+        "Magic EPG films with no certificate are no longer given PG on the Christmas channel (they are skipped, as on the Video Shop). The Kids Movies default of U stays."
+      ]
+    },
     {
       "name": "Alpha 0.50.1",
       "date": "2026-11-20",
@@ -69,13 +76,6 @@ window.RELEASE = {
       "notes": [
         "The screen shown while something starts to play now only ever shows a backdrop (fan art). A show or film with only a poster, such as Ace Ventura: When Nature Calls, now gets the tuned-to-static screen instead of a poster.",
         "Fixed the TMDB key check (\"Could not reach TMDB to check the key\"). The app's list of allowed web addresses did not include TMDB's lookups, so the check, and TMDB as the episode-list source, could never get an answer. This needs the app rebuilt and installed, not just a restart. TheTVDB was not affected."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.11",
-      "date": "2026-11-20",
-      "notes": [
-        "Fixed Options moving the wrong way. In Experimental, pressing Down from Magic Channels went to Content and then back up to Real world, because the two were listed in a different order from the screen. In TV Guide, opening the section started on the second row (On Demand) instead of the top one. Down now always goes to the row below."
       ]
     }
   ]

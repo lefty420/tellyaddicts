@@ -2171,7 +2171,7 @@
   }, 60000);
   function changeRw() {
     rwOn = !rwOn; store.set('rw1', rwOn ? 'on' : 'off'); renderOpts();
-    toast(rwOn ? 'Real world on: episodes in order. Rebuilding the guides\u2026' : 'Real world off: rebuilding the guides\u2026', 3000);
+    toast(rwOn ? 'Live TV mode on: a new episode each day. Rebuilding the guides\u2026' : 'Live TV mode off: rebuilding the guides\u2026', 3000);
     clearTimeout(spanTimer);
     spanTimer = setTimeout(function () { location.reload(); }, 2200);
   }
@@ -5822,7 +5822,7 @@
   function changeReal() {
     realOn = !realOn; store.set('real1', realOn ? 'on' : 'off');
     renderOpts();
-    toast(realOn ? 'Real time EPG on: building a real week for every channel\u2026' : 'Real time EPG off: building the guides\u2026', 3000);
+    toast(realOn ? 'Broadcast schedule on: building a real week for every channel\u2026' : 'Broadcast schedule off: building the guides\u2026', 3000);
     clearTimeout(spanTimer);
     spanTimer = setTimeout(function () { location.reload(); }, 2200);
   }
@@ -5877,7 +5877,7 @@
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
     ammain: 'With this on, every programme that has an episode number, and every film, is first looked up with your addons while the loading screen or a "Scraping your debrid" message is showing, and plays from the best link they find. If they find nothing, or the link will not play, the library link plays instead. It plays from the start rather than joining part way through.',
     mc: 'Adds themed channels made from the whole library: movies by genre (action, horror, sci-fi, comedy, thrillers, drama), sci-fi, cops and detectives, quiz and challenge game shows, sitcoms, sketch shows, kids cartoons by era, nursery and teen TV, pop and rock music, soaps, cooking and Christmas comedy, soaps, cartoons and pop. They sit after the usual channels. Turning it on or off restarts the guides.',
-    rw: 'Episodes of a show come in order on the guide (S01E01, S01E02 ...) instead of a shuffle, starting at the beginning of a season. Programmes with no episode number, such as specials, one-offs and music, are left as they are. Guide times do not change.',
+    rw: 'Treats the guide like live television. A show\'s episodes come in order and each day carries on where the last one stopped (Monday S01E01, Tuesday S01E02 ...). A channel plays only what is on now: pick anything else in the guide and it opens in On Demand, asking "Play it now?". Specials, one-offs and music are left as they are. Guide times do not change. (Broadcast schedule, in Guide, sets the times; this sets which episode airs.)',
     uk: 'Everything shows the whole library. British hides shows the scraper has marked as never shown on UK TV (mostly US drama), and keeps UK-made shows and the US ones that did air here, such as cartoons. Shows it is unsure about stay.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
     join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',

@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.13",
-  "version": "0.49.13",
-  "code": 4913,
+  "name": "Alpha 0.49.14",
+  "version": "0.49.14",
+  "code": 4914,
   "date": "2026-11-20",
   "notes": [
-    "The \"Please stand by\" TV now comes and goes through static like a real set: a burst of snow when it comes up that clears to the picture, and the picture breaking into snow and fading out when the programme starts."
+    "Artwork is back on the \"Please stand by\" screen. A show or film with a backdrop shows the backdrop; one with only a poster shows it as a dim, blurred background (never as a framed poster) while the app looks for a backdrop, and swaps it in when one is found. Films need your TheTVDB key for that lookup.",
+    "New in Options > Experimental: **Open debug address**. On, the debug log and Live view addresses have no code on the end, so the same plain address works every time. Anyone on your home network can then open them, so it is off unless you turn it on. This needs the app rebuilt and installed."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.13",
+      "date": "2026-11-20",
+      "notes": [
+        "The \"Please stand by\" TV now comes and goes through static like a real set: a burst of snow when it comes up that clears to the picture, and the picture breaking into snow and fading out when the programme starts."
+      ]
+    },
     {
       "name": "Alpha 0.49.12",
       "date": "2026-11-20",
@@ -67,14 +75,6 @@ window.RELEASE = {
         "Tidy: removed the built-in copy of the channel lists (autodata.js, 450 KB, last updated by a tool no longer used), that tool (tools/import_scrape.py) and four one-time clean-ups that had long since done their job. With no published lists reachable, a channel now uses its live searches.",
         "New check: `node tools/test_libroute.js` tests how the library is sorted onto channels.",
         "Not yet tried on the Shield; the Java changes are compile-checked only."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.5",
-      "date": "2026-11-20",
-      "notes": [
-        "The start-up loading screen no longer sits at \"TUNING 0 / 66\" for a minute. With Magic EPG on, every channel's running order took seconds to build and all 66 were built in one unbroken stretch, so the screen could not move and the count only jumped at the very end. Long stretches of building now give way to the screen every 40 ms or so, so the count climbs and buttons answer.",
-        "The loading screen waits at most 10 seconds for every channel (it was 30). A box that is slower than that opens the guide with the first rows built, in guide order, and the rest fill in a moment later."
       ]
     }
   ]

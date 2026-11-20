@@ -655,6 +655,12 @@ public class MainActivity extends Activity {
             }
         }
 
+        /** Experimental > Open debug address: on, the log and Live view addresses carry no code. */
+        @JavascriptInterface
+        public void debugOpen(boolean on) {
+            LogServer.open = on;
+        }
+
         /** Put the debug log on the home network. Returns the address to open on a phone or computer, or "". */
         @JavascriptInterface
         public String shareLog(String text) {

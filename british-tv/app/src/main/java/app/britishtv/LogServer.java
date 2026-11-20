@@ -24,6 +24,8 @@ final class LogServer {
     private ServerSocket server;
     private volatile String token = "";
     private volatile String text = "";
+    /** Experimental > Open debug address: no code in the address, anyone on the home network can open it. Off unless asked for. */
+    static volatile boolean open = false;
 
     /** A code for an address that only someone shown it can open: 10 characters, about 49 bits, from SecureRandom. */
     static String newToken() {
@@ -70,7 +72,7 @@ final class LogServer {
                 t.start();
             }
             String ip = address();
-            return ip.isEmpty() ? "" : "http://" + ip + ":" + server.getLocalPort() + "/?t=" + token;
+            return ip.isEmpty() ? "" : "http://" + ip + ":" + server.getLocalPort() + (open ? "/" : "/?t=" + token);
         } catch (Exception e) {
             return "";
         }
@@ -127,7 +129,7 @@ final class LogServer {
                 return;                                     // a spare connection, or an https attempt (plain http only here)
             }
             int eol = head.indexOf("\r");
-            boolean allowed = !token.isEmpty() && token.equals(tokenIn(head.substring(0, eol < 0 ? head.length() : eol)));
+            boolean allowed = open || !token.isEmpty() && token.equals(tokenIn(head.substring(0, eol < 0 ? head.length() : eol)));
             byte[] body = (allowed ? text : "Open the address shown on the TV, including the part after the question mark.").getBytes("UTF-8");
             OutputStream out = sock.getOutputStream();
             out.write(((allowed ? "HTTP/1.1 200 OK" : "HTTP/1.1 403 Forbidden") + "\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: " + body.length

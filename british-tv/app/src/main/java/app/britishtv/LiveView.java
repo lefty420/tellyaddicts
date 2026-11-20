@@ -72,7 +72,7 @@ final class LiveView {
                 t.start();
             }
             String ip = LogServer.address();
-            return ip.isEmpty() ? "" : "http://" + ip + ":" + server.getLocalPort() + "/?t=" + token;
+            return ip.isEmpty() ? "" : "http://" + ip + ":" + server.getLocalPort() + (LogServer.open ? "/" : "/?t=" + token);
         } catch (Exception e) {
             return "";
         }
@@ -145,7 +145,7 @@ final class LiveView {
                 path = target.substring(0, q);
                 query = target.substring(q + 1);
             }
-            if (token.isEmpty() || !token.equals(param(query, "t"))) {
+            if (!LogServer.open && (token.isEmpty() || !token.equals(param(query, "t")))) {
                 reply(sock, "403 Forbidden", "text/plain; charset=utf-8", "Open the address shown on the TV, including the part after the question mark.".getBytes("UTF-8"));
                 return;
             }

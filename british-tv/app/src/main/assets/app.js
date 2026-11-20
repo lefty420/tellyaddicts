@@ -3535,7 +3535,6 @@
       var style = store.get('sbstyle') === 'card' ? 'card' : 'tv';
       /** Put a picture (or none: static) on the set. */
       function paint(art) {
-        if (art && !art.back) art = null;        // the screen shown while something starts is fan art or a backdrop only: never a poster, static instead
         var cls = art ? 'withart ' + style : (style === 'tv' ? 'withart tv noart' : '');   // no art: the set stays, tuned to static
         clearTimeout(sbOutTimer); clearTimeout(sbInTimer);
         var wasUp = sb.className && !/hidden|snowout/.test(sb.className);
@@ -3544,15 +3543,21 @@
         // the little TV: a backdrop fills its screen; with only a poster, a blurred copy fills it and the poster sits on top
         $('sbpic').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
         $('sbpic').className = art && !art.back ? 'blurred' : '';
-        if (art && !art.back) { $('sbpicposter').src = art.poster; $('sbpicposter').className = 'on'; } else $('sbpicposter').className = '';
+        $('sbpicposter').className = '';               // never a poster on the screen: a backdrop, or (until one is found) the poster only as a dim blurred background
         clearInterval(sbNoiseTimer);
         if (style === 'tv') { sbNoise(); sbNoiseTimer = setInterval(sbNoise, 110); }
         $('sbart').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
-        if (art && art.poster && !art.back) { $('sbposter').src = art.poster; $('sbposter').className = ''; }   // a poster only when there is no backdrop
-        else $('sbposter').className = 'hidden';
+        $('sbposter').className = 'hidden';
       }
       paint(art);
-      if (!art && gartOn && !cur.prog.ad && !filmFor(cur.prog)) {
+      if (!(art && art.back) && gartOn && !cur.prog.ad && filmFor(cur.prog)) {
+        // a film with no backdrop yet: ask TheTVDB for one (needs the key), keep the poster dimmed behind until it comes
+        if (tvdbReady()) scanFilmOne(cur.prog).then(function () {
+          if (cur !== me || sb.className === 'hidden') return;
+          var fi = store.get('info3:' + normShow(filmArtName(me.prog)) + ':0:0'), bk = fi && fi.d && fi.d.show && fi.d.show.background;
+          if (bk) paint({ back: bk, poster: art ? art.poster : '' });
+        }, function () { /* the poster stays */ });
+      } else if (!(art && art.back) && gartOn && !cur.prog.ad) {
         // not known yet: look it up now and swap it onto the screen when it arrives (if we are still waiting for this programme)
         var p = parseTitle(cur.prog.title || ''); if (cur.prog.show) p.show = cur.prog.show;
         if (p.show) tvmInfo(p).then(function (d) {
@@ -4975,8 +4980,12 @@
       { t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, true); } },
       { t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, false); } });
   }
-  function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); renderOpts(); }
+  function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); dbgOpenApply(); renderOpts(); }
   function changeLang() { adLang = adLang === 'en' ? 'any' : 'en'; store.set('adlang1', adLang); renderOpts(); }
+  var dbgOpen = store.get('dbgopen1') === 'on';
+  function dbgOpenApply() { try { if (window.NativeHttp && NativeHttp.debugOpen) NativeHttp.debugOpen(expOn && dbgOpen); } catch (e) { /* older app */ } }
+  dbgOpenApply();
+  function changeDbgOpen() { dbgOpen = !dbgOpen; store.set('dbgopen1', dbgOpen ? 'on' : 'off'); dbgOpenApply(); renderOpts(); toast(dbgOpen ? 'Debug address: no code. Open the debug log again to see it.' : 'Debug address: code back on', 3500); }
   function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
 
   // ------------------------------------------------------------------ Teletext (pages the app builds from its own guide)
@@ -5693,7 +5702,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -5713,6 +5722,7 @@
     if (id === 'adlang') return adLang === 'en' ? 'English only' : 'Any';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
     if (id === 'adcut') return adCut ? 'On' : 'Off';
+    if (id === 'dbgopen') return !expOn ? 'Turn Experimental on first' : dbgOpen ? 'On  \u00b7  the debug address needs no code' : 'Off  \u00b7  the address has a code that changes each launch';
     if (id === 'ar') return AR[arIdx].label;
     if (id === 'fx') return FXLABEL[fxMode];
     if (id === 'gart') return gartOn ? 'On' : 'Off';
@@ -5826,6 +5836,7 @@
     join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
+    dbgopen: 'Experimental. On: the debug log and Live view addresses carry no code, so the same plain address works every time. Anyone on your home network can then open them, so leave it off unless you are the only one on it. Takes effect from the next time the address is shown.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
     season: 'A light pixel-art decoration over the TV guide that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it.',
     theme: 'How the TV guide looks. It only changes when you change it here.',
@@ -6025,6 +6036,7 @@
     else if (id === 'adlang') changeLang();
     else if (id === 'adrec') { closeOpts(); adRecent(); }
     else if (id === 'adcut') changeAdcut();
+    else if (id === 'dbgopen') { if (!expOn) toast('Turn Experimental on first', 3000); else changeDbgOpen(); }
     else if (id === 'addons') { if (!expOn) toast('Turn Experimental on first', 3000); else { adList(0); } }
     else if (id === 'sched') csOpen((cur && cur.ch) || gChan, 'opts');
     else if (id === 'ar') changeAr(d);

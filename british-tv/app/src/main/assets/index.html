@@ -249,6 +249,39 @@
     100% { transform: rotate(-720deg); }
   }
 
+
+  /* Experimental > Loading screen: the same start-up TV in other looks (data-ld on #splash; Classic changes nothing) */
+  #spbg { display: none; }
+  #splash[data-ld="room"] #spbg { display: block; position: absolute; inset: -4%; background: #150f22 center / cover no-repeat; filter: blur(1.2vh) brightness(.5) saturate(1.2); }
+  #splash[data-ld="room"], #splash[data-ld="full"] { background: #0d0a12; }
+  #splash[data-ld="room"]::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 46%, rgba(10,6,16,.1) 25%, rgba(10,6,16,.8) 100%); }
+  #splash[data-ld="room"] > :not(#spbg), #splash[data-ld="full"] > :not(#spbg) { position: relative; z-index: 1; }
+  #splash[data-ld="room"] #sptv { width: 54vw; position: relative; }
+  #splash[data-ld="room"] #sptv::before, #splash[data-ld="room"] #sptv::after { content: ""; position: absolute; left: 50%; bottom: 100%; width: .5vh; height: 11vh; margin-left: -.25vh; border-radius: .3vh;
+    background: linear-gradient(90deg, #d4d4d4, #888); transform-origin: 50% 100%; transform: rotate(-26deg); }
+  #splash[data-ld="room"] #sptv::after { transform: rotate(26deg); }
+  #splash[data-ld="room"] #spcab { background: linear-gradient(160deg, #5a3a22, #3b2515 55%, #2a1a0e); }
+  #splash[data-ld="room"] #sppanel i, #splash[data-ld="room"] #sppanel i { background: repeating-conic-gradient(#3a3a3a 0deg 6deg, #151515 6deg 12deg); }
+  #splash[data-ld="room"] #logo { height: 12vh; }
+  #splash[data-ld="room"] #spmsg { font-size: 3.6vh; color: #f3e9d8; }
+  /* the big TUNING on the glass, over the static */
+  #splash[data-ld="room"] #spglare::before, #splash[data-ld="full"] #spglare::before { content: "TUNING"; position: absolute; left: 50%; top: 36%; transform: translateX(-50%); padding: 0 2vh;
+    background: rgba(0,0,0,.5); font: 11vh/1.05 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .06em; color: #fff; text-shadow: .5vh 0 rgba(255,60,90,.8), -.5vh 0 rgba(60,220,255,.8); }
+  #splash[data-ld="full"] #spglare::before { font-size: 21vh; top: 34%; }
+  #splash[data-ld="full"] #logo { position: absolute; left: 4vw; top: 4vh; height: 9vh; z-index: 5; }
+  #splash[data-ld="full"] #sptv { position: absolute; inset: 0; width: auto; }
+  #splash[data-ld="full"] #spcab { position: absolute; inset: 0; padding: 0; gap: 0; border-radius: 0; background: none; box-shadow: none; }
+  #splash[data-ld="full"] #spscreen { position: absolute; inset: 0; aspect-ratio: auto; border-radius: 9vh / 7vh; box-shadow: none; }
+  #splash[data-ld="full"] #spscreen::before { content: ""; position: absolute; left: 6vw; right: 6vw; bottom: 6vh; height: 18vh; border-radius: 3vh; background: rgba(8,6,6,.72); box-shadow: inset 0 0 0 .2vh rgba(201,171,120,.35); z-index: 1; }
+  #splash[data-ld="full"] #spscale { left: 25vw; right: 12vw; bottom: 9vh; }
+  #splash[data-ld="full"] #spscale em { font-size: 4vh; margin-bottom: 1.4vh; }
+  #splash[data-ld="full"] #sptrack { height: 4.6vh; }
+  #splash[data-ld="full"] .spslot::after { font-size: 12vh; left: 8vw; top: 17vh; }
+  #splash[data-ld="full"] #sppanel { position: absolute; left: 8vw; bottom: 8.4vh; flex-direction: row; width: auto; padding: 0; gap: 2.4vw; z-index: 5; }
+  #splash[data-ld="full"] #sppanel i { width: 9vh; height: 9vh; background: repeating-conic-gradient(#3a3a3a 0deg 6deg, #151515 6deg 12deg); }
+  #splash[data-ld="full"] #sppanel i::after { width: .6vh; height: 3vh; margin: .8vh auto 0; background: #f5a623; }
+  #splash[data-ld="full"] #spgrille, #splash[data-ld="full"] #spled, #splash[data-ld="full"] #spfeet, #splash[data-ld="full"] #spside { display: none; }
+
   /* the hold-OK menus (guide and On Demand) share the look of Options: the same navy panel, yellow highlight and two-line rows */
 
   /* ---- channel schedule: every programme on one channel with its time, in the guide theme's own colours */
@@ -1114,6 +1147,7 @@
     <div class="ogrp" id="og-exp">
       <h3>Experimental</h3>
       <div class="orow" id="or-exp"><div class="oline"><b>Experimental features</b><span id="ov-exp"></span></div><div class="ochips" id="oc-exp"></div></div>
+      <div class="orow" id="or-ldscr"><div class="oline"><b>Loading screen</b><span id="ov-ldscr"></span></div><div class="ochips" id="oc-ldscr"></div></div>
       <div class="orow" id="or-mc"><div class="oline"><b>Magic Channels</b><span id="ov-mc"></span></div><div class="ochips" id="oc-mc"></div></div>
       <div class="orow" id="or-rw"><div class="oline"><b>Live TV mode</b><span id="ov-rw"></span></div><div class="ochips" id="oc-rw"></div></div>
       <div class="orow" id="or-uk"><div class="oline"><b>Content</b><span id="ov-uk"></span></div><div class="ochips" id="oc-uk"></div></div>
@@ -1214,7 +1248,8 @@
   </div>
 </div>
 
-<div id="splash">
+<div id="splash" data-ld="classic">
+  <div id="spbg"></div>
   <img id="logo" src="logo.png" alt="Telly Addicts">
   <div id="sptv">
     <div id="spcab">

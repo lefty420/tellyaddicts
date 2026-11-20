@@ -1155,6 +1155,7 @@
     if (tuned.length) pn = tuned[spChi++ % tuned.length].n;
     spSeen[u] = 1; spRecent.push(u); if (spRecent.length > 6) spRecent.shift();
     el.style.backgroundImage = 'url("' + u + '")'; el.className = 'spslot has';
+    if (el === spSlots[0]) { var bg = $('spbg'); if (bg) bg.style.backgroundImage = 'url("' + u + '")'; }   // the room theme's blurred backdrop follows the first picture
     el.setAttribute('data-ch', 'P' + (pn < 10 ? '0' : '') + pn);
   }
   /** A picture has loaded: any slot still empty can use it. */
@@ -4517,6 +4518,21 @@
   // for streams; only plain web links and YouTube are played. Torrents, usenet and archives are never started.
 
   var expOn = store.get('exp1') === 'on';
+  // Experimental: the start-up TV in another look (CSS only, see #splash[data-ld] in index.html). Picked at each start; Classic is the default.
+  var LD = [{ id: 'classic', label: 'Classic' }, { id: 'room', label: 'Set in the room' }, { id: 'full', label: 'Whole screen' }, { id: 'mix', label: 'Surprise me' }], ldIdx = 0;
+  (function () { var id = store.get('ld1'); for (var i = 0; i < LD.length; i++) if (LD[i].id === id) ldIdx = i; })();
+  (function () {
+    var t = expOn ? LD[ldIdx].id : 'classic';
+    if (t === 'mix') t = Math.random() < 0.5 ? 'room' : 'full';
+    var sp = $('splash'); if (sp) sp.setAttribute('data-ld', t);
+  })();
+  function changeLd(d) {
+    if (!expOn) { toast('Turn Experimental on first', 3000); return; }
+    ldIdx = (ldIdx + (d < 0 ? -1 : 1) + LD.length) % LD.length;
+    store.set('ld1', LD[ldIdx].id);
+    renderOpts();
+    toast('Loading screen: ' + LD[ldIdx].label + '. You will see it the next time the app starts.', 3000);
+  }
   var adLang = store.get('adlang1') || 'en';                 // audio language: en = skip links that say they are in another language, any = take everything
   var adHist = store.get('adhist1') || [];                  // sources that worked, newest first, so a title can start again at once
   var adLast = store.get('adlast1') || {}, adBg = store.get('adbg1') || {};   // the source that last worked per episode (1 hour), and the release group chosen per show
@@ -5774,7 +5790,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
+    { id: 'exp', rows: ['exp', 'ldscr', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -5784,6 +5800,7 @@
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'exp') return expOn ? 'On' : 'Off  \u00b7  turn on to use the dimmed rows';
+    if (id === 'ldscr') return expOn ? LD[ldIdx].label + '  \u00b7  from the next start' : 'Turn Experimental on first';
     if (id === 'addons') return addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'ammain') return amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
     if (id === 'depg') return depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
@@ -5895,7 +5912,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var NEEDS_EXP = { addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
+  var NEEDS_EXP = { ldscr: 1, addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
   var ACTION = { scan: 1, tvdb: 1, tmdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1, addons: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
@@ -5906,6 +5923,7 @@
     rw: 'Treats the guide like live television. A show\'s episodes come in order and each day carries on where the last one stopped (Monday S01E01, Tuesday S01E02 ...). A channel plays only what is on now: pick anything else in the guide and it opens in On Demand, asking "Play it now?". Specials, one-offs and music are left as they are. Guide times do not change. (Broadcast schedule, in Guide, sets the times; this sets which episode airs.)',
     uk: 'Everything shows the whole library. British hides shows the scraper has marked as never shown on UK TV (mostly US drama), and keeps UK-made shows and the US ones that did air here, such as cartoons. Shows it is unsure about stay.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
+    ldscr: 'The TV you see while the app starts. Classic is the little set on a blue screen. Set in the room puts a bigger set in front of blurred artwork. Whole screen makes the picture the TV. Surprise me picks one of those two each start.',
     join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
@@ -5952,6 +5970,7 @@
     if (id === 'buf') return { l: BUF.map(function (x) { return x.label; }), i: bufIdx };
     if (id === 'ar') return { l: AR.map(function (x) { return x.label; }), i: arIdx };
     if (id === 'ads') return { l: ['Off', 'On'], i: adEra === 'off' ? 0 : 1 };
+    if (id === 'ldscr') return { l: LD.map(function (x) { return x.label; }), i: ldIdx };
     if (id === 'yt') return { l: ['Off', 'On'], i: ytOn ? 1 : 0 };
     if (id === 'real') return { l: ['Off', 'On'], i: realOn ? 1 : 0 };
     if (id === 'fx') { var ks = Object.keys(FXLABEL); return { l: ks.map(function (k) { return FXLABEL[k]; }), i: Math.max(0, ks.indexOf(fxMode)) }; }
@@ -6102,6 +6121,7 @@
     if (id === 'od') odOpenUi();
     else if (id === 'exp') changeExp();
     else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
+    else if (id === 'ldscr') changeLd(d);
     else if (id === 'uk') changeUk();
     else if (id === 'mc') changeMc();
     else if (id === 'rw') changeRw();

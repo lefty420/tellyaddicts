@@ -5380,7 +5380,7 @@
 
   // ---- What's new: what came with this build. version.js is written from CHANGELOG.md by tools/make_version.py,
   // so this panel and the changelog in the APK zip can never say different things.
-  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+  var MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'];
   var relOpen = false;
   function release() { return window.RELEASE || null; }
@@ -5389,7 +5389,7 @@
   function relDate(d) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(d || '')) return '';
     var p = d.split('-');
-    return (+p[2]) + ' ' + MONTHS[+p[1] - 1] + ' ' + p[0];
+    return (+p[2]) + ' ' + MONTHS_LONG[+p[1] - 1] + ' ' + p[0];
   }
   function relList(notes) {
     var ul = document.createElement('ul');
@@ -6803,6 +6803,8 @@
     }).then(function (all) {
       var progs = ukFilter(all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); }));
       progs = OD_FILMS[ch.id] ? virtualFilms(ch, progs, true) : virtualFill(ch, odRenameProgs(progs), true);      // Magic EPG: every episode the scrapers know, not only the ones with a file
+      return new Promise(function (r) { setTimeout(function () { r(progs); }, 0); });     // a breath for the screen before the grouping, the other long step
+    }).then(function (progs) {
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
       rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);
@@ -7316,7 +7318,11 @@
   function odWarm() {
     if (odWarmed) return;
     odWarmed = true;
-    var i = 0, list = odChannels().slice().sort(function (a, b) { return (a.id === store.get('last') ? -1 : b.id === store.get('last') ? 1 : 0); });
+    // Only the channel that was on and those with a show in Continue watching (that row is built from them): grouping
+    // a channel's shows with Magic EPG takes seconds on the box and blocks the screen, so warming every channel froze
+    // the guide again and again for minutes after start. The rest load when On Demand opens on them.
+    var want = {}; want[store.get('last')] = 1; cwGet().forEach(function (e) { want[e.ch] = 1; });
+    var i = 0, list = odChannels().filter(function (c) { return want[c.id]; }).sort(function (a, b) { return (a.id === store.get('last') ? -1 : b.id === store.get('last') ? 1 : 0); });
     (function next() {
       if (i >= list.length) return;
       if (odOpen || !quiet() || Date.now() - lastKeyAt < 4000) { setTimeout(next, 4000); return; }   // never while On Demand is on screen (it loads its own) or channels are still loading

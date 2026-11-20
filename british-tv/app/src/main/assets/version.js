@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.50.5",
-  "version": "0.50.5",
-  "code": 5005,
+  "name": "Alpha 0.50.6",
+  "version": "0.50.6",
+  "code": 5006,
   "date": "2026-11-20",
   "notes": [
-    "Faster guide with Magic EPG on: each channel now gets at most 800 missing episodes (the earliest of each show, taken in turn) instead of every gap in every show. 80's and 90's TV were carrying over 20,000 programmes each, and all 66 channels were laid out again at every start, which froze the guide for half a minute after it opened. On Demand still lists every episode."
+    "No more freezes in the minutes after start: On Demand used to get every channel ready in the background, and with Magic EPG each one froze the screen for a second or more while it sorted its shows, again and again for several minutes. Now only the channel you were watching and the channels in Continue watching are got ready. The rest load when you open them in On Demand, and search still covers every channel.",
+    "The TV guide's day labels show the short month again (\"Fri 20 Nov\"). A second list of month names had been overwriting them with the long names."
   ],
   "history": [
+    {
+      "name": "Alpha 0.50.5",
+      "date": "2026-11-20",
+      "notes": [
+        "Faster guide with Magic EPG on: each channel now gets at most 800 missing episodes (the earliest of each show, taken in turn) instead of every gap in every show. 80's and 90's TV were carrying over 20,000 programmes each, and all 66 channels were laid out again at every start, which froze the guide for half a minute after it opened. On Demand still lists every episode."
+      ]
+    },
     {
       "name": "Alpha 0.50.4",
       "date": "2026-11-20",
@@ -67,14 +75,6 @@ window.RELEASE = {
         "On Demand: five episodes show at once (was three), so a season of six no longer hides half the screen. The button says \"Play from the start\" instead of \"Play S01E00\".",
         "The update message now sits bottom right, so it no longer covers the Options hints or the playback bar.",
         "The hold-OK menu's heading reads \"4 Classic BBC · 1 of 9\" instead of running together in capitals."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.14",
-      "date": "2026-11-20",
-      "notes": [
-        "Artwork is back on the \"Please stand by\" screen. A show or film with a backdrop shows the backdrop; one with only a poster shows it as a dim, blurred background (never as a framed poster) while the app looks for a backdrop, and swaps it in when one is found. Films need your TheTVDB key for that lookup.",
-        "New in Options > Experimental: **Open debug address**. On, the debug log and Live view addresses have no code on the end, so the same plain address works every time. Anyone on your home network can then open them, so it is off unless you turn it on. This needs the app rebuilt and installed."
       ]
     }
   ]

@@ -2805,7 +2805,7 @@
   }
   // ------------------------------------------------------------------ tuning static
 
-  var sToken = 0, sbHoldUntil = 0, sbHoldTimer = null;
+  var sToken = 0, sbHoldUntil = 0, sbHoldTimer = null, sbOutTimer = null, sbInTimer = null;
   var audioCtx = null, noiseNode = null, noiseGain = null;
   var MIN_STATIC_MS = 1500;     // when tuning, the little TV stays up at least this long, so it is seen and not a flash
   function startHiss() {
@@ -3510,7 +3510,12 @@
       sbHoldTimer = setTimeout(standbyOff, wait + 20);
       return;
     }
-    clearInterval(sbNoiseTimer); $('standby').className = 'hidden';
+    var sbe = $('standby');
+    if (sbe.className === 'hidden' || /snowout/.test(sbe.className)) return;
+    // leaving: the picture breaks up into static and the set fades out, the way a real TV lost its signal
+    sbe.className += ' snowout';
+    clearTimeout(sbOutTimer);
+    sbOutTimer = setTimeout(function () { clearInterval(sbNoiseTimer); sbe.className = 'hidden'; }, 320);
   }
   function standbyOn() {
     clearTimeout(sbTimer);
@@ -3532,7 +3537,10 @@
       function paint(art) {
         if (art && !art.back) art = null;        // the screen shown while something starts is fan art or a backdrop only: never a poster, static instead
         var cls = art ? 'withart ' + style : (style === 'tv' ? 'withart tv noart' : '');   // no art: the set stays, tuned to static
-        sb.className = cls;
+        clearTimeout(sbOutTimer); clearTimeout(sbInTimer);
+        var wasUp = sb.className && !/hidden|snowout/.test(sb.className);
+        sb.className = cls + (wasUp ? '' : ' snowin');          // coming up: a burst of static first, then the picture comes through it
+        if (!wasUp) sbInTimer = setTimeout(function () { sb.className = sb.className.replace(' snowin', ''); }, 260);
         // the little TV: a backdrop fills its screen; with only a poster, a blurred copy fills it and the poster sits on top
         $('sbpic').style.backgroundImage = art ? 'url("' + (art.back || art.poster) + '")' : 'none';
         $('sbpic').className = art && !art.back ? 'blurred' : '';

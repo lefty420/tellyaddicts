@@ -386,6 +386,11 @@
   #sbscreen::after { content: ""; position: absolute; inset: 0; pointer-events: none;
     background: repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0, rgba(0,0,0,.28) .25vh, rgba(0,0,0,0) .25vh, rgba(0,0,0,0) .6vh); }
   #standby.noart #sbnoise { opacity: .9; mix-blend-mode: normal; }
+  /* coming and going through static: a full burst when the set comes up, fading to the picture; the picture breaks up and the set fades out when it goes */
+  #sbnoise { transition: opacity .7s ease-out; }
+  #standby.snowin #sbnoise { opacity: 1; mix-blend-mode: normal; transition: none; }
+  #standby.snowout #sbnoise { opacity: 1; mix-blend-mode: normal; transition: opacity .15s; }
+  #standby.snowout { opacity: 0; transition: opacity .2s linear .12s; }
   #standby.noart #sbscreen { background: #777; }
   #sbglare { position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
     background: linear-gradient(125deg, rgba(255,255,255,.2) 0%, rgba(255,255,255,.06) 24%, rgba(255,255,255,0) 40%); }

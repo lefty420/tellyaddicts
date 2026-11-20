@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.12",
-  "version": "0.49.12",
-  "code": 4912,
+  "name": "Alpha 0.49.13",
+  "version": "0.49.13",
+  "code": 4913,
   "date": "2026-11-20",
   "notes": [
-    "The screen shown while something starts to play now only ever shows a backdrop (fan art). A show or film with only a poster, such as Ace Ventura: When Nature Calls, now gets the tuned-to-static screen instead of a poster.",
-    "Fixed the TMDB key check (\"Could not reach TMDB to check the key\"). The app's list of allowed web addresses did not include TMDB's lookups, so the check, and TMDB as the episode-list source, could never get an answer. This needs the app rebuilt and installed, not just a restart. TheTVDB was not affected."
+    "The \"Please stand by\" TV now comes and goes through static like a real set: a burst of snow when it comes up that clears to the picture, and the picture breaking into snow and fading out when the programme starts."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.12",
+      "date": "2026-11-20",
+      "notes": [
+        "The screen shown while something starts to play now only ever shows a backdrop (fan art). A show or film with only a poster, such as Ace Ventura: When Nature Calls, now gets the tuned-to-static screen instead of a poster.",
+        "Fixed the TMDB key check (\"Could not reach TMDB to check the key\"). The app's list of allowed web addresses did not include TMDB's lookups, so the check, and TMDB as the episode-list source, could never get an answer. This needs the app rebuilt and installed, not just a restart. TheTVDB was not affected."
+      ]
+    },
     {
       "name": "Alpha 0.49.11",
       "date": "2026-11-20",
@@ -68,15 +75,6 @@ window.RELEASE = {
       "notes": [
         "The start-up loading screen no longer sits at \"TUNING 0 / 66\" for a minute. With Magic EPG on, every channel's running order took seconds to build and all 66 were built in one unbroken stretch, so the screen could not move and the count only jumped at the very end. Long stretches of building now give way to the screen every 40 ms or so, so the count climbs and buttons answer.",
         "The loading screen waits at most 10 seconds for every channel (it was 30). A box that is slower than that opens the guide with the first rows built, in guide order, and the rest fill in a moment later."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.4",
-      "date": "2026-11-20",
-      "notes": [
-        "Guide: stepping onto the On Demand button no longer leaves the programme gold as well. One highlight at a time; moving back drops you where you were.",
-        "Playback bar: a two-digit channel number (31, 32 ...) no longer sits on the gold edge when there is no picture beside it.",
-        "On Demand: a show whose poster will not load now shows its name on the card instead of a blank tile."
       ]
     }
   ]

@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.50.6",
-  "version": "0.50.6",
-  "code": 5006,
+  "name": "Alpha 0.50.7",
+  "version": "0.50.7",
+  "code": 5007,
   "date": "2026-11-20",
   "notes": [
-    "No more freezes in the minutes after start: On Demand used to get every channel ready in the background, and with Magic EPG each one froze the screen for a second or more while it sorted its shows, again and again for several minutes. Now only the channel you were watching and the channels in Continue watching are got ready. The rest load when you open them in On Demand, and search still covers every channel.",
-    "The TV guide's day labels show the short month again (\"Fri 20 Nov\"). A second list of month names had been overwriting them with the long names."
+    "Magic EPG films: a guide channel now takes at most 800 programmes in all from the film database, like the missing episodes do, so a big film database cannot slow the guide down at start. On Demand still shows every film."
   ],
   "history": [
+    {
+      "name": "Alpha 0.50.6",
+      "date": "2026-11-20",
+      "notes": [
+        "No more freezes in the minutes after start: On Demand used to get every channel ready in the background, and with Magic EPG each one froze the screen for a second or more while it sorted its shows, again and again for several minutes. Now only the channel you were watching and the channels in Continue watching are got ready. The rest load when you open them in On Demand, and search still covers every channel.",
+        "The TV guide's day labels show the short month again (\"Fri 20 Nov\"). A second list of month names had been overwriting them with the long names."
+      ]
+    },
     {
       "name": "Alpha 0.50.5",
       "date": "2026-11-20",
@@ -62,19 +69,6 @@ window.RELEASE = {
         "On Demand: key hints along the bottom, with what each key does.",
         "Show page: the season list and episode list say how many more there are (\"▼ 20 more\"), the episode list says \"Season 1 · 43 episodes · 3 of 43\", only the highlighted episode shows its picture and description (so six episodes fit), and an episode you can resume says so. With no artwork the poster is the same coloured tile as on the home page.",
         "Hold OK menu: Info, Search, Fix artwork…, Options and Hide on top level. Scrape artwork, Choose the right show, Choose a poster, Choose a background and Back to automatic are inside Fix artwork…."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.15",
-      "date": "2026-11-20",
-      "notes": [
-        "Options: the explanation of each setting now has its own strip under the panel, so it can no longer be pushed out of sight by a long list (it was cut off in TV Guide, Artwork and Experimental). The section heading stays at the top while the rows scroll under it.",
-        "Options > Experimental: the rows that need Experimental (Addons, Use addons as a main source, Magic EPG, Join in progress) are greyed out while it is off, with a note on the Experimental row, instead of each saying \"Turn Experimental on first\".",
-        "Guide: a cell now shows the show's name, with the episode code (S03E04) on the second line, so names are no longer cut short by the code. Cells too narrow for a whole word show a dot instead of half a word or \"The\". Cells holding several programmes say \"3 programmes\" instead of \"+2 more\". A tag such as \"| [WRR]\" is no longer part of the title.",
-        "Playback bar: the show's name on top, then the episode code and title; \"Next\" the same.",
-        "On Demand: five episodes show at once (was three), so a season of six no longer hides half the screen. The button says \"Play from the start\" instead of \"Play S01E00\".",
-        "The update message now sits bottom right, so it no longer covers the Options hints or the playback bar.",
-        "The hold-OK menu's heading reads \"4 Classic BBC · 1 of 9\" instead of running together in capitals."
       ]
     }
   ]

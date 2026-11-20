@@ -7000,6 +7000,7 @@
   var OD_RAIL = [
     ['<svg viewBox="0 0 24 24" width="62%" fill="currentColor"><path d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3z"/></svg>', 'Home'],
     ['<svg viewBox="0 0 24 24" width="62%" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>', 'Browse'],
+    ['<svg viewBox="0 0 24 24" width="62%" fill="currentColor"><path d="M3 4h18v12H3zm2 2v8h14V6zM8 18h8v2H8z"/></svg>', 'Guide'],
     ['<svg viewBox="0 0 24 24" width="62%"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="2.6"/></svg>', 'Search'],
     ['<svg viewBox="0 0 24 24" width="62%"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3" stroke="currentColor" stroke-width="2.4"/></svg>', 'Options']
   ];
@@ -7223,7 +7224,7 @@
       : nm ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Select'], ['Back', 'Browse']]
       : odZn === 'rail' ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Open'], ['Back', 'Close']]
       : odZn === 'chips' ? [['\u25c0 \u25b6', 'Choose'], ['OK', 'Select'], ['\u25bc', 'Down'], ['Back', 'Exit']]
-      : odZn === 'hero' ? [['\u25c0 \u25b6', 'Next show'], ['OK', 'Open'], ['\u25bc', 'Rows'], ['Back', 'Exit']]
+      : odZn === 'hero' ? [['\u25c0 \u25b6', 'Next show'], ['OK', 'Play'], ['Hold OK', 'More info'], ['\u25bc', 'Rows'], ['Back', 'Exit']]
       : [['\u25c0 \u25b6', 'Browse'], ['\u25b2 \u25bc', 'Rows'], ['OK', 'Open'], ['Hold OK', 'More'], ['Back', 'Top']];
     var ft = $('odfoot'); ft.textContent = '';
     hint.forEach(function (x) { var sp = odEl('span'); sp.appendChild(odEl('b', '', x[0])); sp.appendChild(document.createTextNode(' ' + x[1])); ft.appendChild(sp); });
@@ -7349,7 +7350,10 @@
     if ((g && g.name) !== odLastG) { odLastG = g && g.name; ['odh1', 'odlogo', 'odm', 'odp'].forEach(function (id) { odFade($(id)); }); }
     $('odh1').textContent = g ? g.name : (s.c ? s.c.name : '');
     odLogo($('odlogo'), $('odh1'), g);
-    $('odm').textContent = g ? (g.onnow ? 'Live now on ' + g.chan.name : (odInfoLine(g) || (g.chan ? g.chan.name : (s.c && s.c.name) || ''))) : '';
+    var hb = $('odhb'); hb.textContent = '';
+    if (top && g && !g.onnow) { hb.appendChild(odEl('div', 'odb' + (odZn === 'hero' ? ' sel' : ''), '\u25b6  Play')); hb.appendChild(odEl('div', 'odb', '\u24d8  More info   (hold OK)')); }
+    if (top && g && !g.onnow) { var cert = odCertOf(g), mm = $('odm'); mm.textContent = ''; if (cert) mm.appendChild(odEl('span', 'odcert', cert)); mm.appendChild(document.createTextNode(odHeroMeta(g))); }
+    else $('odm').textContent = g ? (g.onnow ? 'Live now on ' + g.chan.name : (odInfoLine(g) || (g.chan ? g.chan.name : (s.c && s.c.name) || ''))) : '';
     $('odp').textContent = g ? (odDesc(g) || (g.film || g.onnow ? '' : g.eps.length + (g.eps.length === 1 ? ' video' : ' videos'))) : '';
     var dots = $('oddots');
     if (top && odHero.length > 1) {
@@ -7367,6 +7371,18 @@
       odHeroTimer = null;
       if (odOpen && odView === 'home' && !odm && (odZn === 'chips' || odZn === 'hero')) { odHeroI = (odHeroI + 1) % odHero.length; odRender(); }
     }, 7000);
+  }
+  function odCertOf(g) { var p = g && g.eps && g.eps[0] && g.eps[0].p; return p && p.cert ? String(p.cert) : ''; }
+  /** The line under the hero: year, seasons, genre. */
+  function odHeroMeta(g) {
+    var seasons = g.sea ? g.sea.filter(function (x) { return /^Season/.test(x.name); }).length : 0;
+    return [odInfoLine(g), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : ''].filter(Boolean).join('  \u00b7  ') || (g.chan ? g.chan.name : '');
+  }
+  function odPlayHero() {
+    var g = odHero[Math.min(odHeroI, odHero.length - 1)];
+    if (!g) return;
+    odJumpTo(g);
+    var b = odBtns(g)[0]; if (b) b.f();
   }
   function odWatchLive(c) {
     if (!c) return;
@@ -7595,7 +7611,8 @@
   function odRailGo(i) {
     if (i === 0) { if (odView !== 'home') odSetView('home'); odChip = 0; odCi = 0; odRowsMemo = null; odRi = 0; odRc = null; odZn = 'chips'; odHeroI = 0; }
     else if (i === 1) { odGridOpen(); return; }
-    else if (i === 2) { odZn = odRailBack; odSearchAsk(); return; }
+    else if (i === 2) { odClose(false); openGuide(); return; }
+    else if (i === 3) { odZn = odRailBack; odSearchAsk(); return; }
     else { odClose(false); openOpts(); return; }
     odRender();
   }
@@ -7606,6 +7623,7 @@
   function odKey(k) {
     if (odm) return k === 'Info' ? true : odmKey(k);
     if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') {      // a held OK arrives as Info (see MainActivity)
+      if (odView === 'home' && odZn === 'hero') { odOpenHero(); return true; }
       if (odView === 'home' && odZn === 'rows' && !odNone) { var q = odSel().g; if (q && !q.onnow) odmOpen(); }
       else if (odView === 'show') odmOpen();
       return true;
@@ -7641,7 +7659,7 @@
       else if (k === 'ArrowRight') odHeroI = (odHeroI + 1) % odHero.length;
       else if (k === 'ArrowUp') odZn = 'chips';
       else if (k === 'ArrowDown') { odZn = 'rows'; odEnter(); return true; }
-      else if (ok) { odOpenHero(); return true; }
+      else if (ok) { odPlayHero(); return true; }
       else if (back) { odClose(true); return true; }
       odRender(); return true;
     }

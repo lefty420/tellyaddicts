@@ -859,7 +859,10 @@
   #odhero { position: absolute; left: calc(5 * var(--uw)); top: calc(8 * var(--u)); width: calc(62 * var(--uw)); }
   #oddots { display: flex; gap: calc(.7 * var(--uw)); margin-top: calc(1.2 * var(--u)); }
   #oddots i { width: calc(1 * var(--uw)); height: calc(.8 * var(--u)); border-radius: calc(.4 * var(--u)); background: rgba(255,255,255,.3); }
-  #oddots i.on { width: calc(2.4 * var(--uw)); background: #fff; }
+  #oddots i.on { width: calc(2.4 * var(--uw)); background: #ffc83d; }
+  #odhb { display: none; gap: calc(1 * var(--uw)); margin-top: calc(1.8 * var(--u)); }
+  #od.odtop #odhb { display: flex; }
+  .odcert { display: inline-block; margin-right: calc(.8 * var(--uw)); padding: 0 calc(.6 * var(--uw)); border: calc(.2 * var(--u)) solid #c3cadb; border-radius: calc(.5 * var(--u)); font-size: calc(1.9 * var(--u)); font-weight: 700; }
 
 
   /* at the top of the page (chips or hero) the picture is a large banner with the title over it and one row below; in the rows it shrinks back */
@@ -885,7 +888,7 @@
   .odc b, #odpost b { position: absolute; left: calc(.9 * var(--u)); right: calc(.9 * var(--u)); bottom: calc(.9 * var(--u)); font-size: calc(2 * var(--u)); line-height: 1.1; z-index: 1; }
   .odc::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.6), rgba(0,0,0,0) 55%); }
   .odc { outline: calc(.45 * var(--u)) solid transparent; transition: transform .14s ease-out, outline-color .14s ease-out; }
-  .odc.sel { outline-color: #fff; transform: scale(1.06); z-index: 2; }
+  .odc.sel { outline: calc(.42 * var(--u)) solid #ffc83d; outline-offset: calc(.42 * var(--u)); transform: scale(1.06); z-index: 2; }
   .odpg { position: absolute; left: 0; right: 0; bottom: 0; height: calc(.7 * var(--u)); background: rgba(255,255,255,.3); z-index: 1; }
   .odpg i { display: block; height: 100%; background: #ffcb6b; }
   #odload { position: absolute; inset: 0; z-index: 8; background: #0b0d12; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(3 * var(--u)); font-size: calc(2.8 * var(--u)); color: #aab3cc; }
@@ -921,7 +924,7 @@
   #odeps { position: absolute; left: calc(5 * var(--uw)); right: calc(4 * var(--uw)); top: calc(52 * var(--u)); display: flex; gap: calc(1 * var(--uw)); overflow: hidden; padding: calc(1 * var(--u)) calc(1 * var(--u)) calc(1 * var(--u)); margin-left: calc(-1 * var(--u)); }
   #odeps.wide { left: calc(5 * var(--uw)); }
   .ode { position: relative; flex: none; width: calc(17.4 * var(--uw)); border-radius: calc(1 * var(--u)); outline: calc(.4 * var(--u)) solid transparent; transition: transform .14s ease-out, outline-color .14s ease-out; }
-  .ode.sel { outline-color: #fff; transform: scale(1.04); z-index: 2; }
+  .ode.sel { outline: calc(.42 * var(--u)) solid #ffc83d; outline-offset: calc(.42 * var(--u)); transform: scale(1.04); z-index: 2; }
   .ode img, .ode .odth { display: block; width: 100%; height: calc(9.8 * var(--uw)); border-radius: calc(1 * var(--u)); object-fit: cover; background: #1d2433; }
   .ode i { position: absolute; left: calc(.7 * var(--u)); top: calc(.7 * var(--u)); font-style: normal; font-size: calc(2 * var(--u)); font-weight: 800; padding: calc(.1 * var(--u)) calc(.6 * var(--uw)); border-radius: calc(.5 * var(--u)); background: rgba(0,0,0,.62); }
   .ode .odpg { position: absolute; left: 0; right: 0; top: calc(calc(9.8 * var(--uw)) - calc(.7 * var(--u))); }
@@ -1095,7 +1098,7 @@
   <div id="odside"></div>
   <div id="odload" class="hidden"><div class="odspin"></div><div>Getting your shows ready…</div></div>
   <div id="odhome">
-    <div id="odhero"><div id="odm"></div><h1 id="odh1"></h1><img id="odlogo" class="hidden" alt=""><div id="odp"></div><div id="oddots"></div></div>
+    <div id="odhero"><div id="odm"></div><h1 id="odh1"></h1><img id="odlogo" class="hidden" alt=""><div id="odp"></div><div id="odhb"></div><div id="oddots"></div></div>
     <div id="odrows"></div>
     <div id="odnomatch" class="hidden"><h2></h2><div class="odb sel">Search again</div><div class="odb">Back to browsing</div></div>
   </div>

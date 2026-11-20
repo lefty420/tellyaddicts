@@ -862,6 +862,14 @@
   #oddots i.on { width: calc(2.4 * var(--uw)); background: #fff; }
 
 
+  /* at the top of the page (chips or hero) the picture is a large banner with the title over it and one row below; in the rows it shrinks back */
+  #od.odtop #odbg { height: calc(66 * var(--u)); background-position: center 22%; }
+  #od.odtop #odbg::after { background: linear-gradient(0deg, #0b0d12 1%, rgba(11,13,18,0) 42%), linear-gradient(90deg, rgba(11,13,18,.9) 0%, rgba(11,13,18,.5) 34%, rgba(11,13,18,0) 68%); }
+  #od.odtop #odhero { top: calc(25 * var(--u)); width: calc(50 * var(--uw)); }
+  #od.odtop #odh1 { font-size: calc(7 * var(--u)); -webkit-line-clamp: 2; }
+  #od.odtop #odlogo { max-height: calc(15 * var(--u)); max-width: calc(36 * var(--uw)); }
+  #od.odtop #odp { -webkit-line-clamp: 3; }
+  #od.odtop #odrows { top: calc(57 * var(--u)); }
   #odm, #odsm { font-size: calc(2.1 * var(--u)); color: #c3cadb; margin-bottom: calc(.6 * var(--u)); }
   #odh1, #odst { font-size: calc(5.2 * var(--u)); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; font-weight: 800; line-height: 1.05; margin: 0; }
   #odp, #odsp { font-size: calc(2.2 * var(--u)); line-height: 1.35; color: #c3cadb; margin-top: calc(.8 * var(--u)); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }

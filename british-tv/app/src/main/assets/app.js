@@ -7343,6 +7343,7 @@
       });
     }
     var top = odZn === 'chips' || odZn === 'hero';
+    $('od').classList.toggle('odtop', top);
     var g = top && odHero.length ? odHero[Math.min(odHeroI, odHero.length - 1)] : s.g;
     odSetBg(g);
     if ((g && g.name) !== odLastG) { odLastG = g && g.name; ['odh1', 'odlogo', 'odm', 'odp'].forEach(function (id) { odFade($(id)); }); }

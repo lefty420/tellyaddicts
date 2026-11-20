@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.49.0 — 2026-11-20
+- Options > Experimental: new "Magic Channels" (off by default). Adds 35 themed channels built from the whole library, after the usual ones:
+  Movies by genre (Action, Horror Night, Sci-Fi & Fantasy, Comedy, Crime & Thrillers, Drama & Romance, all keeping the watershed); TV: Sci-Fi & Fantasy, Cops & Detectives, Action Heroes, Period & Prestige Drama; Quiz Time, Challenge: Big Games; Sitcom Gold, Nineties Sitcoms & Cult Comedy, TGIF Family Sitcoms, Sketch Shows & Stand-up, Light Entertainment, Daytime & Talk, Factual & Features; kids: Saturday Morning Toons, 90s Toon Zone, Cartoon Classics, Children's TV Favourites, Toytown & Nursery, Teen TV; music: Pop & Chart, Rock & Alternative; soaps: Aussie Soaps, Street Life (UK), Dallas, Dynasty & Co; Kitchen Table; and four Christmas channels (Comedy, Soaps & Drama, Cartoons & Kids, Pop) that carry only the Christmas episodes. A show can be on a magic channel and its usual one. Turning it on or off restarts the guides.
+- The lineup is in tools/magic_channels.py (it writes tools/shows.json and channels.js), so a channel's shows can be changed without a new APK by editing shows.json.
+
 ## Alpha 0.48.4 — 2026-11-20
 - Fixed: the episodes row on Info never showed a thumbnail picture at all (only the dashed box). It now shows the episode's own picture where the library has one for it.
 - Films can now show a clear (transparent title) image on their On Demand page and poster, the same way TV shows do, once the scraper sends one. Nothing changes until it does.
@@ -24,11 +29,6 @@ hurry gets a third number, `Alpha 0.1.1`.
 - The bar you get with OK while watching has fewer, clearer buttons: Stop, Restart, Play/Pause, Next, then Guide, Sources, Audio & subs and Options. Guide opens a short list (TV Guide, Channel schedule, On Demand); Sources (only with Experimental on and an addon) holds Auto play from addons and Find sources. Up/Down pick in the list, OK runs it, Left/Right or Back close it.
 - New Stop button: stops the programme and opens the TV Guide. Back from the guide joins the channel again where it is now.
 - Skip adverts is no longer a separate button: during an ad break Next reads "Skip adverts".
-
-## Alpha 0.49.0 — 2026-11-20
-- Options > Experimental: new "Magic Channels" (off by default). Adds 35 themed channels built from the whole library, after the usual ones:
-  Movies by genre (Action, Horror Night, Sci-Fi & Fantasy, Comedy, Crime & Thrillers, Drama & Romance, all keeping the watershed); TV: Sci-Fi & Fantasy, Cops & Detectives, Action Heroes, Period & Prestige Drama; Quiz Time, Challenge: Big Games; Sitcom Gold, Nineties Sitcoms & Cult Comedy, TGIF Family Sitcoms, Sketch Shows & Stand-up, Light Entertainment, Daytime & Talk, Factual & Features; kids: Saturday Morning Toons, 90s Toon Zone, Cartoon Classics, Children's TV Favourites, Toytown & Nursery, Teen TV; music: Pop & Chart, Rock & Alternative; soaps: Aussie Soaps, Street Life (UK), Dallas, Dynasty & Co; Kitchen Table; and four Christmas channels (Comedy, Soaps & Drama, Cartoons & Kids, Pop) that carry only the Christmas episodes. A show can be on a magic channel and its usual one. Turning it on or off restarts the guides.
-- The lineup is in tools/magic_channels.py (it writes tools/shows.json and channels.js), so a channel's shows can be changed without a new APK by editing shows.json.
 
 ## Alpha 0.48.1 — 2026-11-16
 - On Demand > hold OK > "Choose the right show" now really changes the show. The show is renamed to the one you pick, its episodes are filled in from that show (Magic EPG, the scrapers' episode guide, TVmaze) and the pictures change with it. The choice is remembered. "Back to automatic" puts the original name and episodes back. Scrape artwork, Choose a poster and Choose a background do not rename anything.

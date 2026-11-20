@@ -1,20 +1,31 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.15",
-  "version": "0.49.15",
-  "code": 4915,
+  "name": "Alpha 0.49.16",
+  "version": "0.49.16",
+  "code": 4916,
   "date": "2026-11-20",
   "notes": [
-    "Options: the explanation of each setting now has its own strip under the panel, so it can no longer be pushed out of sight by a long list (it was cut off in TV Guide, Artwork and Experimental). The section heading stays at the top while the rows scroll under it.",
-    "Options > Experimental: the rows that need Experimental (Addons, Use addons as a main source, Magic EPG, Join in progress) are greyed out while it is off, with a note on the Experimental row, instead of each saying \"Turn Experimental on first\".",
-    "Guide: a cell now shows the show's name, with the episode code (S03E04) on the second line, so names are no longer cut short by the code. Cells too narrow for a whole word show a dot instead of half a word or \"The\". Cells holding several programmes say \"3 programmes\" instead of \"+2 more\". A tag such as \"| [WRR]\" is no longer part of the title.",
-    "Playback bar: the show's name on top, then the episode code and title; \"Next\" the same.",
-    "On Demand: five episodes show at once (was three), so a season of six no longer hides half the screen. The button says \"Play from the start\" instead of \"Play S01E00\".",
-    "The update message now sits bottom right, so it no longer covers the Options hints or the playback bar.",
-    "The hold-OK menu's heading reads \"4 Classic BBC · 1 of 9\" instead of running together in capitals."
+    "On Demand home redesigned: a slimmer title area so two full rows fit, ten posters across each, and a count on the row (\"3 of 140\"). The channel badge and the fake \"OK Open\" button are gone.",
+    "On Demand: a Search button in the header. Press Up from the top row to reach it and OK to search (Yellow still works, but most remotes have no Yellow). A search with no match now shows a page with \"Search again\" and \"Back to browsing\" instead of a short message.",
+    "On Demand: key hints along the bottom, with what each key does.",
+    "Show page: the season list and episode list say how many more there are (\"▼ 20 more\"), the episode list says \"Season 1 · 43 episodes · 3 of 43\", only the highlighted episode shows its picture and description (so six episodes fit), and an episode you can resume says so. With no artwork the poster is the same coloured tile as on the home page.",
+    "Hold OK menu: Info, Search, Fix artwork…, Options and Hide on top level. Scrape artwork, Choose the right show, Choose a poster, Choose a background and Back to automatic are inside Fix artwork…."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.15",
+      "date": "2026-11-20",
+      "notes": [
+        "Options: the explanation of each setting now has its own strip under the panel, so it can no longer be pushed out of sight by a long list (it was cut off in TV Guide, Artwork and Experimental). The section heading stays at the top while the rows scroll under it.",
+        "Options > Experimental: the rows that need Experimental (Addons, Use addons as a main source, Magic EPG, Join in progress) are greyed out while it is off, with a note on the Experimental row, instead of each saying \"Turn Experimental on first\".",
+        "Guide: a cell now shows the show's name, with the episode code (S03E04) on the second line, so names are no longer cut short by the code. Cells too narrow for a whole word show a dot instead of half a word or \"The\". Cells holding several programmes say \"3 programmes\" instead of \"+2 more\". A tag such as \"| [WRR]\" is no longer part of the title.",
+        "Playback bar: the show's name on top, then the episode code and title; \"Next\" the same.",
+        "On Demand: five episodes show at once (was three), so a season of six no longer hides half the screen. The button says \"Play from the start\" instead of \"Play S01E00\".",
+        "The update message now sits bottom right, so it no longer covers the Options hints or the playback bar.",
+        "The hold-OK menu's heading reads \"4 Classic BBC · 1 of 9\" instead of running together in capitals."
+      ]
+    },
     {
       "name": "Alpha 0.49.14",
       "date": "2026-11-20",
@@ -68,13 +79,6 @@ window.RELEASE = {
       "notes": [
         "Fixed 0.49.6 and 0.49.7, which broke start-up: a piece of the app that saves and reads everything kept on the TV was deleted by mistake, so the tuning screen showed no pictures or static and the guide never opened.",
         "Taken back out: the 60-day clear-out of saved artwork and episode guides added in 0.49.6. It went by when a file was last saved, not last used, so it could delete artwork the TV still shows. Anything it already removed is fetched again as needed, so the first start may be a little slower."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.7",
-      "date": "2026-11-20",
-      "notes": [
-        "Fewer stutters just after the guide comes up. The background jobs that start a few seconds later (saving episode links for Play Next, and pre-loading On Demand) now wait until no button has been pressed for 4 seconds, and the link saving works in smaller pieces with longer gaps. Not yet tried on the Shield."
       ]
     }
   ]

@@ -6552,8 +6552,10 @@
   // it plays like a recording, with the usual bar to pause and skip, and carries on to the next episode.
   var odOpen = false, odFrom = '', odGuide = null, odData = {}, odArtFor = '', odBgFor = '';
   var odView = 'home', odRi = 0, odRc = null, odTop = 0, odPos = {}, odZone = 0, odSea = 0, odEi = 0;
-  var OD_VIS = 7;           // posters across a row
-  var OD_EPS = 5;           // episodes on screen at once
+  var OD_VIS = 10;           // posters across a row
+  var OD_EPS = 6;
+  var OD_SEA = 6;           // seasons listed down the left at once
+  var odSb = false;         // the Search pill in the header has the highlight           // episodes on screen at once
   var OD_SKIP = { xmasmusic: 1, tvarchive: 1 };         // songs and dated clips are not shows
   var OD_FILMS = { kidsmovies: 1, videoshop: 1, xmasmovies: 1, mc_action: 1, mc_horror: 1, mc_scifi_movies: 1, mc_comedy_movies: 1, mc_thriller: 1, mc_drama_movies: 1 };       // the film channels: each film is its own one-video title
   function odChannels() {
@@ -6840,12 +6842,12 @@
     return e && ep && ep.p && e.url === ep.p.url && e.pos > 30 && (!e.dur || e.pos < e.dur - 60) ? e.pos : 0;
   }
   // ---- search: Yellow (or the hold-OK menu) asks for a name; the matches from every channel become the top row
-  var srPseudo = { id: '_sr', n: '', name: 'Search' }, odQuery = '';
+  var srPseudo = { id: '_sr', n: '', name: 'Search' }, odQuery = '', odNone = '', odNoneI = 0;   // odNone: the search that found nothing, shown as a page of its own
   function odSearchAsk() {
     kbOpen({ title: 'Search On Demand', label: 'Search', value: odQuery, save: odSearchRun });
   }
   function odSearchRun(q) {
-    odQuery = q;
+    odQuery = q; odNone = '';
     if (!q) { odData._sr = null; odRowsMemo = null; if (odOpen) odRender(); return; }
     toast('Searching…', 1500);
     Promise.all(odChannels().map(function (c) { return odLoadChannel(c).then(null, function () { /* that channel is skipped */ }); })).then(function () {
@@ -6859,10 +6861,10 @@
       });
       hits.sort(function (a, b) { return a.r - b.r || (a.n < b.n ? -1 : a.n > b.n ? 1 : 0); });
       odRowsMemo = null;
-      if (!hits.length) { odData._sr = null; toast('Nothing in On Demand matches “' + q + '”', 4000); if (odOpen) odRender(); return; }
+      if (!hits.length) { odData._sr = null; odNone = q; odNoneI = 0; odSb = false; if (odView === 'show') odShowView(false); if (odOpen) odRender(); return; }
       odData._sr = { shows: hits.map(function (h) { return h.g; }) };
       srPseudo.name = 'Search: ' + q + '   (' + hits.length + ')';
-      odPos._sr = 0; odRc = srPseudo; odRi = 0;
+      odPos._sr = 0; odRc = srPseudo; odRi = 0; odSb = false;
       if (odOpen) { if (odView === 'show') odShowView(false); odRender(); }
     });
   }
@@ -6969,9 +6971,20 @@
   function odRender() {
     $('odload').className = odOpen && (odBusy || (odView === 'home' && odSel().sh == null)) ? '' : 'hidden';
     if (odView === 'show') odRenderShow(); else odRenderHome();
-    $('odfoot').textContent = odView === 'show'
-      ? '▲ ▼ move   ◀ seasons   ▶ episodes   OK play   Back'
-      : '◀ ▶ browse   ▲ ▼ channels   OK open   Yellow search   Back';
+    var nm = odView === 'home' && odNone;
+    $('odnomatch').className = nm ? '' : 'hidden'; $('odrows').style.visibility = $('odhero').style.visibility = nm ? 'hidden' : '';
+    if (nm) {
+      $('odnomatch').firstChild.textContent = 'Nothing matches \u201c' + odNone + '\u201d';
+      $('odnomatch').children[1].className = 'odb' + (odNoneI === 0 ? ' sel' : ''); $('odnomatch').children[2].className = 'odb' + (odNoneI === 1 ? ' sel' : '');
+    }
+    var hint = odView === 'show'
+      ? [['\u25b2 \u25bc', 'Move'], ['\u25c0 \u25b6', 'Seasons / episodes'], ['OK', 'Play'], ['Hold OK', 'More'], ['Back', 'Shows']]
+      : nm ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Select'], ['Back', 'Browse']]
+      : odSb ? [['OK', 'Search'], ['\u25bc', 'Back to shows'], ['Back', 'Exit']]
+      : [['\u25c0 \u25b6', 'Browse'], ['\u25b2 \u25bc', 'Rows'], ['OK', 'Open'], ['Hold OK', 'More'], ['Back', 'Exit']];
+    var ft = $('odfoot'); ft.textContent = '';
+    hint.forEach(function (x) { var sp = odEl('span'); sp.appendChild(odEl('b', '', x[0])); sp.appendChild(document.createTextNode(' ' + x[1])); ft.appendChild(sp); });
+    $('odsrch').className = odSb && odView === 'home' && !nm ? 'sel' : '';
   }
   var rowIsCw = false;
   /** One poster element per show, kept and reused: moving along a row re-attaches the ones already built (and decoded)
@@ -7009,6 +7022,8 @@
   }
   /** Fade a piece of text in when it changes to another show. */
   function odFade(el) { if (el.animate) try { el.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' }); } catch (e) { /* no animation */ } }
+  /** What sits after a row's name: where you are in it on the highlighted row, how many it holds on the others. */
+  function odCount(x) { return x.ri === odRi ? (x.pos + 1) + ' of ' + x.n : x.n + (x.n === 1 ? ' show' : ' shows'); }
   var odDom = [];       // what the home rows on screen were built from: a key press that stays inside them only moves the highlight
   function odRenderHome() {
     var s = odSel(), rows = s.rows, box = $('odrows');
@@ -7023,7 +7038,8 @@
     for (var w = 0; same && w < want.length; w++) same = odDom[w].c === want[w].c && odDom[w].sh === want[w].sh && odDom[w].start === want[w].start && odDom[w].n === want[w].n && odDom[w].gen === odKGen;
     if (same) {                                   // cheap path: move the highlight, touch nothing else
       want.forEach(function (x, wi) {
-        var cards = box.children[wi].lastChild.children, old = odDom[wi].sel, now = x.ri === odRi && x.n ? x.pos - x.start : -1;
+        var cards = box.children[wi].lastChild.children, old = odDom[wi].sel, now = x.ri === odRi && !odSb && x.n ? x.pos - x.start : -1;
+        var sp = box.children[wi].firstChild.lastChild; if (x.sh && sp && sp.tagName === 'SPAN') sp.textContent = odCount(x);
         if (old !== now) {
           if (cards[old]) cards[old].classList.remove('sel');
           if (cards[now]) cards[now].classList.add('sel');
@@ -7037,31 +7053,28 @@
       var frag = document.createDocumentFragment();
       want.forEach(function (x) {
         var row = odEl('div', 'odrow'), h = odEl('h3', '', (x.c.n ? x.c.n + '   ' : '') + x.c.name);
-        if (x.sh) h.appendChild(odEl('span', '', x.n + (x.n === 1 ? ' show' : ' shows')));
+        if (x.sh) h.appendChild(odEl('span', '', odCount(x)));
         row.appendChild(h);
         var cards = odEl('div', 'odcards');
         if (!x.sh) { for (var q = 0; q < OD_VIS; q++) cards.appendChild(odEl('div', 'odc odsk')); }     // no list yet: plain blocks where the posters will be
-        else { rowIsCw = x.c === cwPseudo; for (var i = x.start; i < Math.min(x.n, x.start + OD_VIS); i++) cards.appendChild(odCard(x.sh[i], x.ri === odRi && i === x.pos)); rowIsCw = false; }
+        else { rowIsCw = x.c === cwPseudo; for (var i = x.start; i < Math.min(x.n, x.start + OD_VIS); i++) cards.appendChild(odCard(x.sh[i], x.ri === odRi && !odSb && i === x.pos)); rowIsCw = false; }
         row.appendChild(cards); frag.appendChild(row);
-        odDom.push({ c: x.c, sh: x.sh, start: x.start, n: x.n, gen: odKGen, sel: x.ri === odRi && x.n ? x.pos - x.start : -1 });
+        odDom.push({ c: x.c, sh: x.sh, start: x.start, n: x.n, gen: odKGen, sel: x.ri === odRi && !odSb && x.n ? x.pos - x.start : -1 });
       });
       box.appendChild(frag);
       // moving along a row slides the posters across by the distance moved instead of jumping
       want.forEach(function (x, wi) {
         var o = prevDom[wi], d = o && o.c === x.c && o.sh === x.sh && o.gen === odKGen ? x.start - o.start : 0;
-        if (d) odSlide(box.children[wi].lastChild.children, d * 13.2, 'vw');
+        if (d) odSlide(box.children[wi].lastChild.children, d * 9.3, 'vw');
       });
     }
     var g = s.g;
     odSetBg(g);
     if ((g && g.name) !== odLastG) { odLastG = g && g.name; ['odh1', 'odlogo', 'odm', 'odp'].forEach(function (id) { odFade($(id)); }); }
-    var tc = g && g.chan || s.c;
-    $('odch').textContent = tc ? (tc.n ? tc.n + '  \u00b7  ' : '') + tc.name : '';
     $('odh1').textContent = g ? g.name : (s.c ? s.c.name : '');
     odLogo($('odlogo'), $('odh1'), g);
     $('odm').textContent = g ? (odInfoLine(g) || s.c.name) : '';
     $('odp').textContent = g ? (odDesc(g) || (g.film ? '' : g.eps.length + (g.eps.length === 1 ? ' video' : ' videos'))) : '';
-    $('odhint').className = g ? '' : 'hidden';
     odLookups(g);
   }
   /** Episode title for the list: the library's own, else the scraper's guide, else just the number. */
@@ -7080,7 +7093,9 @@
     odLookups(g);                                  // the show's details and clear logo, also when you go straight onto its page
     if (g.name !== odLastS) { odLastS = g.name; ['odpost', 'odst', 'odsm', 'odsp'].forEach(function (id) { odFade($(id)); }); }
     var k = odKnown(g), post = $('odpost');
-    post.style.backgroundImage = k && (k.poster || k.back) ? 'url("' + (k.poster || k.back) + '")' : odTone(g.name);
+    var hasArt = k && (k.poster || k.back);
+    post.style.backgroundImage = hasArt ? 'url("' + (k.poster || k.back) + '")' : odTone(g.name);
+    post.textContent = ''; if (!hasArt) post.appendChild(odEl('b', '', g.name));       // no picture yet: the same coloured tile with the name as on the home page
     $('odst').textContent = g.name;
     odLogo($('odlogo2'), $('odst'), g);
     var seasons = g.sea.filter(function (x) { return /^Season/.test(x.name); }).length;
@@ -7093,32 +7108,39 @@
     var rail = $('odrail');
     var multi = g.sea.length > 1;
     $('odeps').className = multi ? '' : 'wide';
-    var cs = multi ? Math.max(0, Math.min(odSea - 3, g.sea.length - 7)) : 0, rsig = g.name + '|' + cs + '|' + g.sea.length + '|' + multi;
-    if (rsig === odRailSig && rail.children.length === Math.min(g.sea.length, 7) * (multi ? 1 : 0)) {      // same list: just move the highlight
+    var cs = multi ? Math.max(0, Math.min(odSea - 2, g.sea.length - OD_SEA)) : 0, rsig = g.name + '|' + cs + '|' + g.sea.length + '|' + multi;
+    if (rsig === odRailSig && rail.children.length === Math.min(g.sea.length, OD_SEA) * (multi ? 1 : 0)) {      // same list: just move the highlight
       for (var ri = 0; ri < rail.children.length; ri++) rail.children[ri].className = 'odsn' + (cs + ri === odSea ? ' on' : '') + (cs + ri === odSea && odZone === 1 ? ' sel' : '');
     } else {
       odRailSig = rsig; rail.textContent = '';
       if (multi) {
-        for (var i = cs; i < Math.min(g.sea.length, cs + 7); i++) {
+        for (var i = cs; i < Math.min(g.sea.length, cs + OD_SEA); i++) {
           var sn = odEl('div', 'odsn' + (i === odSea ? ' on' : '') + (i === odSea && odZone === 1 ? ' sel' : ''), g.sea[i].name);
           sn.appendChild(odEl('small', '', String(g.sea[i].eps.length)));
           rail.appendChild(sn);
         }
       }
     }
+    var left = multi ? g.sea.length - cs - OD_SEA : 0;
+    $('odrmore').textContent = left > 0 ? '\u25bc ' + left + ' more' : '';
     var list = (g.sea[odSea] || { eps: [] }).eps, box = $('odeps');
     odEi = Math.max(0, Math.min(odEi, list.length - 1));
     var top = Math.max(0, Math.min(odEi - 1, list.length - OD_EPS));
+    var eh = $('odeh'), sn0 = g.sea[odSea] ? g.sea[odSea].name : '';
+    eh.className = multi ? '' : 'wide';
+    eh.textContent = [sn0, list.length + (list.length === 1 ? ' episode' : ' episodes'), list.length ? (odEi + 1) + ' of ' + list.length : ''].filter(Boolean).join('  \u00b7  ');
+    var before = top, after = Math.max(0, list.length - top - OD_EPS);
+    $('odemore').textContent = [before ? '\u25b2 ' + before + ' earlier' : '', after ? '\u25bc ' + after + ' more' : ''].filter(Boolean).join('     ');
     var base = g.name + '|' + odSea + '|' + odKGen + '|' + (g.meta ? 1 : 0) + '|' + list.length, esig = base + '|' + top;
     if (esig === odEpSig && box.children.length) {
-      for (var ei = 0; ei < box.children.length; ei++) box.children[ei].className = 'ode' + (top + ei === odEi && odZone === 2 ? ' sel' : '');
+      for (var ei = 0; ei < box.children.length; ei++) box.children[ei].className = 'ode' + (top + ei === odEi ? ' cur' : '') + (top + ei === odEi && odZone === 2 ? ' sel' : '');
       return;
     }
     var slideBy = base === odEpBase ? top - odEpTop : 0;
     odEpSig = esig; odEpBase = base; odEpTop = top;
     box.textContent = '';
     for (var j = top; j < Math.min(list.length, top + OD_EPS); j++) {
-      var ep = list[j], m = g.meta && g.meta[ep.s + 'x' + ep.e], row = odEl('div', 'ode' + (j === odEi && odZone === 2 ? ' sel' : ''));
+      var ep = list[j], m = g.meta && g.meta[ep.s + 'x' + ep.e], row = odEl('div', 'ode' + (j === odEi ? ' cur' : '') + (j === odEi && odZone === 2 ? ' sel' : ''));
       row.appendChild(odEl('i', '', ep.s > 0 ? String(ep.e) : '•'));
       var kn = odKnown(g), still = (m && m.img) || ep.thumb || (kn && (kn.back || kn.poster)) || '';   // no still of its own: the show's own picture beats a flat colour
       if (still) {
@@ -7129,10 +7151,11 @@
       var tx = odEl('div'); tx.appendChild(odEl('b', '', odEpTitle(ep, m)));
       if (m && m.d) tx.appendChild(odEl('small', '', m.d));
       row.appendChild(tx);
-      row.appendChild(odEl('em', '', m && m.l ? m.l + ' min' : (ep.year || (m && m.a ? String(m.a).slice(0, 4) : ''))));
+      var rp = odResumeAt(g, ep), em = odEl('em', rp ? 'rs' : '', rp ? 'Resume ' + Math.round(rp / 60) + ' min in' : m && m.l ? m.l + ' min' : (ep.year || (m && m.a ? String(m.a).slice(0, 4) : '')));
+      row.appendChild(em);
       box.appendChild(row);
     }
-    if (slideBy) odSlide(box.children, slideBy * 11.2, 'vh', true);
+    if (slideBy) odSlide(box.children, slideBy * 6.4, 'vh', true);
   }
   var odRailSig = '', odEpSig = '', odEpBase = '', odEpTop = 0;
   function odShowView(on) {
@@ -7156,7 +7179,7 @@
     odGuide = guideOpen ? { chan: gChan, win: gWin, focus: gFocus } : null;     // so leaving On Demand lands back on the same programme
     closeOsd(); closeOpts();
     if (guideOpen) closeGuide();
-    odOpen = true; odArtFor = ''; odBgFor = ''; odTop = 0;
+    odOpen = true; odArtFor = ''; odBgFor = ''; odTop = 0; odSb = false; odNone = '';
     odShowView(false);
     var rows = odRowList(), at = cur ? rows.indexOf(cur.ch) : 0;
     odRi = Math.max(0, at); odRc = rows[odRi] || null;
@@ -7242,14 +7265,27 @@
   }
   function odKey(k) {
     if (odm) return k === 'Info' ? true : odmKey(k);
-    if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') { odmOpen(); return true; }   // a held OK arrives as Info (see MainActivity)
+    if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') { if (!odSb && !odNone) odmOpen(); return true; }   // a held OK arrives as Info (see MainActivity)
     if (k === 'Guide' || k === 'Red') { odClose(false); openGuide(); return true; }
     if (k === 'Yellow') { odSearchAsk(); return true; }
     if (odView === 'show') return odKeyShow(k);
+    if (odNone) {
+      if (k === 'ArrowUp' || k === 'ArrowDown') odNoneI = 1 - odNoneI;
+      else if (k === 'Enter' || k === ' ') { if (odNoneI === 0) { odSearchAsk(); return true; } odNone = ''; }
+      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') odNone = '';
+      odRender(); return true;
+    }
+    if (odSb) {
+      if (k === 'Enter' || k === ' ') { odSearchAsk(); return true; }
+      if (k === 'ArrowDown') odSb = false;
+      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odClose(true); return true; }
+      odRender(); return true;
+    }
     var s = odSel(), c = s.c, sh = s.sh, pos = c ? (odPos[c.id] || 0) : 0;
     if (k === 'ArrowUp' || k === 'ArrowDown') {
       var ni = odRi + (k === 'ArrowUp' ? -1 : 1);
       if (ni >= 0 && ni < s.rows.length) { odRi = ni; odRc = s.rows[ni]; odEnter(); return true; }
+      if (k === 'ArrowUp') odSb = true;
     } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
       if (sh && sh.length) odPos[c.id] = Math.max(0, Math.min(sh.length - 1, pos + (k === 'ArrowLeft' ? -1 : 1)));
     } else if (k === 'ChannelUp' || k === 'ChannelDown') {
@@ -7359,36 +7395,34 @@
     var optsItem = { t: 'Options', sub: 'Settings, help and debug', f: function () { odmClose(); openOpts(); } };
     var searchItem = { t: 'Search', sub: odQuery ? 'Find a show or film by name (now: ' + odQuery + ')' : 'Find a show or film by name', f: function () { odmClose(); odSearchAsk(); } };
     var infoItem = { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = (g.flat && g.flat[0]) || (g.eps && g.eps[0]); if (e0) openInfo({ prog: e0.p, ch: g.chan }); } };
+    var fixItem = function (sub) { return { t: 'Fix artwork…', sub: sub, f: function () { odm = { mode: 'menu', g: g, i: 0, title: 'Fix artwork', sub: 1, items: fix }; odmRender(); } }; };
+    var hideItem = { t: g.film ? 'Hide this film' : 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { hideShow(g.name, !!g.film); } };
+    var fix;
     if (g.film) {                                            // a film keeps the poster that came with it: nothing to scrape or choose
       var need = function (fn) { return function () { if (!tvdbReady()) { odmClose(); toast('Film artwork needs a TheTVDB key (Options > Artwork)', 4500); return; } fn(); }; };
       var fixed = store.get('artfix:' + normShow(odArtName(g)));
-      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [infoItem, searchItem,
-        { t: 'Scrape artwork', sub: 'Find this film\u2019s backdrop on TheTVDB', f: need(function () { odmFilmScrape(g); }) },
+      fix = [
+        { t: 'Scrape artwork', sub: 'Find this film’s backdrop on TheTVDB', f: need(function () { odmFilmScrape(g); }) },
         { t: 'Choose the right film', sub: 'Pick from the list if the wrong film was matched', f: need(function () { odmFilmList(g); }) },
         { t: 'Choose a poster', sub: 'Pick the picture shown on its card', f: need(function () { odmFilmPics(g, 'poster'); }) },
-        { t: 'Choose a background', sub: 'Pick the wide picture behind the film', f: need(function () { odmFilmPics(g, 'background'); }) },
-        optsItem,
-        { t: 'Hide this film', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { hideShow(g.name, true); } }] };
-      if (fixed && fixed.a) odm.items.push({ t: 'Back to automatic', sub: 'Forget the choices made for this film', f: function () {
+        { t: 'Choose a background', sub: 'Pick the wide picture behind the film', f: need(function () { odmFilmPics(g, 'background'); }) }];
+      if (fixed && fixed.a) fix.push({ t: 'Back to automatic', sub: 'Forget the choices made for this film', f: function () {
         try { kv.removeItem('artfix:' + normShow(odArtName(g))); } catch (e) { /* ignore */ }
         g._k = null; odArtFor = ''; odBgFor = ''; odKGen++; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } });
+      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [infoItem, searchItem, fixItem('Scrape it again, or choose the film, poster or background'), optsItem, hideItem] };
       adOdm(g); optsLast(odm.items); odmRender(); return;
     }
-    odm = { mode: 'menu', g: g, i: 0, items: [
-      { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = g.flat && g.flat[0]; if (e0) openInfo({ prog: e0.p, ch: g.chan }); } },
-      searchItem,
+    fix = [
       { t: 'Scrape artwork', sub: 'Look the show up again and use the best match', f: function () { odmScrape(g); } },
       { t: 'Choose the right show', sub: 'Pick from the list if the wrong show was matched', f: function () { odmShows(g); } },
       { t: 'Choose a poster', sub: 'Pick the picture shown on its card', f: function () { odmPics(g, 'poster'); } },
       { t: 'Choose a background', sub: 'Pick the wide picture behind the show', f: function () { odmPics(g, 'background'); } },
-      optsItem,
-      { t: 'Hide this show', sub: 'Take it off this TV (Options > TV Guide > Hidden shows)', f: function () { hideShow(g.name, false); } },
       { t: 'Back to automatic', sub: 'Forget the choices made for this show', f: function () {
         var fx = store.get('artfix:' + normShow(g.name)), back = fx && fx.from ? fx.from : '';
         try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); if (back) kv.removeItem('artfix:' + back); } catch (e) { /* ignore */ }
         g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500);
-        if (back) odRegroup(g, g.name); else odRender(); } }
-    ], title: g.name };
+        if (back) odRegroup(g, g.name); else odRender(); } }];
+    odm = { mode: 'menu', g: g, i: 0, items: [infoItem, searchItem, fixItem('Scrape it again, or choose the show, poster or background'), optsItem, hideItem], title: g.name };
     adOdm(g); optsLast(odm.items); odmRender();
   }
   function odmClose() { odm = null; $('odmenu').className = 'hidden'; }
@@ -7592,7 +7626,7 @@
   function odmKey(k) {
     var m = odm;
     if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {
-      if (m.mode === 'menu' || m.mode === 'wait') odmClose(); else odmOpen();
+      if (m.mode === 'menu' && m.sub) odmOpen(); else if (m.mode === 'menu' || m.mode === 'wait') odmClose(); else odmOpen();
       return true;
     }
     if (m.mode === 'wait') return true;

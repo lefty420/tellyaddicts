@@ -7,6 +7,13 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.49.16 — 2026-11-20
+- On Demand home redesigned: a slimmer title area so two full rows fit, ten posters across each, and a count on the row ("3 of 140"). The channel badge and the fake "OK Open" button are gone.
+- On Demand: a Search button in the header. Press Up from the top row to reach it and OK to search (Yellow still works, but most remotes have no Yellow). A search with no match now shows a page with "Search again" and "Back to browsing" instead of a short message.
+- On Demand: key hints along the bottom, with what each key does.
+- Show page: the season list and episode list say how many more there are ("▼ 20 more"), the episode list says "Season 1 · 43 episodes · 3 of 43", only the highlighted episode shows its picture and description (so six episodes fit), and an episode you can resume says so. With no artwork the poster is the same coloured tile as on the home page.
+- Hold OK menu: Info, Search, Fix artwork…, Options and Hide on top level. Scrape artwork, Choose the right show, Choose a poster, Choose a background and Back to automatic are inside Fix artwork….
+
 ## Alpha 0.49.15 — 2026-11-20
 - Options: the explanation of each setting now has its own strip under the panel, so it can no longer be pushed out of sight by a long list (it was cut off in TV Guide, Artwork and Experimental). The section heading stays at the top while the rows scroll under it.
 - Options > Experimental: the rows that need Experimental (Addons, Use addons as a main source, Magic EPG, Join in progress) are greyed out while it is off, with a note on the Experimental row, instead of each saying "Turn Experimental on first".

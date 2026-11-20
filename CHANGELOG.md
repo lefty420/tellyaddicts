@@ -7,6 +7,16 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.49.6 — 2026-11-20
+- Magic EPG: when its episode list comes in several files and one of them does not arrive, what did arrive is used for this start but no longer saved as if it were the whole list (the missing shows stayed without filled-in episodes until the scraper sent a new one). Those files also get the library's longer download time (2 minutes, was 40 seconds).
+- Buffering: if archive.org ignores a request to start part-way through a file and sends the whole thing, the TV no longer saves it at the wrong place (the picture after a jump could be garbage). It stops buffering that file instead.
+- Faster start: the list of what is saved on the TV is read once per start, not again for every channel built (up to about 100 times with Magic Channels on).
+- Looked-up answers the TV keeps (episode guides, artwork, cast, info pages) are now cleared when they have not been saved for 60 days. Nothing cleared them before, so the store only grew. Channel lists and film details are kept.
+- Saving no longer waits for each file to reach the disk.
+- Tidy: removed the built-in copy of the channel lists (autodata.js, 450 KB, last updated by a tool no longer used), that tool (tools/import_scrape.py) and four one-time clean-ups that had long since done their job. With no published lists reachable, a channel now uses its live searches.
+- New check: `node tools/test_libroute.js` tests how the library is sorted onto channels.
+- Not yet tried on the Shield; the Java changes are compile-checked only.
+
 ## Alpha 0.49.5 — 2026-11-20
 - The start-up loading screen no longer sits at "TUNING 0 / 66" for a minute. With Magic EPG on, every channel's running order took seconds to build and all 66 were built in one unbroken stretch, so the screen could not move and the count only jumped at the very end. Long stretches of building now give way to the screen every 40 ms or so, so the count climbs and buttons answer.
 - The loading screen waits at most 10 seconds for every channel (it was 30). A box that is slower than that opens the guide with the first rows built, in guide order, and the rest fill in a moment later.

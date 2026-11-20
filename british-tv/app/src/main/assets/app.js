@@ -28,6 +28,13 @@
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
   var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|epl1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
+  // The files' names, read from the app once per start and kept up to date here: listing the folder over the bridge
+  // was done for every channel built, and the folder holds thousands of files.
+  var kvNames = null;
+  function kvNative() {
+    if (!kvNames) { kvNames = {}; try { String(NativeHttp.kvKeys() || '').split('\n').forEach(function (k) { if (k) kvNames[k] = 1; }); } catch (e) { /* none */ } }
+    return kvNames;
+  }
   var kv = {
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
     getItem: function (k) {
@@ -35,70 +42,21 @@
       return localStorage.getItem(k);
     },
     setItem: function (k, v) {                        // throws when it will not fit, like localStorage
-      if (kv.big(k)) { var ok = false; try { ok = NativeHttp.kvSet(k, v); } catch (e) { ok = false; } if (!ok) throw new Error('not saved'); return; }
+      if (kv.big(k)) { var ok = false; try { ok = NativeHttp.kvSet(k, v); } catch (e) { ok = false; } if (!ok) throw new Error('not saved'); if (kvNames) kvNames[k] = 1; return; }
       localStorage.setItem(k, v);
     },
     removeItem: function (k) {
-      if (kv.big(k)) { try { NativeHttp.kvRemove(k); } catch (e) { /* nothing to remove */ } return; }
+      if (kv.big(k)) { try { NativeHttp.kvRemove(k); } catch (e) { /* nothing to remove */ } if (kvNames) delete kvNames[k]; return; }
       localStorage.removeItem(k);
     },
     /** Every key, in the page's storage and in the files. */
     keys: function () {
       var out = [], i;
       try { for (i = 0; i < localStorage.length; i++) out.push(localStorage.key(i)); } catch (e) { /* blocked */ }
-      if (KV_NATIVE) { try { String(NativeHttp.kvKeys() || '').split('\n').forEach(function (k) { if (k) out.push(k); }); } catch (e) { /* none */ } }
+      if (KV_NATIVE) out = out.concat(Object.keys(kvNative()));
       return out;
     }
   };
-  // lists and guides kept in the page's storage by earlier versions are cleared once: they are built or fetched again
-  // into files, and would only keep taking up the room the page's storage has
-  if (KV_NATIVE) {
-    try {
-      if (!localStorage.getItem('kvmig1')) {
-        var olds = [];
-        for (var oi = 0; oi < localStorage.length; oi++) { var ok0 = localStorage.key(oi); if (ok0 && KV_BIG.test(ok0)) olds.push(ok0); }
-        olds.forEach(function (k0) { localStorage.removeItem(k0); });
-        localStorage.setItem('kvmig1', '1');
-      }
-    } catch (e) { /* storage blocked */ }
-  }
-  var store = {
-    get: function (k) { try { return JSON.parse(kv.getItem(k)); } catch (e) { return null; } },
-    set: function (k, x) {
-      var text = JSON.stringify(x);
-      try { kv.setItem(k, text); return true; } catch (e) { /* storage full or blocked */ }
-      // Only the page's own storage can fill up. A channel's list matters more than the artwork and episode guides
-      // beside it, and those are fetched again when wanted: when a list will not fit, the oldest of them make room.
-      if (!KV_NATIVE && /^plan7/.test(k)) {
-        try {
-          var old = [];
-          kv.keys().forEach(function (kn) {
-            if (/^(eps1|info3|art2|tvm4|artdb1):/.test(kn)) { var o = null; try { o = JSON.parse(kv.getItem(kn)); } catch (e2) { /* unreadable: goes first */ } old.push({ k: kn, t: (o && o.t) || 0 }); }
-          });
-          old.sort(function (p, q) { return p.t - q.t; });
-          for (var j = 0; j < old.length; j++) {
-            kv.removeItem(old[j].k);
-            try { kv.setItem(k, text); return true; } catch (e3) { /* still full: remove the next */ }
-          }
-        } catch (e4) { /* storage blocked */ }
-      }
-      return false;
-    }
-  };
-
-  // Artwork answers remembered by older versions include blank ones from failed requests, kept for a month.
-  // They are thrown away once so those shows get looked up again.
-  try {
-    var gone = [];
-    var _ks = kv.keys(); for (var ki = 0; ki < _ks.length; ki++) {
-      var kk = _ks[ki];
-      if (kk && (kk.indexOf('art1:') === 0 || kk.indexOf('info2:') === 0)) gone.push(kk);
-    }
-    gone.forEach(function (k2) { kv.removeItem(k2); });
-  } catch (e) { /* storage blocked */ }
-  // Programmes marked "slow to start" by versions whose buffer could not join a long programme part-way through:
-  // the fault was the buffer's, not theirs, so they get a clean slate once.
-  try { if (!kv.getItem('slowfix1')) { kv.removeItem('slow1'); kv.setItem('slowfix1', '1'); } } catch (e) { /* storage blocked */ }
 
   // ------------------------------------------------------------------ debug log
   //
@@ -223,7 +181,7 @@
         window.NativeHttp.get(id, url);
         setTimeout(function () {
           if (pending[id]) { delete pending[id]; if (++httpFails <= 40) dlog('REQUEST TIMED OUT  ' + url); rej(new Error('timeout')); }
-        }, /\/data\/library\.json/.test(url) ? 120000 : 40000);
+        }, /\/data\/(library|epdb[-\d]*)\.json/.test(url) ? 120000 : 40000);      // the big files get longer
       });
     }
     return fetch(url).then(function (r) {
@@ -346,33 +304,19 @@
   }
 
   // ---- Auto EPG ready-made lists -------------------------------------------------------------------------------
-  // Published by the scraper (tools/import_scrape.py --publish) as one small file per channel, so a new scrape
+  // Published by the scraper (at first; now the library below) as one small file per channel, so a new scrape
   // reaches the TV without a new APK and a channel only downloads its own list. data/index.json names a revision
   // per channel; that revision goes into the cache key, so pushing a scrape refreshes just the channels that
-  // changed. If the published list cannot be reached, the copy built into the app (autodata.js) is used instead,
-  // and failing that the channel falls back to its live searches.
+  // changed. If the published list cannot be reached, the channel falls back to its live searches.
   var DATA_BASE = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/british-tv/data/';
-  var autoDataP = null, indexP = null;
+  var indexP = null;
 
-  /** The bundled autodata.js, loaded once and only when it is actually needed. */
-  function loadAutoData() {
-    if (window.AUTODATA) return Promise.resolve(window.AUTODATA);
-    if (autoDataP) return autoDataP;
-    autoDataP = new Promise(function (res) {
-      var sc = document.createElement('script');
-      sc.src = 'autodata.js';
-      sc.onload = function () { res(window.AUTODATA || {}); };
-      sc.onerror = function () { res({}); };
-      document.head.appendChild(sc);
-    });
-    return autoDataP;
-  }
 
   // The scraper also sends its whole library (data/library.json): every show and episode with the best copy, and
   // TVmaze's titles and air dates. When it's there the TV decides the channels itself (libroute.js), with the genre
   // lists in tools/shows.json, so a list change needs neither a new APK nor a new scrape. Each channel's revision is
   // a hash of its own routed rows, so still only the channels that changed are rebuilt. Anything missing falls back
-  // to the per-channel files, then the copy in the app.
+  // to the per-channel files.
   var SHOWS_URL = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/tools/shows.json';
   var libP = null, libRevs = null, libCatchUp = null;   // libCatchUp: set when this start opened on an earlier library's lists
 
@@ -529,7 +473,7 @@
     return indexP;
   }
 
-  /** One channel's published list: from the whole library when that's in use, else its own file, else the bundled copy. */
+  /** One channel's published list: from the whole library when that's in use, else its own file, else nothing (live searches). */
   function loadChannelData(id, rev) {
     // a decade channel has no file of its own to compare against (the index lists none for 80's and 90's TV), so it
     // always takes what the library routed to it
@@ -549,12 +493,10 @@
   function decadeOfChannel(id) { for (var i = 0; i < channels.length; i++) if (channels[i].id === id) return channels[i].decade || 0; return 0; }
   function loadChannelFile(id, rev) {
     if (decadeOfChannel(id)) return Promise.resolve(null);
-    if (!rev) return loadAutoData().then(function (D) { return (D && D[id]) || null; });
+    if (!rev) return Promise.resolve(null);
     return getJSON(DATA_BASE + encodeURIComponent(id) + '.json').then(function (rows) {
       return rows && rows.length ? rows : null;
-    }, function () {
-      return loadAutoData().then(function (D) { return (D && D[id]) || null; });
-    });
+    }, function () { return null; });
   }
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
   // Channels whose programmes carry no episode number: songs, films, Disney shorts ("How to Sleep"), MTV's
@@ -1963,11 +1905,13 @@
       if (kept && (epdbRev ? c.rev === epdbRev : Date.now() - c.t < 86400000)) { epdb = c.d; return; }
       // the scraper publishes one file, or several (epdb-1.json ...) when it passes 10 MB; index.json lists them
       return Promise.all((epdbFiles || ['epdb.json']).map(function (n) {
-        return getJSON(DATA_BASE + n).then(function (j) { return (j && j.shows) || {}; }, function () { return {}; });
+        return getJSON(DATA_BASE + n).then(function (j) { return (j && j.shows) || {}; }, function () { return null; });
       })).then(function (parts) {
-        var all = {};
-        parts.forEach(function (p) { Object.keys(p).forEach(function (k) { all[k] = p[k]; }); });
-        if (Object.keys(all).length) { epdb = all; try { store.set('epdb1', { t: Date.now(), rev: epdbRev, d: all }); } catch (e) { /* too big to keep: fetched again next start */ } }
+        var all = {}, short = false;
+        parts.forEach(function (p) { if (!p) short = true; else Object.keys(p).forEach(function (k) { all[k] = p[k]; }); });
+        // a part that did not arrive must not be saved as the whole of this revision: it would stay missing until the next one
+        if (short) dlog('MAGIC EPG: ' + parts.filter(function (p) { return !p; }).length + ' of ' + parts.length + ' files did not arrive; not kept, asked for again next start');
+        if (Object.keys(all).length) { epdb = all; if (!short) { try { store.set('epdb1', { t: Date.now(), rev: epdbRev, d: all }); } catch (e) { /* too big to keep: fetched again next start */ } } }
         else { epdb = kept ? c.d : null; dlog('MAGIC EPG: no epdb.json published yet'); }
       });
     }));

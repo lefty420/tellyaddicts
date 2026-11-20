@@ -411,6 +411,15 @@ public class MainActivity extends Activity {
             if (kv == null) {
                 try {
                     kv = new KvStore(getFilesDir());
+                    final KvStore k = kv;
+                    Thread t = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            k.prune(60L * 86400000L);
+                        }
+                    }, "tv-kv-prune");
+                    t.setDaemon(true);
+                    t.start();
                 } catch (Exception e) {
                     return null;
                 }

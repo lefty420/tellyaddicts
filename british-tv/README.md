@@ -30,7 +30,7 @@ The data is published into `british-tv/data/`: `library.json`, `index.json`, a l
    `shows.json` keeps its shows on their own channels too. A channel for a broadcaster also gets that broadcaster's shows,
    soaps go to the soaps channel as well, and episodes flagged as Christmas go to a Christmas channel;
 3. falls back to the channel's own `data/<id>.json` when the library routes nothing to it (Food & Cooking), then to
-   the bundled copy `autodata.js`.
+   the channel's live archive.org searches.
 
 A channel's revision is a hash of its own routed rows, so only channels that changed are rebuilt. Editing
 `tools/shows.json` re-routes at the next start, with no new data and no build.

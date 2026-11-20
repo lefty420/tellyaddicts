@@ -6,7 +6,7 @@
  * The rows it makes are the same shape as the per-channel files in british-tv/data/, so the rest of the app
  * builds programmes from them exactly as before; each row also carries the library's episode details in "m".
  *
- * Routing is the same as tools/import_scrape.py: an exact show name first, then a listed show named inside a
+ * Routing: an exact show name first, then a listed show named inside a
  * longer title, and a show listed under two genres goes to both channels.
  *
  * Pure logic, no DOM, so it can be tested under Node. */

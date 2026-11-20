@@ -280,6 +280,11 @@ final class MediaCache {
                 if (status != 200 && status != 206) {
                     return;
                 }
+                if (base > 0 && status == 200) {
+                    // asked to start part-way but sent the whole file: saving it would put byte 0 where byte `base` goes
+                    owner.note("archive.org ignored the range and sent the whole file: not buffering from byte " + base);
+                    return;
+                }
                 long len = c.getHeaderFieldLong("Content-Length", -1);
                 String cr = c.getHeaderField("Content-Range");
                 if (cr != null && cr.contains("/")) {

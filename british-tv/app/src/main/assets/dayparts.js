@@ -249,10 +249,10 @@
   /** Every show's episodes in order, the shows taken in turn. */
   function inTurn(list, seed) {
     var by = {}, keys = [];
-    list.forEach(function (p, i) { var k = showOf(p); if (!by[k]) { by[k] = []; keys.push(k); } by[k].push({ p: p, i: i }); });
+    list.forEach(function (p, i) { var k = showOf(p); if (!by[k]) { by[k] = []; keys.push(k); } by[k].push({ p: p, i: i, e: epOf(p) }); });
     keys = shuffled(keys, seedOf(String(seed) + 'turn'));
     keys.forEach(function (k) {
-      by[k].sort(function (a, b) { var x = epOf(a.p), y = epOf(b.p); return (x[0] - y[0]) || (x[1] - y[1]) || (a.i - b.i); });
+      by[k].sort(function (a, b) { var x = a.e, y = b.e; return (x[0] - y[0]) || (x[1] - y[1]) || (a.i - b.i); });   // the season and episode are read once per programme, not at every comparison
     });
     var out = [];
     for (var r = 0, more = true; more; r++) {

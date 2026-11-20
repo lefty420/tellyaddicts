@@ -1944,11 +1944,14 @@
     return (ukP = loadDataIndex().then(null, function () { /* no index: the plain file name below */ }).then(function () {
       var c = store.get('uk1m'), kept = c && c.d;
       if (kept && (ukRev ? c.rev === ukRev : Date.now() - c.t < 86400000)) { ukMap = c.d; return; }
+      // nothing published yet: every channel waits for this answer before its guide is built, and a request that finds
+      // nothing used to queue behind the other downloads at every start (5 to 40 s), so a "none yet" is remembered for six hours
+      if (c && c.none && !ukRev && Date.now() - c.t < 21600000) { ukMap = null; return; }
       return getJSON(DATA_BASE + 'uk.json').then(function (j) {
         var m = {};
         if (j && j.shows) Object.keys(j.shows).forEach(function (k) { if (j.shows[k] && j.shows[k].u === 0) m[k] = 1; });   // only the "no"s matter
         ukMap = m; try { store.set('uk1m', { t: Date.now(), rev: ukRev, d: m }); } catch (e) { /* fetched again next start */ }
-      }, function () { ukMap = kept ? c.d : null; dlog('CONTENT: no uk.json published yet'); });
+      }, function () { ukMap = kept ? c.d : null; dlog('CONTENT: no uk.json published yet'); if (!kept) { try { store.set('uk1m', { t: Date.now(), rev: ukRev, d: null, none: 1 }); } catch (e) { /* asked again next start */ } } });
     }));
   }
   function ukHide(p) { return !!(ukOn && ukMap && ukMap[normShow(gmName(p))]); }

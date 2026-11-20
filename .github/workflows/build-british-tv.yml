@@ -14,8 +14,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write          # to publish the rolling "latest" release below
     steps:
       - uses: actions/checkout@v4
 
@@ -56,16 +54,3 @@ jobs:
             british-tv/tellyaddicts-mobile.apk
             british-tv/CHANGELOG.md
             british-tv/VERSION.txt
-
-      # A rolling "latest" release with fixed download links, so a phone (or the Downloader app on the TV) can fetch
-      # the newest build without opening Actions:
-      #   https://github.com/<owner>/<repo>/releases/latest/download/tellyaddicts-tv.apk
-      #   https://github.com/<owner>/<repo>/releases/latest/download/tellyaddicts-mobile.apk
-      - name: Publish the latest release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release delete latest --yes --cleanup-tag --repo "$GITHUB_REPOSITORY" || true
-          gh release create latest --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "Telly Addicts ${{ steps.version.outputs.name }}" --notes-file CHANGELOG.md \
-            british-tv/tellyaddicts-tv.apk british-tv/tellyaddicts-mobile.apk

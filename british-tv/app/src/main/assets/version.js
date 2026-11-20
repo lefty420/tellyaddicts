@@ -1,16 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.4",
-  "version": "0.49.4",
-  "code": 4904,
+  "name": "Alpha 0.49.5",
+  "version": "0.49.5",
+  "code": 4905,
   "date": "2026-11-20",
   "notes": [
-    "Guide: stepping onto the On Demand button no longer leaves the programme gold as well. One highlight at a time; moving back drops you where you were.",
-    "Playback bar: a two-digit channel number (31, 32 ...) no longer sits on the gold edge when there is no picture beside it.",
-    "On Demand: a show whose poster will not load now shows its name on the card instead of a blank tile."
+    "The start-up loading screen no longer sits at \"TUNING 0 / 66\" for a minute. With Magic EPG on, every channel's running order took seconds to build and all 66 were built in one unbroken stretch, so the screen could not move and the count only jumped at the very end. Long stretches of building now give way to the screen every 40 ms or so, so the count climbs and buttons answer.",
+    "The loading screen waits at most 10 seconds for every channel (it was 30). A box that is slower than that opens the guide with the first rows built, in guide order, and the rest fill in a moment later."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.4",
+      "date": "2026-11-20",
+      "notes": [
+        "Guide: stepping onto the On Demand button no longer leaves the programme gold as well. One highlight at a time; moving back drops you where you were.",
+        "Playback bar: a two-digit channel number (31, 32 ...) no longer sits on the gold edge when there is no picture beside it.",
+        "On Demand: a show whose poster will not load now shows its name on the card instead of a blank tile."
+      ]
+    },
     {
       "name": "Alpha 0.49.3",
       "date": "2026-11-20",
@@ -69,13 +77,6 @@ window.RELEASE = {
         "The bar you get with OK while watching has fewer, clearer buttons: Stop, Restart, Play/Pause, Next, then Guide, Sources, Audio & subs and Options. Guide opens a short list (TV Guide, Channel schedule, On Demand); Sources (only with Experimental on and an addon) holds Auto play from addons and Find sources. Up/Down pick in the list, OK runs it, Left/Right or Back close it.",
         "New Stop button: stops the programme and opens the TV Guide. Back from the guide joins the channel again where it is now.",
         "Skip adverts is no longer a separate button: during an ad break Next reads \"Skip adverts\"."
-      ]
-    },
-    {
-      "name": "Alpha 0.48.1",
-      "date": "2026-11-16",
-      "notes": [
-        "On Demand > hold OK > \"Choose the right show\" now really changes the show. The show is renamed to the one you pick, its episodes are filled in from that show (Magic EPG, the scrapers' episode guide, TVmaze) and the pictures change with it. The choice is remembered. \"Back to automatic\" puts the original name and episodes back. Scrape artwork, Choose a poster and Choose a background do not rename anything."
       ]
     }
   ]

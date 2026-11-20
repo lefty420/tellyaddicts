@@ -7589,7 +7589,7 @@
 
   var bootedAt = Date.now();
   var FIRST_WAIT = 8000;      // how long to hold the loading screen for the channel we want to open on
-  var ALL_WAIT = 30000;       // ... and for every other channel to finish, so the guide opens complete, not still filling in
+  var ALL_WAIT = 10000;       // ... and for every other channel to finish, so the guide opens complete; a slow box opens with the first rows and the rest fill in (they are built in the order of the guide)
 
   function begin() {
     var list = ready();
@@ -7637,7 +7637,7 @@
     spSeen = {}; spRecent = [];                                     // each load starts with every picture unseen
     forgetOldChannels();
     channels.forEach(function (c) { c.status = 'loading'; c.sched = null; });
-    var finished = 0;
+    var finished = 0, sliceAt = Date.now();
     // the native side now serves a few requests at a time, so ask in the order they are wanted: the channel that was
     // on last, then down the guide. The first rows fill in first instead of whichever channel happened to answer.
     var last = store.get('last');
@@ -7648,7 +7648,11 @@
       loadPrograms(c).then(function (progs) {
         return Promise.all([loadEpdb(), loadUk()]).then(function () { return progs; });   // Magic EPG and Content: their data is in before the first guide is built
       }).then(function (progs) {
-        return progs;   // Auto EPG stands on the library alone; a channel it has nothing for stays empty
+        // Building a channel's running order is the slow part of a start (seconds each on the box with Magic EPG), and
+        // every channel's list was ready at once, so all of them ran back to back in one go: the screen could not move,
+        // the TUNING count stayed at 0 and a button press waited. One turn of the event loop between channels fixes that.
+        if (Date.now() - sliceAt < 40) return progs;       // quick ones run together; only a long stretch of work gives way
+        return new Promise(function (r) { setTimeout(function () { sliceAt = Date.now(); r(progs); }, 0); });
       }).then(function (progs) {
         if (progs && progs.length) {
           progs = dropSlow(virtualFill(c, ukFilter(progs)));

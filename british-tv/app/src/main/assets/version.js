@@ -1,20 +1,28 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.48.3",
-  "version": "0.48.3",
-  "code": 4803,
-  "date": "2026-11-16",
+  "name": "Alpha 0.48.4",
+  "version": "0.48.4",
+  "code": 4804,
+  "date": "2026-11-20",
   "notes": [
-    "Info is now a screen you can use, not just read. Up/Down move between its rows, Left/Right along a row, OK presses what is highlighted (gold) and Back goes back a step. OK no longer closes it.",
-    "Buttons: Watch now (Keep watching if you opened Info while watching), Next episode for a series, and Hide this film / show.",
-    "Cast: OK on a name lists everything else with them that this TV can play, with their part in each, and OK on one opens its Info. A small gold number on a photo says how many others there are. Films are all included; a series joins once its Info has shown its cast. Films now really get their cast from the library (it was being dropped on the way to the film channels).",
-    "A gold line under the summary says when it is on next in the guides (\"Next on Kids Movies: 19:49\", or \"On now on ...\").",
-    "A series shows its episodes in a row, starting at this one: the series numbers across the top, how many of that series are in your library, and the episodes the episode guide (data/epdb.json) knows but the library has not got shown dashed as \"Not in library\". OK plays an episode and carries on through the show.",
-    "More like this: for a film, other films that share a genre, the same decade first; for a series, more shows on its channel. OK opens its Info, Back comes back.",
-    "A film's title no longer shows its year twice."
+    "Fixed: the episodes row on Info never showed a thumbnail picture at all (only the dashed box). It now shows the episode's own picture where the library has one for it.",
+    "Films can now show a clear (transparent title) image on their On Demand page and poster, the same way TV shows do, once the scraper sends one. Nothing changes until it does."
   ],
   "history": [
+    {
+      "name": "Alpha 0.48.3",
+      "date": "2026-11-16",
+      "notes": [
+        "Info is now a screen you can use, not just read. Up/Down move between its rows, Left/Right along a row, OK presses what is highlighted (gold) and Back goes back a step. OK no longer closes it.",
+        "Buttons: Watch now (Keep watching if you opened Info while watching), Next episode for a series, and Hide this film / show.",
+        "Cast: OK on a name lists everything else with them that this TV can play, with their part in each, and OK on one opens its Info. A small gold number on a photo says how many others there are. Films are all included; a series joins once its Info has shown its cast. Films now really get their cast from the library (it was being dropped on the way to the film channels).",
+        "A gold line under the summary says when it is on next in the guides (\"Next on Kids Movies: 19:49\", or \"On now on ...\").",
+        "A series shows its episodes in a row, starting at this one: the series numbers across the top, how many of that series are in your library, and the episodes the episode guide (data/epdb.json) knows but the library has not got shown dashed as \"Not in library\". OK plays an episode and carries on through the show.",
+        "More like this: for a film, other films that share a genre, the same decade first; for a series, more shows on its channel. OK opens its Info, Back comes back.",
+        "A film's title no longer shows its year twice."
+      ]
+    },
     {
       "name": "Alpha 0.48.2",
       "date": "2026-11-16",
@@ -65,13 +73,6 @@ window.RELEASE = {
       "notes": [
         "Magic EPG: when none of your addons has an episode, the app now looks for it on archive.org (the same lookup Play Next uses, for that exact episode) and plays it if the link works, before skipping to the next programme. An episode with no addon source and no archive.org link is still skipped and remembered.",
         "Debug log lines for Magic EPG now start \"MAGIC EPG:\"."
-      ]
-    },
-    {
-      "name": "Alpha 0.47.5",
-      "date": "2026-11-15",
-      "notes": [
-        "Content: British now writes to the debug log which shows it hid and how many programmes, so a wrongly hidden show is easy to spot."
       ]
     }
   ]

@@ -633,8 +633,9 @@
   function keepFilm(d) {
     var key = String(d.tm || '').trim() || normShow(d.n || '');
     if (!key) return '';
-    var poster = String(d.p || '');
+    var poster = String(d.p || ''), logo = String(d.lg || '');
     var film = { title: d.n || '', plot: d.ov || '', poster: poster.indexOf(TMDB_IMG) === 0 ? poster : '',
+                 logo: logo.indexOf(TMDB_IMG) === 0 ? logo : '',          // a clear (transparent title) image, when the scraper found one
                  genres: Array.isArray(d.g) ? d.g.join(', ') : (d.g || ''),
                  mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '', cert: d.cert || '',
                  cast: Array.isArray(d.cast) ? d.cast.slice(0, 10).map(function (m) {
@@ -2416,7 +2417,7 @@
       var list = [], have = {};
       if (g) g.flat.forEach(function (ep, n) {
         if (ep.s > 0) have[ep.s + ':' + ep.e] = 1;
-        list.push({ s: ep.s, e: ep.e, t: String(ep.label || '').replace(/^E\d+\s*/, ''), miss: !!ep.p.virtual, n: n, here: n === at });
+        list.push({ s: ep.s, e: ep.e, t: String(ep.label || '').replace(/^E\d+\s*/, ''), miss: !!ep.p.virtual, n: n, here: n === at, thumb: ep.thumb || '' });
       });
       var d = veGet(gmName(p));
       if (d && d.eps) d.eps.forEach(function (row) {
@@ -2685,6 +2686,8 @@
       var pic = document.createElement('div'); pic.className = 'ilp';
       var cap = document.createElement('div'); cap.className = 'ilt';
       if (low === 'eps') {
+        if (x.thumb) pic.style.backgroundImage = 'url("' + x.thumb + '")';
+        else if (!x.gone) pic.style.background = odTone('S' + x.s + (info.cp && gmName(info.cp.prog)));
         var tag = document.createElement('b'); tag.textContent = 'S' + x.s + ' E' + x.e; pic.appendChild(tag);
         if (x.here) { var hh = document.createElement('i'); hh.textContent = 'THIS ONE'; pic.appendChild(hh); }
         if (x.gone) { var gg = document.createElement('em'); gg.textContent = 'Not in library'; pic.appendChild(gg); }
@@ -6855,7 +6858,8 @@
   /** The show's clear logo (a transparent title picture the scraper found, art.json "l") in place of the plain title.
    *  The text stays until the picture has loaded, and comes back if it fails. */
   function odLogo(img, h1, g) {
-    var url = g && !g.film && g.art && g.art.l ? https(g.art.l) : '';
+    var f = g && g.film && g.flat && g.flat[0] ? filmFor(g.flat[0].p) : null;
+    var url = f && f.logo ? https(f.logo) : (g && !g.film && g.art && g.art.l ? https(g.art.l) : '');
     if (!url) { if (img.dataset.src) { img.dataset.src = ''; img.className = 'hidden'; img.removeAttribute('src'); } h1.style.display = ''; return; }
     if (img.dataset.src === url) return;
     img.dataset.src = url; img.className = 'hidden'; h1.style.display = '';

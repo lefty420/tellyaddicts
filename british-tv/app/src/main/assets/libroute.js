@@ -237,6 +237,7 @@
             if (ep.rt) d.rt = ep.rt;
             if (ep.tm) d.tm = ep.tm;
             if (ep.cast) d.cast = ep.cast;      // Info's cast row, and the actor lists
+            if (ep.lg) d.lg = ep.lg;            // a clear (transparent title) image, when the scraper found one
           }
           it.m[ep.f] = d;
         });

@@ -51,6 +51,8 @@ public class MainActivity extends Activity {
     // Film posters that come with the scraper's TMDb details. The page shows these in an <img>, which the WebView
     // fetches itself; this is here so anything that does go through the bridge is not blocked.
     private static final String ALLOWED_PREFIX_4 = "https://image.tmdb.org/";
+    // TMDb's lookups (episode lists and the key check, when the person has entered their own key in Options). Only version 3.
+    private static final String ALLOWED_PREFIX_5 = "https://api.themoviedb.org/3/";
     // TheTVDB (artwork and details, when the person has entered their own key in Options). Only this host, only through httpx.
     // Teletext weather (Open-Meteo forecast) and the "on this day" news page (Wikipedia's feed): these two paths only
     private static final String WEATHER_PREFIX = "https://api.open-meteo.com/v1/forecast?";
@@ -439,7 +441,7 @@ public class MainActivity extends Activity {
                     HttpURLConnection c = null;
                     try {
                         if (url == null || !(url.startsWith(ALLOWED_PREFIX) || url.startsWith(ALLOWED_PREFIX_2)
-                                || url.startsWith(ALLOWED_PREFIX_3) || url.startsWith(ALLOWED_PREFIX_4)
+                                || url.startsWith(ALLOWED_PREFIX_3) || url.startsWith(ALLOWED_PREFIX_4) || url.startsWith(ALLOWED_PREFIX_5)
                                 || url.startsWith(WEATHER_PREFIX) || url.startsWith(OTD_PREFIX))) {
                             throw new SecurityException("blocked url");
                         }

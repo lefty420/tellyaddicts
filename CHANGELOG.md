@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.50.4 — 2026-11-20
+- Info screen: the episode strip now shows each episode's real still (from the scraper's episode guide, else TVmaze) instead of a green box. Before, it only used an archive.org thumbnail, so most shows (Buffy, for one) showed empty boxes. The stills arrive a moment after the strip, and episodes that are not in the library yet get theirs too.
+
 ## Alpha 0.50.3 — 2026-11-20
 - Two Options names no longer clash. In Guide, "Realistic TV schedule" is now **Broadcast schedule** (it sets when things air). In Experimental, "Real world" is now **Live TV mode** (a new episode each day, and a channel plays only what is on now). The Live TV mode help now says all of that.
 

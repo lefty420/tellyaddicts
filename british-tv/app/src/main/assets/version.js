@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.50.3",
-  "version": "0.50.3",
-  "code": 5003,
+  "name": "Alpha 0.50.4",
+  "version": "0.50.4",
+  "code": 5004,
   "date": "2026-11-20",
   "notes": [
-    "Two Options names no longer clash. In Guide, \"Realistic TV schedule\" is now **Broadcast schedule** (it sets when things air). In Experimental, \"Real world\" is now **Live TV mode** (a new episode each day, and a channel plays only what is on now). The Live TV mode help now says all of that."
+    "Info screen: the episode strip now shows each episode's real still (from the scraper's episode guide, else TVmaze) instead of a green box. Before, it only used an archive.org thumbnail, so most shows (Buffy, for one) showed empty boxes. The stills arrive a moment after the strip, and episodes that are not in the library yet get theirs too."
   ],
   "history": [
+    {
+      "name": "Alpha 0.50.3",
+      "date": "2026-11-20",
+      "notes": [
+        "Two Options names no longer clash. In Guide, \"Realistic TV schedule\" is now **Broadcast schedule** (it sets when things air). In Experimental, \"Real world\" is now **Live TV mode** (a new episode each day, and a channel plays only what is on now). The Live TV mode help now says all of that."
+      ]
+    },
     {
       "name": "Alpha 0.50.2",
       "date": "2026-11-20",
@@ -68,14 +75,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "The \"Please stand by\" TV now comes and goes through static like a real set: a burst of snow when it comes up that clears to the picture, and the picture breaking into snow and fading out when the programme starts."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.12",
-      "date": "2026-11-20",
-      "notes": [
-        "The screen shown while something starts to play now only ever shows a backdrop (fan art). A show or film with only a poster, such as Ace Ventura: When Nature Calls, now gets the tuned-to-static screen instead of a poster.",
-        "Fixed the TMDB key check (\"Could not reach TMDB to check the key\"). The app's list of allowed web addresses did not include TMDB's lookups, so the check, and TMDB as the episode-list source, could never get an answer. This needs the app rebuilt and installed, not just a restart. TheTVDB was not affected."
       ]
     }
   ]

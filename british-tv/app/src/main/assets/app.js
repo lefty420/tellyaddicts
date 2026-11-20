@@ -2537,6 +2537,14 @@
       var here = 0; items.forEach(function (x, n) { if (x.here) here = n; });
       info.at.eps = here;
       infoSetRow('eps', items);
+      // The scraper's stills (data/eps/<show>.json, else TVmaze) are the real picture of each episode; they come in a moment
+      // after the strip, and replace the archive.org thumbnail or the flat colour. Episodes with no file get one too.
+      if (g) odMeta(g).then(function () {
+        if (!info || info.cp !== cpNow || !g.meta) return;
+        var got = 0;
+        items.forEach(function (x) { var m = g.meta[x.s + 'x' + x.e]; if (m && m.img && x.thumb !== m.img) { x.thumb = m.img; got++; } });
+        if (got) infoSetRow('eps', items);
+      }, function () { /* the strip keeps its colours */ });
     });
   }
   function infoPlayAt(c, g, n) {

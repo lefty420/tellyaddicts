@@ -4,7 +4,7 @@
  "show": "Christmas Movies",
  "rules": [
   "Christmas films and TV specials released 1970-1999 only",
-  "No Hallmark-style TV movies, and no horror (so no Gremlins, Black Christmas and the like)",
+  "No Hallmark-style TV movies. Horror-comedy that happens at Christmas, like Gremlins, is wanted (it airs after nine)",
   "English audio only: skip dubbed, subbed or dual-track copies with another language first",
   "Films that merely happen at Christmas (Die Hard, Lethal Weapon, Trading Places) are wanted",
   "Keep the film's real title and year; prefer the full-length original over clips, trailers and reviews"
@@ -535,6 +535,10 @@
    "title": "The Bells of Fraggle Rock",
    "year": 1985,
    "suggested_by_claude": true
+  },
+  {
+   "title": "Gremlins",
+   "year": 1984
   }
  ]
 }

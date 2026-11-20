@@ -374,7 +374,7 @@
   // a hash of its own routed rows, so still only the channels that changed are rebuilt. Anything missing falls back
   // to the per-channel files, then the copy in the app.
   var SHOWS_URL = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/tools/shows.json';
-  var libP = null, libRevs = null;
+  var libP = null, libRevs = null, libCatchUp = null;   // libCatchUp: set when this start opened on an earlier library's lists
 
   /** data/routes.json is the scraper's current word on where its shows go, and the latest copy wins: a show it lists
    *  is on the channel(s) it lists it under and nowhere else, even if tools/shows.json still puts it elsewhere (a show
@@ -492,7 +492,7 @@
         var key = 'librevs2:' + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText) + (magicOn ? 'm' : '');
         var known = store.get(key);
         if (known && known.revs) { libRevs = known.revs; return known.revs; }
-        return loadLibraryRoutes(j.library, showsText).then(function (routed) {
+        var route = function () { return loadLibraryRoutes(j.library, showsText).then(function (routed) {
           if (!routed) return chans;
           var revs = {};
           // a channel with its own published file that the library routes nothing to (Food & Cooking) keeps that file
@@ -507,7 +507,23 @@
           store.set(key, { revs: revs });
           libRevs = revs;
           return revs;
-        });
+        }); };
+        // A new library (the scraper pushes several a day) used to mean downloading and sorting all of it before the
+        // guide could open. When this TV has the answer for an earlier library, open on that (every channel's saved
+        // list still fits it) and catch up once the guide is up: libCatchUp.
+        var oldKey = null;
+        try { kv.keys().forEach(function (kn) { if (kn && kn.indexOf('librevs2:') === 0 && (kn.slice(-1) === 'm') === magicOn) oldKey = kn; }); } catch (e) { /* none */ }
+        var old = oldKey && store.get(oldKey);
+        if (!old || !old.revs) return route();
+        libRevs = old.revs;
+        libCatchUp = function () {
+          route().then(function (revs) {
+            indexP = Promise.resolve(revs);   // what this start is still missing is built and saved now, so the next start opens on it straight away
+            dlog('library: caught up with the new library in the background');
+            channels.forEach(function (c) { if (!isAdChan(c)) loadPrograms(Object.create(c)).then(null, function () { /* built at the next start */ }); });
+          });
+        };
+        return old.revs;
       }, function () { return chans; });
     }, function () { return {}; });
     return indexP;
@@ -7642,6 +7658,7 @@
         if (finished === channels.length) setTimeout(veFill, 30000);
         if (finished === channels.length) setTimeout(artScanStart, 60000);
         if (finished === channels.length) setTimeout(odWarm, 4000);
+        if (finished === channels.length && libCatchUp) setTimeout(function () { var f = libCatchUp; libCatchUp = null; f(); }, 45000);   // a new library: sorted once the guide is up, ready for the next start
         begin();
         if (guideOpen) renderGuide();
         if (finished === channels.length && !started) {

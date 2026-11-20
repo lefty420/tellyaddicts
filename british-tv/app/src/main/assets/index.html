@@ -846,28 +846,20 @@
   #odbg { position: absolute; left: 0; top: 0; width: 100%; height: calc(72 * var(--u)); background: #1d2b4a center top / cover no-repeat; }
   #odbg::after { content: ""; position: absolute; inset: 0;
     background: linear-gradient(0deg, #0b0d12 3%, rgba(11,13,18,0) 62%), linear-gradient(90deg, #0b0d12 24%, rgba(11,13,18,.55) 55%, rgba(11,13,18,.15) 90%); }
-<<<<<<< Updated upstream
-  #odtag { position: absolute; left: calc(4 * var(--uw)); top: calc(3 * var(--u)); font-size: calc(2.4 * var(--u)); font-weight: 800; letter-spacing: .12em; }
-  #odsrch { position: absolute; right: calc(4 * var(--uw)); top: calc(2.2 * var(--u)); font-size: calc(2.3 * var(--u)); font-weight: 600; padding: calc(.8 * var(--u)) calc(2 * var(--uw)); border-radius: calc(4 * var(--u)); background: rgba(255,255,255,.14); color: #dfe4f2; }
-  #odsrch.sel { background: #fff; color: #000; outline: calc(.4 * var(--u)) solid #fff; }
-  #odtag span { font-weight: 500; letter-spacing: .02em; color: #aab3cc; margin-left: calc(1.2 * var(--uw)); }
-  #odhero { position: absolute; left: calc(4 * var(--uw)); top: calc(8 * var(--u)); width: calc(62 * var(--uw)); }
-=======
   /* the bar across the top: the filter chips on the left and Search on the right */
-  #odbar { position: absolute; left: 5vw; right: 4vw; top: 2.2vh; display: flex; align-items: center; gap: 1vw; z-index: 3; }
-  #odchips { display: flex; gap: .8vw; flex: 1; }
-  .odchip, #odsrch { font-size: 2.3vh; font-weight: 600; padding: .8vh 1.8vw; border-radius: 4vh; background: rgba(255,255,255,.14); color: #dfe4f2; }
+  #odbar { position: absolute; left: calc(5 * var(--uw)); right: calc(4 * var(--uw)); top: calc(2.2 * var(--u)); display: flex; align-items: center; gap: calc(1 * var(--uw)); z-index: 3; }
+  #odchips { display: flex; gap: calc(.8 * var(--uw)); flex: 1; }
+  .odchip, #odsrch { font-size: calc(2.3 * var(--u)); font-weight: 600; padding: calc(.8 * var(--u)) calc(1.8 * var(--uw)); border-radius: calc(4 * var(--u)); background: rgba(255,255,255,.14); color: #dfe4f2; }
   .odchip.on { background: rgba(255,255,255,.34); color: #fff; }
-  .odchip.sel, #odsrch.sel { background: #fff; color: #000; outline: .4vh solid #fff; }
+  .odchip.sel, #odsrch.sel { background: #fff; color: #000; outline: calc(.4 * var(--u)) solid #fff; }
   /* the slim rail down the left: Left from the first card opens it */
-  #odside { position: absolute; left: 0; top: 0; bottom: 0; width: 3.6vw; display: flex; flex-direction: column; justify-content: center; gap: 1.2vh; z-index: 4; background: rgba(11,13,18,.55); }
-  .odsd { height: 7vh; margin: 0 .5vw; border-radius: 1vh; display: flex; align-items: center; justify-content: center; font-size: 3.4vh; color: #aab3cc; }
+  #odside { position: absolute; left: 0; top: 0; bottom: 0; width: calc(3.6 * var(--uw)); display: flex; flex-direction: column; justify-content: center; gap: calc(1.2 * var(--u)); z-index: 4; background: rgba(11,13,18,.55); }
+  .odsd { height: calc(7 * var(--u)); margin: 0 calc(.5 * var(--uw)); border-radius: calc(1 * var(--u)); display: flex; align-items: center; justify-content: center; font-size: calc(3.4 * var(--u)); color: #aab3cc; }
   .odsd.sel { background: #fff; color: #000; }
-  #odhero { position: absolute; left: 5vw; top: 8vh; width: 62vw; }
-  #oddots { display: flex; gap: .7vw; margin-top: 1.2vh; }
-  #oddots i { width: 1vw; height: .8vh; border-radius: .4vh; background: rgba(255,255,255,.3); }
-  #oddots i.on { width: 2.4vw; background: #fff; }
->>>>>>> Stashed changes
+  #odhero { position: absolute; left: calc(5 * var(--uw)); top: calc(8 * var(--u)); width: calc(62 * var(--uw)); }
+  #oddots { display: flex; gap: calc(.7 * var(--uw)); margin-top: calc(1.2 * var(--u)); }
+  #oddots i { width: calc(1 * var(--uw)); height: calc(.8 * var(--u)); border-radius: calc(.4 * var(--u)); background: rgba(255,255,255,.3); }
+  #oddots i.on { width: calc(2.4 * var(--uw)); background: #fff; }
 
 
   #odm, #odsm { font-size: calc(2.1 * var(--u)); color: #c3cadb; margin-bottom: calc(.6 * var(--u)); }
@@ -876,23 +868,13 @@
   #odlogo, #odlogo2 { display: block; max-height: calc(8 * var(--u)); max-width: calc(40 * var(--uw)); object-fit: contain; object-position: left center; }
   #odlogo.hidden, #odlogo2.hidden { display: none; }
 
-<<<<<<< Updated upstream
-  #odrows { position: absolute; left: 0; right: 0; top: calc(25 * var(--u)); bottom: calc(8 * var(--u)); overflow: hidden; }
-  .odrow { padding: 0 calc(4 * var(--uw)); margin-bottom: calc(.4 * var(--u)); contain: layout paint; }
+  #odrows { position: absolute; left: 0; right: 0; top: calc(30 * var(--u)); bottom: calc(8 * var(--u)); overflow: hidden; }
+  .odrow { padding: 0 calc(4 * var(--uw)) 0 calc(5 * var(--uw)); margin-bottom: calc(.4 * var(--u)); contain: layout paint; }
   .odrow h3 { margin: 0 0 calc(.2 * var(--u)); font-size: calc(2.5 * var(--u)); font-weight: 700; }
   .odrow h3 span { font-weight: 400; color: #8f98b0; margin-left: calc(1 * var(--uw)); font-size: calc(2.1 * var(--u)); }
   .odcards { display: flex; gap: calc(.9 * var(--uw)); overflow: hidden; padding: calc(1 * var(--u)) calc(1 * var(--u)) calc(1.2 * var(--u)); margin-left: calc(-1 * var(--u)); }
   .odc { position: relative; flex: none; width: calc(8.4 * var(--uw)); height: calc(12.6 * var(--uw)); border-radius: calc(1 * var(--u)); overflow: hidden; background: #1d2433 center / cover no-repeat; }
   .odc b, #odpost b { position: absolute; left: calc(.9 * var(--u)); right: calc(.9 * var(--u)); bottom: calc(.9 * var(--u)); font-size: calc(2 * var(--u)); line-height: 1.1; z-index: 1; }
-=======
-  #odrows { position: absolute; left: 0; right: 0; top: 30vh; bottom: 8vh; overflow: hidden; }
-  .odrow { padding: 0 4vw 0 5vw; margin-bottom: .4vh; contain: layout paint; }
-  .odrow h3 { margin: 0 0 .2vh; font-size: 2.5vh; font-weight: 700; }
-  .odrow h3 span { font-weight: 400; color: #8f98b0; margin-left: 1vw; font-size: 2.1vh; }
-  .odcards { display: flex; gap: .9vw; overflow: hidden; padding: 1vh 1vh 1.2vh; margin-left: -1vh; }
-  .odc { position: relative; flex: none; width: 8.4vw; height: 12.6vw; border-radius: 1vh; overflow: hidden; background: #1d2433 center / cover no-repeat; }
-  .odc b, #odpost b { position: absolute; left: .9vh; right: .9vh; bottom: .9vh; font-size: 2vh; line-height: 1.1; z-index: 1; }
->>>>>>> Stashed changes
   .odc::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.6), rgba(0,0,0,0) 55%); }
   .odc { outline: calc(.45 * var(--u)) solid transparent; transition: transform .14s ease-out, outline-color .14s ease-out; }
   .odc.sel { outline-color: #fff; transform: scale(1.06); z-index: 2; }
@@ -903,90 +885,54 @@
   .odspin { width: calc(8 * var(--u)); height: calc(8 * var(--u)); border-radius: 50%; border: calc(1 * var(--u)) solid rgba(255,255,255,.18); border-top-color: #fff; animation: spin .9s linear infinite; }
   .odc.odsk { background: #151a26; }
   /* On now: a wide card with the channel, what is on, how far through it is and what comes next */
-  .odc.odon { width: 17.6vw; height: 10.2vw; }
-  .odon .odlive { position: absolute; left: .8vh; top: .8vh; z-index: 1; font-size: 1.7vh; font-weight: 800; padding: .2vh .6vw; border-radius: .5vh; background: #e5384c; }
-  .odon .odch { position: absolute; right: .8vh; top: .8vh; z-index: 1; font-size: 1.8vh; font-weight: 700; color: #e9edf7; text-shadow: 0 0 .6vh #000; }
-  .odon b { bottom: 3.4vh; font-size: 2.2vh; }
-  .odon small { position: absolute; left: .9vh; right: .9vh; bottom: 1.3vh; z-index: 1; font-size: 1.7vh; color: #c3cadb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .odc.odon { width: calc(17.6 * var(--uw)); height: calc(10.2 * var(--uw)); }
+  .odon .odlive { position: absolute; left: calc(.8 * var(--u)); top: calc(.8 * var(--u)); z-index: 1; font-size: calc(1.7 * var(--u)); font-weight: 800; padding: calc(.2 * var(--u)) calc(.6 * var(--uw)); border-radius: calc(.5 * var(--u)); background: #e5384c; }
+  .odon .odch { position: absolute; right: calc(.8 * var(--u)); top: calc(.8 * var(--u)); z-index: 1; font-size: calc(1.8 * var(--u)); font-weight: 700; color: #e9edf7; text-shadow: 0 0 calc(.6 * var(--u)) #000; }
+  .odon b { bottom: calc(3.4 * var(--u)); font-size: calc(2.2 * var(--u)); }
+  .odon small { position: absolute; left: calc(.9 * var(--u)); right: calc(.9 * var(--u)); bottom: calc(1.3 * var(--u)); z-index: 1; font-size: calc(1.7 * var(--u)); color: #c3cadb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .odc.odsk::after { display: none; }
   .odnone { color: #8f98b0; font-size: calc(2.4 * var(--u)); padding: calc(3 * var(--u)) 0; }
   #odshow { position: absolute; inset: 0; }
-<<<<<<< Updated upstream
   #odsh { position: absolute; left: calc(4 * var(--uw)); top: calc(7 * var(--u)); display: flex; gap: calc(2.6 * var(--uw)); width: calc(92 * var(--uw)); }
   #odpost { position: relative; flex: none; width: calc(19 * var(--u)); height: calc(28.5 * var(--u)); border-radius: calc(1.2 * var(--u)); overflow: hidden; background: #1d2433 center / cover no-repeat; }
   #odsh > div:last-child { flex: 1; min-width: 0; padding-top: calc(1 * var(--u)); }
   #odbtn { display: flex; gap: calc(1.2 * var(--uw)); margin-top: calc(2.6 * var(--u)); }
   .odb { font-size: calc(2.5 * var(--u)); font-weight: 700; padding: calc(1.3 * var(--u)) calc(2.4 * var(--uw)); border-radius: calc(1 * var(--u)); background: rgba(255,255,255,.18); }
   .odb.sel { background: #fff; color: #000; outline: calc(.4 * var(--u)) solid #fff; }
-  /* the seasons are a list down the left: up and down change season, right goes across to the episodes */
-  #odrail { position: absolute; left: calc(4 * var(--uw)); top: calc(41 * var(--u)); width: calc(17 * var(--uw)); overflow: hidden; }
-  #odrmore, #odemore { position: absolute; font-size: calc(2 * var(--u)); color: #8f98b0; }
-  #odrmore { left: calc(4 * var(--uw)); top: calc(78.6 * var(--u)); padding-left: calc(1.1 * var(--uw)); }
-  #odemore { left: calc(24 * var(--uw)); top: calc(88.6 * var(--u)); }
-  #odeps.wide + #odemore { left: calc(4 * var(--uw)); }
-  #odeh { position: absolute; left: calc(24 * var(--uw)); top: calc(37.4 * var(--u)); font-size: calc(2.2 * var(--u)); color: #c3cadb; font-weight: 600; }
-  #odeh.wide { left: calc(4 * var(--uw)); }
-  .odsn { display: flex; justify-content: space-between; align-items: center; height: calc(5.6 * var(--u)); padding: 0 calc(1.1 * var(--uw)); margin-bottom: calc(.5 * var(--u)); border-radius: calc(1 * var(--u)); font-size: calc(2.4 * var(--u)); color: #cdd3e4; }
-  .odsn small { font-size: calc(1.9 * var(--u)); opacity: .75; }
-  .odsn { transition: background-color .12s, color .12s; }
-  .odsn.on { background: #3a4260; color: #fff; }
-  .odsn.sel { background: #fff; color: #000; font-weight: 700; }
-  #odeps { position: absolute; left: calc(24 * var(--uw)); right: calc(4 * var(--uw)); top: calc(41 * var(--u)); }
-  #odeps.wide { left: calc(4 * var(--uw)); }
-  .ode { display: flex; align-items: center; gap: calc(1.6 * var(--uw)); height: calc(6 * var(--u)); margin-bottom: calc(.4 * var(--u)); padding: 0 calc(1 * var(--uw)); border-radius: calc(1 * var(--u)); }
-  .ode.cur { height: calc(14.2 * var(--u)); }
-  .ode:not(.cur) img, .ode:not(.cur) .odth, .ode:not(.cur) small { display: none; }
-  .ode em.rs { color: #ffcb6b; }
-  .ode { outline: calc(.35 * var(--u)) solid transparent; transition: background-color .12s, outline-color .12s; }
-  .ode.sel { background: #2a3048; outline-color: #fff; }
-  .ode i { font-style: normal; flex: none; width: calc(3 * var(--uw)); text-align: center; font-size: calc(2.8 * var(--u)); color: #8f98b0; }
-  .ode img, .ode .odth { flex: none; width: calc(16 * var(--u)); height: calc(9 * var(--u)); border-radius: calc(.9 * var(--u)); object-fit: cover; background: #1d2433; }
-  .ode div { flex: 1; min-width: 0; }
-  .ode b { display: block; font-size: calc(2.6 * var(--u)); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ode small { display: block; margin-top: calc(.3 * var(--u)); font-size: calc(2.1 * var(--u)); line-height: 1.3; color: #9aa3ba; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .ode em { flex: none; font-style: normal; font-size: calc(2.1 * var(--u)); color: #aab3cc; }
-=======
-  #odsh { position: absolute; left: 4vw; top: 7vh; display: flex; gap: 2.6vw; width: 92vw; }
-  #odpost { position: relative; flex: none; width: 19vh; height: 28.5vh; border-radius: 1.2vh; overflow: hidden; background: #1d2433 center / cover no-repeat; }
-  #odsh > div:last-child { flex: 1; min-width: 0; padding-top: 1vh; }
-  #odbtn { display: flex; gap: 1.2vw; margin-top: 2.6vh; }
-  .odb { font-size: 2.5vh; font-weight: 700; padding: 1.3vh 2.4vw; border-radius: 1vh; background: rgba(255,255,255,.18); }
-  .odb.sel { background: #fff; color: #000; outline: .4vh solid #fff; }
   /* the show page: the seasons are chips across the page and the episodes one row of cards with their stills */
-  #odrail { position: absolute; left: 5vw; right: 4vw; top: 41vh; display: flex; gap: .8vw; overflow: hidden; }
-  #odrmore, #odemore { position: absolute; font-size: 2vh; color: #8f98b0; }
+  #odrail { position: absolute; left: calc(5 * var(--uw)); right: calc(4 * var(--uw)); top: calc(41 * var(--u)); display: flex; gap: calc(.8 * var(--uw)); overflow: hidden; }
+  #odrmore, #odemore { position: absolute; font-size: calc(2 * var(--u)); color: #8f98b0; }
   #odrmore { display: none; }
-  #odemore { left: 5vw; top: 88.4vh; }
-  #odeh { position: absolute; left: 5vw; top: 47.4vh; font-size: 2.2vh; color: #c3cadb; font-weight: 600; }
-  #odeh.wide { left: 5vw; }
-  .odsn { display: flex; align-items: center; gap: .6vw; height: 5vh; padding: 0 1.4vw; border-radius: 4vh; font-size: 2.3vh; color: #cdd3e4; background: rgba(255,255,255,.12); white-space: nowrap; }
-  .odsn small { font-size: 1.8vh; opacity: .75; }
+  #odemore { left: calc(5 * var(--uw)); top: calc(88.4 * var(--u)); }
+  #odeh { position: absolute; left: calc(5 * var(--uw)); top: calc(47.4 * var(--u)); font-size: calc(2.2 * var(--u)); color: #c3cadb; font-weight: 600; }
+  #odeh.wide { left: calc(5 * var(--uw)); }
+  .odsn { display: flex; align-items: center; gap: calc(.6 * var(--uw)); height: calc(5 * var(--u)); padding: 0 calc(1.4 * var(--uw)); border-radius: calc(4 * var(--u)); font-size: calc(2.3 * var(--u)); color: #cdd3e4; background: rgba(255,255,255,.12); white-space: nowrap; }
+  .odsn small { font-size: calc(1.8 * var(--u)); opacity: .75; }
   .odsn.on { background: #3a4260; color: #fff; }
   .odsn.sel { background: #fff; color: #000; font-weight: 700; }
-  #odeps { position: absolute; left: 5vw; right: 4vw; top: 52vh; display: flex; gap: 1vw; overflow: hidden; padding: 1vh 1vh 1vh; margin-left: -1vh; }
-  #odeps.wide { left: 5vw; }
-  .ode { position: relative; flex: none; width: 17.4vw; border-radius: 1vh; outline: .4vh solid transparent; transition: transform .14s ease-out, outline-color .14s ease-out; }
+  #odeps { position: absolute; left: calc(5 * var(--uw)); right: calc(4 * var(--uw)); top: calc(52 * var(--u)); display: flex; gap: calc(1 * var(--uw)); overflow: hidden; padding: calc(1 * var(--u)) calc(1 * var(--u)) calc(1 * var(--u)); margin-left: calc(-1 * var(--u)); }
+  #odeps.wide { left: calc(5 * var(--uw)); }
+  .ode { position: relative; flex: none; width: calc(17.4 * var(--uw)); border-radius: calc(1 * var(--u)); outline: calc(.4 * var(--u)) solid transparent; transition: transform .14s ease-out, outline-color .14s ease-out; }
   .ode.sel { outline-color: #fff; transform: scale(1.04); z-index: 2; }
-  .ode img, .ode .odth { display: block; width: 100%; height: 9.8vw; border-radius: 1vh; object-fit: cover; background: #1d2433; }
-  .ode i { position: absolute; left: .7vh; top: .7vh; font-style: normal; font-size: 2vh; font-weight: 800; padding: .1vh .6vw; border-radius: .5vh; background: rgba(0,0,0,.62); }
-  .ode .odpg { position: absolute; left: 0; right: 0; top: calc(9.8vw - .7vh); }
-  .ode div { margin-top: .7vh; }
-  .ode b { display: block; font-size: 2.2vh; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ode small { display: -webkit-box; margin-top: .2vh; font-size: 1.8vh; line-height: 1.3; color: #9aa3ba; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .ode em { display: block; margin-top: .2vh; font-style: normal; font-size: 1.8vh; color: #aab3cc; }
+  .ode img, .ode .odth { display: block; width: 100%; height: calc(9.8 * var(--uw)); border-radius: calc(1 * var(--u)); object-fit: cover; background: #1d2433; }
+  .ode i { position: absolute; left: calc(.7 * var(--u)); top: calc(.7 * var(--u)); font-style: normal; font-size: calc(2 * var(--u)); font-weight: 800; padding: calc(.1 * var(--u)) calc(.6 * var(--uw)); border-radius: calc(.5 * var(--u)); background: rgba(0,0,0,.62); }
+  .ode .odpg { position: absolute; left: 0; right: 0; top: calc(calc(9.8 * var(--uw)) - calc(.7 * var(--u))); }
+  .ode div { margin-top: calc(.7 * var(--u)); }
+  .ode b { display: block; font-size: calc(2.2 * var(--u)); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ode small { display: -webkit-box; margin-top: calc(.2 * var(--u)); font-size: calc(1.8 * var(--u)); line-height: 1.3; color: #9aa3ba; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ode em { display: block; margin-top: calc(.2 * var(--u)); font-style: normal; font-size: calc(1.8 * var(--u)); color: #aab3cc; }
   .ode em.rs { color: #ffcb6b; }
   /* Browse: the channels down the left, the shows as a grid of posters, and Sort / Decade / Hide watched across the top */
   #odgrid { position: absolute; inset: 0; }
-  #ogl { position: absolute; left: 5vw; top: 12vh; width: 19vw; }
-  .ogli { display: flex; justify-content: space-between; align-items: center; height: 5.6vh; padding: 0 1vw; margin-bottom: .5vh; border-radius: 1vh; font-size: 2.3vh; color: #cdd3e4; overflow: hidden; white-space: nowrap; }
-  .ogli small { font-size: 1.9vh; opacity: .7; margin-left: .8vw; }
+  #ogl { position: absolute; left: calc(5 * var(--uw)); top: calc(12 * var(--u)); width: calc(19 * var(--uw)); }
+  .ogli { display: flex; justify-content: space-between; align-items: center; height: calc(5.6 * var(--u)); padding: 0 calc(1 * var(--uw)); margin-bottom: calc(.5 * var(--u)); border-radius: calc(1 * var(--u)); font-size: calc(2.3 * var(--u)); color: #cdd3e4; overflow: hidden; white-space: nowrap; }
+  .ogli small { font-size: calc(1.9 * var(--u)); opacity: .7; margin-left: calc(.8 * var(--uw)); }
   .ogli.on { background: #3a4260; color: #fff; }
   .ogli.sel { background: #fff; color: #000; font-weight: 700; }
-  #ogc { position: absolute; left: 27vw; right: 4vw; top: 12vh; display: flex; gap: .8vw; }
-  #ogg { position: absolute; left: 27vw; right: 4vw; top: 20vh; display: grid; grid-template-columns: repeat(6, 1fr); gap: 1.4vh 1vw; }
-  #ogg .odc { width: auto; height: 11.6vw; }
-  #ogt { position: absolute; left: 27vw; top: 89vh; font-size: 2vh; color: #8f98b0; }
->>>>>>> Stashed changes
+  #ogc { position: absolute; left: calc(27 * var(--uw)); right: calc(4 * var(--uw)); top: calc(12 * var(--u)); display: flex; gap: calc(.8 * var(--uw)); }
+  #ogg { position: absolute; left: calc(27 * var(--uw)); right: calc(4 * var(--uw)); top: calc(20 * var(--u)); display: grid; grid-template-columns: repeat(6, 1fr); gap: calc(1.4 * var(--u)) calc(1 * var(--uw)); }
+  #ogg .odc { width: auto; height: calc(11.6 * var(--uw)); }
+  #ogt { position: absolute; left: calc(27 * var(--uw)); top: calc(89 * var(--u)); font-size: calc(2 * var(--u)); color: #8f98b0; }
   #odmenu { position: absolute; inset: 0; z-index: 6; background: rgba(2,6,28,.86); display: flex; align-items: center; justify-content: center; }
   #odmenu.hidden { display: none; }
   #odmbox { width: calc(66 * var(--uw)); background: #061450; border: calc(.14 * var(--u)) solid rgba(255,255,255,.16); border-radius: calc(2.8 * var(--u)); padding: calc(3.4 * var(--u)) calc(2.4 * var(--uw)) calc(2.4 * var(--u)); box-shadow: 0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(0,0,0,.7); }

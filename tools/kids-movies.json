@@ -1,0 +1,1014 @@
+{
+ "format": "telly-addicts-film-list",
+ "channel": "kidsmovies",
+ "show": "Kids Films",
+ "rules": [
+  "Children's and family films released 1970-1999 only, roughly most-loved first (a curated list, not a chart)",
+  "Films the library already has are listed too, so the scraper can see what is missing: match by TMDb id, never by name",
+  "English audio only: skip dubbed, subbed or dual-track copies with another language first",
+  "Keep the film's real title and year; prefer the full-length original over clips, trailers and reviews",
+  "A TV film or a video release counts if it is a proper feature"
+ ],
+ "films": [
+  {
+   "title": "Toy Story",
+   "year": 1995
+  },
+  {
+   "title": "Toy Story 2",
+   "year": 1999
+  },
+  {
+   "title": "A Bug's Life",
+   "year": 1998
+  },
+  {
+   "title": "The Lion King",
+   "year": 1994
+  },
+  {
+   "title": "Aladdin",
+   "year": 1992
+  },
+  {
+   "title": "Beauty and the Beast",
+   "year": 1991
+  },
+  {
+   "title": "The Little Mermaid",
+   "year": 1989
+  },
+  {
+   "title": "Mulan",
+   "year": 1998
+  },
+  {
+   "title": "Tarzan",
+   "year": 1999
+  },
+  {
+   "title": "Pocahontas",
+   "year": 1995
+  },
+  {
+   "title": "Hercules",
+   "year": 1997
+  },
+  {
+   "title": "The Hunchback of Notre Dame",
+   "year": 1996
+  },
+  {
+   "title": "Robin Hood",
+   "year": 1973
+  },
+  {
+   "title": "The Aristocats",
+   "year": 1970
+  },
+  {
+   "title": "The Rescuers",
+   "year": 1977
+  },
+  {
+   "title": "The Rescuers Down Under",
+   "year": 1990
+  },
+  {
+   "title": "The Fox and the Hound",
+   "year": 1981
+  },
+  {
+   "title": "The Black Cauldron",
+   "year": 1985
+  },
+  {
+   "title": "The Great Mouse Detective",
+   "year": 1986
+  },
+  {
+   "title": "Oliver & Company",
+   "year": 1988
+  },
+  {
+   "title": "Bedknobs and Broomsticks",
+   "year": 1971
+  },
+  {
+   "title": "Pete's Dragon",
+   "year": 1977
+  },
+  {
+   "title": "Escape to Witch Mountain",
+   "year": 1975
+  },
+  {
+   "title": "Return from Witch Mountain",
+   "year": 1978
+  },
+  {
+   "title": "Freaky Friday",
+   "year": 1976
+  },
+  {
+   "title": "Herbie Rides Again",
+   "year": 1974
+  },
+  {
+   "title": "Herbie Goes to Monte Carlo",
+   "year": 1977
+  },
+  {
+   "title": "Herbie Goes Bananas",
+   "year": 1980
+  },
+  {
+   "title": "The Apple Dumpling Gang",
+   "year": 1975
+  },
+  {
+   "title": "The Cat from Outer Space",
+   "year": 1978
+  },
+  {
+   "title": "The Black Hole",
+   "year": 1979
+  },
+  {
+   "title": "Tron",
+   "year": 1982
+  },
+  {
+   "title": "Honey, I Shrunk the Kids",
+   "year": 1989
+  },
+  {
+   "title": "Honey, I Blew Up the Kid",
+   "year": 1992
+  },
+  {
+   "title": "The Rocketeer",
+   "year": 1991
+  },
+  {
+   "title": "Flight of the Navigator",
+   "year": 1986
+  },
+  {
+   "title": "Hocus Pocus",
+   "year": 1993
+  },
+  {
+   "title": "D2: The Mighty Ducks",
+   "year": 1994
+  },
+  {
+   "title": "D3: The Mighty Ducks",
+   "year": 1996
+  },
+  {
+   "title": "Cool Runnings",
+   "year": 1993
+  },
+  {
+   "title": "Free Willy",
+   "year": 1993
+  },
+  {
+   "title": "Free Willy 2: The Adventure Home",
+   "year": 1995
+  },
+  {
+   "title": "Homeward Bound: The Incredible Journey",
+   "year": 1993
+  },
+  {
+   "title": "Homeward Bound II: Lost in San Francisco",
+   "year": 1996
+  },
+  {
+   "title": "101 Dalmatians",
+   "year": 1996
+  },
+  {
+   "title": "Babe",
+   "year": 1995
+  },
+  {
+   "title": "Babe: Pig in the City",
+   "year": 1998
+  },
+  {
+   "title": "Matilda",
+   "year": 1996
+  },
+  {
+   "title": "James and the Giant Peach",
+   "year": 1996
+  },
+  {
+   "title": "The Witches",
+   "year": 1990
+  },
+  {
+   "title": "Willy Wonka & the Chocolate Factory",
+   "year": 1971
+  },
+  {
+   "title": "Annie",
+   "year": 1982
+  },
+  {
+   "title": "Annie",
+   "year": 1999
+  },
+  {
+   "title": "Bugsy Malone",
+   "year": 1976
+  },
+  {
+   "title": "The Muppet Movie",
+   "year": 1979
+  },
+  {
+   "title": "The Great Muppet Caper",
+   "year": 1981
+  },
+  {
+   "title": "The Muppets Take Manhattan",
+   "year": 1984
+  },
+  {
+   "title": "The Muppet Christmas Carol",
+   "year": 1992
+  },
+  {
+   "title": "Muppet Treasure Island",
+   "year": 1996
+  },
+  {
+   "title": "The Dark Crystal",
+   "year": 1982
+  },
+  {
+   "title": "Labyrinth",
+   "year": 1986
+  },
+  {
+   "title": "The NeverEnding Story",
+   "year": 1984
+  },
+  {
+   "title": "The NeverEnding Story II: The Next Chapter",
+   "year": 1990
+  },
+  {
+   "title": "The Princess Bride",
+   "year": 1987
+  },
+  {
+   "title": "Willow",
+   "year": 1988
+  },
+  {
+   "title": "Legend",
+   "year": 1985
+  },
+  {
+   "title": "Time Bandits",
+   "year": 1981
+  },
+  {
+   "title": "The Goonies",
+   "year": 1985
+  },
+  {
+   "title": "E.T. the Extra-Terrestrial",
+   "year": 1982
+  },
+  {
+   "title": "Back to the Future",
+   "year": 1985
+  },
+  {
+   "title": "Back to the Future Part II",
+   "year": 1989
+  },
+  {
+   "title": "Back to the Future Part III",
+   "year": 1990
+  },
+  {
+   "title": "Ghostbusters",
+   "year": 1984
+  },
+  {
+   "title": "Ghostbusters II",
+   "year": 1989
+  },
+  {
+   "title": "Home Alone",
+   "year": 1990
+  },
+  {
+   "title": "Home Alone 2: Lost in New York",
+   "year": 1992
+  },
+  {
+   "title": "Home Alone 3",
+   "year": 1997
+  },
+  {
+   "title": "Hook",
+   "year": 1991
+  },
+  {
+   "title": "Jumanji",
+   "year": 1995
+  },
+  {
+   "title": "Mrs. Doubtfire",
+   "year": 1993
+  },
+  {
+   "title": "Casper",
+   "year": 1995
+  },
+  {
+   "title": "The Addams Family",
+   "year": 1991
+  },
+  {
+   "title": "Addams Family Values",
+   "year": 1993
+  },
+  {
+   "title": "The Flintstones",
+   "year": 1994
+  },
+  {
+   "title": "Dennis the Menace",
+   "year": 1993
+  },
+  {
+   "title": "Richie Rich",
+   "year": 1994
+  },
+  {
+   "title": "Beethoven",
+   "year": 1992
+  },
+  {
+   "title": "Beethoven's 2nd",
+   "year": 1993
+  },
+  {
+   "title": "Andre",
+   "year": 1994
+  },
+  {
+   "title": "Benji",
+   "year": 1974
+  },
+  {
+   "title": "For the Love of Benji",
+   "year": 1977
+  },
+  {
+   "title": "Lassie",
+   "year": 1994
+  },
+  {
+   "title": "The Black Stallion",
+   "year": 1979
+  },
+  {
+   "title": "Short Circuit",
+   "year": 1986
+  },
+  {
+   "title": "Short Circuit 2",
+   "year": 1988
+  },
+  {
+   "title": "Batteries Not Included",
+   "year": 1987
+  },
+  {
+   "title": "Harry and the Hendersons",
+   "year": 1987
+  },
+  {
+   "title": "Teenage Mutant Ninja Turtles",
+   "year": 1990
+  },
+  {
+   "title": "Teenage Mutant Ninja Turtles II: The Secret of the Ooze",
+   "year": 1991
+  },
+  {
+   "title": "Teenage Mutant Ninja Turtles III",
+   "year": 1993
+  },
+  {
+   "title": "The Karate Kid",
+   "year": 1984
+  },
+  {
+   "title": "The Karate Kid Part II",
+   "year": 1986
+  },
+  {
+   "title": "The Karate Kid Part III",
+   "year": 1989
+  },
+  {
+   "title": "The Last Starfighter",
+   "year": 1984
+  },
+  {
+   "title": "The Secret of NIMH",
+   "year": 1982
+  },
+  {
+   "title": "All Dogs Go to Heaven",
+   "year": 1989
+  },
+  {
+   "title": "An American Tail",
+   "year": 1986
+  },
+  {
+   "title": "An American Tail: Fievel Goes West",
+   "year": 1991
+  },
+  {
+   "title": "The Land Before Time",
+   "year": 1988
+  },
+  {
+   "title": "The Land Before Time II: The Great Valley Adventure",
+   "year": 1994
+  },
+  {
+   "title": "We're Back! A Dinosaur's Story",
+   "year": 1993
+  },
+  {
+   "title": "Anastasia",
+   "year": 1997
+  },
+  {
+   "title": "Thumbelina",
+   "year": 1994
+  },
+  {
+   "title": "The Swan Princess",
+   "year": 1994
+  },
+  {
+   "title": "Rock-a-Doodle",
+   "year": 1991
+  },
+  {
+   "title": "FernGully: The Last Rainforest",
+   "year": 1992
+  },
+  {
+   "title": "Cats Don't Dance",
+   "year": 1997
+  },
+  {
+   "title": "Quest for Camelot",
+   "year": 1998
+  },
+  {
+   "title": "The Iron Giant",
+   "year": 1999
+  },
+  {
+   "title": "Antz",
+   "year": 1998
+  },
+  {
+   "title": "The Prince of Egypt",
+   "year": 1998
+  },
+  {
+   "title": "Pippi Longstocking",
+   "year": 1997
+  },
+  {
+   "title": "My Neighbor Totoro",
+   "year": 1988
+  },
+  {
+   "title": "Kiki's Delivery Service",
+   "year": 1989
+  },
+  {
+   "title": "Castle in the Sky",
+   "year": 1986
+  },
+  {
+   "title": "Nausicaä of the Valley of the Wind",
+   "year": 1984
+  },
+  {
+   "title": "Princess Mononoke",
+   "year": 1997
+  },
+  {
+   "title": "Grave of the Fireflies",
+   "year": 1988
+  },
+  {
+   "title": "Watership Down",
+   "year": 1978
+  },
+  {
+   "title": "The Plague Dogs",
+   "year": 1982
+  },
+  {
+   "title": "The Snowman",
+   "year": 1982
+  },
+  {
+   "title": "When the Wind Blows",
+   "year": 1986
+  },
+  {
+   "title": "Heidi's Song",
+   "year": 1982
+  },
+  {
+   "title": "The Last Unicorn",
+   "year": 1982
+  },
+  {
+   "title": "The Flight of Dragons",
+   "year": 1982
+  },
+  {
+   "title": "Flight of Dragons",
+   "year": 1982
+  },
+  {
+   "title": "Fantasia 2000",
+   "year": 1999
+  },
+  {
+   "title": "The Pebble and the Penguin",
+   "year": 1995
+  },
+  {
+   "title": "Balto",
+   "year": 1995
+  },
+  {
+   "title": "Space Jam",
+   "year": 1996
+  },
+  {
+   "title": "Who Framed Roger Rabbit",
+   "year": 1988
+  },
+  {
+   "title": "Rover Dangerfield",
+   "year": 1991
+  },
+  {
+   "title": "The Brave Little Toaster",
+   "year": 1987
+  },
+  {
+   "title": "The Many Adventures of Winnie the Pooh",
+   "year": 1977
+  },
+  {
+   "title": "The Wind in the Willows",
+   "year": 1996
+  },
+  {
+   "title": "Mr. Toad's Wild Ride",
+   "year": 1996
+  },
+  {
+   "title": "The Railway Children",
+   "year": 1970
+  },
+  {
+   "title": "Swallows and Amazons",
+   "year": 1974
+  },
+  {
+   "title": "Five Children and It",
+   "year": 1985
+  },
+  {
+   "title": "The Water Babies",
+   "year": 1978
+  },
+  {
+   "title": "Bill & Ted's Excellent Adventure",
+   "year": 1989
+  },
+  {
+   "title": "The Sandlot",
+   "year": 1993
+  },
+  {
+   "title": "Little Giants",
+   "year": 1994
+  },
+  {
+   "title": "The Bad News Bears",
+   "year": 1976
+  },
+  {
+   "title": "Rookie of the Year",
+   "year": 1993
+  },
+  {
+   "title": "Angels in the Outfield",
+   "year": 1994
+  },
+  {
+   "title": "Little Big League",
+   "year": 1994
+  },
+  {
+   "title": "Heidi",
+   "year": 1993
+  },
+  {
+   "title": "A Little Princess",
+   "year": 1995
+  },
+  {
+   "title": "The Secret Garden",
+   "year": 1993
+  },
+  {
+   "title": "The Secret Garden",
+   "year": 1987
+  },
+  {
+   "title": "Black Beauty",
+   "year": 1994
+  },
+  {
+   "title": "Anne of Green Gables",
+   "year": 1985
+  },
+  {
+   "title": "Treasure Island",
+   "year": 1990
+  },
+  {
+   "title": "The Adventures of Huck Finn",
+   "year": 1993
+  },
+  {
+   "title": "The Indian in the Cupboard",
+   "year": 1995
+  },
+  {
+   "title": "Flipper",
+   "year": 1996
+  },
+  {
+   "title": "The Little Rascals",
+   "year": 1994
+  },
+  {
+   "title": "Problem Child",
+   "year": 1990
+  },
+  {
+   "title": "Baby's Day Out",
+   "year": 1994
+  },
+  {
+   "title": "Uncle Buck",
+   "year": 1989
+  },
+  {
+   "title": "Jingle All the Way",
+   "year": 1996
+  },
+  {
+   "title": "Mouse Hunt",
+   "year": 1997
+  },
+  {
+   "title": "George of the Jungle",
+   "year": 1997
+  },
+  {
+   "title": "Inspector Gadget",
+   "year": 1999
+  },
+  {
+   "title": "Dr. Dolittle",
+   "year": 1998
+  },
+  {
+   "title": "Stuart Little",
+   "year": 1999
+  },
+  {
+   "title": "Flubber",
+   "year": 1997
+  },
+  {
+   "title": "The Parent Trap",
+   "year": 1998
+  },
+  {
+   "title": "Flight of the Doves",
+   "year": 1971
+  },
+  {
+   "title": "The Journey of Natty Gann",
+   "year": 1985
+  },
+  {
+   "title": "Pippi in the South Seas",
+   "year": 1970
+  },
+  {
+   "title": "The Adventures of Pinocchio",
+   "year": 1996
+  },
+  {
+   "title": "Explorers",
+   "year": 1985
+  },
+  {
+   "title": "Monster Squad",
+   "year": 1987
+  },
+  {
+   "title": "Star Wars",
+   "year": 1977
+  },
+  {
+   "title": "The Empire Strikes Back",
+   "year": 1980
+  },
+  {
+   "title": "Return of the Jedi",
+   "year": 1983
+  },
+  {
+   "title": "Superman",
+   "year": 1978
+  },
+  {
+   "title": "Superman II",
+   "year": 1980
+  },
+  {
+   "title": "Batman: Mask of the Phantasm",
+   "year": 1993
+  },
+  {
+   "title": "The Borrowers",
+   "year": 1997
+  },
+  {
+   "title": "Fly Away Home",
+   "year": 1996
+  },
+  {
+   "title": "Air Bud",
+   "year": 1997
+  },
+  {
+   "title": "Wild America",
+   "year": 1997
+  },
+  {
+   "title": "Black Beauty",
+   "year": 1971
+  },
+  {
+   "title": "My Girl",
+   "year": 1991
+  },
+  {
+   "title": "The Wiz",
+   "year": 1978
+  },
+  {
+   "title": "Xanadu",
+   "year": 1980
+  },
+  {
+   "title": "Newsies",
+   "year": 1992
+  },
+  {
+   "title": "Aladdin and the King of Thieves",
+   "year": 1996
+  },
+  {
+   "title": "The Return of Jafar",
+   "year": 1994
+  },
+  {
+   "title": "Beauty and the Beast: The Enchanted Christmas",
+   "year": 1997
+  },
+  {
+   "title": "The Rugrats Movie",
+   "year": 1998
+  },
+  {
+   "title": "Pokémon: The First Movie",
+   "year": 1998
+  },
+  {
+   "title": "Pokémon: The Movie 2000",
+   "year": 1999
+  },
+  {
+   "title": "The Pagemaster",
+   "year": 1994
+  },
+  {
+   "title": "Richie Rich's Christmas Wish",
+   "year": 1998
+  },
+  {
+   "title": "Curly Sue",
+   "year": 1991
+  },
+  {
+   "title": "Milo and Otis",
+   "year": 1986
+  },
+  {
+   "title": "The Adventures of Milo and Otis",
+   "year": 1986
+  },
+  {
+   "title": "Bear Cub",
+   "year": 1988
+  },
+  {
+   "title": "The Bear",
+   "year": 1988
+  },
+  {
+   "title": "White Fang",
+   "year": 1991
+  },
+  {
+   "title": "Iron Will",
+   "year": 1994
+  },
+  {
+   "title": "The Jungle Book",
+   "year": 1994
+  },
+  {
+   "title": "The Lion King II: Simba's Pride",
+   "year": 1998
+  },
+  {
+   "title": "Tarzan and the Lost City",
+   "year": 1998
+  },
+  {
+   "title": "Mighty Joe Young",
+   "year": 1998
+  },
+  {
+   "title": "Small Soldiers",
+   "year": 1998
+  },
+  {
+   "title": "Space Camp",
+   "year": 1986
+  },
+  {
+   "title": "The Care Bears Movie",
+   "year": 1985
+  },
+  {
+   "title": "Care Bears Movie II: A New Generation",
+   "year": 1986
+  },
+  {
+   "title": "My Little Pony: The Movie",
+   "year": 1986
+  },
+  {
+   "title": "The Transformers: The Movie",
+   "year": 1986
+  },
+  {
+   "title": "G.I. Joe: The Movie",
+   "year": 1987
+  },
+  {
+   "title": "He-Man and She-Ra: The Secret of the Sword",
+   "year": 1985
+  },
+  {
+   "title": "Rainbow Brite and the Star Stealer",
+   "year": 1985
+  },
+  {
+   "title": "The Smurfs and the Magic Flute",
+   "year": 1976
+  },
+  {
+   "title": "The Twelve Tasks of Asterix",
+   "year": 1976
+  },
+  {
+   "title": "Asterix Conquers America",
+   "year": 1994
+  },
+  {
+   "title": "Tintin and the Lake of Sharks",
+   "year": 1972
+  },
+  {
+   "title": "Wallace & Gromit: The Wrong Trousers",
+   "year": 1993
+  },
+  {
+   "title": "Wallace & Gromit: A Close Shave",
+   "year": 1995
+  },
+  {
+   "title": "Wallace & Gromit: A Grand Day Out",
+   "year": 1989
+  },
+  {
+   "title": "Creature Comforts",
+   "year": 1989
+  },
+  {
+   "title": "Danger Mouse: The Movie",
+   "year": 1987
+  },
+  {
+   "title": "The Nightmare Before Christmas",
+   "year": 1993
+  },
+  {
+   "title": "Charlotte's Web",
+   "year": 1973
+  },
+  {
+   "title": "Return to Oz",
+   "year": 1985
+  },
+  {
+   "title": "Santa Claus: The Movie",
+   "year": 1985
+  },
+  {
+   "title": "A Christmas Story",
+   "year": 1983
+  },
+  {
+   "title": "Scooby-Doo! and the Witch's Ghost",
+   "year": 1999
+  },
+  {
+   "title": "The Santa Clause",
+   "year": 1994
+  },
+  {
+   "title": "Tom and Jerry: The Movie",
+   "year": 1992
+  },
+  {
+   "title": "Beetlejuice",
+   "year": 1988
+  },
+  {
+   "title": "Pee-wee's Big Adventure",
+   "year": 1985
+  },
+  {
+   "title": "Once Upon a Forest",
+   "year": 1993
+  },
+  {
+   "title": "Harriet the Spy",
+   "year": 1996
+  },
+  {
+   "title": "Ernest Saves Christmas",
+   "year": 1988
+  }
+ ]
+}

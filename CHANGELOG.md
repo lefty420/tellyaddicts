@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.50.0 — 2026-11-20
+- Magic EPG now covers films. With Magic EPG on, every film in the new film database (`data/filmdb.json`, published by the scraper) appears in the film channels and the Magic movie channels even when no file was scraped for it. It plays through your addons, exactly like the missing TV episodes. Nothing changes until the scraper publishes the database.
+
 ## Alpha 0.49.16 — 2026-11-20
 - On Demand home redesigned: a slimmer title area so two full rows fit, ten posters across each, and a count on the row ("3 of 140"). The channel badge and the fake "OK Open" button are gone.
 - On Demand: a Search button in the header. Press Up from the top row to reach it and OK to search (Yellow still works, but most remotes have no Yellow). A search with no match now shows a page with "Search again" and "Back to browsing" instead of a short message.

@@ -1,18 +1,25 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.16",
-  "version": "0.49.16",
-  "code": 4916,
+  "name": "Alpha 0.50.0",
+  "version": "0.50.0",
+  "code": 5000,
   "date": "2026-11-20",
   "notes": [
-    "On Demand home redesigned: a slimmer title area so two full rows fit, ten posters across each, and a count on the row (\"3 of 140\"). The channel badge and the fake \"OK Open\" button are gone.",
-    "On Demand: a Search button in the header. Press Up from the top row to reach it and OK to search (Yellow still works, but most remotes have no Yellow). A search with no match now shows a page with \"Search again\" and \"Back to browsing\" instead of a short message.",
-    "On Demand: key hints along the bottom, with what each key does.",
-    "Show page: the season list and episode list say how many more there are (\"▼ 20 more\"), the episode list says \"Season 1 · 43 episodes · 3 of 43\", only the highlighted episode shows its picture and description (so six episodes fit), and an episode you can resume says so. With no artwork the poster is the same coloured tile as on the home page.",
-    "Hold OK menu: Info, Search, Fix artwork…, Options and Hide on top level. Scrape artwork, Choose the right show, Choose a poster, Choose a background and Back to automatic are inside Fix artwork…."
+    "Magic EPG now covers films. With Magic EPG on, every film in the new film database (`data/filmdb.json`, published by the scraper) appears in the film channels and the Magic movie channels even when no file was scraped for it. It plays through your addons, exactly like the missing TV episodes. Nothing changes until the scraper publishes the database."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.16",
+      "date": "2026-11-20",
+      "notes": [
+        "On Demand home redesigned: a slimmer title area so two full rows fit, ten posters across each, and a count on the row (\"3 of 140\"). The channel badge and the fake \"OK Open\" button are gone.",
+        "On Demand: a Search button in the header. Press Up from the top row to reach it and OK to search (Yellow still works, but most remotes have no Yellow). A search with no match now shows a page with \"Search again\" and \"Back to browsing\" instead of a short message.",
+        "On Demand: key hints along the bottom, with what each key does.",
+        "Show page: the season list and episode list say how many more there are (\"▼ 20 more\"), the episode list says \"Season 1 · 43 episodes · 3 of 43\", only the highlighted episode shows its picture and description (so six episodes fit), and an episode you can resume says so. With no artwork the poster is the same coloured tile as on the home page.",
+        "Hold OK menu: Info, Search, Fix artwork…, Options and Hide on top level. Scrape artwork, Choose the right show, Choose a poster, Choose a background and Back to automatic are inside Fix artwork…."
+      ]
+    },
     {
       "name": "Alpha 0.49.15",
       "date": "2026-11-20",
@@ -71,14 +78,6 @@ window.RELEASE = {
         "Fixed the slow start. The metadata scrapers were not the cause: the app was sorting the whole 60,000-episode library on the TV itself, and doing it again every time On Demand loaded. Now each channel's sorted list is saved the first time and read back at the next start, and the sort works in small pieces so the tuning counter keeps moving instead of freezing.",
         "The channels now build with a short pause between each, so the \"TUNING 0 / 66\" count really counts up.",
         "The debug log has new START lines saying how many channel lists were found already saved and how many had to be built, so a slow start can be traced exactly."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.8",
-      "date": "2026-11-20",
-      "notes": [
-        "Fixed 0.49.6 and 0.49.7, which broke start-up: a piece of the app that saves and reads everything kept on the TV was deleted by mistake, so the tuning screen showed no pictures or static and the guide never opened.",
-        "Taken back out: the 60-day clear-out of saved artwork and episode guides added in 0.49.6. It went by when a file was last saved, not last used, so it could delete artwork the TV still shows. Anything it already removed is fetched again as needed, so the first start may be a little slower."
       ]
     }
   ]

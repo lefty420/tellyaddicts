@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|epl1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|filmdb1$|epl1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   // The files' names, read from the app once per start and kept up to date here: listing the folder over the bridge
   // was done for every channel built, and the folder holds thousands of files.
@@ -478,7 +478,7 @@
       removedRev = (j && j.removed) ? String(j.removed) : '';
       adsRev = (j && j.adverts) ? String(j.adverts) : '';
       ukRev = (j && j.uk) ? String(j.uk) : '';
-      epdbRev = (j && j.epdb) ? String(j.epdb) : ''; epdbFiles = j && j.epdbFiles instanceof Array && j.epdbFiles.length ? j.epdbFiles : null;
+      epdbRev = (j && j.epdb) ? String(j.epdb) : ''; filmdbRev = (j && j.filmdb) ? String(j.filmdb) : ''; epdbFiles = j && j.epdbFiles instanceof Array && j.epdbFiles.length ? j.epdbFiles : null;
       var chans = (j && j.channels) || {};
       libWant = (j && j.library) ? String(j.library) : '';
       if (!j || !j.library || !window.LIBROUTE) return chans;
@@ -1936,6 +1936,7 @@
   // The complete-episodes database (data/epdb.json, built by tools/build_epdb.py from the whole library) comes first;
   // a show it does not have falls back to this device's own lookups (epl1:<show>).
   var epdb = null, epdbP = null, epdbRev = '', epdbFiles = null;
+  var filmdb = null, filmdbP = null, filmdbRev = '';       // Magic EPG for films: data/filmdb.json lists every film the scrapers know, with or without a file
   // ---- Content: British hides the shows the scraper flags as never on UK TV (data/uk.json, u:0). Unknown shows stay in.
   var ukOn = store.get('uk1') === 'on', ukMap = null, ukP = null, ukRev = '';
   function loadUk() {
@@ -1993,6 +1994,44 @@
         else { epdb = kept ? c.d : null; dlog('MAGIC EPG: no epdb.json published yet'); }
       });
     }));
+  }
+  function loadFilmdb() {
+    if (!depgActive()) return Promise.resolve();
+    if (filmdbP) return filmdbP;
+    return (filmdbP = loadDataIndex().then(null, function () { /* no index */ }).then(function () {
+      var c = store.get('filmdb1'), kept = c && c.d;
+      if (kept && (filmdbRev ? c.rev === filmdbRev : Date.now() - c.t < 86400000)) { filmdb = c.d; return; }
+      if (c && c.none && !filmdbRev && Date.now() - c.t < 21600000) return;          // nothing published: not asked again for six hours
+      return getJSON(DATA_BASE + 'filmdb.json').then(function (j) {
+        var l = j && j.films;
+        if (l && l.length) { filmdb = l; try { store.set('filmdb1', { t: Date.now(), rev: filmdbRev, d: l }); } catch (e) { /* fetched again next start */ } }
+        else filmdb = kept || null;
+      }, function () { filmdb = kept || null; dlog('MAGIC EPG: no filmdb.json published yet'); if (!kept) { try { store.set('filmdb1', { t: Date.now(), rev: filmdbRev, d: null, none: 1 }); } catch (e) { /* asked again next start */ } } });
+    }));
+  }
+  // The Magic movie channels take the genres of the adult shelf (the same lists as tools/magic_channels.py)
+  var MC_FILM_GENRES = { mc_action: ['Action', 'Adventure', 'War', 'Western'], mc_horror: ['Horror'], mc_scifi_movies: ['Science Fiction', 'Fantasy'],
+                         mc_comedy_movies: ['Comedy'], mc_thriller: ['Thriller', 'Crime', 'Mystery'], mc_drama_movies: ['Drama', 'Romance', 'History', 'Music'] };
+  /** Add the films the channel has no file for, from the film database. They play through the addons like the missing episodes. */
+  function virtualFilms(c, progs, full) {
+    if (!depgActive() || !filmdb || !OD_FILMS[c.id]) return progs;
+    var have = {}, out = progs.slice(), gen = MC_FILM_GENRES[c.id], n = 0;
+    progs.forEach(function (p) { if (p.filmKey) have[p.filmKey] = 1; });
+    filmdb.forEach(function (f) {
+      if (!f || !f.t || !f.y || !f.cert) return;                 // a film with no certificate cannot be given a time on the clock
+      var chs = f.ch || [];
+      if (gen ? !(chs.indexOf('videoshop') >= 0 && String(f.g || '').split(/\s*,\s*/).some(function (x) { return gen.indexOf(x) >= 0; })) : chs.indexOf(c.id) < 0) return;
+      if (adCut && f.y >= 2000) return;
+      var title = f.t + ' (' + f.y + ')', key = keepFilm({ tm: f.tm, n: title, ov: f.ov, p: f.p, lg: f.lg, g: f.g, rt: f.rt, a: String(f.y), cert: f.cert, cast: f.cast });
+      if (!key || have[key]) return;
+      var id = 'virt/film/' + key;
+      if (!full && isSlow(id)) return;
+      have[key] = 1; n++;
+      out.push({ id: id, item: 'virtual', url: '', virtual: true, afilm: true, imdb: f.im || '', filmKey: key, cert: f.cert, show: title, group: title,
+                 title: title, sub: '', dur: (f.rt > 20 ? f.rt : 100) * 60, aired: String(f.y) });
+    });
+    veStat.virtual += n;
+    return out;
   }
   function veGet(show) {
     var k = normShow(show), e = epdb && epdb[k];
@@ -4675,7 +4714,8 @@
 
   // ---- finding a title's streams
   var adIds = store.get('adid2') || {};
-  function adResolve(name, film, year) {
+  function adResolve(name, film, year, imdb) {
+    if (imdb) return Promise.resolve({ imdb: imdb, year: year || 0 });                       // the film database knows its IMDb number
     var key = normShow(name) + (film ? '|f' + (year || '') : '');
     var ed = !film && epdb && epdb[normShow(name)];                       // the scrapers' own IMDb number beats a name search
     if (ed && ed.imdb) {
@@ -4789,7 +4829,7 @@
     }
     if (!live.length) { toast('No addon is on (Options > Experimental > Addons)', 4000); return; }
     adOpen({ title: name, sub: film ? 'Finding sources…' : 'S' + pad2(ep.s || 1) + 'E' + pad2(ep.e || 1) + '  ·  finding sources…', rows: [], empty: 'Looking up the title…', back: adClose });
-    adResolve(odArtName ? odArtName(g) : name, film, film ? (g.year || (g.eps && g.eps[0] && filmYear(g.eps[0].p)) || 0) : 0).then(function (r) {
+    adResolve(odArtName ? odArtName(g) : name, film, film ? (g.year || (g.eps && g.eps[0] && filmYear(g.eps[0].p)) || 0) : 0, g.imdb || (g.eps && g.eps[0] && g.eps[0].p && g.eps[0].p.imdb)).then(function (r) {
       if (!ad) return;
       if (!r || !r.imdb) { ad.rows = []; ad.empty = film ? 'Could not find this film in the film search (check the TV is online).' : 'Could not find this show’s IMDb number'; ad.sub = ''; adRender(); return; }
       if (adCut && r.year && r.year >= 2000) { ad.rows = []; ad.empty = 'From ' + r.year + ': not allowed while “Only before 2000” is on'; ad.sub = ''; adRender(); return; }
@@ -4860,7 +4900,7 @@
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!(p.filmKey || p.afilm);
     if (!film && !ref) return null;
     var name = film && p.filmKey ? (filmFor(p) || {}).title || gmName(p) : gmName(p);
-    return { g: { name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, fk: film ? p.filmKey || '' : '', year: film ? filmYear(p) : 0 }, ep: ref ? { s: ref.s, e: ref.e } : {} };
+    return { g: { name: String(name).replace(/\s*\(\d{4}\)\s*$/, ''), film: film, fk: film ? p.filmKey || '' : '', year: film ? filmYear(p) : 0, imdb: p.imdb || '' }, ep: ref ? { s: ref.s, e: ref.e } : {} };
   }
   /** Ask the addons without any screen of their own: resolves with the usable sources, best first (empty when none). */
   function amScrape(g, ep, ms) {
@@ -4871,7 +4911,7 @@
       if (hit && Date.now() - hit.t < 259200000) { finish([{ s: hit.s, addon: hit.addon, label: hit.label, q: 0 }]); return; }
       adCurTitle = String(g.name || '');
       var film = !!g.film, live = adLive();
-      adResolve(g.name, film, film ? (g.year || 0) : 0).then(function (r) {
+      adResolve(g.name, film, film ? (g.year || 0) : 0, g.imdb).then(function (r) {
         if (!r || !r.imdb || (adCut && r.year && r.year >= 2000)) { finish([]); return; }
         var id = film ? r.imdb : r.imdb + ':' + (ep.s || 1) + ':' + (ep.e || 1), type = film ? 'movie' : 'series';
         var targets = live.filter(function (a) { var x = adRes(a, 'stream'); return x && x.types.indexOf(type) >= 0 && (!x.pre || x.pre.some(function (q) { return id.indexOf(q) === 0; })); });
@@ -6731,10 +6771,10 @@
     }).then(function (all) {
       return ytLoad().then(function (yt) { var y = ytProgs(yt, ch.id); return y.length ? all.concat(y) : all; });
     }).then(function (all) {
-      return Promise.all([loadEpdb(), loadUk()]).then(function () { return all; });          // Content, and Magic EPG: the episode database is in before the shows are grouped
+      return Promise.all([loadEpdb(), loadFilmdb(), loadUk()]).then(function () { return all; });          // Content, and Magic EPG: the episode database is in before the shows are grouped
     }).then(function (all) {
       var progs = ukFilter(all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); }));
-      if (!OD_FILMS[ch.id]) progs = virtualFill(ch, odRenameProgs(progs), true);      // Magic EPG: every episode the scrapers know, not only the ones with a file
+      progs = OD_FILMS[ch.id] ? virtualFilms(ch, progs, true) : virtualFill(ch, odRenameProgs(progs), true);      // Magic EPG: every episode the scrapers know, not only the ones with a file
       // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
       // are not trimmed by era either. (The schedule on the guide still applies those rules.)
       rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);
@@ -7739,7 +7779,7 @@
         return new Promise(function (r) { setTimeout(function () { sliceAt = Date.now(); r(progs); }, 0); });
       }).then(function (progs) {
         if (progs && progs.length) {
-          progs = dropSlow(virtualFill(c, ukFilter(progs)));
+          progs = dropSlow(virtualFilms(c, virtualFill(c, ukFilter(progs))));
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           progs = withBreaks(c, progs);
           var seed = c.id + (epgGen ? ':' + epgGen : '');

@@ -663,10 +663,17 @@
                    var ph = String(m.p || m.photo || m.profile || m.image || m.img || '');    // tolerate a spelled-out key
                    return { n: m.n || m.name || '', c: m.c || m.character || m.role || '', p: ph.indexOf(TMDB_IMG) === 0 ? ph : '' };
                  }) : [] };
-    // stored even when TMDb knew nothing, so Info shows the film's own title instead of hunting for a TV series
-    store.set('film1:' + key, film);
+    // stored even when TMDb knew nothing, so Info shows the film's own title instead of hunting for a TV series.
+    // Written only when it differs from the saved copy: every channel build runs this for every film, and each save is
+    // a synced file write on the TV (thousands of them froze the start-up when Magic Channels was on).
+    var fk = 'film1:' + key, text = JSON.stringify(film), h = E.hash(text);
+    if (filmSeen[fk] === h) return key;
+    filmSeen[fk] = h;
+    var had = null; try { had = kv.getItem(fk); } catch (e) { /* none */ }
+    if (had !== text) store.set(fk, film);
     return key;
   }
+  var filmSeen = {};      // film key -> hash of the details last checked or saved in this run
   function filmFor(prog) {
     if (!prog || !prog.filmKey) return null;
     return store.get('film1:' + prog.filmKey) || null;

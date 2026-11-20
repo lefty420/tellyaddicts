@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.2",
-  "version": "0.49.2",
-  "code": 4902,
+  "name": "Alpha 0.49.3",
+  "version": "0.49.3",
+  "code": 4903,
   "date": "2026-11-20",
   "notes": [
-    "Faster start after the scraper sends a new library. The TV used to download and sort the whole library (12 MB) before the guide could open, every time a new one had been published (several times a day). It now opens on the lists it already has, then sorts the new library in the background once the guide is up, ready for the next start. New episodes from the scraper appear one start later. The very first start, Refresh listings and turning Magic Channels on still build everything first."
+    "Faster rebuild of the guides (first start, Refresh listings, turning Magic Channels on). Every channel build re-saved every film's details to the TV's storage even when nothing had changed, thousands of synced file writes with Magic Channels on. A film is now saved only when it differs from the copy already there, and checked once per start. Not yet timed on the Shield."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.2",
+      "date": "2026-11-20",
+      "notes": [
+        "Faster start after the scraper sends a new library. The TV used to download and sort the whole library (12 MB) before the guide could open, every time a new one had been published (several times a day). It now opens on the lists it already has, then sorts the new library in the background once the guide is up, ready for the next start. New episodes from the scraper appear one start later. The very first start, Refresh listings and turning Magic Channels on still build everything first."
+      ]
+    },
     {
       "name": "Alpha 0.49.1",
       "date": "2026-11-20",
@@ -67,13 +74,6 @@ window.RELEASE = {
       "date": "2026-11-16",
       "notes": [
         "Real world: a channel now plays only what is on at that time. You can still move around the guide as usual, but pressing OK on a programme that is not on now opens it in On Demand with a \"Play it now?\" Yes / No box. Yes plays that episode, No takes you back to the guide where you were. The box starts on No."
-      ]
-    },
-    {
-      "name": "Alpha 0.47.9",
-      "date": "2026-11-15",
-      "notes": [
-        "Real world now lives day by day. Each show's run carries on where the last day stopped: today S01E01 and S01E02, tomorrow S01E03 and S01E04, and so on round the whole show. The change happens at midnight by the TV's own clock (UK time on a UK TV) and the guide updates by itself if it is open. Weekly channels move on once a week."
       ]
     }
   ]

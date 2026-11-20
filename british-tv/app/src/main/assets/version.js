@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.50.1",
-  "version": "0.50.1",
-  "code": 5001,
+  "name": "Alpha 0.50.2",
+  "version": "0.50.2",
+  "code": 5002,
   "date": "2026-11-20",
   "notes": [
-    "Magic EPG films: a film with no certificate in the film database is now kept on the Kids Movies channel (as U) and the Christmas movie channels (as PG). The Video Shop and the Magic genre channels still skip it, because it could be an adult film."
+    "The Christmas Movies channel now follows the watershed like the Video Shop: U, PG and 12 films through the day, 15s from eight, and 18s (Die Hard, Lethal Weapon and the like) only after nine at night. Before this it had no rules, so any film could air at any time.",
+    "Magic EPG films with no certificate are no longer given PG on the Christmas channel (they are skipped, as on the Video Shop). The Kids Movies default of U stays."
   ],
   "history": [
+    {
+      "name": "Alpha 0.50.1",
+      "date": "2026-11-20",
+      "notes": [
+        "Magic EPG films: a film with no certificate in the film database is now kept on the Kids Movies channel (as U) and the Christmas movie channels (as PG). The Video Shop and the Magic genre channels still skip it, because it could be an adult film."
+      ]
+    },
     {
       "name": "Alpha 0.50.0",
       "date": "2026-11-20",
@@ -68,14 +76,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "Fixed Options moving the wrong way. In Experimental, pressing Down from Magic Channels went to Content and then back up to Real world, because the two were listed in a different order from the screen. In TV Guide, opening the section started on the second row (On Demand) instead of the top one. Down now always goes to the row below."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.10",
-      "date": "2026-11-20",
-      "notes": [
-        "Quicker guide fill after start-up. Every channel waited for the \"Content: British\" list before its guide could be built. That list isn't published yet, so the request came back empty, but it queued behind the other downloads and took anywhere from 5 to 40 seconds. \"Nothing published yet\" is now remembered for six hours, and a new list is still picked up as soon as one is published.",
-        "Laying out each channel's week (Real time EPG) does less repeat work: the season and episode of a programme are read once, not at every comparison. The schedules come out exactly the same."
       ]
     }
   ]

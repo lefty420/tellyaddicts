@@ -311,7 +311,7 @@
 
   var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, drama: DRAMA, soaps: SOAPS };
   // the Magic movie channels keep the Video Shop's watershed
-  ['mc_action', 'mc_horror', 'mc_scifi_movies', 'mc_comedy_movies', 'mc_thriller', 'mc_drama_movies'].forEach(function (id) { DAYPARTS[id] = VIDEOSHOP; });
+  ['mc_action', 'mc_horror', 'mc_scifi_movies', 'mc_comedy_movies', 'mc_thriller', 'mc_drama_movies', 'xmasmovies'].forEach(function (id) { DAYPARTS[id] = VIDEOSHOP; });
 
   /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. `days` is how long the
    *  schedule runs before it repeats: each day (or week, for a weekly plan) is laid out afresh from its own seed. */

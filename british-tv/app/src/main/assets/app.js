@@ -2020,8 +2020,8 @@
     filmdb.forEach(function (f) {
       if (!f || !f.t || !f.y) return;
       var chs = f.ch || [];
-      // No certificate means no safe slot on the clock. Our own kids and Christmas lists are family films, so they get U / PG; the adult shelf skips it.
-      var cert = f.cert || (chs.indexOf('kidsmovies') >= 0 ? 'U' : chs.indexOf('xmasmovies') >= 0 ? 'PG' : '');
+      // No certificate means no safe slot on the clock. Our own kids list is all family films, so it gets U; everything else skips it (Christmas has Die Hard and Lethal Weapon in it).
+      var cert = f.cert || (chs.indexOf('kidsmovies') >= 0 ? 'U' : '');
       if (!cert) return;
       if (gen ? !(chs.indexOf('videoshop') >= 0 && String(f.g || '').split(/\s*,\s*/).some(function (x) { return gen.indexOf(x) >= 0; })) : chs.indexOf(c.id) < 0) return;
       if (adCut && f.y >= 2000) return;

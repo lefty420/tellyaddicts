@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|epl1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|epl1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   // The files' names, read from the app once per start and kept up to date here: listing the folder over the bridge
   // was done for every channel built, and the folder holds thousands of files.
@@ -293,7 +293,7 @@
   var epgGen = +(store.get('epggen') || 0) || 0;
   function savePlan(ch) {
     if (!ch.cacheKey || !ch.plan) return;
-    store.set(ch.cacheKey, { t: ch.cacheT || Date.now(), p: packPlan(ch.plan), r: ch.report || [] });
+    if (!store.set(ch.cacheKey, { t: ch.cacheT || Date.now(), p: packPlan(ch.plan), r: ch.report || [] })) dlog('COULD NOT SAVE the list for ' + ch.name + ': it will be built again at the next start');
   }
 
   /** Keep the groups in the wanted shares of screen time (by duration), e.g. {totp: .6, chart: .4}. */
@@ -341,7 +341,8 @@
   // a hash of its own routed rows, so still only the channels that changed are rebuilt. Anything missing falls back
   // to the per-channel files.
   var SHOWS_URL = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/tools/shows.json';
-  var libP = null, libRevs = null, libCatchUp = null;   // libCatchUp: set when this start opened on an earlier library's lists
+  var libP = null, libRevs = null, libCatchUp = null, libRevsOld = false;
+  var listStats = { saved: 0, none: 0, old: 0, ms: 0, names: [] };      // this start: lists read from storage, rebuilt for want of one, rebuilt for age   // libCatchUp: set when this start opened on an earlier library's lists
 
   /** data/routes.json is the scraper's current word on where its shows go, and the latest copy wins: a show it lists
    *  is on the channel(s) it lists it under and nowhere else, even if tools/shows.json still puts it elsewhere (a show
@@ -415,6 +416,32 @@
     return go();
   }
 
+  /** Run fn on each item in turn, giving the screen a turn every 25 ms or so: sorting or saving a whole library in one go froze the TV for seconds. */
+  function eachSliced(items, fn) {
+    return new Promise(function (resolve) {
+      var i = 0;
+      (function pump() {
+        var t0 = Date.now();
+        while (i < items.length && Date.now() - t0 < 25) fn(items[i++]);
+        if (i < items.length) setTimeout(pump, 0); else resolve();
+      })();
+    });
+  }
+  /** What the sort gave one channel is kept on the TV under the hash of its rows (the revision in libRevs), so On Demand and
+   *  any rebuilt channel read their own small file instead of loading and sorting the whole library again at every start. */
+  function readSorted(id, rev) {
+    if (!KV_NATIVE || !rev) return null;
+    try { var t = kv.getItem('rt1:' + id + ':' + rev), rows = t && JSON.parse(t); return rows && rows.length ? rows : null; } catch (e) { return null; }
+  }
+  function keepSorted(id, rev, text) {
+    if (!KV_NATIVE || !rev) return;
+    var key = 'rt1:' + id + ':' + rev;
+    try {
+      if (!kvNative()[key]) kv.setItem(key, text);
+      Object.keys(kvNative()).forEach(function (kn) { if (kn !== key && kn.indexOf('rt1:' + id + ':') === 0) kv.removeItem(kn); });
+    } catch (e) { /* too big to keep: sorted again when wanted */ }
+  }
+
   /** {channel: rows} from the whole library; null if it or shows.json can't be had. */
   var removedRev = '';     // index.json "removed": revision of data/removed-shows.json
   function loadLibraryRoutes(libRev, showsText) {
@@ -431,9 +458,13 @@
     libP = Promise.all([fetchLibrary(libRev), showsP, routesP, removedP]).then(function (r) {
       var lib = r[0], shows = r[1];
       if (!lib || !lib.shows || !shows || !window.LIBROUTE || (libRev && lib.rev && lib.rev !== libRev)) return null;
-      var t0 = Date.now(), routed = LIBROUTE.route(lib, mergeRoutes(shows, r[2]), r[3]);
-      dlog('library: sorted into channels in ' + (Date.now() - t0) + ' ms');
-      return routed;
+      var t0 = Date.now(), job = LIBROUTE.routeBegin(lib, mergeRoutes(shows, r[2]), r[3]);
+      return new Promise(function (resolve) {
+        (function pump() {
+          if (job.step(25)) { var routed = job.done(); dlog('library: sorted into channels in ' + (Date.now() - t0) + ' ms'); resolve(routed); }
+          else setTimeout(pump, 0);
+        })();
+      });
     }).catch(function () { return null; });
     return libP;
   }
@@ -458,22 +489,29 @@
         // an edit to shows.json does, so the answer stored for the old one must not be reused
         var key = 'librevs2:' + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText) + (magicOn ? 'm' : '');
         var known = store.get(key);
-        if (known && known.revs) { libRevs = known.revs; return known.revs; }
+        if (known && known.revs) { libRevs = known.revs; dlog('START: channel lists found from the saved answer'); return known.revs; }
         var route = function () { return loadLibraryRoutes(j.library, showsText).then(function (routed) {
           if (!routed) return chans;
           var revs = {};
           // a channel with its own published file that the library routes nothing to (Food & Cooking) keeps that file
           Object.keys(chans).forEach(function (ch) { if (!routed[ch] || !routed[ch].length) revs[ch] = chans[ch]; });
-          Object.keys(routed).forEach(function (ch) { revs[ch] = 'L' + E.hash(JSON.stringify(routed[ch])).toString(36); });
+          var texts = {};
+          return eachSliced(Object.keys(routed), function (ch) {
+            texts[ch] = JSON.stringify(routed[ch]);
+            revs[ch] = 'L' + E.hash(texts[ch]).toString(36);
+          }).then(function () {
+          // the per-channel copies are saved once the channels are on their way, not before the first one can start
+          setTimeout(function () { eachSliced(Object.keys(texts), function (ch) { keepSorted(ch, revs[ch], texts[ch]); delete texts[ch]; }); }, 3000);
           try {                                 // forget answers for older libraries
             var _ks = kv.keys(); for (var k = _ks.length - 1; k >= 0; k--) {
               var kn = _ks[k];
-              if (kn && kn !== key && kn.indexOf('librevs') === 0) kv.removeItem(kn);
+              if (kn && kn !== key && kn.indexOf('librevs') === 0) { kv.removeItem(kn); try { localStorage.removeItem(kn); } catch (e2) { /* none */ } }
             }
           } catch (e) { /* ignore */ }
-          store.set(key, { revs: revs });
-          libRevs = revs;
+          if (!store.set(key, { revs: revs })) dlog('COULD NOT SAVE which list each channel gets: the whole library will be sorted again at the next start');
+          libRevs = revs; libRevsOld = false;
           return revs;
+          });
         }); };
         // A new library (the scraper pushes several a day) used to mean downloading and sorting all of it before the
         // guide could open. When this TV has the answer for an earlier library, open on that (every channel's saved
@@ -481,8 +519,9 @@
         var oldKey = null;
         try { kv.keys().forEach(function (kn) { if (kn && kn.indexOf('librevs2:') === 0 && (kn.slice(-1) === 'm') === magicOn) oldKey = kn; }); } catch (e) { /* none */ }
         var old = oldKey && store.get(oldKey);
-        if (!old || !old.revs) return route();
-        libRevs = old.revs;
+        if (!old || !old.revs) { dlog('START: no saved answer for this library, sorting it before any channel can load'); return route(); }
+        dlog('START: new library, opening on the lists already saved; sorting it in the background later');
+        libRevs = old.revs; libRevsOld = true;      // an earlier library's answer: nothing is saved under these revisions
         libCatchUp = function () {
           route().then(function (revs) {
             indexP = Promise.resolve(revs);   // what this start is still missing is built and saved now, so the next start opens on it straight away
@@ -501,8 +540,14 @@
     // a decade channel has no file of its own to compare against (the index lists none for 80's and 90's TV), so it
     // always takes what the library routed to it
     if (libRevs && ((rev && rev === libRevs[id]) || decadeOfChannel(id))) {
+      var saved = readSorted(id, libRevs[id]);
+      if (saved) return Promise.resolve(saved);
       return loadLibraryRoutes().then(function (routed) {
-        if (routed && routed[id] && routed[id].length) return routed[id];
+        if (routed && routed[id] && routed[id].length) {
+          // keep it for the next start (not while the revisions are an older library's: these rows are the new one's)
+          if (!libRevsOld && libRevs && libRevs[id]) keepSorted(id, libRevs[id], JSON.stringify(routed[id]));
+          return routed[id];
+        }
         return loadChannelFile(id, true);
       });
     }
@@ -777,8 +822,11 @@
           ch.report = [];
           ch.cacheT = dcached.t;
           ch.plan = dropHidden(unpackPlan(dcached.p));
+          listStats.saved++;
           return ch.plan;
         }
+        if (dcached && dcached.p && dcached.p.length) listStats.old++; else listStats.none++;
+        if (listStats.names.length < 8) listStats.names.push(ch.name);
         return buildFromData(ch, noAuto, rev, dkey);
       });
     }
@@ -800,7 +848,10 @@
 
   /** Turn a published (or bundled) channel list into this channel's programmes, and store the result. */
   function buildFromData(ch, noAuto, rev, dkey) {
-    return loadChannelData(ch.id, rev).then(function (rows) {
+    // every channel waiting for the library gets it at the same moment: a turn of the event loop before each build keeps
+    // them from running back to back in one stretch, so the tuning count climbs and the loading screen can time out
+    return loadChannelData(ch.id, rev).then(function (rows) { return new Promise(function (r) { setTimeout(function () { r(rows); }, 0); }); }).then(function (rows) {
+      var bt0 = Date.now();
       if (!rows || !rows.length) { ch.autoUsed = true; ch.report = ['nothing in the library for this channel']; ch.plan = []; return []; }
       var progs = dedupeTitles(capShows(progsFromData(rows, ch.id).filter(function (p) {
         // a decade channel: anything with a known air date outside its decade is turned away, as a second check
@@ -824,6 +875,7 @@
         ch.cacheT = Date.now();
         savePlan(ch);
       }
+      listStats.ms += Date.now() - bt0;
       return ch.plan;
     });
   }
@@ -7572,6 +7624,7 @@
     // stay on the loading screen until every channel has answered (or a slow connection runs out the clock)
     if (Date.now() - bootedAt < ALL_WAIT && channels.some(function (c) { return c.status === 'loading'; })) return;
     started = true;
+    dlog('START: guide opening ' + Math.round(performance.now() / 100) / 10 + ' s after launch, ' + list.length + ' of ' + channels.length + ' channels ready');
     var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];
     var land = function () {
       $('splash').className = 'hidden';
@@ -7640,6 +7693,7 @@
         }
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
+        if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
         renderStatus();
         if (finished === channels.length) setTimeout(seedLinks, 4000);
         if (finished === channels.length) setTimeout(veFill, 30000);

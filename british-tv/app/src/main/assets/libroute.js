@@ -60,10 +60,17 @@
   }
 
   function channelsFor(show, source, smap, keys) {
-    var texts = [show, source];
+    var texts = [show, source], memo = keys.memo || (keys.memo = {});      // the answer for a text never changes, and a show's name comes up once per episode
     for (var i = 0; i < texts.length; i++) {
       if (!texts[i]) continue;
-      var n = norm(texts[i]);
+      var t = String(texts[i]), got = memo.hasOwnProperty(t) ? memo[t] : (memo[t] = lookupChannels(t, smap, keys));
+      if (got.length) return got.slice();
+    }
+    return [];
+  }
+  function lookupChannels(text, smap, keys) {
+    {
+      var n = norm(text);
       if (smap[n]) return uniqSorted(smap[n]);
       var padded = ' ' + n + ' ', hit = [], words = n.split(' ');
       if (!keys.mw) { keys.mw = 1; for (var j = 0; j < keys.length; j++) keys.mw = Math.max(keys.mw, keys[j].split(' ').length); }
@@ -106,16 +113,16 @@
   var PLAYER_CHANNELS = /super\s*beard\s*bros|game\s*grumps|achievement\s*hunter|yogscast|let'?s\s*play|dunkey/i;
   // Dubbed or foreign-language uploads and modern remakes that share a name with a British-TV-era show
   var FOREIGN = /dublado|legendado|completo|portugu[eê]s|castellano|latino|paixaoflix|\bhin[- ]kor\b|\bhindi\b|\bkorean\b|\btemporada\b|\bstaffel\b|\bsaison\b/i;
-  function wrongShow(sh, ep) {
+  function normFile(t) { return String(t || '').toLowerCase().replace(/[_.\-:'\u2019,!?()\[\]]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+  function wrongShow(sh, ep, sn) {
     if (sh.film || sh.song) return false;
     if (FOREIGN.test(String(ep.f || '') + ' ' + String(ep.id || ''))) return true;
     if (PLAYER_CHANNELS.test(String(ep.f || '') + ' ' + String(ep.id || '') + ' ' + String(ep.t || ''))) return true;
     var ov = OTHER_VERSION[String(sh.n || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()];
     if (ov && ov.test(String(ep.f || '') + ' ' + String(ep.id || ''))) return true;
-    function norm(t) { return String(t || '').toLowerCase().replace(/[_.\-:'\u2019,!?()\[\]]+/g, ' ').replace(/\s+/g, ' ').trim(); }
-    var sn = norm(sh.n).replace(/^the /, '');
+    if (sn === undefined) sn = normFile(sh.n).replace(/^the /, '');
     if (sn.length < 5) return false;
-    var raw = norm(String(ep.f || '').replace(/\.[a-z0-9]+$/i, ''));
+    var raw = normFile(String(ep.f || '').replace(/\.[a-z0-9]+$/i, ''));
     var m = /\bs\d{1,2}\s?e\d{1,3}\b|\b\d{1,2}x\d{1,3}\b/i.exec(raw);
     if (!m) return false;
     var before = raw.slice(0, m.index).trim(), after = raw.slice(m.index + m[0].length);
@@ -186,6 +193,14 @@
   /** library.json + shows.json (minus the removed shows) -> {channel: rows}. A row is {id, t, f, s?, m}: one archive.org item, its file names
    *  (or [name, show] pairs when the item holds more than one show), and m = {file name: episode details}. */
   function route(lib, showsJson, removed) {
+    var job = routeBegin(lib, showsJson, removed);
+    job.step(Infinity);
+    return job.done();
+  }
+
+  /** The same, in steps: job.step(ms) works for about that long and says whether it has finished; job.done() is the
+   *  result. The page runs it in short slices so a 60,000-episode library never freezes the screen. */
+  function routeBegin(lib, showsJson, removed) {
     var smap = showMap(showsJson), keys = Object.keys(smap), per = {}, order = {}, gone = {};
     // a channel flagged "decade": 1970 takes every show in the library that belongs to that decade, whatever genre it is
     var decades = {};
@@ -197,14 +212,16 @@
       if (name) gone[norm(name)] = 1;
       if (slug) gone[norm(slug)] = 1;
     });
-    ((lib && lib.shows) || []).forEach(function (sh) {
+    var list = (lib && lib.shows) || [], at = 0;
+    function oneShow(sh) {
       if (gone[norm(sh.n)]) return;
+      var sn = normFile(sh.n).replace(/^the /, '');
       var net = NET[String(sh.net || '').toLowerCase()], span = { max: 0 };
       if (decKeys.length) (sh.e || []).forEach(function (ep) { var y = yearOf(ep); if (y > span.max) span.max = y; });
       (sh.e || []).forEach(function (ep) {
         var genre = channelsFor(sh.n, ep.t, smap, keys);
         // the 1970 to 1999 limit does not apply to the Disney channel: its shorts go back to the 1930s and are mostly undated
-        var late = !inEra(ep);
+        var late = !inEra(ep), gameplay = GAMEPLAY.test(String(ep.t || '').replace(/[_]+/g, ' '));
         if (late && genre.indexOf('disney') < 0) return;
         if (late) genre = ['disney'];
         var forKids = genre.some(function (c) { return KIDS[c]; });
@@ -216,7 +233,7 @@
         // and a Christmas episode goes to the Christmas channel of the right sort
         var xmas = isXmas(sh, ep, genre);
         if (xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
-        if (wrongShow(sh, ep)) return;
+        if (wrongShow(sh, ep, sn)) return;
         var chs = late ? ['disney'] : (also.length ? uniqSorted(genre.concat(also)) : genre);
         if (decKeys.length && !late && !sh.song) {
           var dec = decadeOf(ep, sh, span);
@@ -235,7 +252,7 @@
           // (soap episodes, Top of the Pops, news, shorts) stay on the channels built for them, and on the Christmas ones.
           // a video game's playthrough ("Lego Star Wars [PS3] Longplay" filed as the 1977 film, NES longplays on the
           // Disney channel) is not what the channel is for: only the games channel keeps them
-          if (ch !== 'games' && GAMEPLAY.test(String(ep.t || '').replace(/[_]+/g, ' '))) return;
+          if (ch !== 'games' && gameplay) return;
           if (!LOOSE[ch] && !sh.film && !sh.song && !CODED.test(ep.c || '') && !(DATED[ch] && datedInEra(ep))) return;
           var items = per[ch] = per[ch] || {};
           order[ch] = order[ch] || [];
@@ -266,7 +283,19 @@
           it.m[ep.f] = d;
         });
       });
-    });
+    }
+    return {
+      step: function (ms) {
+        var t0 = Date.now();
+        while (at < list.length) {
+          oneShow(list[at++]);
+          if (Date.now() - t0 >= ms) break;
+        }
+        return at >= list.length;
+      },
+      done: done
+    };
+    function done() {
     var out = {};
     Object.keys(per).forEach(function (ch) {
       out[ch] = order[ch].map(function (id) {
@@ -276,6 +305,7 @@
       });
     });
     return out;
+    }
   }
 
   /** The title to show for a programme when the library knows better than the file name: TVmaze's episode title
@@ -288,6 +318,6 @@
     return (show ? show + ' ' : '') + (d.c && d.c !== 'Special' ? d.c + ' ' : '') + d.n;
   }
 
-  var LibRoute = { yearOf: yearOf, fileYear: fileYear, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, titleFor: titleFor };
+  var LibRoute = { yearOf: yearOf, fileYear: fileYear, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, routeBegin: routeBegin, titleFor: titleFor };
   if (typeof module !== 'undefined' && module.exports) module.exports = LibRoute; else root.LIBROUTE = LibRoute;
 })(typeof window !== 'undefined' ? window : this);

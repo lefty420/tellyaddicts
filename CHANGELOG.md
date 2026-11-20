@@ -7,6 +7,15 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.49.15 — 2026-11-20
+- Options: the explanation of each setting now has its own strip under the panel, so it can no longer be pushed out of sight by a long list (it was cut off in TV Guide, Artwork and Experimental). The section heading stays at the top while the rows scroll under it.
+- Options > Experimental: the rows that need Experimental (Addons, Use addons as a main source, Magic EPG, Join in progress) are greyed out while it is off, with a note on the Experimental row, instead of each saying "Turn Experimental on first".
+- Guide: a cell now shows the show's name, with the episode code (S03E04) on the second line, so names are no longer cut short by the code. Cells too narrow for a whole word show a dot instead of half a word or "The". Cells holding several programmes say "3 programmes" instead of "+2 more". A tag such as "| [WRR]" is no longer part of the title.
+- Playback bar: the show's name on top, then the episode code and title; "Next" the same.
+- On Demand: five episodes show at once (was three), so a season of six no longer hides half the screen. The button says "Play from the start" instead of "Play S01E00".
+- The update message now sits bottom right, so it no longer covers the Options hints or the playback bar.
+- The hold-OK menu's heading reads "4 Classic BBC · 1 of 9" instead of running together in capitals.
+
 ## Alpha 0.49.14 — 2026-11-20
 - Artwork is back on the "Please stand by" screen. A show or film with a backdrop shows the backdrop; one with only a poster shows it as a dim, blurred background (never as a framed poster) while the app looks for a backdrop, and swaps it in when one is found. Films need your TheTVDB key for that lookup.
 - New in Options > Experimental: **Open debug address**. On, the debug log and Live view addresses have no code on the end, so the same plain address works every time. Anyone on your home network can then open them, so it is off unless you turn it on. This needs the app rebuilt and installed.

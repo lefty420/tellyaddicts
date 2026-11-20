@@ -315,7 +315,7 @@
   #gmenu.hidden { display: none; }
   #gmbox { width: 38vw; background: #061450; border: .14vh solid rgba(255,255,255,.16); border-radius: 2.8vh; padding: 3.4vh 2vw 2.2vh; box-shadow: 0 2vh 6vh rgba(0,0,0,.7); }
   #gmt { margin: 0; font-size: 3.6vh; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #gms { font-size: 2.2vh; letter-spacing: .2em; text-transform: uppercase; color: var(--hi1); font-weight: 700; margin: .6vh 0 2vh; }
+  #gms { font-size: 2.2vh; letter-spacing: .04em; color: var(--hi1); font-weight: 700; margin: .6vh 0 2vh; }
   .gmr { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; height: 8.6vh; padding: 0 1.2vw; border-radius: 1.5vh; margin-bottom: .6vh; font-size: 2.9vh; border: .3vh solid transparent; }
   .gmr b { font-weight: 600; }
   .gmr small { font-size: 2.3vh; color: rgba(190,208,255,.85); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: .2vh; }
@@ -323,7 +323,7 @@
   .gmr.sel b { font-weight: 800; }
   .gmr.sel small { color: rgba(10,20,70,.78); }
   #banner {
-    position: fixed; left: 4vw; right: 4vw; bottom: 5vh; z-index: 20; display: flex; align-items: stretch;
+    position: fixed; left: 4vw; right: 4vw; bottom: 6.4vh; z-index: 20; display: flex; align-items: stretch;
     background: linear-gradient(90deg, rgba(7,29,102,.97), rgba(12,47,154,.93)); border-left: 1vh solid var(--hi2);
     border-radius: 1vh; box-shadow: 0 1vh 4vh rgba(0,0,0,.6); transition: opacity .3s;
   }
@@ -341,7 +341,7 @@
     border-radius: 1vh; font-size: 3vh; transition: opacity .3s; border: .3vh solid #d7e6ff;
   }
   #toast.off { opacity: 0; }
-  #toast.low { top: auto; bottom: .6vh; font-size: 2.4vh; padding: 1vh 1.6vw; right: auto; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+  #toast.low { top: auto; bottom: .5vh; font-size: 2.4vh; padding: .8vh 1.6vw; right: 4.4vw; left: auto; white-space: nowrap; }   /* bottom right: clear of the Options hints (left) and the guide above */
 
   #spinner {
     position: fixed; left: 50%; top: 50%; width: 7vh; height: 7vh; margin: -3.5vh 0 0 -3.5vh; z-index: 15;
@@ -726,8 +726,8 @@
   html.phone #ohead h2 { font-size: 6vh; }
   html.phone #orail { width: 25vw; top: 15vh; gap: 1.4vh; }
   html.phone .ocat { font-size: 3.8vh; padding: 2.2vh 1.4vw; }
-  html.phone #opane { left: 30vw; top: 15vh; bottom: 4vh; padding: 3vh 2.4vw 2vh; }
-  html.phone .ogrp h3 { font-size: 2.6vh; }
+  html.phone #opane { left: 30vw; top: 15vh; bottom: 4vh; padding: 0 2.4vw 2vh; }
+  html.phone .ogrp h3 { font-size: 2.6vh; padding-top: 3vh; }
   html.phone .orow { font-size: 4vh; padding: 2.2vh 1.6vw; }
   html.phone .ochip { font-size: 3.4vh; padding: 2vh 1vw; }
   html.phone #ofoot, html.phone #ohelp { display: none; }
@@ -859,11 +859,11 @@
   .odsn.sel { background: #fff; color: #000; font-weight: 700; }
   #odeps { position: absolute; left: 24vw; right: 4vw; top: 41vh; }
   #odeps.wide { left: 4vw; }
-  .ode { display: flex; align-items: center; gap: 1.6vw; height: 12.6vh; margin-bottom: .6vh; padding: 0 1vw; border-radius: 1vh; }
+  .ode { display: flex; align-items: center; gap: 1.6vw; height: 10.8vh; margin-bottom: .4vh; padding: 0 1vw; border-radius: 1vh; }
   .ode { outline: .35vh solid transparent; transition: background-color .12s, outline-color .12s; }
   .ode.sel { background: #2a3048; outline-color: #fff; }
   .ode i { font-style: normal; flex: none; width: 3vw; text-align: center; font-size: 2.8vh; color: #8f98b0; }
-  .ode img, .ode .odth { flex: none; width: 18.6vh; height: 10.5vh; border-radius: .9vh; object-fit: cover; background: #1d2433; }
+  .ode img, .ode .odth { flex: none; width: 16vh; height: 9vh; border-radius: .9vh; object-fit: cover; background: #1d2433; }
   .ode div { flex: 1; min-width: 0; }
   .ode b { display: block; font-size: 2.6vh; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ode small { display: block; margin-top: .3vh; font-size: 2.2vh; color: #9aa3ba; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -916,11 +916,11 @@
   .ocat svg { width: 3.4vh; height: 3.4vh; flex: none; }
   .ocat.cur { background: rgba(255,255,255,.14); color: #fff; }
   .ocat.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); font-weight: 800; box-shadow: 0 .8vh 2.6vh rgba(0,0,0,.4); }
-  #opane { position: absolute; left: 31vw; right: 4.4vw; top: 16vh; bottom: 12vh; box-sizing: border-box; padding: 3.4vh 2.4vw 2.4vh; border-radius: 2.8vh;
+  #opane { position: absolute; left: 31vw; right: 4.4vw; top: 16vh; bottom: 24vh; box-sizing: border-box; padding: 0 2.4vw 2.4vh; border-radius: 2.8vh;
     background: #061450; border: .14vh solid rgba(255,255,255,.14); display: flex; flex-direction: column; overflow: hidden; }
   .ogrp { display: none; flex-direction: column; gap: .6vh; }
   .ogrp.on { display: flex; }
-  .ogrp h3 { margin: 0 0 1vh; font-size: 2vh; letter-spacing: .24em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
+  .ogrp h3 { position: sticky; top: 0; z-index: 3; margin: 0; padding: 3.4vh 0 1vh; background: #061450; font-size: 2vh; letter-spacing: .24em; text-transform: uppercase; color: var(--hi1); font-weight: 700; }
   .orow { padding: 1.7vh 1.2vw; border-radius: 1.5vh; font-size: 2.9vh; border: .3vh solid transparent; border-bottom-color: rgba(255,255,255,.08); }
   .oline { display: flex; justify-content: space-between; align-items: center; gap: 2vw; }
   .orow b { font-weight: 600; }
@@ -933,7 +933,8 @@
   .orow.sel.hasc .oline span { display: none; }
   .ochip { flex: 1 1 0; min-width: 6vw; text-align: center; padding: 1.4vh .8vw; border-radius: 1.4vh; background: rgba(255,255,255,.12); font-size: 2.5vh; font-weight: 600; }
   .ochip.on { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); font-weight: 800; }
-  #ohelp { margin-top: auto; padding-top: 1.2vh; min-height: 6vh; font-size: 2.2vh; line-height: 1.45; color: rgba(255,255,255,.85); }
+  #ohelp { position: absolute; left: 4.4vw; right: 4.4vw; top: 77.4vh; height: 11.4vh; overflow: hidden; font-size: 2vh; line-height: 1.4; color: rgba(255,255,255,.88); }   /* its own strip under the panel, so a long list never pushes it out of sight */
+  .orow.dim b, .orow.dim span { opacity: .45; } .orow.dim.sel b, .orow.dim.sel span { opacity: .75; }
   #ofoot { position: absolute; left: 4.4vw; right: 4.4vw; bottom: 4.4vh; display: flex; gap: 2.6vw; font-size: 2.5vh; color: rgba(255,255,255,.7); }
   #ofoot b { color: #fff; }
   /* Quit: two quick presses of Back, from the guide or while watching */
@@ -1114,8 +1115,8 @@
       <div class="orow act" id="or-epg"><div class="oline"><b>Guide check (debug)</b><span id="ov-epg"></span></div><div class="ochips" id="oc-epg"></div></div>
       <div class="orow act" id="or-gaps"><div class="oline"><b>Missing episodes report</b><span id="ov-gaps"></span></div><div class="ochips" id="oc-gaps"></div></div>
     </div>
-    <div id="ohelp"></div>
   </div>
+  <div id="ohelp"></div>
   <div id="ofoot"><span><b>&#9650; &#9660;</b> Move</span><span><b>&#9664; &#9654;</b> Change</span><span><b>OK</b> Select</span><span id="oback"><b>Back</b> Close</span></div>
 </div>
 <div id="rel" class="hidden">

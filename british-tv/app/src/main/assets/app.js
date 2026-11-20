@@ -2874,14 +2874,15 @@
     var next = cur.od ? odPeek() : sched.order[(cur.index + 1) % sched.order.length];
     $('bnum').textContent = cur.ch.n;
     $('bchan').textContent = cur.ch.name;
-    $('btitle').textContent = cur.prog.title;
-    $('bsub').textContent = cur.prog.sub || '';
+    var bs = splitTitle(cur.prog.title), bes = cur.prog.sub || '';
+    $('btitle').textContent = bs.show;
+    $('bsub').textContent = bs.ep ? bs.ep + (bes && bs.ep.indexOf(bes) < 0 ? ' \u00b7 ' + bes : '') : bes;
     var nb = $('bnext');
     nb.textContent = '';
     if (next) {
       nb.appendChild(document.createTextNode('Next'));
       var b = document.createElement('b');
-      b.textContent = next.title;
+      var ns = splitTitle(next.title); b.textContent = ns.show + (ns.ep ? '  ' + ns.ep.split(' ')[0] : '');
       nb.appendChild(b);
     }
     $('banner').className = '';
@@ -3635,6 +3636,7 @@
     t = String(t || '');
     if (!/\s/.test(t.trim()) || (t.match(/[._]/g) || []).length > 2) t = t.replace(/[._]+/g, ' ');
     t = t.replace(/\b(HEVC|x26[45]|h\.?26[45]|AAC\d?|AC3|DDP?\d?|10bit|(?:2160|1080|720|480)p|4K|WEB-?DL|WEB-?Rip|BluRay|BDRip|DVDRip|HDTV|REPACK|PROPER)\b.*$/i, '');
+    t = t.replace(/\s*[|\u2013\-]\s*\[[^\]]{1,12}\]/, '').replace(/\s*\[[^\]]{1,12}\]\s*$/, '').replace(/\s*\|\s*$/, '');   // an uploader tag such as "| [WRR]"
     var m = /\bS(\d{1,2})E(\d{1,3})\b/i.exec(t), show = t, ep = '';
     if (m && m.index > 0) { show = t.slice(0, m.index); ep = m[0].toUpperCase(); var rest = t.slice(m.index + m[0].length).trim(); if (rest) ep += ' \u00b7 ' + rest; }
     show = show.replace(/\s*\((?:19|20)\d\d\)\s*$/, '').replace(/^\d{1,2}\s+(?=[A-Za-z])/, '').replace(/\s+/g, ' ').trim();
@@ -3643,10 +3645,10 @@
   // A cell only a few letters wide shows "Sc…" or "O…", which says nothing (the big header names it on focus): give it the first
   // word if that fits, else a dot, and no arrows. Wider cells keep the whole title and let CSS trim it. Rough: a letter is ~.55 of the text height wide.
   function fitTitle(t, frac, arrows) {
-    var wpx = frac * window.innerWidth, cap = Math.floor((wpx * 0.8 - window.innerHeight * 0.03) / (window.innerHeight * 0.026 * 0.55));
-    if (wpx >= 170 * window.innerWidth / 1920) { cap -= 2 * arrows; if (cap >= 8) return t; }   // the arrows take room too
+    var wpx = frac * window.innerWidth, cap = Math.floor((wpx * 0.8 - window.innerHeight * 0.03) / (window.innerHeight * 0.026 * 0.62));
+    if (wpx >= 170 * window.innerWidth / 1920) { cap -= 3 * arrows; if (cap >= 8) return t; }   // each arrow takes about three letters of room
     var w = String(t).split(/[\s:\-\u2013]+/)[0];
-    return w.length <= cap ? w : '\u2022';
+    return w.length <= cap && !/^(the|a|an)$/i.test(w) ? w : '\u2022';                   // "The" or half a word says nothing: a dot
   }
   var SPAN = 4 * HALF;          // two hours visible
   var VISIBLE_ROWS = window.PHONE ? 4 : 7;   // the colour-button legend is gone, so the grid takes its space
@@ -3841,8 +3843,9 @@
           var tiny = frac * window.innerWidth < 170 * window.innerWidth / 1920, st = splitTitle(b.prog.title);
           if (clipL && !tiny) el.appendChild(div('arr l', '\u25c4'));
           if (clipR && !tiny) el.appendChild(div('arr r', '\u25ba'));
-          el.appendChild(div('t', fitTitle(st.show + (st.ep ? ' ' + st.ep.split(' ')[0] : ''), frac, (clipL ? 1 : 0) + (clipR ? 1 : 0))));
-          el.appendChild(div('s', b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '')));
+          var shown = fitTitle(st.show, frac, (clipL ? 1 : 0) + (clipR ? 1 : 0)), ec = st.ep ? st.ep.split(' ')[0] : '', es = b.prog.sub || '';
+          el.appendChild(div('t', shown));      // the show's name; its episode code goes on the second line
+          if (shown !== '\u2022') el.appendChild(div('s', b.count > 1 ? b.count + (frac * window.innerWidth >= 380 * window.innerWidth / 1920 ? ' programmes' : ' items') : (ec && es && es.indexOf(ec) < 0 && ec.indexOf(es) < 0 ? ec + ' \u00b7 ' + es : ec || es)));
           line.appendChild(el);
         });
       })(rec, bhost, ch);
@@ -4320,7 +4323,7 @@
     var N = 8, n = gm.items.length;                       // more choices than fit: show eight at a time, following the highlight
     gm.top = Math.max(0, Math.min(gm.top || 0, n - N));
     if (gm.i < gm.top) gm.top = gm.i; else if (gm.i >= gm.top + N) gm.top = gm.i - N + 1;
-    $('gms').textContent = gm.sub + (n > N ? '   item ' + (gm.i + 1) + ' of ' + n : '') + (gm.top > 0 ? '   \u25b2' : '') + (gm.top + N < n ? '   \u25bc' : '');
+    $('gms').textContent = gm.sub + (n > N ? '  \u00b7  ' + (gm.i + 1) + ' of ' + n : '') + (gm.top > 0 ? '  \u25b2' : '') + (gm.top + N < n ? '  \u25bc' : '');
     gm.items.forEach(function (it, i) {
       if (i < gm.top || i >= gm.top + N) return;
       var r = document.createElement('div'); r.className = 'gmr' + (i === gm.i ? ' sel' : '');
@@ -4387,7 +4390,7 @@
       r.className = 'csr' + (b.endMs <= now ? ' past' : '') + (b.startMs <= now && now < b.endMs ? ' now' : '') + (i === cs.i ? ' sel' : '');
       var t = document.createElement('span'); t.className = 't'; t.textContent = fmtTime(b.startMs); r.appendChild(t);
       var nm = document.createElement('span'); nm.className = 'n'; nm.textContent = b.prog.title || '';
-      var sub = b.count > 1 ? '+' + (b.count - 1) + ' more' : (b.prog.sub || '');
+      var sub = b.count > 1 ? b.count + ' programmes' : (b.prog.sub || '');
       if (sub) { var s = document.createElement('i'); s.textContent = sub; nm.appendChild(s); }
       r.appendChild(nm);
       var dd = document.createElement('span'); dd.className = 'd'; dd.textContent = csLen(b.endMs - b.startMs); r.appendChild(dd);
@@ -5711,11 +5714,11 @@
   function catOfRow(id) { for (var i = 0; i < OCATS.length; i++) if (OCATS[i].rows.indexOf(id) >= 0) return i; return 0; }
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
-    if (id === 'exp') return expOn ? 'On' : 'Off';
-    if (id === 'addons') return !expOn ? 'Turn Experimental on first' : addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
-    if (id === 'ammain') return !expOn ? 'Turn Experimental on first' : amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
-    if (id === 'depg') return !expOn ? 'Turn Experimental on first' : depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
-    if (id === 'join') return !expOn ? 'Turn Experimental on first' : joinOn ? 'On  \u00b7  starts where the clock is' : 'Off  \u00b7  starts from the beginning';
+    if (id === 'exp') return expOn ? 'On' : 'Off  \u00b7  turn on to use the dimmed rows';
+    if (id === 'addons') return addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
+    if (id === 'ammain') return amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
+    if (id === 'depg') return depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
+    if (id === 'join') return joinOn ? 'On  \u00b7  starts where the clock is' : 'Off  \u00b7  starts from the beginning';
     if (id === 'uk') return ukOn ? 'British  \u00b7  US shows that were never on UK TV are hidden' : 'Everything';
     if (id === 'mc') return magicOn ? 'On  \u00b7  ' + channels.filter(function (c) { return c.magic; }).length + ' extra channels' : 'Off';
     if (id === 'rw') return rwOn ? 'On  \u00b7  episodes run in order' : 'Off';
@@ -5823,6 +5826,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
+  var NEEDS_EXP = { addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
   var ACTION = { scan: 1, tvdb: 1, tmdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1, addons: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
@@ -5896,7 +5900,7 @@
     });
     cat.rows.forEach(function (id) {
       var i = OPTS.indexOf(id), ch = optChoices(id), sel = !!optsZone && i === optsSel;
-      var val = optValue(id), cls = 'orow' + (ACTION[id] ? ' act' : '') + (sel ? ' sel' : '') + (ch ? ' hasc' : ''), was = optsShown[id] || {};
+      var val = optValue(id), cls = 'orow' + (ACTION[id] ? ' act' : '') + (sel ? ' sel' : '') + (ch ? ' hasc' : '') + (!expOn && NEEDS_EXP[id] ? ' dim' : ''), was = optsShown[id] || {};
       if (was.v !== val) setIf($('ov-' + id), 'textContent', val);
       if (was.c !== cls) setIf($('or-' + id), 'className', cls);
       var sig = ch ? ch.l.join('|') + '#' + ch.i : '';
@@ -5914,8 +5918,9 @@
       if (!rw) pn.scrollTop = 0;
       else if (rw.offsetHeight) {
         var rt = rw.offsetTop, rb = rt + rw.offsetHeight, gap = Math.round(window.innerHeight * 0.02);
+        var hd = $('or-' + cat.rows[0]).offsetTop;                  // where the rows start: under the heading, which stays put at the top
         if (rb + gap > pn.scrollTop + pn.clientHeight) pn.scrollTop = rb + gap - pn.clientHeight;
-        if (rt - gap < pn.scrollTop) pn.scrollTop = Math.max(0, rt - gap);
+        if (rt - gap < pn.scrollTop + hd) pn.scrollTop = Math.max(0, rt - gap - hd);
       }
     }
     applyTheme(gChan || (cur && cur.ch));
@@ -6548,7 +6553,7 @@
   var odOpen = false, odFrom = '', odGuide = null, odData = {}, odArtFor = '', odBgFor = '';
   var odView = 'home', odRi = 0, odRc = null, odTop = 0, odPos = {}, odZone = 0, odSea = 0, odEi = 0;
   var OD_VIS = 7;           // posters across a row
-  var OD_EPS = 3;           // episodes on screen at once
+  var OD_EPS = 5;           // episodes on screen at once
   var OD_SKIP = { xmasmusic: 1, tvarchive: 1 };         // songs and dated clips are not shows
   var OD_FILMS = { kidsmovies: 1, videoshop: 1, xmasmovies: 1, mc_action: 1, mc_horror: 1, mc_scifi_movies: 1, mc_comedy_movies: 1, mc_thriller: 1, mc_drama_movies: 1 };       // the film channels: each film is its own one-video title
   function odChannels() {
@@ -7084,7 +7089,7 @@
     var first = g.flat[0], btn = $('odbtn'); btn.textContent = '';
     var rs = g._cw && g.flat.filter(function (e) { return odResumeAt(g, e); })[0];
     var lead = rs || first;
-    btn.appendChild(odEl('div', 'odb' + (odZone === 0 ? ' sel' : ''), '▶  ' + (rs ? 'Resume' : 'Play') + (lead && lead.s ? ' S' + odPad(lead.s) + 'E' + odPad(lead.e) : (g.film ? ' film' : ''))));
+    btn.appendChild(odEl('div', 'odb' + (odZone === 0 ? ' sel' : ''), '▶  ' + (rs ? 'Resume' + (lead && lead.s && lead.e > 0 ? ' S' + odPad(lead.s) + 'E' + odPad(lead.e) : '') : g.film ? 'Play film' : 'Play from the start')));
     var rail = $('odrail');
     var multi = g.sea.length > 1;
     $('odeps').className = multi ? '' : 'wide';
@@ -7127,7 +7132,7 @@
       row.appendChild(odEl('em', '', m && m.l ? m.l + ' min' : (ep.year || (m && m.a ? String(m.a).slice(0, 4) : ''))));
       box.appendChild(row);
     }
-    if (slideBy) odSlide(box.children, slideBy * 13.2, 'vh', true);
+    if (slideBy) odSlide(box.children, slideBy * 11.2, 'vh', true);
   }
   var odRailSig = '', odEpSig = '', odEpBase = '', odEpTop = 0;
   function odShowView(on) {

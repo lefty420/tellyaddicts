@@ -1,15 +1,28 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.14",
-  "version": "0.49.14",
-  "code": 4914,
+  "name": "Alpha 0.49.15",
+  "version": "0.49.15",
+  "code": 4915,
   "date": "2026-11-20",
   "notes": [
-    "Artwork is back on the \"Please stand by\" screen. A show or film with a backdrop shows the backdrop; one with only a poster shows it as a dim, blurred background (never as a framed poster) while the app looks for a backdrop, and swaps it in when one is found. Films need your TheTVDB key for that lookup.",
-    "New in Options > Experimental: **Open debug address**. On, the debug log and Live view addresses have no code on the end, so the same plain address works every time. Anyone on your home network can then open them, so it is off unless you turn it on. This needs the app rebuilt and installed."
+    "Options: the explanation of each setting now has its own strip under the panel, so it can no longer be pushed out of sight by a long list (it was cut off in TV Guide, Artwork and Experimental). The section heading stays at the top while the rows scroll under it.",
+    "Options > Experimental: the rows that need Experimental (Addons, Use addons as a main source, Magic EPG, Join in progress) are greyed out while it is off, with a note on the Experimental row, instead of each saying \"Turn Experimental on first\".",
+    "Guide: a cell now shows the show's name, with the episode code (S03E04) on the second line, so names are no longer cut short by the code. Cells too narrow for a whole word show a dot instead of half a word or \"The\". Cells holding several programmes say \"3 programmes\" instead of \"+2 more\". A tag such as \"| [WRR]\" is no longer part of the title.",
+    "Playback bar: the show's name on top, then the episode code and title; \"Next\" the same.",
+    "On Demand: five episodes show at once (was three), so a season of six no longer hides half the screen. The button says \"Play from the start\" instead of \"Play S01E00\".",
+    "The update message now sits bottom right, so it no longer covers the Options hints or the playback bar.",
+    "The hold-OK menu's heading reads \"4 Classic BBC · 1 of 9\" instead of running together in capitals."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.14",
+      "date": "2026-11-20",
+      "notes": [
+        "Artwork is back on the \"Please stand by\" screen. A show or film with a backdrop shows the backdrop; one with only a poster shows it as a dim, blurred background (never as a framed poster) while the app looks for a backdrop, and swaps it in when one is found. Films need your TheTVDB key for that lookup.",
+        "New in Options > Experimental: **Open debug address**. On, the debug log and Live view addresses have no code on the end, so the same plain address works every time. Anyone on your home network can then open them, so it is off unless you turn it on. This needs the app rebuilt and installed."
+      ]
+    },
     {
       "name": "Alpha 0.49.13",
       "date": "2026-11-20",
@@ -62,19 +75,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "Fewer stutters just after the guide comes up. The background jobs that start a few seconds later (saving episode links for Play Next, and pre-loading On Demand) now wait until no button has been pressed for 4 seconds, and the link saving works in smaller pieces with longer gaps. Not yet tried on the Shield."
-      ]
-    },
-    {
-      "name": "Alpha 0.49.6",
-      "date": "2026-11-20",
-      "notes": [
-        "Magic EPG: when its episode list comes in several files and one of them does not arrive, what did arrive is used for this start but no longer saved as if it were the whole list (the missing shows stayed without filled-in episodes until the scraper sent a new one). Those files also get the library's longer download time (2 minutes, was 40 seconds).",
-        "Buffering: if archive.org ignores a request to start part-way through a file and sends the whole thing, the TV no longer saves it at the wrong place (the picture after a jump could be garbage). It stops buffering that file instead.",
-        "Faster start: the list of what is saved on the TV is read once per start, not again for every channel built (up to about 100 times with Magic Channels on).",
-        "Saving no longer waits for each file to reach the disk.",
-        "Tidy: removed the built-in copy of the channel lists (autodata.js, 450 KB, last updated by a tool no longer used), that tool (tools/import_scrape.py) and four one-time clean-ups that had long since done their job. With no published lists reachable, a channel now uses its live searches.",
-        "New check: `node tools/test_libroute.js` tests how the library is sorted onto channels.",
-        "Not yet tried on the Shield; the Java changes are compile-checked only."
       ]
     }
   ]

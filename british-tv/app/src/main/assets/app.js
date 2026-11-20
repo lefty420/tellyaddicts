@@ -3714,7 +3714,7 @@
   // A cell only a few letters wide shows "Sc…" or "O…", which says nothing (the big header names it on focus): give it the first
   // word if that fits, else a dot, and no arrows. Wider cells keep the whole title and let CSS trim it. Rough: a letter is ~.55 of the text height wide.
   function fitTitle(t, frac, arrows) {
-    var wpx = frac * window.innerWidth, cap = Math.floor((wpx * 0.8 - window.innerHeight * 0.03) / (window.innerHeight * 0.026 * 0.62));
+    var wpx = frac * window.innerWidth, cap = Math.floor((wpx * 0.8 - window.innerHeight * 0.03 * uiF) / (window.innerHeight * 0.026 * uiF * 0.62));
     if (wpx >= 170 * window.innerWidth / 1920) { cap -= 3 * arrows; if (cap >= 8) return t; }   // each arrow takes about three letters of room
     var w = String(t).split(/[\s:\-\u2013]+/)[0];
     return w.length <= cap && !/^(the|a|an)$/i.test(w) ? w : '\u2022';                   // "The" or half a word says nothing: a dot
@@ -4526,6 +4526,21 @@
     if (t === 'mix') t = Math.random() < 0.5 ? 'room' : 'full';
     var sp = $('splash'); if (sp) sp.setAttribute('data-ld', t);
   })();
+  // Experimental: Interface size. Every size in the page is a multiple of --u (1vh) and --uw (1vw), so one number scales it all.
+  var UI = [{ id: 'small', label: 'Small', f: 0.92 }, { id: 'normal', label: 'Normal', f: 1 }, { id: 'large', label: 'Large', f: 1.08 }], uiIdx = 1, uiF = 1;
+  (function () { var id = store.get('ui1'); for (var i = 0; i < UI.length; i++) if (UI[i].id === id) uiIdx = i; })();
+  function applyUi() {
+    uiF = expOn ? UI[uiIdx].f : 1;
+    var st = document.documentElement.style;
+    if (uiF === 1) { st.removeProperty('--u'); st.removeProperty('--uw'); } else { st.setProperty('--u', uiF + 'vh'); st.setProperty('--uw', uiF + 'vw'); }
+  }
+  applyUi();
+  function changeUi(d) {
+    if (!expOn) { toast('Turn Experimental on first', 3000); return; }
+    uiIdx = (uiIdx + (d < 0 ? -1 : 1) + UI.length) % UI.length;
+    store.set('ui1', UI[uiIdx].id);
+    applyUi(); renderOpts();
+  }
   function changeLd(d) {
     if (!expOn) { toast('Turn Experimental on first', 3000); return; }
     ldIdx = (ldIdx + (d < 0 ? -1 : 1) + LD.length) % LD.length;
@@ -5068,7 +5083,7 @@
       { t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, true); } },
       { t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, false); } });
   }
-  function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); dbgOpenApply(); renderOpts(); }
+  function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); applyUi(); dbgOpenApply(); renderOpts(); }
   function changeLang() { adLang = adLang === 'en' ? 'any' : 'en'; store.set('adlang1', adLang); renderOpts(); }
   var dbgOpen = store.get('dbgopen1') === 'on';
   function dbgOpenApply() { try { if (window.NativeHttp && NativeHttp.debugOpen) NativeHttp.debugOpen(expOn && dbgOpen); } catch (e) { /* older app */ } }
@@ -5790,7 +5805,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'ldscr', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
+    { id: 'exp', rows: ['exp', 'ldscr', 'uisize', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -5800,6 +5815,7 @@
   var optsOpen = false, optsSel = 0, optsTimer = null;
   function optValue(id) {
     if (id === 'exp') return expOn ? 'On' : 'Off  \u00b7  turn on to use the dimmed rows';
+    if (id === 'uisize') return expOn ? UI[uiIdx].label + (uiIdx === 1 ? '  \u00b7  as designed' : '') : 'Turn Experimental on first';
     if (id === 'ldscr') return expOn ? LD[ldIdx].label + '  \u00b7  from the next start' : 'Turn Experimental on first';
     if (id === 'addons') return addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'ammain') return amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
@@ -5912,7 +5928,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var NEEDS_EXP = { ldscr: 1, addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
+  var NEEDS_EXP = { ldscr: 1, uisize: 1, addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
   var ACTION = { scan: 1, tvdb: 1, tmdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1, addons: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
@@ -5923,6 +5939,7 @@
     rw: 'Treats the guide like live television. A show\'s episodes come in order and each day carries on where the last one stopped (Monday S01E01, Tuesday S01E02 ...). A channel plays only what is on now: pick anything else in the guide and it opens in On Demand, asking "Play it now?". Specials, one-offs and music are left as they are. Guide times do not change. (Broadcast schedule, in Guide, sets the times; this sets which episode airs.)',
     uk: 'Everything shows the whole library. British hides shows the scraper has marked as never shown on UK TV (mostly US drama), and keeps UK-made shows and the US ones that did air here, such as cartoons. Shows it is unsure about stay.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
+    uisize: 'Makes the whole app a little smaller (room round the edges if your TV cuts them off) or a little bigger (easier to read from the sofa). Normal is how it was designed. It changes at once.',
     ldscr: 'The TV you see while the app starts. Classic is the little set on a blue screen. Set in the room puts a bigger set in front of blurred artwork. Whole screen makes the picture the TV. Surprise me picks one of those two each start.',
     join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
@@ -5970,6 +5987,7 @@
     if (id === 'buf') return { l: BUF.map(function (x) { return x.label; }), i: bufIdx };
     if (id === 'ar') return { l: AR.map(function (x) { return x.label; }), i: arIdx };
     if (id === 'ads') return { l: ['Off', 'On'], i: adEra === 'off' ? 0 : 1 };
+    if (id === 'uisize') return { l: UI.map(function (x) { return x.label; }), i: uiIdx };
     if (id === 'ldscr') return { l: LD.map(function (x) { return x.label; }), i: ldIdx };
     if (id === 'yt') return { l: ['Off', 'On'], i: ytOn ? 1 : 0 };
     if (id === 'real') return { l: ['Off', 'On'], i: realOn ? 1 : 0 };
@@ -6122,6 +6140,7 @@
     else if (id === 'exp') changeExp();
     else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
     else if (id === 'ldscr') changeLd(d);
+    else if (id === 'uisize') changeUi(d);
     else if (id === 'uk') changeUk();
     else if (id === 'mc') changeMc();
     else if (id === 'rw') changeRw();

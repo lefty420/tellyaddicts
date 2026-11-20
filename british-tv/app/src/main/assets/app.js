@@ -1958,6 +1958,9 @@
   /** Add the episodes the channel has no file for, from the kept episode lists. */
   function virtualFill(c, progs, full) {         // full: On Demand lists every episode, with no cap and none left out for having had no source
     if (!depgActive()) return progs;
+    // a Christmas channel carries only a show's Christmas episodes: filling in the rest of the show would put its
+    // ordinary episodes there (one Only Fools special brought every episode of Only Fools with it)
+    if (window.ADS && ADS.isXmasChannel(c.id)) return progs;
     var by = {}, out = progs.slice();
     progs.forEach(function (p) {
       var ref = window.LINKS && LINKS.parseEp(p.title), nm = gmName(p);
@@ -7625,7 +7628,8 @@
           var spanH = SPANS[spanIdx].h;
           c.sched = (window.DAYPARTS && DAYPARTS.has(c.id, realOn) && DAYPARTS.schedule(c.id, progs, seed, spanH / 24, { real: realOn })) ||
                     E.buildSchedule(E.selectSpan(progs, spanH * 3600, seed), seed);
-          realWorld(c.sched, progs, seed);
+          // Real world plays a series in order; a Christmas channel's specials are one-offs, so they keep their shuffle
+          if (!(window.ADS && ADS.isXmasChannel(c.id))) realWorld(c.sched, progs, seed);
           c.status = 'ready';
           if (!isAdChan(c)) enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
         } else {

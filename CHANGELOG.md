@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.49.1 — 2026-11-20
+- Fixed: the Christmas channels (Christmas TV, Children's Christmas and the four Christmas Magic Channels) were showing ordinary episodes. With Magic EPG on, one Christmas special pulled the rest of its show onto the channel, and Real world then played them in order. Christmas channels now get neither: no filled-in episodes, and their specials keep their shuffle.
+- A Christmas episode now has to say Christmas (Christmas, Xmas, Santa, Boxing Day, Noel, panto ...) or be a British show that aired on 24, 25 or 26 December. Episodes marked only because they aired in Christmas week are left off: US cartoons and sitcoms that happened to air then (DuckTales, M.A.S.K., Benson, The Jeffersons) and anything on New Year's Eve or New Year's Day. About 1 in 6 fewer episodes on those channels.
+
 ## Alpha 0.49.0 — 2026-11-20
 - Options > Experimental: new "Magic Channels" (off by default). Adds 35 themed channels built from the whole library, after the usual ones:
   Movies by genre (Action, Horror Night, Sci-Fi & Fantasy, Comedy, Crime & Thrillers, Drama & Romance, all keeping the watershed); TV: Sci-Fi & Fantasy, Cops & Detectives, Action Heroes, Period & Prestige Drama; Quiz Time, Challenge: Big Games; Sitcom Gold, Nineties Sitcoms & Cult Comedy, TGIF Family Sitcoms, Sketch Shows & Stand-up, Light Entertainment, Daytime & Talk, Factual & Features; kids: Saturday Morning Toons, 90s Toon Zone, Cartoon Classics, Children's TV Favourites, Toytown & Nursery, Teen TV; music: Pop & Chart, Rock & Alternative; soaps: Aussie Soaps, Street Life (UK), Dallas, Dynasty & Co; Kitchen Table; and four Christmas channels (Comedy, Soaps & Drama, Cartoons & Kids, Pop) that carry only the Christmas episodes. A show can be on a magic channel and its usual one. Turning it on or off restarts the guides.

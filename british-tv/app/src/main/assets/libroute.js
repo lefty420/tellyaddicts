@@ -124,6 +124,21 @@
     return !sn.split(' ').some(function (w) { return w.length > 2 && bw.indexOf(w) >= 0; });
   }
   var GAMEPLAY = /\b(longplays?|long play|playthrough|play-through|walkthrough|walk-through|gameplay|let'?s play|speedrun|full game)\b|\[(ps[1-5]|psx|psp|xbox( 360| one)?|pc|wii( u)?|switch|n64|snes|nes|gba|gbc|gamecube|3ds|nds|dreamcast|saturn|mega drive|genesis)\]/i;
+  // A Christmas episode, for the Christmas channels. The scraper marks one (ep.xmas) when its title says so or when
+  // it aired from Christmas Eve to New Year's Day, and an air date alone lets in a lot that is not Christmas at all:
+  // US cartoons and sitcoms that ran daily in syndication (DuckTales, Jonny Quest, Benson), The Bill and Bergerac on
+  // Boxing Day, anything on New Year's Eve. So a Christmas word in the title or file name is enough; otherwise only a
+  // British show (a BBC/ITV/C4 one, sh.net, or one on a UK soap or BBC/ITV list) aired on the 24th, 25th or 26th,
+  // which is when the Christmas specials and the soaps' Christmas episodes went out.
+  var XMAS_WORDS = /christmas|xmas|x-mas|santa|nativity|noel|yule|festive|snowm[ae]n|carol|scrooge|advent|boxing day|mistletoe|reindeer|sleigh|jingle|tinsel|panto|'?tis the season|merry gentlemen|nutcracker/i;
+  var UK_LISTS = { bbc: 1, itv: 1, mc_uk_soaps: 1 };
+  function isXmas(sh, ep, genre) {
+    if (!ep.xmas) return false;
+    if (XMAS_WORDS.test([ep.t, ep.n, ep.f].join(' '))) return true;
+    var md = String(ep.a || '').slice(5, 10);
+    if (md !== '12-24' && md !== '12-25' && md !== '12-26') return false;
+    return !!sh.net || genre.some(function (c) { return UK_LISTS[c]; });
+  }
   var LOOSE = { mc_pop: 1, mc_rock: 1, mc_aussie: 1, mc_uk_soaps: 1, mc_us_soaps: 1, mc_daytime: 1, mc_factual: 1, mc_kitchen: 1, mc_xmas_comedy: 1, mc_xmas_soaps: 1, mc_xmas_toons: 1, mc_xmas_pop: 1, soaps: 1, offschool: 1, music: 1, mtv: 1, xmasmusic: 1, christmas: 1, kidsxmas: 1, noel: 1, tvarchive: 1, disney: 1, adverts: 1 };
   // Channels that also take an unnumbered episode when it is dated up to 1999: most quiz shows were only ever dated
   // ("Supermarket Sweep - 4:6:95", "Blockbusters - 1:21:82", "Fifteen to One - TX 15 January 1988"). Taking every
@@ -199,7 +214,8 @@
         // soap from filling the broadcaster's channel
         if (net && !forKids) also.push(net);
         // and a Christmas episode goes to the Christmas channel of the right sort
-        if (ep.xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
+        var xmas = isXmas(sh, ep, genre);
+        if (xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
         if (wrongShow(sh, ep)) return;
         var chs = late ? ['disney'] : (also.length ? uniqSorted(genre.concat(also)) : genre);
         if (decKeys.length && !late && !sh.song) {
@@ -211,7 +227,7 @@
           var o = showsJson && showsJson[ch];
           if (!o || !o.magic) return true;
           if (o.genres && sh.film) { var g = String(ep.g || '').split(/\s*,\s*/); return o.genres.some(function (x) { return g.indexOf(x) >= 0; }); }
-          if (o.xmas) return !!ep.xmas;
+          if (o.xmas) return xmas;
           return true;
         });
         chs.forEach(function (ch) {
@@ -232,7 +248,7 @@
           if (ep.a) d.a = ep.a;
           if (ep.l) d.l = ep.l;
           if (sh.song) d.song = 1;
-          if (ep.xmas) d.xmas = 1;
+          if (xmas) d.xmas = 1;
           if (sh.film) {
             // a film: its own title, no episode number to expect, and everything TMDb told the scraper about it.
             // The per-channel files carry no details at all, so if these are not passed through here the app

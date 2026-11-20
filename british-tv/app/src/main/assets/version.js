@@ -1,15 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.0",
-  "version": "0.49.0",
-  "code": 4900,
+  "name": "Alpha 0.49.1",
+  "version": "0.49.1",
+  "code": 4901,
   "date": "2026-11-20",
   "notes": [
-    "Options > Experimental: new \"Magic Channels\" (off by default). Adds 35 themed channels built from the whole library, after the usual ones:",
-    "The lineup is in tools/magic_channels.py (it writes tools/shows.json and channels.js), so a channel's shows can be changed without a new APK by editing shows.json."
+    "Fixed: the Christmas channels (Christmas TV, Children's Christmas and the four Christmas Magic Channels) were showing ordinary episodes. With Magic EPG on, one Christmas special pulled the rest of its show onto the channel, and Real world then played them in order. Christmas channels now get neither: no filled-in episodes, and their specials keep their shuffle.",
+    "A Christmas episode now has to say Christmas (Christmas, Xmas, Santa, Boxing Day, Noel, panto ...) or be a British show that aired on 24, 25 or 26 December. Episodes marked only because they aired in Christmas week are left off: US cartoons and sitcoms that happened to air then (DuckTales, M.A.S.K., Benson, The Jeffersons) and anything on New Year's Eve or New Year's Day. About 1 in 6 fewer episodes on those channels."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.0",
+      "date": "2026-11-20",
+      "notes": [
+        "Options > Experimental: new \"Magic Channels\" (off by default). Adds 35 themed channels built from the whole library, after the usual ones:",
+        "The lineup is in tools/magic_channels.py (it writes tools/shows.json and channels.js), so a channel's shows can be changed without a new APK by editing shows.json."
+      ]
+    },
     {
       "name": "Alpha 0.48.4",
       "date": "2026-11-20",
@@ -66,13 +74,6 @@ window.RELEASE = {
       "date": "2026-11-15",
       "notes": [
         "Options > Experimental: new \"Real world\" (off by default). A show's episodes come in order down the guide (S01E01, S01E02 ...) instead of a shuffle, starting at the beginning of a season. Guide times do not change: each show keeps the slots it already had, and only which episode goes in each is decided. Programmes with no episode number (specials, one-offs, music, films) are left where they are. Turning it on or off restarts the guides. It works best with Magic EPG, which fills the gaps in a show's episode run."
-      ]
-    },
-    {
-      "name": "Alpha 0.47.7",
-      "date": "2026-11-15",
-      "notes": [
-        "Magic EPG: the addons are now asked with the IMDb number the scraper found for each show (data/epdb.json has 704 of them), instead of searching TVmaze by name first. Shows the file has no number for still use the old lookup."
       ]
     }
   ]

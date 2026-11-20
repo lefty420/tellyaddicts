@@ -262,7 +262,7 @@
     return out;
   }
   function lengthClass(p) { var d = p.dur || 0; return d <= 1080 ? 'bite' : d <= 2400 ? 'half' : d <= 4200 ? 'hour' : d <= 6000 ? 'long' : 'film'; }
-  var KIDS = { citv: 1, childrens: 1, kidsmovies: 1, kidsxmas: 1, disney: 1 };
+  var KIDS = { citv: 1, childrens: 1, kidsmovies: 1, kidsxmas: 1, disney: 1, mc_toons80: 1, mc_toons90: 1, mc_toons_classic: 1, mc_cbbc: 1, mc_nursery: 1, mc_teen: 1, mc_xmas_toons: 1 };
   // [time, starts on the dot, the kinds of programme that belong]; each day of the week, Sunday first
   var T = function (h, m) { return secs(h, m); };
   var WEEKDAY = [[T(6, 0), 0, 'bite half'], [T(9, 30), 0, 'half'], [T(12, 0), 0, 'half bite'], [T(14, 0), 0, 'half hour'],
@@ -310,6 +310,8 @@
   };
 
   var DAYPARTS = { tvarchive: TVARCHIVE, saturday: SATURDAY, videoshop: VIDEOSHOP, drama: DRAMA, soaps: SOAPS };
+  // the Magic movie channels keep the Video Shop's watershed
+  ['mc_action', 'mc_horror', 'mc_scifi_movies', 'mc_comedy_movies', 'mc_thriller', 'mc_drama_movies'].forEach(function (id) { DAYPARTS[id] = VIDEOSHOP; });
 
   /** Build a clock schedule for this channel, or null to use the ordinary shuffled loop. `days` is how long the
    *  schedule runs before it repeats: each day (or week, for a weekly plan) is laid out afresh from its own seed. */

@@ -33,6 +33,14 @@ window.RELEASE = {
       ]
     },
     {
+      "name": "Alpha 0.49.0",
+      "date": "2026-11-20",
+      "notes": [
+        "Options > Experimental: new \"Magic Channels\" (off by default). Adds 35 themed channels built from the whole library, after the usual ones:",
+        "The lineup is in tools/magic_channels.py (it writes tools/shows.json and channels.js), so a channel's shows can be changed without a new APK by editing shows.json."
+      ]
+    },
+    {
       "name": "Alpha 0.48.1",
       "date": "2026-11-16",
       "notes": [

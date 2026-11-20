@@ -82,7 +82,7 @@
 
   // Channels that belong to children, which the broadcaster channels leave alone: a cartoon that happened to be
   // on BBC1 belongs on CITV or Children's World, not among the evening's drama.
-  var KIDS = { citv: 1, childrens: 1, disney: 1, kidsmovies: 1, kidsxmas: 1 };
+  var KIDS = { citv: 1, childrens: 1, disney: 1, kidsmovies: 1, kidsxmas: 1, mc_toons80: 1, mc_toons90: 1, mc_toons_classic: 1, mc_cbbc: 1, mc_nursery: 1, mc_teen: 1, mc_xmas_toons: 1 };
   var NET = { bbc: 'bbc', itv: 'itv' };          // c4, c5 and sky have no channel of their own yet
 
   /** Classic British telly is 1970 to 1999. An episode with no air date is kept; a later one is not. */
@@ -124,11 +124,11 @@
     return !sn.split(' ').some(function (w) { return w.length > 2 && bw.indexOf(w) >= 0; });
   }
   var GAMEPLAY = /\b(longplays?|long play|playthrough|play-through|walkthrough|walk-through|gameplay|let'?s play|speedrun|full game)\b|\[(ps[1-5]|psx|psp|xbox( 360| one)?|pc|wii( u)?|switch|n64|snes|nes|gba|gbc|gamecube|3ds|nds|dreamcast|saturn|mega drive|genesis)\]/i;
-  var LOOSE = { soaps: 1, offschool: 1, music: 1, mtv: 1, xmasmusic: 1, christmas: 1, kidsxmas: 1, noel: 1, tvarchive: 1, disney: 1, adverts: 1 };
+  var LOOSE = { mc_pop: 1, mc_rock: 1, mc_aussie: 1, mc_uk_soaps: 1, mc_us_soaps: 1, mc_daytime: 1, mc_factual: 1, mc_kitchen: 1, mc_xmas_comedy: 1, mc_xmas_soaps: 1, mc_xmas_toons: 1, mc_xmas_pop: 1, soaps: 1, offschool: 1, music: 1, mtv: 1, xmasmusic: 1, christmas: 1, kidsxmas: 1, noel: 1, tvarchive: 1, disney: 1, adverts: 1 };
   // Channels that also take an unnumbered episode when it is dated up to 1999: most quiz shows were only ever dated
   // ("Supermarket Sweep - 4:6:95", "Blockbusters - 1:21:82", "Fifteen to One - TX 15 January 1988"). Taking every
   // unnumbered file instead lets in fan videos and namesakes.
-  var DATED = { gameshows: 1 };
+  var DATED = { gameshows: 1, mc_quiz: 1, mc_challenge: 1, mc_light_ent: 1 };
   var MONTHS = 'jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec';
   /** The year a date in a file name gives (4:6:95, 14_4_05, 1984-04-27, 15 January 1988), or 0 when it has none. */
   function fileYear(f) {
@@ -206,6 +206,14 @@
           var dec = decadeOf(ep, sh, span);
           if (dec) decKeys.forEach(function (ch) { if (decades[ch] === dec && chs.indexOf(ch) < 0) chs = chs.concat(ch); });
         }
+        // Magic Channels: a film channel keeps only its genres, a Christmas channel only the Christmas episodes
+        chs = chs.filter(function (ch) {
+          var o = showsJson && showsJson[ch];
+          if (!o || !o.magic) return true;
+          if (o.genres && sh.film) { var g = String(ep.g || '').split(/\s*,\s*/); return o.genres.some(function (x) { return g.indexOf(x) >= 0; }); }
+          if (o.xmas) return !!ep.xmas;
+          return true;
+        });
         chs.forEach(function (ch) {
           // Only episodes tracked as a season and episode (S01E04) go on the ordinary channels. Dated or numbered videos
           // (soap episodes, Top of the Pops, news, shorts) stay on the channels built for them, and on the Christmas ones.

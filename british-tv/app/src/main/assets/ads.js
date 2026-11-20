@@ -28,7 +28,9 @@
 
   // channel id -> advert genre. No entry = no adverts (Classic BBC: the BBC has none; Adverts & Continuity is adverts already).
   var CHANNEL_CAT = {
-    citv: 'kids', childrens: 'kids', kidsxmas: 'kids',   // no breaks on the film channels (kidsmovies, disney, videoshop)
+    citv: 'kids', childrens: 'kids', kidsxmas: 'kids', mc_toons80: 'kids', mc_toons90: 'kids', mc_toons_classic: 'kids', mc_cbbc: 'kids', mc_nursery: 'kids', mc_teen: 'kids', mc_xmas_toons: 'kids',
+    mc_pop: 'music', mc_rock: 'music', mc_xmas_pop: 'music', mc_daytime: 'daytime', mc_kitchen: 'daytime',
+    mc_scifi: 'prime', mc_crime: 'prime', mc_action_tv: 'prime', mc_period: 'prime', mc_quiz: 'prime', mc_challenge: 'prime', mc_sitcom_gold: 'prime', mc_sitcom90: 'prime', mc_tgif: 'prime', mc_sketch: 'prime', mc_light_ent: 'prime', mc_factual: 'prime', mc_aussie: 'prime', mc_uk_soaps: 'prime', mc_us_soaps: 'prime', mc_xmas_comedy: 'prime', mc_xmas_soaps: 'prime',   // no breaks on the film channels (kidsmovies, disney, videoshop)
     games: 'games',
     music: 'music', mtv: 'music', xmasmusic: 'music',
     itvam: 'daytime', offschool: 'daytime',
@@ -124,7 +126,7 @@
   };
   /** The checked catalogue (adverts.json) -> adverts for one kind of channel and the era chosen. */
   // The Christmas channels play Christmas adverts; every other channel keeps them out until December.
-  var XMAS_CHANNELS = { christmas: 1, noel: 1, kidsxmas: 1, xmasmusic: 1 };
+  var XMAS_CHANNELS = { mc_xmas_comedy: 1, mc_xmas_soaps: 1, mc_xmas_toons: 1, mc_xmas_pop: 1, christmas: 1, noel: 1, kidsxmas: 1, xmasmusic: 1 };
   function isXmasChannel(id) { return !!XMAS_CHANNELS[id]; }
   /** xmas: 'only' = a Christmas channel (the Christmas adverts, topped up with its usual kind when there are few),
    *  'off' = a channel that leaves them out, 'on' (December) = no distinction. */

@@ -452,7 +452,11 @@
   var removedRev = '';     // index.json "removed": revision of data/removed-shows.json
   function loadLibraryRoutes(libRev, showsText) {
     if (libP) return libP;
-    var showsP = showsText ? Promise.resolve(JSON.parse(showsText)) : getJSON(SHOWS_URL);
+    var showsP = (showsText ? Promise.resolve(JSON.parse(showsText)) : getJSON(SHOWS_URL)).then(function (sj) {
+      if (!sj || magicOn) return sj;
+      var o = {}; Object.keys(sj).forEach(function (k) { if (!(sj[k] && sj[k].magic)) o[k] = sj[k]; });
+      return o;
+    });
     // routes.json is optional: when it is not published the lists in shows.json are used on their own
     var routesP = getJSON(DATA_BASE + 'routes.json').then(null, function () { return null; });
     // shows the scraper has removed for good: only asked for when the index says there are some
@@ -485,7 +489,7 @@
       return http(SHOWS_URL).then(function (showsText) {
         // the routes revision is part of the key: a new routes.json moves shows between channels just as
         // an edit to shows.json does, so the answer stored for the old one must not be reused
-        var key = 'librevs2:' + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText);
+        var key = 'librevs2:' + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText) + (magicOn ? 'm' : '');
         var known = store.get(key);
         if (known && known.revs) { libRevs = known.revs; return known.revs; }
         return loadLibraryRoutes(j.library, showsText).then(function (routed) {
@@ -539,7 +543,7 @@
   var AUTO_DUR = { 'The Bill': 1500 };      // typical running time (s) until the real length has been seen once
   // Channels whose programmes carry no episode number: songs, films, Disney shorts ("How to Sleep"), MTV's
   // untitled and dated blocks, and news bulletins. Insisting on one empties them.
-  var NO_EPISODES = { xmasmusic: 1, xmasmovies: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, soaps: 1, cooking: 1, entertainment: 1, saturday: 0 };
+  var NO_EPISODES = { mc_action: 1, mc_horror: 1, mc_scifi_movies: 1, mc_comedy_movies: 1, mc_thriller: 1, mc_drama_movies: 1, mc_xmas_pop: 1, mc_aussie: 1, mc_uk_soaps: 1, mc_us_soaps: 1, mc_kitchen: 1, mc_light_ent: 1, xmasmusic: 1, xmasmovies: 1, kidsmovies: 1, videoshop: 1, mtv: 1, disney: 1, tvarchive: 1, soaps: 1, cooking: 1, entertainment: 1, saturday: 0 };
   /** A row of songs or films: nothing in it will carry SxxExx, so insisting on one empties the channel. */
   function wantsEpisodes(channelId, it) {
     if (NO_EPISODES[channelId]) return false;
@@ -994,7 +998,9 @@
 
   // ------------------------------------------------------------------ channels
 
-  var channels = window.CHANNELS.filter(function (c) { return !c.off; }).map(function (c) {
+  /** Magic Channels (experimental): the extra themed channels from the library. Off, they are not even routed. */
+  var magicOn = store.get('mc1') === 'on';
+  var channels = window.CHANNELS.filter(function (c) { return !c.off && (!c.magic || magicOn); }).map(function (c) {
     return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, decade: c.decade || 0, report: [], status: 'loading', sched: null };
   });
 
@@ -1913,6 +1919,12 @@
     progs.forEach(function (p) { if (ukHide(p)) gone[gmName(p)] = (gone[gmName(p)] || 0) + 1; });
     if (progs.length !== f.length) dlog('CONTENT British: hid ' + (progs.length - f.length) + ' programmes: ' + Object.keys(gone).map(function (k) { return k + ' x' + gone[k]; }).join(', '));
     return f.length >= 3 ? f : progs;
+  }
+  function changeMc() {
+    magicOn = !magicOn; store.set('mc1', magicOn ? 'on' : 'off'); renderOpts();
+    toast(magicOn ? 'Magic Channels on. Rebuilding the guides\u2026' : 'Magic Channels off. Rebuilding the guides\u2026', 3000);
+    clearTimeout(spanTimer);
+    spanTimer = setTimeout(function () { location.reload(); }, 2200);
   }
   function changeUk() {
     ukOn = !ukOn; store.set('uk1', ukOn ? 'on' : 'off'); renderOpts();
@@ -5620,7 +5632,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'uk', 'rw', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'mc', 'uk', 'rw', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -5635,6 +5647,7 @@
     if (id === 'depg') return !expOn ? 'Turn Experimental on first' : depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
     if (id === 'join') return !expOn ? 'Turn Experimental on first' : joinOn ? 'On  \u00b7  starts where the clock is' : 'Off  \u00b7  starts from the beginning';
     if (id === 'uk') return ukOn ? 'British  \u00b7  US shows that were never on UK TV are hidden' : 'Everything';
+    if (id === 'mc') return magicOn ? 'On  \u00b7  ' + channels.filter(function (c) { return c.magic; }).length + ' extra channels' : 'Off';
     if (id === 'rw') return rwOn ? 'On  \u00b7  episodes run in order' : 'Off';
     if (id === 'adlang') return adLang === 'en' ? 'English only' : 'Any';
     if (id === 'adrec') return adHist.length ? adHist.length + ' saved' : 'None yet';
@@ -5745,6 +5758,7 @@
     exp: 'Experimental features that may change or break. Turning this on lets you add Stremio addons, which are asked for streams of what you are watching. Nothing is added for you, and no addon is recommended.',
     addons: 'Paste the link of a Stremio addon (it ends in manifest.json). Your addons are asked in this order with only the title\u2019s IMDb number. Only direct web links and YouTube play; torrents and downloads never start.',
     ammain: 'With this on, every programme that has an episode number, and every film, is first looked up with your addons while the loading screen or a "Scraping your debrid" message is showing, and plays from the best link they find. If they find nothing, or the link will not play, the library link plays instead. It plays from the start rather than joining part way through.',
+    mc: 'Adds themed channels made from the whole library: movies by genre (action, horror, sci-fi, comedy, thrillers, drama), sci-fi, cops and detectives, quiz and challenge game shows, sitcoms, sketch shows, kids cartoons by era, nursery and teen TV, pop and rock music, soaps, cooking and Christmas comedy, soaps, cartoons and pop. They sit after the usual channels. Turning it on or off restarts the guides.',
     rw: 'Episodes of a show come in order on the guide (S01E01, S01E02 ...) instead of a shuffle, starting at the beginning of a season. Programmes with no episode number, such as specials, one-offs and music, are left as they are. Guide times do not change.',
     uk: 'Everything shows the whole library. British hides shows the scraper has marked as never shown on UK TV (mostly US drama), and keeps UK-made shows and the US ones that did air here, such as cartoons. Shows it is unsure about stay.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
@@ -5943,6 +5957,7 @@
     else if (id === 'exp') changeExp();
     else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
     else if (id === 'uk') changeUk();
+    else if (id === 'mc') changeMc();
     else if (id === 'rw') changeRw();
     else if (id === 'depg') changeDepg();
     else if (id === 'join') { if (!expOn) toast('Turn Experimental on first', 3000); else { joinOn = !joinOn; store.set('join1', joinOn ? 'on' : 'off'); renderOpts(); } }
@@ -6462,7 +6477,7 @@
   var OD_VIS = 7;           // posters across a row
   var OD_EPS = 3;           // episodes on screen at once
   var OD_SKIP = { xmasmusic: 1, tvarchive: 1 };         // songs and dated clips are not shows
-  var OD_FILMS = { kidsmovies: 1, videoshop: 1, xmasmovies: 1 };       // the film channels: each film is its own one-video title
+  var OD_FILMS = { kidsmovies: 1, videoshop: 1, xmasmovies: 1, mc_action: 1, mc_horror: 1, mc_scifi_movies: 1, mc_comedy_movies: 1, mc_thriller: 1, mc_drama_movies: 1 };       // the film channels: each film is its own one-video title
   function odChannels() {
     return guideList().filter(function (c) { return c.status === 'ready' && !OD_SKIP[c.id]; });
   }

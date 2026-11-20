@@ -2016,9 +2016,10 @@
   function virtualFilms(c, progs, full) {
     if (!depgActive() || !filmdb || !OD_FILMS[c.id]) return progs;
     var have = {}, out = progs.slice(), gen = MC_FILM_GENRES[c.id], n = 0;
+    var room = full ? 1e9 : Math.max(0, MAX_STORED - progs.length);       // a guide channel keeps a list this long, like the missing episodes
     progs.forEach(function (p) { if (p.filmKey) have[p.filmKey] = 1; });
     filmdb.forEach(function (f) {
-      if (!f || !f.t || !f.y) return;
+      if (n >= room || !f || !f.t || !f.y) return;
       var chs = f.ch || [];
       // No certificate means no safe slot on the clock. Our own kids list is all family films, so it gets U; everything else skips it (Christmas has Die Hard and Lethal Weapon in it).
       var cert = f.cert || (chs.indexOf('kidsmovies') >= 0 ? 'U' : '');

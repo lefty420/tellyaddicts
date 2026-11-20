@@ -3230,7 +3230,8 @@
     channels.forEach(function (c) { if (c.plan) rows = rows.concat(LINKS.rowsFrom(c.plan, 'plan')); });
     (function chunk(i) {
       if (i >= rows.length) return;
-      LINKS.putAll(rows.slice(i, i + 400)).then(function () { setTimeout(function () { chunk(i + 400); }, 60); });
+      if (Date.now() - lastKeyAt < 4000) { setTimeout(function () { chunk(i); }, 3000); return; }       // not while a button is being pressed
+      LINKS.putAll(rows.slice(i, i + 120)).then(function () { setTimeout(function () { chunk(i + 120); }, 250); });      // small pieces: each one is a burst of database callbacks on the main thread
     })(0);
   }
 
@@ -7123,7 +7124,7 @@
     var i = 0, list = odChannels().slice().sort(function (a, b) { return (a.id === store.get('last') ? -1 : b.id === store.get('last') ? 1 : 0); });
     (function next() {
       if (i >= list.length) return;
-      if (odOpen || !quiet()) { setTimeout(next, 4000); return; }   // never while On Demand is on screen (it loads its own) or channels are still loading
+      if (odOpen || !quiet() || Date.now() - lastKeyAt < 4000) { setTimeout(next, 4000); return; }   // never while On Demand is on screen (it loads its own) or channels are still loading
       var c = list[i++];
       odLoadChannel(c).then(function () { setTimeout(next, 1500); }, function () { setTimeout(next, 1500); });
     })();

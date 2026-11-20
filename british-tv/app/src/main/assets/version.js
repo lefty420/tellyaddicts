@@ -1,21 +1,28 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.6",
-  "version": "0.49.6",
-  "code": 4906,
+  "name": "Alpha 0.49.7",
+  "version": "0.49.7",
+  "code": 4907,
   "date": "2026-11-20",
   "notes": [
-    "Magic EPG: when its episode list comes in several files and one of them does not arrive, what did arrive is used for this start but no longer saved as if it were the whole list (the missing shows stayed without filled-in episodes until the scraper sent a new one). Those files also get the library's longer download time (2 minutes, was 40 seconds).",
-    "Buffering: if archive.org ignores a request to start part-way through a file and sends the whole thing, the TV no longer saves it at the wrong place (the picture after a jump could be garbage). It stops buffering that file instead.",
-    "Faster start: the list of what is saved on the TV is read once per start, not again for every channel built (up to about 100 times with Magic Channels on).",
-    "Looked-up answers the TV keeps (episode guides, artwork, cast, info pages) are now cleared when they have not been saved for 60 days. Nothing cleared them before, so the store only grew. Channel lists and film details are kept.",
-    "Saving no longer waits for each file to reach the disk.",
-    "Tidy: removed the built-in copy of the channel lists (autodata.js, 450 KB, last updated by a tool no longer used), that tool (tools/import_scrape.py) and four one-time clean-ups that had long since done their job. With no published lists reachable, a channel now uses its live searches.",
-    "New check: `node tools/test_libroute.js` tests how the library is sorted onto channels.",
-    "Not yet tried on the Shield; the Java changes are compile-checked only."
+    "Fewer stutters just after the guide comes up. The background jobs that start a few seconds later (saving episode links for Play Next, and pre-loading On Demand) now wait until no button has been pressed for 4 seconds, and the link saving works in smaller pieces with longer gaps. Not yet tried on the Shield."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.6",
+      "date": "2026-11-20",
+      "notes": [
+        "Magic EPG: when its episode list comes in several files and one of them does not arrive, what did arrive is used for this start but no longer saved as if it were the whole list (the missing shows stayed without filled-in episodes until the scraper sent a new one). Those files also get the library's longer download time (2 minutes, was 40 seconds).",
+        "Buffering: if archive.org ignores a request to start part-way through a file and sends the whole thing, the TV no longer saves it at the wrong place (the picture after a jump could be garbage). It stops buffering that file instead.",
+        "Faster start: the list of what is saved on the TV is read once per start, not again for every channel built (up to about 100 times with Magic Channels on).",
+        "Looked-up answers the TV keeps (episode guides, artwork, cast, info pages) are now cleared when they have not been saved for 60 days. Nothing cleared them before, so the store only grew. Channel lists and film details are kept.",
+        "Saving no longer waits for each file to reach the disk.",
+        "Tidy: removed the built-in copy of the channel lists (autodata.js, 450 KB, last updated by a tool no longer used), that tool (tools/import_scrape.py) and four one-time clean-ups that had long since done their job. With no published lists reachable, a channel now uses its live searches.",
+        "New check: `node tools/test_libroute.js` tests how the library is sorted onto channels.",
+        "Not yet tried on the Shield; the Java changes are compile-checked only."
+      ]
+    },
     {
       "name": "Alpha 0.49.5",
       "date": "2026-11-20",
@@ -69,19 +76,6 @@ window.RELEASE = {
       "notes": [
         "Fixed: the episodes row on Info never showed a thumbnail picture at all (only the dashed box). It now shows the episode's own picture where the library has one for it.",
         "Films can now show a clear (transparent title) image on their On Demand page and poster, the same way TV shows do, once the scraper sends one. Nothing changes until it does."
-      ]
-    },
-    {
-      "name": "Alpha 0.48.3",
-      "date": "2026-11-16",
-      "notes": [
-        "Info is now a screen you can use, not just read. Up/Down move between its rows, Left/Right along a row, OK presses what is highlighted (gold) and Back goes back a step. OK no longer closes it.",
-        "Buttons: Watch now (Keep watching if you opened Info while watching), Next episode for a series, and Hide this film / show.",
-        "Cast: OK on a name lists everything else with them that this TV can play, with their part in each, and OK on one opens its Info. A small gold number on a photo says how many others there are. Films are all included; a series joins once its Info has shown its cast. Films now really get their cast from the library (it was being dropped on the way to the film channels).",
-        "A gold line under the summary says when it is on next in the guides (\"Next on Kids Movies: 19:49\", or \"On now on ...\").",
-        "A series shows its episodes in a row, starting at this one: the series numbers across the top, how many of that series are in your library, and the episodes the episode guide (data/epdb.json) knows but the library has not got shown dashed as \"Not in library\". OK plays an episode and carries on through the show.",
-        "More like this: for a film, other films that share a genre, the same decade first; for a series, more shows on its channel. OK opens its Info, Back comes back.",
-        "A film's title no longer shows its year twice."
       ]
     }
   ]

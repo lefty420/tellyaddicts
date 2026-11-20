@@ -57,6 +57,29 @@
       return out;
     }
   };
+  var store = {
+    get: function (k) { try { return JSON.parse(kv.getItem(k)); } catch (e) { return null; } },
+    set: function (k, x) {
+      var text = JSON.stringify(x);
+      try { kv.setItem(k, text); return true; } catch (e) { /* storage full or blocked */ }
+      // Only the page's own storage can fill up. A channel's list matters more than the artwork and episode guides
+      // beside it, and those are fetched again when wanted: when a list will not fit, the oldest of them make room.
+      if (!KV_NATIVE && /^plan7/.test(k)) {
+        try {
+          var old = [];
+          kv.keys().forEach(function (kn) {
+            if (/^(eps1|info3|art2|tvm4|artdb1):/.test(kn)) { var o = null; try { o = JSON.parse(kv.getItem(kn)); } catch (e2) { /* unreadable: goes first */ } old.push({ k: kn, t: (o && o.t) || 0 }); }
+          });
+          old.sort(function (p, q) { return p.t - q.t; });
+          for (var j = 0; j < old.length; j++) {
+            kv.removeItem(old[j].k);
+            try { kv.setItem(k, text); return true; } catch (e3) { /* still full: remove the next */ }
+          }
+        } catch (e4) { /* storage blocked */ }
+      }
+      return false;
+    }
+  };
 
   // ------------------------------------------------------------------ debug log
   //

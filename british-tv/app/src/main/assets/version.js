@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.49.7",
-  "version": "0.49.7",
-  "code": 4907,
+  "name": "Alpha 0.49.8",
+  "version": "0.49.8",
+  "code": 4908,
   "date": "2026-11-20",
   "notes": [
-    "Fewer stutters just after the guide comes up. The background jobs that start a few seconds later (saving episode links for Play Next, and pre-loading On Demand) now wait until no button has been pressed for 4 seconds, and the link saving works in smaller pieces with longer gaps. Not yet tried on the Shield."
+    "Fixed 0.49.6 and 0.49.7, which broke start-up: a piece of the app that saves and reads everything kept on the TV was deleted by mistake, so the tuning screen showed no pictures or static and the guide never opened.",
+    "Taken back out: the 60-day clear-out of saved artwork and episode guides added in 0.49.6. It went by when a file was last saved, not last used, so it could delete artwork the TV still shows. Anything it already removed is fetched again as needed, so the first start may be a little slower."
   ],
   "history": [
+    {
+      "name": "Alpha 0.49.7",
+      "date": "2026-11-20",
+      "notes": [
+        "Fewer stutters just after the guide comes up. The background jobs that start a few seconds later (saving episode links for Play Next, and pre-loading On Demand) now wait until no button has been pressed for 4 seconds, and the link saving works in smaller pieces with longer gaps. Not yet tried on the Shield."
+      ]
+    },
     {
       "name": "Alpha 0.49.6",
       "date": "2026-11-20",
@@ -16,7 +24,6 @@ window.RELEASE = {
         "Magic EPG: when its episode list comes in several files and one of them does not arrive, what did arrive is used for this start but no longer saved as if it were the whole list (the missing shows stayed without filled-in episodes until the scraper sent a new one). Those files also get the library's longer download time (2 minutes, was 40 seconds).",
         "Buffering: if archive.org ignores a request to start part-way through a file and sends the whole thing, the TV no longer saves it at the wrong place (the picture after a jump could be garbage). It stops buffering that file instead.",
         "Faster start: the list of what is saved on the TV is read once per start, not again for every channel built (up to about 100 times with Magic Channels on).",
-        "Looked-up answers the TV keeps (episode guides, artwork, cast, info pages) are now cleared when they have not been saved for 60 days. Nothing cleared them before, so the store only grew. Channel lists and film details are kept.",
         "Saving no longer waits for each file to reach the disk.",
         "Tidy: removed the built-in copy of the channel lists (autodata.js, 450 KB, last updated by a tool no longer used), that tool (tools/import_scrape.py) and four one-time clean-ups that had long since done their job. With no published lists reachable, a channel now uses its live searches.",
         "New check: `node tools/test_libroute.js` tests how the library is sorted onto channels.",
@@ -68,14 +75,6 @@ window.RELEASE = {
       "notes": [
         "Options > Experimental: new \"Magic Channels\" (off by default). Adds 35 themed channels built from the whole library, after the usual ones:",
         "The lineup is in tools/magic_channels.py (it writes tools/shows.json and channels.js), so a channel's shows can be changed without a new APK by editing shows.json."
-      ]
-    },
-    {
-      "name": "Alpha 0.48.4",
-      "date": "2026-11-20",
-      "notes": [
-        "Fixed: the episodes row on Info never showed a thumbnail picture at all (only the dashed box). It now shows the episode's own picture where the library has one for it.",
-        "Films can now show a clear (transparent title) image on their On Demand page and poster, the same way TV shows do, once the scraper sends one. Nothing changes until it does."
       ]
     }
   ]

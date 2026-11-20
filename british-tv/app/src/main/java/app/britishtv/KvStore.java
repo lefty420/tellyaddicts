@@ -91,33 +91,6 @@ final class KvStore {
         file(key).delete();
     }
 
-    /** Looked-up answers (episode guides, artwork, cast, info pages) that are fetched again when wanted. */
-    private static final String[] CACHES = {"eps1%3A", "info3%3A", "art2%3A", "tvm4%3A", "cast1%3A", "epl1%3A"};
-
-    /**
-     * Delete looked-up answers not saved for this long. Nothing else cleared them, so the folder only grew, and every
-     * listing of it got slower. Channel lists and film details are left alone: those are rebuilt, not looked up.
-     */
-    void prune(long maxAgeMs) {
-        File[] all = dir.listFiles();
-        if (all == null) {
-            return;
-        }
-        long before = System.currentTimeMillis() - maxAgeMs;
-        for (File f : all) {
-            String n = f.getName();
-            for (String p : CACHES) {
-                if (n.startsWith(p)) {
-                    if (f.lastModified() < before) {
-                        //noinspection ResultOfMethodCallIgnored
-                        f.delete();
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
     /** Every saved key, one per line. */
     String keys() {
         File[] all = dir.listFiles();

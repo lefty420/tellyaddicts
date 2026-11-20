@@ -5680,11 +5680,11 @@
   // The categories down the left of Options, and the rows in each. OPTS is those rows in order.
   var OCATS = [
     { id: 'picture', rows: ['ar', 'fx'] },
-    { id: 'guide', rows: ['od', 'sched', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
+    { id: 'guide', rows: ['sched', 'od', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'mc', 'uk', 'rw', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
+    { id: 'exp', rows: ['exp', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];

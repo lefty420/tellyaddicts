@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.52.3 — 2026-11-21
+- Loading screen: Surprise me now picks again for every loading screen (start-up, finding a programme, loading a channel, episode or film), not once per start. Switching Experimental off or on changes the look at once.
+
 ## Alpha 0.52.2 — 2026-11-21
 - Loading a channel, episode or film now uses the Loading screen look you chose (Set in the room or Whole screen) for its "Please stand by" screen too, with the programme's picture on the glass or blurred behind the set. Classic keeps the old test-card screen.
 

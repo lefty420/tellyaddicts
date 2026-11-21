@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.2",
-  "version": "0.52.2",
-  "code": 5202,
+  "name": "Alpha 0.52.3",
+  "version": "0.52.3",
+  "code": 5203,
   "date": "2026-11-21",
   "notes": [
-    "Loading a channel, episode or film now uses the Loading screen look you chose (Set in the room or Whole screen) for its \"Please stand by\" screen too, with the programme's picture on the glass or blurred behind the set. Classic keeps the old test-card screen."
+    "Loading screen: Surprise me now picks again for every loading screen (start-up, finding a programme, loading a channel, episode or film), not once per start. Switching Experimental off or on changes the look at once."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.2",
+      "date": "2026-11-21",
+      "notes": [
+        "Loading a channel, episode or film now uses the Loading screen look you chose (Set in the room or Whole screen) for its \"Please stand by\" screen too, with the programme's picture on the glass or blurred behind the set. Classic keeps the old test-card screen."
+      ]
+    },
     {
       "name": "Alpha 0.52.1",
       "date": "2026-11-21",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "On Demand, from the design review: the hero now has Play and More info buttons (OK plays it, hold OK opens the show page), a year / seasons / genre line with the certificate in a small badge when it has one, and amber dots showing which of the five slides is on. The highlight ring on cards is now amber, 3 px with a gap. The rail has a Guide icon that jumps to the TV guide."
-      ]
-    },
-    {
-      "name": "Alpha 0.51.1",
-      "date": "2026-11-20",
-      "notes": [
-        "On Demand: the hero is now a large banner. At the top of the page (chips or hero) the show's backdrop fills the top two thirds of the screen, with its logo or a big title over it and one row below. Moving down into the rows shrinks it back to the compact layout."
       ]
     }
   ]

@@ -3602,6 +3602,7 @@
       $('sbname').textContent = cur.ch.name;
       $('sbp').textContent = String(100 + cur.ch.n);
       var art = knownArt(cur.prog), sb = $('standby'), me = cur;
+      if (!sb.className || /hidden/.test(sb.className)) applyLd();      // a new loading screen: Surprise me picks again
       var style = store.get('sbstyle') === 'card' ? 'card' : 'tv';
       /** Put a picture (or none: static) on the set. */
       function paint(art) {
@@ -4964,6 +4965,7 @@
     amMsg = true;
     if (!started) { toast(msg, 15000); return; }
     try { spInit(); } catch (e) { /* no pictures */ }
+    applyLd();                                                   // Surprise me picks again for each one
     var sm = $('spmsg'); if (sm) sm.textContent = msg;
     $('splash').className = 'busy'; amSplash = true;
     clearTimeout(amSplashT); amSplashT = setTimeout(function () { amNoteOff(); }, 40000);      // never stays up
@@ -5103,7 +5105,7 @@
       { t: 'Auto play with debrid', sub: 'Find a source with your addons and play it', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, true); } },
       { t: 'Find sources', sub: 'Ask your addons and choose from what they find', f: function () { odmClose(); adSources(g, { s: ep.s, e: ep.e }, false, null, false); } });
   }
-  function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); applyUi(); dbgOpenApply(); renderOpts(); }
+  function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); applyUi(); applyLd(); dbgOpenApply(); renderOpts(); }
   function changeLang() { adLang = adLang === 'en' ? 'any' : 'en'; store.set('adlang1', adLang); renderOpts(); }
   var dbgOpen = store.get('dbgopen1') === 'on';
   function dbgOpenApply() { try { if (window.NativeHttp && NativeHttp.debugOpen) NativeHttp.debugOpen(expOn && dbgOpen); } catch (e) { /* older app */ } }

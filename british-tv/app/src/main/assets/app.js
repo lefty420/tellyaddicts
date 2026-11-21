@@ -7517,6 +7517,10 @@
         pim.onerror = function () { if (d._g === gen) { d.style.backgroundImage = odTone(g.name); if (!d.querySelector('b')) d.appendChild(odEl('b', '', g.name)); } };
         pim.src = pu;
       } else { d.style.backgroundImage = odTone(g.name); d.appendChild(odEl('b', '', g.name)); }
+      var bc = odCertOf(g), by = 0;
+      try { by = g.stub ? (g.yr || 0) : odYear(g); } catch (e) { by = g.yr || 0; }
+      if (bc) d.appendChild(odEl('span', 'odtag cert', bc));
+      if (by > 1900) d.appendChild(odEl('span', 'odtag yr', (Math.floor(by / 10) * 10 % 100 < 10 ? '0' : '') + (Math.floor(by / 10) * 10 % 100) + 's'));
       var w = g._cw && g._cw.dur ? Math.min(100, Math.round(100 * g._cw.pos / g._cw.dur)) : 0;
       if (w > 1 && rowIsCw) { var pg = odEl('div', 'odpg'); var bar = odEl('i'); bar.style.width = w + '%'; pg.appendChild(bar); d.appendChild(pg); }
     }

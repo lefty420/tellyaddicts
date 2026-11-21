@@ -170,7 +170,7 @@
   #spfeet i { width: calc(5 * var(--uw)); height: calc(1.8 * var(--u)); background: #120d09; border-radius: 0 0 calc(1 * var(--u)) calc(1 * var(--u)); }
   #spside { flex: none; display: flex; flex-direction: column; align-items: center; text-align: center; }
   #logo { height: calc(15 * var(--u)); width: auto; flex: none; }
-  #spmsg { font-size: calc(3.4 * var(--u)); margin: 0; color: var(--dim); }
+  #spmsg { font-size: calc(3.4 * var(--u)); margin: 0; color: var(--dim); white-space: pre-line; text-align: center; }
   #bars { display: flex; gap: calc(.6 * var(--u)); margin: calc(2 * var(--u)) 0 calc(1 * var(--u)); }
   #bars i { width: calc(4 * var(--u)); height: calc(1 * var(--u)); background: var(--cream); opacity: .25; transition: background .2s, opacity .2s; }
   #bars i.on { background: var(--red); opacity: 1; }
@@ -568,6 +568,7 @@
     background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%);
   }
   #ginfo, #ggrid, #glegend { z-index: 2; }       /* the seasonal snow falls behind the words, never over them */
+  #gsnow { clip-path: polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, calc(42 * var(--uw)) calc(4 * var(--u)), calc(96 * var(--uw)) calc(4 * var(--u)), calc(96 * var(--uw)) calc(38 * var(--u)), calc(42 * var(--uw)) calc(38 * var(--u)), calc(42 * var(--uw)) calc(4 * var(--u)), 0 0, calc(4 * var(--uw)) calc(41 * var(--u)), calc(96 * var(--uw)) calc(41 * var(--u)), calc(96 * var(--uw)) 94%, calc(4 * var(--uw)) 94%, calc(4 * var(--uw)) calc(41 * var(--u)), 0 0); }       /* snow only where there are no words: the margins, the little TV and the drifts at the foot */
   #gsnow { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
   #gsnow.hidden { display: none; }
   #gsnow canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }
@@ -824,14 +825,14 @@
   /* OSD bar (OK while watching): programme info, transport buttons and picture size */
   #osd {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; flex-direction: column;
-    padding: calc(9 * var(--u)) calc(5 * var(--uw)) calc(4.5 * var(--u));
+    padding: calc(6 * var(--u)) calc(5 * var(--uw)) calc(4.5 * var(--u));
     background: linear-gradient(0deg, rgba(0,0,0,.88) 58%, rgba(0,0,0,0)); transition: opacity .2s;
   }
   #osd.off { opacity: 0; pointer-events: none; }
   #obg { display: none; position: absolute; inset: 0; border-radius: calc(1 * var(--u)); background-size: cover; background-position: center 30%; opacity: 0; transition: opacity .5s; pointer-events: none; }
   #obg.on { opacity: .22; }
   #osd > :not(#obg) { position: relative; }
-  #oart { flex: 0 0 auto; height: calc(12 * var(--u)); width: calc(8 * var(--u)); margin: 0 calc(1.4 * var(--uw)) 0 0; object-fit: cover; border-radius: calc(.8 * var(--u)); box-shadow: 0 calc(.8 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.7); border: calc(.2 * var(--u)) solid rgba(255,255,255,.35); background: #0a1f66; }
+  #oart { flex: 0 0 auto; height: calc(7.8 * var(--u)); width: calc(5.2 * var(--u)); margin: 0 calc(1.4 * var(--uw)) 0 0; object-fit: cover; border-radius: calc(.8 * var(--u)); box-shadow: 0 calc(.8 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.7); border: calc(.2 * var(--u)) solid rgba(255,255,255,.35); background: #0a1f66; }
   #oart.hidden { display: none; }
   /* mini guide: what is on the channels either side of this one, above the bar of a channel (Up from the progress line moves into it) */
   #omg { display: flex; flex-direction: column; gap: calc(.5 * var(--u)); padding: 0 0 calc(1.4 * var(--u)); }
@@ -856,7 +857,7 @@
   #osub { font-size: calc(2.3 * var(--u)); color: rgba(255,255,255,.7); }
   #onext { padding: 0; font-size: calc(2 * var(--u)); color: rgba(255,255,255,.6); max-width: calc(34 * var(--uw)); align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #onext b { display: inline; margin-left: calc(.6 * var(--uw)); color: rgba(255,255,255,.85); font-weight: 600; }
-  #oprog { position: relative; margin: calc(1.6 * var(--u)) 0 calc(.8 * var(--u)) 0; height: calc(1.2 * var(--u)); background: rgba(255,255,255,.2); border-radius: calc(.6 * var(--u)); }
+  #oprog { position: relative; margin: calc(1.2 * var(--u)) calc(17 * var(--uw)) calc(.4 * var(--u)) 0; height: calc(1.2 * var(--u)); background: rgba(255,255,255,.2); border-radius: calc(.6 * var(--u)); }
   /* how far ahead the picture is loaded, behind the played part, the way a video site shows it */
   #obuf { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255,255,255,.42); border-radius: calc(.6 * var(--u)); width: 0; transition: width .3s linear; }
   /* amber while it is coming off this device rather than straight from archive.org */
@@ -867,7 +868,9 @@
   #oprog.sel #othumb { opacity: 1; }
   #oprog.scrub #obar { background: #ffd24d; }
   #otime { position: absolute; right: 0; top: calc(1.8 * var(--u)); font-size: calc(2 * var(--u)); color: rgba(255,255,255,.75); }
-  #obtns { display: flex; gap: calc(.8 * var(--uw)); padding: calc(3.4 * var(--u)) 0 0; }
+  #obtns { display: flex; gap: calc(.8 * var(--uw)); padding: calc(1.4 * var(--u)) 0 0; }
+  html:not(.phone) #otime { top: 50%; left: 100%; right: auto; margin: 0 0 0 calc(1 * var(--uw)); transform: translateY(-50%); white-space: nowrap; }       /* the time sits at the end of the line, not on a row of its own */
+  #ob-pp:not(.sel) { background: rgba(255,203,107,.22); }
   .ob { flex: none; display: flex; align-items: center; justify-content: center; gap: calc(.9 * var(--uw)); padding: calc(1.2 * var(--u)) calc(.45 * var(--uw));
     font-size: calc(2.5 * var(--u)); font-weight: 600; background: rgba(255,255,255,.1); border-radius: calc(.7 * var(--u)); white-space: nowrap; }
   .ob .ic { font-size: calc(2.6 * var(--u)); }
@@ -906,6 +909,7 @@
   #odside { position: absolute; left: 0; top: 0; bottom: 0; width: calc(4.8 * var(--uw)); display: flex; flex-direction: column; justify-content: center; gap: calc(1.2 * var(--u)); z-index: 4; background: rgba(11,13,18,.55); }
   .odsd { height: calc(8 * var(--u)); position: relative; margin: 0 calc(.5 * var(--uw)); border-radius: calc(1 * var(--u)); display: flex; align-items: center; justify-content: center; font-size: calc(3.4 * var(--u)); color: #aab3cc; }
   .odsd.sel { background: #fff; color: #000; }
+  #od.railfocus #odhome, #od.railfocus #odfav { opacity: .4; }       /* the page dims while the rail has focus, so its label may lie over it */
   .odsd svg { width: 74%; }
   .odsd.sel::after { content: attr(data-l); position: absolute; left: 100%; margin-left: calc(.7 * var(--uw)); padding: calc(.8 * var(--u)) calc(1.2 * var(--uw)); border-radius: calc(.8 * var(--u)); background: #fff; color: #000; font-size: calc(2.4 * var(--u)); font-weight: 700; white-space: nowrap; z-index: 6; }
   #odhero { position: absolute; left: calc(5 * var(--uw)); top: calc(8 * var(--u)); width: calc(62 * var(--uw)); }
@@ -999,7 +1003,7 @@
   .ode em.rs { color: #ffcb6b; }
   /* Browse: the channels down the left, the shows as a grid of posters, and Sort / Decade / Hide watched across the top */
   #odgrid { position: absolute; inset: 0; }
-  #odfav { position: absolute; inset: 0; padding: calc(7 * var(--u)) calc(5 * var(--uw)) calc(9 * var(--u)); display: flex; flex-direction: column; gap: calc(1.6 * var(--u)); }
+  #odfav { position: absolute; inset: 0; padding: calc(7 * var(--u)) calc(5 * var(--uw)) calc(9 * var(--u)) calc(7 * var(--uw)); display: flex; flex-direction: column; gap: calc(1.6 * var(--u)); }
   #odfav .ofh { display: flex; align-items: baseline; gap: calc(2 * var(--uw)); }
   #odfav h2 { margin: 0; font-size: calc(5 * var(--u)); } #odfav .ofh span { font-size: calc(2.6 * var(--u)); color: #b9d1ff; }
   #odfav .ofhelp { margin: 0; font-size: calc(2.2 * var(--u)); color: #9aa6c4; }
@@ -1008,7 +1012,7 @@
   #odfav .ofp { display: flex; gap: calc(1 * var(--uw)); } #odfav .ofp p { font-size: calc(2.4 * var(--u)); color: #9aa6c4; }
   #odfav .ofe { margin: auto; text-align: center; max-width: calc(60 * var(--uw)); display: flex; flex-direction: column; align-items: center; gap: calc(1.4 * var(--u)); }
   #odfav .ofstar { font-size: calc(12 * var(--u)); color: #ffcb6b; line-height: 1; }
-  #odfav .ofe h3 { margin: 0; font-size: calc(4.4 * var(--u)); } #odfav .ofe p { margin: 0; font-size: calc(2.6 * var(--u)); color: #c3cadb; } #odfav .ofe .ofhow { color: #ffcb6b; }
+  #odfav .ofe h3 { margin: 0; font-size: calc(4.4 * var(--u)); } #odfav .ofe p { text-wrap: balance; margin: 0; font-size: calc(2.6 * var(--u)); color: #c3cadb; } #odfav .ofe .ofhow { color: #ffcb6b; }
   #odfav .ofbs { display: flex; gap: calc(2 * var(--uw)); margin-top: calc(2 * var(--u)); }
   #ogl { position: absolute; left: calc(5 * var(--uw)); top: calc(12 * var(--u)); width: calc(19 * var(--uw)); }
   .ogli { display: flex; justify-content: space-between; align-items: center; height: calc(5.6 * var(--u)); padding: 0 calc(1 * var(--uw)); margin-bottom: calc(.5 * var(--u)); border-radius: calc(1 * var(--u)); font-size: calc(2.3 * var(--u)); color: #cdd3e4; overflow: hidden; white-space: nowrap; }

@@ -7,6 +7,14 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.13 — 21 Nov 2026
+From the design reply on 0.53.12.
+- **Playback bar** is shorter: the poster stub is smaller, the time sits at the end of the progress line, padding is tighter. The lettered placeholder poster is gone (the title moves left when there is no real picture). Pause carries an amber tint so it reads as the main button.
+- **Rail** focus dims the page behind its label. Favourites now has the rail too (Left from the first item), so it is not a dead end.
+- **Favourites** shows two rows: Channels, then Shows. The "On <channel>" row is gone (use Open in On Demand from a channel's menu). The empty-state text wraps in balanced lines.
+- **Guide:** titles such as "The Bill (1983) S11 DVD Rip" or "The Bill (1983) - S15E067 - …" now show "The Bill" with "S11" or "S15 E067" under it. The snow no longer falls over the header, the programme title or the grid; it stays in the margins, beside the little TV and along the foot.
+- **Loading screen** reads "Loading channels 12 of 31", and after 20 seconds adds "The first start takes longest".
+
 ## Alpha 0.53.12 — 21 Nov 2026
 - **Playback bar: every button is back.** Pause, Next, Restart, Stop, Guide, Sources, Audio & subs and Options all sit on the bar again, in the new thin dark style. Nothing is hidden behind a More… list.
 

@@ -1189,6 +1189,10 @@
     // the little TV shows the real tuning: a green bar fills along the scale and the label counts the channels that have finished;
     // the needle, knobs and pictures keep going on their own (CSS), so something moves even while the guides are being built
     var settled = channels.filter(function (c) { return c.status === 'ready' || c.status === 'empty'; }).length;
+    if (channels.length && settled < channels.length && !$('splash').classList.contains('busy')) {
+      var sm0 = $('spmsg'), mt = 'Loading channels ' + settled + ' of ' + channels.length + (performance.now() > 20000 ? '\nThe first start takes longest' : '');
+      if (sm0 && sm0.textContent !== mt) sm0.textContent = mt;
+    }
     if (settled !== spDone && channels.length) {
       var first = spDone < 0;
       spDone = settled;
@@ -3747,8 +3751,9 @@
     t = t.replace(/\b(HEVC|x26[45]|h\.?26[45]|AAC\d?|AC3|DDP?\d?|10bit|(?:2160|1080|720|480)p|4K|WEB-?DL|WEB-?Rip|BluRay|BDRip|DVDRip|HDTV|REPACK|PROPER)\b.*$/i, '');
     t = t.replace(/\s*[|\u2013\-]\s*\[[^\]]{1,12}\]/, '').replace(/\s*\[[^\]]{1,12}\]\s*$/, '').replace(/\s*\|\s*$/, '');   // an uploader tag such as "| [WRR]"
     var m = /\bS(\d{1,2})[\s._-]*E(?:p(?:isode)?\.?\s*)?(\d{1,3})\b/i.exec(t), show = t, ep = '';
-    if (m && m.index > 0) { show = t.slice(0, m.index); ep = 'S' + m[1] + 'E' + m[2]; var rest = t.slice(m.index + m[0].length).trim(); if (rest) ep += ' \u00b7 ' + rest; }
-    show = show.replace(/\s*\((?:19|20)\d\d\)\s*$/, '').replace(/^\d{1,2}\s+(?=[A-Za-z])/, '').replace(/\s+/g, ' ').trim();
+    if (m && m.index > 0) { show = t.slice(0, m.index); ep = 'S' + m[1] + 'E' + m[2]; var rest = t.slice(m.index + m[0].length).replace(/^[\s\-\u2013:|]+/, '').trim(); if (rest) ep += ' \u00b7 ' + rest; }
+    if (!ep) { var m2 = /\s+S(\d{1,2})\b/i.exec(t); if (m2 && m2.index > 0) { show = t.slice(0, m2.index); ep = 'S' + m2[1]; } }     // a whole season ("The Bill (1983) S11 DVD Rip")
+    show = show.replace(/\s*\((?:19|20)\d\d\)/g, '').replace(/[\s\-\u2013:|]+$/, '').replace(/^\d{1,2}\s+(?=[A-Za-z])/, '').replace(/\s+/g, ' ').trim();
     return { show: show || t.trim(), ep: ep.replace(/\s+/g, ' ').trim() };
   }
   // A cell only a few letters wide shows "Sc…" or "O…", which says nothing (the big header names it on focus): give it the first
@@ -3982,7 +3987,7 @@
           if (clipR && !tiny) el.appendChild(div('arr r', '\u25ba'));
           var shown = fitTitle(st.show, frac, (clipL ? 1 : 0) + (clipR ? 1 : 0)), ec = st.ep ? st.ep.split(' ')[0] : '', es = b.prog.sub || '';
           el.appendChild(div('t', shown));      // the show's name; its episode code goes on the second line
-          if (shown !== '\u2022') el.appendChild(div('s', b.count > 1 ? b.count + (frac * window.innerWidth >= 380 * window.innerWidth / 1920 ? ' programmes' : ' items') : (ec && es && es.indexOf(ec) < 0 && ec.indexOf(es) < 0 ? ec + ' \u00b7 ' + es : ec || es)));
+          if (shown !== '\u2022') { var sEl = div('s', b.count > 1 ? b.count + (frac * window.innerWidth >= 380 * window.innerWidth / 1920 ? ' programmes' : ' items') : (ec && es && es.indexOf(ec) < 0 && ec.indexOf(es) < 0 ? ec + ' \u00b7 ' + es : ec || es)); sEl.textContent = sEl.textContent.replace(/\bS(\d{1,2})E(\d{1,3})\b/g, 'S$1 E$2'); el.appendChild(sEl); }
           line.appendChild(el);
         });
       })(rec, bhost, ch);
@@ -6483,7 +6488,7 @@
     buf.className = playingLocally() ? 'local' : '';
     var secs = ahead > pos ? Math.round(ahead - pos) : 0;
     $('otime').textContent = (scrubT !== null ? '\u25b6\u25b6 ' : '') + fmtPos(pos) + (isFinite(dur) && dur > 0 ? ' / ' + fmtPos(dur) : '') +
-      (secs > 1 ? '   ·   ' + fmtPos(secs) + ' ahead' + (playingLocally() ? ' on this device' : '') : '');
+      (secs > 1 ? '  ·  ' + fmtPos(secs) + ' ahead' : '');
     $('olbl-pp').textContent = v.paused ? 'Play' : 'Pause';
     var inBreak = !!(cur.ad && !isAdChan(cur.ch));
     $('olbl-next').textContent = inBreak ? 'Skip adverts' : 'Next';
@@ -6561,7 +6566,7 @@
     artFor = title;
     bg.className = '';
     var nm = osdLines(cur.prog).title;
-    var holder = function () { art.onerror = null; art.src = osdPh(nm); art.className = ''; };    // always something on the left, so the bar keeps its shape
+    var holder = function () { art.onerror = null; art.removeAttribute('src'); art.className = 'hidden'; };    // no real picture: nothing, and the title moves left
     holder();
     var film = filmFor(cur.prog);                              // a film already has its poster: no lookup needed
     if (film) {
@@ -7537,8 +7542,9 @@
   var odT1 = 0, odT0 = 0, odT0Warm = false;      // when On Demand was pressed, and whether its rows were already saved (for the debug line)
   function odRender() {
     $('odload').className = odOpen && odBusy ? '' : 'hidden';      // never for the home page: it draws at once and the rows fill in
+    $('od').classList.toggle('railfocus', odZn === 'rail' && (odView === 'home' || odView === 'fav'));
     odRenderBar();
-    $('odbar').style.display = odView === 'home' ? '' : 'none'; $('odside').style.display = odView === 'home' ? '' : 'none';
+    $('odbar').style.display = odView === 'home' ? '' : 'none'; $('odside').style.display = odView === 'home' || odView === 'fav' ? '' : 'none';
     if (odView === 'show') odRenderShow(); else if (odView === 'grid') odRenderGrid(); else if (odView === 'fav') odRenderFav(); else odRenderHome();
     var nm = odView === 'home' && odNone;
     $('odnomatch').className = nm ? '' : 'hidden'; $('odrows').style.visibility = $('odhero').style.visibility = nm ? 'hidden' : '';
@@ -7548,6 +7554,7 @@
     }
     var hint = odView === 'show' ? [['\u25b2 \u25bc', 'Move'], ['\u25c0 \u25b6', 'Choose'], ['OK', 'Select / Play'], ['Hold OK', 'More'], ['Back', 'Back']]
       : odView === 'grid' ? [['\u25b2 \u25bc \u25c0 \u25b6', 'Move'], ['OK', 'Open'], ['Back', 'Home']]
+      : odView === 'fav' && odFz === 'rail' ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Open'], ['Back', 'Close']]
       : odView === 'fav' ? (odFavList().length ? [['OK', 'Watch live'], ['Hold OK', 'Menu'], ['\u25b2 \u25bc \u25c0 \u25b6', 'Move'], ['Back', 'Home']] : [['\u25c0 \u25b6', 'Choose'], ['OK', 'Select'], ['Back', 'Home']])
       : nm ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Select'], ['Back', 'Browse']]
       : odZn === 'rail' ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Open'], ['Back', 'Close']]
@@ -7974,7 +7981,7 @@
       else if (odView === 'show') odmOpen();
       else if (odView === 'fav') {
         if (odFz === 'cards') { var fc = odFavList()[odFi]; if (fc) odmFavCard(fc); }
-        else { var fl = odFz === 'mine' ? odFavShows() : (odShowsOf(odFavList()[odFi]) || []), fg = fl[odFz === 'mine' ? odFm : odFp]; if (fg) odFavTitleMenu(fg); }
+        else if (odFz === 'mine') { var fg = odFavShows()[odFm]; if (fg) odFavTitleMenu(fg); }
       }
       else if (odView === 'grid' && odGz === 'list') { var gc = odGridChans()[odGl]; if (gc) odmChan(gc); }
       return true;
@@ -8198,7 +8205,9 @@
     odFi = Math.max(0, Math.min(odFi, l.length - 1));
     if (odFz === 'cards' && !l.length) odFz = 'mine';
     if (odFz === 'mine' && !fs.length) odFz = 'cards';
+    if (odFz === 'posters') odFz = 'cards';
     if (l.length) {
+      if (fs.length) box.appendChild(odEl('h3', 'ofs', 'Channels'));
       var cards = odEl('div', 'ofc'), first = Math.max(0, Math.min(odFi - 2, l.length - 5));
       for (var i = first; i < Math.min(l.length, first + 5); i++) cards.appendChild(odOnCard(odFavEntry(l[i]), odFz === 'cards' && i === odFi));
       box.appendChild(cards);
@@ -8210,19 +8219,6 @@
       var ms = Math.max(0, Math.min(odFm - 2, fs.length - 7));
       for (var m = ms; m < Math.min(fs.length, ms + 7); m++) mr.appendChild(odCard(fs[m], odFz === 'mine' && m === odFm));
       box.appendChild(mr);
-    }
-    if (l.length && !fs.length || (l.length && odFz !== 'mine')) {
-      var c = l[odFi], sh = odShowsOf(c);
-      box.appendChild(odEl('h3', 'ofs', 'On ' + c.name));
-      var row = odEl('div', 'ofp');
-      if (!sh) row.appendChild(odEl('p', '', 'Loading\u2026'));
-      else if (!sh.length) row.appendChild(odEl('p', '', 'Nothing on demand for this channel'));
-      else {
-        odFp = Math.max(0, Math.min(odFp, sh.length - 1));
-        var st = Math.max(0, Math.min(odFp - 2, sh.length - 7));
-        for (var j = st; j < Math.min(sh.length, st + 7); j++) row.appendChild(odCard(sh[j], odFz === 'posters' && j === odFp));
-      }
-      box.appendChild(row);
     }
   }
   /** Hold OK on a show in Favourites: play it, or take it off / put it on the list. */
@@ -8243,32 +8239,38 @@
       { t: 'Remove from favourites', sub: c.n + '  ' + c.name, f: function () { odmClose(); favToggle(c); odFi = Math.max(0, Math.min(odFi, odFavList().length - 1)); odRender(); } }] };
     odmRender();
   }
+  var odFzBack = 'cards';
+  function odFavRail(on) {
+    if (on) { odFzBack = odFz === 'rail' ? odFzBack : odFz; odFz = 'rail'; odZn = 'rail'; odRailI = 2; }
+    else { odFz = odFzBack; odZn = 'rows'; }
+  }
   function odKeyFav(k) {
-    var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ', l = odFavList(), fs = odFavShows();
-    if (back) { if (odFz !== 'cards' && l.length) odFz = 'cards'; else if (odFz === 'posters' || (odFz === 'mine' && l.length)) odFz = 'cards'; else { odSetView('home'); odZn = 'rail'; odRailI = 2; } odRender(); return true; }
-    if (!l.length && !fs.length) {
-      if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') odFb = 1 - odFb;
+    var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ', l = odFavList(), fs = odFavShows(), empty = !l.length && !fs.length;
+    if (odFz === 'rail') {
+      if (k === 'ArrowUp') odRailI = Math.max(0, odRailI - 1);
+      else if (k === 'ArrowDown') odRailI = Math.min(OD_RAIL.length - 1, odRailI + 1);
+      else if (k === 'ArrowRight' || back) odFavRail(false);
+      else if (ok) { odZn = 'rows'; odFz = odFzBack; odRailGo(odRailI); return true; }
+      odRender(); return true;
+    }
+    if (back) { odSetView('home'); odZn = 'rail'; odRailI = 2; odRender(); return true; }
+    if (empty) {
+      if (k === 'ArrowLeft') { if (odFb === 0) odFavRail(true); else odFb = 0; }
+      else if (k === 'ArrowRight') odFb = 1;
+      else if (k === 'ArrowUp' || k === 'ArrowDown') odFb = 1 - odFb;
       else if (ok) { if (odFb === 0) odGridOpen(); else { odClose(false); openGuide(); } return true; }
       odRender(); return true;
     }
-    var sh = l.length ? (odShowsOf(l[odFi]) || []) : [];
     if (odFz === 'cards') {
-      if (k === 'ArrowLeft') { odFi = Math.max(0, odFi - 1); odFp = 0; }
-      else if (k === 'ArrowRight') { odFi = Math.min(l.length - 1, odFi + 1); odFp = 0; }
-      else if (k === 'ArrowDown') { if (fs.length) odFz = 'mine'; else if (sh.length) odFz = 'posters'; }
+      if (k === 'ArrowLeft') { if (odFi === 0) odFavRail(true); else odFi--; }
+      else if (k === 'ArrowRight') odFi = Math.min(l.length - 1, odFi + 1);
+      else if (k === 'ArrowDown') { if (fs.length) odFz = 'mine'; }
       else if (ok) { odWatchLive(l[odFi]); return true; }
-      var c = l[odFi]; if (c && !odShowsOf(c)) odLoadChannel(c).then(function () { if (odOpen && odView === 'fav') odRender(); });
-    } else if (odFz === 'mine') {
-      if (k === 'ArrowLeft') odFm = Math.max(0, odFm - 1);
+    } else {
+      if (k === 'ArrowLeft') { if (odFm === 0) odFavRail(true); else odFm--; }
       else if (k === 'ArrowRight') odFm = Math.min(fs.length - 1, odFm + 1);
       else if (k === 'ArrowUp') { if (l.length) odFz = 'cards'; }
-      else if (k === 'ArrowDown') { if (sh.length) odFz = 'posters'; }
       else if (ok && fs[odFm]) { odJumpTo(fs[odFm]); odOpenShow(); return true; }
-    } else {
-      if (k === 'ArrowLeft') odFp = Math.max(0, odFp - 1);
-      else if (k === 'ArrowRight') odFp = Math.min(sh.length - 1, odFp + 1);
-      else if (k === 'ArrowUp') odFz = fs.length ? 'mine' : 'cards';
-      else if (ok && sh[odFp]) { odJumpTo(sh[odFp]); odOpenShow(); return true; }
     }
     odRender(); return true;
   }

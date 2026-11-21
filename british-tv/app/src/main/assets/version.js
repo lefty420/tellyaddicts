@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.18",
-  "version": "0.53.18",
-  "code": 5318,
+  "name": "Alpha 0.53.19",
+  "version": "0.53.19",
+  "code": 5319,
   "date": "2026-11-21",
   "notes": [
-    "**Santa's plough is never skipped**: when the free strip under the last guide row is short, the plough is drawn with smaller pixels to fit it, instead of not appearing at all."
+    "**Fits the screen**: the logo, set and \"Loading channels\" lines no longer run off the top and bottom. The set is sized by height as well as width.",
+    "**Backdrop follows the TV**: the blurred backdrop is now made of the same pictures as the TV, on the same timing, so it shows what the screen shows (and goes dark when the screen is on static). Before, it followed one picture in twelve.",
+    "**No more hanging on the colour bars**: the flash of bars when a channel locks on now ends by itself after a third of a second, even while the app is busy building guides."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.18",
+      "date": "2026-11-21",
+      "notes": [
+        "**Santa's plough is never skipped**: when the free strip under the last guide row is short, the plough is drawn with smaller pixels to fit it, instead of not appearing at all."
+      ]
+    },
     {
       "name": "Alpha 0.53.17",
       "date": "2026-11-21",
@@ -70,13 +79,6 @@ window.RELEASE = {
         "**Playback bar.** A thin dark bar over a bottom fade instead of the blue slab: channel number, title and episode on the left, what is next on live channels as a quiet line on the right, progress and time below. Four buttons only: Pause (first), Next, Audio & subs (when the file has tracks) and More…, which lists Restart, Stop, TV Guide, On Demand, Sources (Experimental) and Options. The poster sits inside the bar, and the mini guide appears only when you press Up from the progress line.",
         "**Guide.** Episode codes written as \"S15 E03\" or \"S15 Ep 3\" are now split off the title so cells show the show name and the episode in full. Seasonal snow falls behind the text. Toasts show at the bottom while the guide or On Demand is open (the clock is no longer covered).",
         "**On Demand.** The left rail is wider with larger icons, and the focused item shows its name. The key hints sit higher, clear of the screen edge. A card whose next programme is the same show reads \"more <show>\" instead of repeating it."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.10",
-      "date": "2026-11-21",
-      "notes": [
-        "**Start-up waits for every channel.** The loading screen now stays up until all channels have loaded into the guide, then the guide opens complete, instead of opening early and stalling while the rest filled in. A 60 second limit remains only for a connection that never answers; the guide then opens on what is ready and tunes to your last channel as soon as it is. This replaces the early open from 0.53.1."
       ]
     }
   ]

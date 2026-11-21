@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.19 — 2026-11-21
+Start-up TV (Set in the room look), from a screenshot on the Shield.
+- **Fits the screen**: the logo, set and "Loading channels" lines no longer run off the top and bottom. The set is sized by height as well as width.
+- **Backdrop follows the TV**: the blurred backdrop is now made of the same pictures as the TV, on the same timing, so it shows what the screen shows (and goes dark when the screen is on static). Before, it followed one picture in twelve.
+- **No more hanging on the colour bars**: the flash of bars when a channel locks on now ends by itself after a third of a second, even while the app is busy building guides.
+
 ## Alpha 0.53.18 — 2026-11-21
 - **Santa's plough is never skipped**: when the free strip under the last guide row is short, the plough is drawn with smaller pixels to fit it, instead of not appearing at all.
 

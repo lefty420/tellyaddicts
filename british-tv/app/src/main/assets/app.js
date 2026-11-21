@@ -1137,6 +1137,8 @@
       el.addEventListener('animationiteration', function (e) { if (e.animationName === 'spslot') spSet(e.target); });
       el.addEventListener('animationstart', function (e) { if (e.animationName === 'spslot') spSet(e.target); });
       box.appendChild(el); spSlots.push(el);
+      var bgb = $('spbg');
+      if (bgb) { var tw = document.createElement('div'); tw.className = 'spbgslot'; tw.style.animationDelay = el.style.animationDelay; bgb.appendChild(tw); el._tw = tw; }
     }
     spFill();
   }
@@ -1146,7 +1148,7 @@
     if (!pool.length) return;
     var fresh = pool.filter(function (u) { return !spSeen[u]; });    // never one already shown, while there is a new one to show
     if (fresh.length < 8) spMore(10);                                // and keep fetching so there always is
-    if (!fresh.length && pool.length < 40) { el.className = 'spslot'; return; }   // few pictures loaded so far: show nothing rather than the same one again (spFill gives it a new one as they arrive)
+    if (!fresh.length && pool.length < 40) { el.className = 'spslot'; if (el._tw) el._tw.className = 'spbgslot'; return; }   // few pictures loaded so far: show nothing rather than the same one again (spFill gives it a new one as they arrive)
     if (!fresh.length) {                                             // only when every one has been seen does it start over, and then
       spSeen = {};                                                   // never with one of the last few shown (or the very last one, at least)
       fresh = pool.filter(function (u) { return spRecent.indexOf(u) < 0; });
@@ -1158,7 +1160,7 @@
     if (tuned.length) pn = tuned[spChi++ % tuned.length].n;
     spSeen[u] = 1; spRecent.push(u); if (spRecent.length > 6) spRecent.shift();
     el.style.backgroundImage = 'url("' + u + '")'; el.className = 'spslot has';
-    if (el === spSlots[0]) { var bg = $('spbg'); if (bg) bg.style.backgroundImage = 'url("' + u + '")'; }   // the room theme's blurred backdrop follows the first picture
+    if (el._tw) { el._tw.style.backgroundImage = 'url("' + u + '")'; el._tw.className = 'spbgslot has'; }   // the room theme's blurred backdrop shows the same picture at the same moment
     el.setAttribute('data-ch', 'P' + (pn < 10 ? '0' : '') + pn);
   }
   /** A picture has loaded: any slot still empty can use it. */
@@ -1203,7 +1205,7 @@
       $('splash').classList.toggle('ready', allIn);
       if (allIn) $('spmsg').textContent = 'Opening the guide\u2026';
       var scr = $('spscreen');
-      if (!first) { scr.classList.add('lock'); setTimeout(function () { scr.classList.remove('lock'); }, 180); }   // a flash of colour bars as a channel locks on
+      if (!first) { scr.classList.remove('lock'); void scr.offsetWidth; scr.classList.add('lock'); setTimeout(function () { scr.classList.remove('lock'); }, 180); }   // a flash of colour bars as a channel locks on
     }
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;

@@ -5979,7 +5979,7 @@
   OCATS.forEach(function (c) { OPTS = OPTS.concat(c.rows); });
   var optsCat = 0, optsZone = 0;      // optsZone: 0 = the category list, 1 = a row in the chosen category
   function catOfRow(id) { for (var i = 0; i < OCATS.length; i++) if (OCATS[i].rows.indexOf(id) >= 0) return i; return 0; }
-  var optsOpen = false, optsSel = 0, optsTimer = null;
+  var optsOpen = false, optsSel = 0, optsTimer = null, optsShut = '';      // optsShut: the row whose choices were confirmed with OK, shown folded away (its value only)
   function optValue(id) {
     if (id === 'exp') return expOn ? 'On' : 'Off  \u00b7  turn on to use the dimmed rows';
     if (id === 'uisize') return expOn ? UI[uiIdx].label + (uiIdx === 1 ? '  \u00b7  as designed' : '') : 'Turn Experimental on first';
@@ -6173,7 +6173,7 @@
     });
     cat.rows.forEach(function (id) {
       var i = OPTS.indexOf(id), ch = optChoices(id), sel = !!optsZone && i === optsSel;
-      var val = optValue(id), cls = 'orow' + (ACTION[id] ? ' act' : '') + (sel ? ' sel' : '') + (ch ? ' hasc' : '') + (!expOn && NEEDS_EXP[id] ? ' dim' : ''), was = optsShown[id] || {};
+      var val = optValue(id), cls = 'orow' + (ACTION[id] ? ' act' : '') + (sel ? ' sel' : '') + (ch && optsShut !== id ? ' hasc' : '') + (!expOn && NEEDS_EXP[id] ? ' dim' : ''), was = optsShown[id] || {};
       if (was.v !== val) setIf($('ov-' + id), 'textContent', val);
       if (was.c !== cls) setIf($('or-' + id), 'className', cls);
       var sig = ch ? ch.l.join('|') + '#' + ch.i : '';
@@ -6450,11 +6450,17 @@
       return true;
     }
     var id = OPTS[optsSel], at = rows.indexOf(id);
-    if (k === 'ArrowUp') optsSel = OPTS.indexOf(rows[(at + rows.length - 1) % rows.length]);
-    else if (k === 'ArrowDown') optsSel = OPTS.indexOf(rows[(at + 1) % rows.length]);
-    else if (k === 'ArrowLeft') { if (ACTION[id]) optsZone = 0; else { optsChange(-1); return true; } }
-    else if (k === 'ArrowRight' || k === 'Enter' || k === ' ') { optsChange(1); return true; }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') optsZone = 0;
+    // A row with choices: Left and Right pick one (applied at once); OK confirms it, which folds the choices away so the row shows
+    // its value again, and pressing OK again opens them. Any other press leaves the folded state.
+    if (k === 'ArrowUp') { optsShut = ''; optsSel = OPTS.indexOf(rows[(at + rows.length - 1) % rows.length]); }
+    else if (k === 'ArrowDown') { optsShut = ''; optsSel = OPTS.indexOf(rows[(at + 1) % rows.length]); }
+    else if (k === 'ArrowLeft') { if (ACTION[id]) optsZone = 0; else { optsShut = ''; optsChange(-1); return true; } }
+    else if (k === 'ArrowRight') { optsShut = ''; optsChange(1); return true; }
+    else if (k === 'Enter' || k === ' ') {
+      if (optChoices(id) && !ACTION[id] && !(!expOn && NEEDS_EXP[id])) { optsShut = optsShut === id ? '' : id; renderOpts(); return true; }
+      optsChange(1); return true;
+    }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') { optsShut = ''; optsZone = 0; }
     renderOpts();
     return true;
   }

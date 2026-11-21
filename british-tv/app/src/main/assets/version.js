@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.24",
-  "version": "0.53.24",
-  "code": 5324,
+  "name": "Alpha 0.53.25",
+  "version": "0.53.25",
+  "code": 5325,
   "date": "2026-11-21",
   "notes": [
-    "**Options no longer jumps about**: the highlighted row opens up to show its choices, so the rows around it changed height with every press and the list scrolled in uneven jumps. The highlighted row is now held at one place a little way down the panel and the list slides past it a row at a time, stopping naturally at the top and bottom. The opened row is still kept whole inside the panel."
+    "**Options: OK confirms a choice.** On a row with choices, Left and Right pick one (applied straight away, as before) and OK now confirms it: the choices fold away and the row shows its value again, so there is no need to press Back to come out of it. OK again opens the choices; moving to another row also folds them. Rows that open a screen or run something are unchanged."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.24",
+      "date": "2026-11-21",
+      "notes": [
+        "**Options no longer jumps about**: the highlighted row opens up to show its choices, so the rows around it changed height with every press and the list scrolled in uneven jumps. The highlighted row is now held at one place a little way down the panel and the list slides past it a row at a time, stopping naturally at the top and bottom. The opened row is still kept whole inside the panel."
+      ]
+    },
     {
       "name": "Alpha 0.53.23",
       "date": "2026-11-21",
@@ -61,14 +68,6 @@ window.RELEASE = {
       "notes": [
         "**Seasonal effects > Test** (Experimental on) now also runs the snow on a 30 second cycle, so the build-up and Santa's plough can be watched without waiting 15 minutes. Auto keeps the 15 minute cycle.",
         "Fixes a syntax slip pushed a moment earlier that stopped the seasonal script loading."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.16",
-      "date": "2026-11-21",
-      "notes": [
-        "**Seasonal effects** has a third choice, **Test**, shown only with Experimental on: it forces the Christmas snow on out of season, so the build-up and the plough can be checked any time.",
-        "The debug log records the free strip under the last guide row (`SNOW: free strip ...`), and says when it is too small for the plough."
       ]
     }
   ]

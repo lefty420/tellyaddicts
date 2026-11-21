@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.51.5",
-  "version": "0.51.5",
-  "code": 5105,
+  "name": "Alpha 0.51.6",
+  "version": "0.51.6",
+  "code": 5106,
   "date": "2026-11-21",
   "notes": [
-    "On Demand: the top of the highlighted poster (its amber ring and the enlarged card) was cut off by the row above. The rows now have room for it."
+    "TV Guide snow: the drifts along the bottom no longer paint over the last row of the guide; they stay in the space under it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.51.5",
+      "date": "2026-11-21",
+      "notes": [
+        "On Demand: the top of the highlighted poster (its amber ring and the enlarged card) was cut off by the row above. The rows now have room for it."
+      ]
+    },
     {
       "name": "Alpha 0.51.4",
       "date": "2026-11-21",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "New in Options > Experimental: **Loading screen**. Pick how the start-up TV looks: Classic (as before, the default), Set in the room (a bigger wooden set with rabbit ears over blurred artwork, a big TUNING on the glass), Whole screen (the picture is the TV, with the dials and tuning scale in a strip along the bottom), or Surprise me (one of the two new looks each start). It needs Experimental on and shows from the next start. Everything is drawn in screen-relative sizes, so it looks the same on 1080p and 4K."
-      ]
-    },
-    {
-      "name": "Alpha 0.50.8",
-      "date": "2026-11-20",
-      "notes": [
-        "Faster start: each channel's finished schedule (what plays when) is now kept on the device and read back at the next start, instead of being laid out again for all 60-odd channels. It is used only when the channel's list, the guide span, the Broadcast schedule setting and the app version are all the same; otherwise that channel is laid out again and kept. Live TV mode's daily episodes are still worked out at each start, so they move on as before. \"Build every channel afresh\" clears the kept schedules. The debug log shows how many were read and how many were laid out."
       ]
     }
   ]

@@ -73,7 +73,7 @@
 
     function paintDrifts(W, H) {
       var c = mk('sn-drift', W, H), x = c.getContext('2d'), px = CFG.PIXEL, k = Math.max(0, Math.min(10, CFG.DRIFT)) / 10 * 2;
-      var clear = bottomClear ? Math.max(0, bottomClear()) : 40, cap = Math.max(8, Math.round((clear + 14) / px)), tops = [];
+      var clear = bottomClear ? Math.max(0, bottomClear()) : 40, cap = Math.max(6, Math.round((clear - 4) / px)), tops = [];
       DRIFTS.forEach(function (D) {
         var base = D.h * 5 * k, prev = -1;
         for (var i = 0; i < W; i++) {

@@ -8364,12 +8364,24 @@
   // ------------------------------------------------------------------ start up
 
   var bootedAt = Date.now();
-  var FIRST_WAIT = 8000;      // how long to hold the loading screen for the channel we want to open on
-  var ALL_WAIT = 10000;       // ... and for every other channel to finish, so the guide opens complete; a slow box opens with the first rows and the rest fill in (they are built in the order of the guide)
+  var FIRST_WAIT = 5000;      // how long to hold the loading screen for the channel we want to open on (if it is later than that, the guide opens on what is ready and tunes to it as soon as it is, see lateTune)
+  var ALL_WAIT = 2500;        // ... and, once that one is ready, only this long (from launch) for the others: a start that has them saved finishes within it and opens complete; any other opens with the first rows and the rest fill in (built in the order of the guide)
 
+  var lateWant = null, landedAt = 0;
+  /** The channel that was on last was not ready when the guide opened: tune to it as soon as it is, unless a key has been pressed since. */
+  function lateTune() {
+    var c = lateWant;
+    if (!c || c.status === 'loading') { if (c && Date.now() - landedAt > 60000) lateWant = null; return; }
+    lateWant = null;
+    if (c.status !== 'ready' || lastKeyAt > landedAt || !cur || cur.ch === c || optsOpen || odOpen || infoOpen) return;
+    dlog('START: tuned to ' + c.name + ' once it was ready');
+    tune(c, false, true);
+    if (guideOpen) openGuide();
+  }
   function begin() {
+    if (started) { lateTune(); return; }
     var list = ready();
-    if (started || !list.length) return;
+    if (!list.length) return;
     // The channel we would rather open on: the one that was on last, or else the first in the guide. On This Day
     // needs no requests at all, so it is ready before anything else; without this wait the app would always open on
     // it instead. Hold the loading screen a few seconds for the one we want, then start with whatever is ready.
@@ -8382,7 +8394,9 @@
     started = true;
     dlog('START: guide opening ' + Math.round(performance.now() / 100) / 10 + ' s after launch, ' + list.length + ' of ' + channels.length + ' channels ready');
     var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];
+    if (prefer && pick !== prefer && prefer.status === 'loading') lateWant = prefer;
     var land = function () {
+      landedAt = Date.now();
       $('splash').className = 'hidden';
       clearInterval(spNoiseTimer); spNoiseTimer = null; clearInterval(bootTimer);   // nothing needs waking up 9 times a second now
       tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...

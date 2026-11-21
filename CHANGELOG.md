@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.1 — 2026-11-21
+
+- Faster start: the guide no longer waits up to 10 s for every channel. It opens as soon as the channel that was on last is ready (waiting at most 5 s for it) and the rest fill in behind. If that channel is slower than 5 s, the guide opens on what is ready and the app tunes to the last channel by itself the moment it is ready, unless a key has been pressed in the meantime.
+
 ## Alpha 0.53.0 — 2026-11-21
 
 - On Demand opens straight away. The "Getting your shows ready…" popup is gone from the home page, and nothing blocks the keys while rows fill in.

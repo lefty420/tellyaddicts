@@ -1,19 +1,26 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.0",
-  "version": "0.53.0",
-  "code": 5300,
+  "name": "Alpha 0.53.1",
+  "version": "0.53.1",
+  "code": 5301,
   "date": "2026-11-21",
   "notes": [
-    "On Demand opens straight away. The \"Getting your shows ready…\" popup is gone from the home page, and nothing blocks the keys while rows fill in.",
-    "On Demand now has an index: one small row per show (name, slug, poster, logo, backdrop, certificate, year, episode and season counts), kept per channel under the library revision like the sorted lists, and built in the background after the guide is up. The home rows, the hero and Browse read only from it; opening the home page no longer loads a channel's list, fills in episodes or groups them.",
-    "A show's episodes, seasons and copies are put together (Magic EPG fill included) only when its page is opened, for that show alone. Compared with the old whole-channel build on 2,700 shows, the episodes, seasons and certificates are identical.",
-    "First run, or a new library revision: the chips, rail and hero draw at once and each row fills in as its channel is indexed (placeholder posters, no popup).",
-    "The debug log now says how long it took from pressing On Demand to the first row (ONDEMAND: first row drawn … ms, warm start or index being built).",
-    "Still shown: the short wait when On Demand opens straight onto the show that is playing."
+    "Faster start: the guide no longer waits up to 10 s for every channel. It opens as soon as the channel that was on last is ready (waiting at most 5 s for it) and the rest fill in behind. If that channel is slower than 5 s, the guide opens on what is ready and the app tunes to the last channel by itself the moment it is ready, unless a key has been pressed in the meantime."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.0",
+      "date": "2026-11-21",
+      "notes": [
+        "On Demand opens straight away. The \"Getting your shows ready…\" popup is gone from the home page, and nothing blocks the keys while rows fill in.",
+        "On Demand now has an index: one small row per show (name, slug, poster, logo, backdrop, certificate, year, episode and season counts), kept per channel under the library revision like the sorted lists, and built in the background after the guide is up. The home rows, the hero and Browse read only from it; opening the home page no longer loads a channel's list, fills in episodes or groups them.",
+        "A show's episodes, seasons and copies are put together (Magic EPG fill included) only when its page is opened, for that show alone. Compared with the old whole-channel build on 2,700 shows, the episodes, seasons and certificates are identical.",
+        "First run, or a new library revision: the chips, rail and hero draw at once and each row fills in as its channel is indexed (placeholder posters, no popup).",
+        "The debug log now says how long it took from pressing On Demand to the first row (ONDEMAND: first row drawn … ms, warm start or index being built).",
+        "Still shown: the short wait when On Demand opens straight onto the show that is playing."
+      ]
+    },
     {
       "name": "Alpha 0.52.11",
       "date": "2026-11-21",
@@ -63,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "On-screen display: the button row always fits. On a film (which adds Sources and Audio & subs) the Options button was clipped at the right edge; the buttons now step down in size until all of them are on screen."
-      ]
-    },
-    {
-      "name": "Alpha 0.52.4",
-      "date": "2026-11-21",
-      "notes": [
-        "Loading a programme is now one screen. \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are written on the \"Please stand by\" screen itself (in whichever Loading screen look is set), so it no longer shows one TV screen and then swaps to a different one when the video starts to load."
       ]
     }
   ]

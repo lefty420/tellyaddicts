@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.17 — 2026-11-21
+- **Seasonal effects > Test** (Experimental on) now also runs the snow on a 30 second cycle, so the build-up and Santa's plough can be watched without waiting 15 minutes. Auto keeps the 15 minute cycle.
+- Fixes a syntax slip pushed a moment earlier that stopped the seasonal script loading.
+
 ## Alpha 0.53.16 — 2026-11-21
 - **Seasonal effects** has a third choice, **Test**, shown only with Experimental on: it forces the Christmas snow on out of season, so the build-up and the plough can be checked any time.
 - The debug log records the free strip under the last guide row (`SNOW: free strip ...`), and says when it is too small for the plough.

@@ -4046,14 +4046,13 @@
   } catch (e) { /* no observer */ }
 
   // ---- seasonal effects (seasons.js): a decorative overlay over the guide, only while it is open and a season is on
-  var seasonOn = store.get('seasonal') !== 'off', seasonTest = store.get('seasonal') === 'test' && store.get('exp1') === 'on', seasonOv = null, seasonLogged = -1;
-  if (window.SEASONS) SEASONS.force(seasonTest);
+  var seasonOn = store.get('seasonal') !== 'off', seasonOv = null, seasonLogged = -1;
   /** Measures how smoothly the page draws while the snow is on, and writes it to the debug log: frames per second, the slowest frame, and
    *  how many took over 50 ms, with how many snow animations are really running. It waits 20 s after the snow starts (so start-up work is
    *  over), measures for 12 s, and says nothing if the guide closes meanwhile. The mode (Auto or Test) is logged when the snow starts. */
   var probeAt = 0, probeRun = 0;
   function snowProbe() {
-    dlog('SNOW: starting, ' + (seasonTest ? 'Test mode (30 s cycle)' : 'Auto (15 min cycle)') + ', Experimental ' + (expOn ? 'on' : 'off') + ', saved choice "' + (store.get('seasonal') || '') + '", screen ' + window.innerWidth + 'x' + window.innerHeight + ' at ' + (window.devicePixelRatio || 1) + 'x');
+    dlog('SNOW: starting, 15 minute cycle, saved choice "' + (store.get('seasonal') || '') + '", screen ' + window.innerWidth + 'x' + window.innerHeight + ' at ' + (window.devicePixelRatio || 1) + 'x');
     if (!window.requestAnimationFrame || Date.now() - probeAt < 120000) return;
     probeAt = Date.now();
     var run = ++probeRun;
@@ -4079,7 +4078,7 @@
       var free = last ? window.innerHeight - last.getBoundingClientRect().bottom : 40;
       if (free !== seasonLogged) { seasonLogged = free; dlog('SNOW: free strip under the last row ' + Math.round(free) + ' px at ' + window.innerWidth + 'x' + window.innerHeight); }
       return free;
-    });
+    }, dlog);
     var was = seasonOv && seasonOv.on ? seasonOv.on() : false;
     if (want) seasonOv.start(); else if (seasonOv) seasonOv.stop();
     if (want && !was) snowProbe(); else if (!want) probeRun++;
@@ -6010,7 +6009,7 @@
     if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs the newest app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  \u00b7  rescued ' + Object.keys(npKnown).length + (Object.keys(npKnown).length === 1 ? ' video' : ' videos') + ' so far' : '');
     if (id === 'span') return SPANS[spanIdx].label;
     if (id === 'theme') return THEMES[themeIdx].label;
-    if (id === 'season') return seasonTest ? 'Test  (Christmas snow forced on)' : seasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
+    if (id === 'season') return seasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'unhide') return unhideArmed ? 'Press OK again to confirm' : hidCount ? hidCount + ' hidden  \u00b7  OK to show all' : 'None';
@@ -6148,7 +6147,7 @@
   function optChoices(id) {
     if (id === 'player') return { l: PLAYERS.map(function (x) { return x.label; }), i: playerIdx };
     if (id === 'theme') return { l: THEMES.map(function (x) { return x.label; }), i: themeIdx };
-    if (id === 'season') return { l: expOn ? ['Auto', 'Off', 'Test'] : ['Auto', 'Off'], i: seasonTest ? 2 : seasonOn ? 0 : 1 };
+    if (id === 'season') return { l: ['Auto', 'Off'], i: seasonOn ? 0 : 1 };
     if (id === 'span') return { l: SPANS.map(function (x) { return x.label; }), i: spanIdx };
     if (id === 'keep') return { l: KEEP.map(function (x) { return x.label; }), i: keepIdx };
     if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };
@@ -6341,13 +6340,7 @@
     else if (id === 'ads') changeAds(d);
     else if (id === 'yt') changeYt();
     else if (id === 'real') changeReal();
-    else if (id === 'season') {
-      // Auto, Off and (only with Experimental on) Test, which forces the Christmas snow on out of season
-      var sm = seasonTest ? 2 : seasonOn ? 0 : 1, n = expOn ? 3 : 2; sm = (sm + 1) % n;
-      seasonOn = sm !== 1; seasonTest = sm === 2; if (window.SEASONS) SEASONS.force(seasonTest);
-      if (seasonOv) seasonOv.stop();           // so it is built again with the new cycle length
-      store.set('seasonal', sm === 2 ? 'test' : sm === 0 ? 'auto' : 'off'); seasonUpdate(); renderOpts();
-    }
+    else if (id === 'season') { seasonOn = !seasonOn; store.set('seasonal', seasonOn ? 'auto' : 'off'); if (seasonOv) seasonOv.stop(); seasonUpdate(); renderOpts(); }
     else if (id === 'player') changePlayer(d);
     else if (id === 'buf') changeBuf(d);
     else if (id === 'span') changeSpan(d);

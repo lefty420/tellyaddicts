@@ -22,9 +22,7 @@
     return a <= b ? v >= a && v <= b : v >= a || v <= b;
   }
   /** The season that is on at a date, or null. */
-  var forced = false;                // test mode (Options, with Experimental on): the first season is on whatever the date
   function current(d) {
-    if (forced) return SEASONS[0];
     d = d || new Date();
     for (var i = 0; i < SEASONS.length; i++) if (inSeason(SEASONS[i], d)) return SEASONS[i];
     return null;
@@ -71,8 +69,8 @@
    * repeated in both halves) and the browser slides it down on the graphics chip, round and round, with a slow side to side
    * sway on top. That keeps the movement smooth at the screen's own frame rate and costs the TV almost no work.
    */
-  function snow(box, bottomClear) {
-    var anims = [], resumeT = 0, running = false;
+  function snow(box, bottomClear, note) {
+    var anims = [], resumeT = 0, running = false, noteT = 0;
 
     function paintLayer(L, W, H) {
       var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * L.share / 2);   // half of the layer's flakes: each layer is two sheets at different speeds
@@ -160,6 +158,13 @@
         { offset: 1,    transform: 'translateY(0)',                clipPath: 'inset(0 0 0 ' + endX + 'px)' }
       ];
       [d[0], d[1]].forEach(function (el) { anims.push(el.animate(rise, opt)); });
+      // say in the debug log when the plough is due and when it sets off, so a crossing can be checked afterwards
+      clearTimeout(noteT);
+      var due = ((grow * cyc - ((Date.now() - T0) % cyc)) % cyc + cyc) % cyc;
+      if (note) {
+        note('SNOW: Santa\'s plough is due in ' + Math.round(due / 1000) + ' s (cycle ' + Math.round(cyc / 1000) + ' s)');
+        noteT = setTimeout(function again() { if (!running) return; note('SNOW: Santa\'s plough sets off'); noteT = setTimeout(again, cyc); }, due);
+      }
       {
         var pl = paintPlough();
         pl.style.cssText = 'top:auto;bottom:0;width:' + pw + 'px;height:' + (PLOUGH_H * pp) + 'px';
@@ -179,7 +184,7 @@
       // a menu is over the guide: hold the snow still, carry on when it closes
       hold: function (on) { if (running) setPlay(!on); },
       on: function () { return running; },
-      stop: function () { running = false; clearTimeout(resumeT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; },
+      stop: function () { running = false; clearTimeout(resumeT); clearTimeout(noteT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; },
       // the guide is being scrolled: hold the snow still until it has settled
       touch: function () { if (!running) return; setPlay(false); clearTimeout(resumeT); resumeT = setTimeout(function () { if (running) setPlay(true); }, CFG.PAUSE_MS); }
     };
@@ -208,5 +213,5 @@
     b.classList.add('season-hat');
   }
 
-  window.SEASONS = { list: SEASONS, cfg: CFG, current: current, force: function (on) { forced = !!on; CFG.CYCLE_MS = forced ? 30000 : 900000; },   /* test mode also runs a 30 s cycle */ snow: snow, hat: hat };
+  window.SEASONS = { list: SEASONS, cfg: CFG, current: current, snow: snow, hat: hat };
 })();

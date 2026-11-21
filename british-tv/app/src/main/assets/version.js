@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.21",
-  "version": "0.53.21",
-  "code": 5321,
+  "name": "Alpha 0.53.22",
+  "version": "0.53.22",
+  "code": 5322,
   "date": "2026-11-21",
   "notes": [
-    "**Snow log is cleaner**: the debug log says which mode the snow started in (Auto or Test), whether Experimental is on, the screen size, and then a speed check taken 20 s later, when start-up work is over, with the number of animations really running. A check interrupted by the guide closing is dropped."
+    "**Snow build-up and Santa's plough are part of the ordinary Christmas snow.** The Test choice is gone: Seasonal effects is just Auto or Off, and Auto does everything (snow, drifts building over 15 minutes, the plough crossing at the end of each cycle).",
+    "The debug log says when the plough is due after the snow starts, and when it sets off, so a crossing can be checked afterwards."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.21",
+      "date": "2026-11-21",
+      "notes": [
+        "**Snow log is cleaner**: the debug log says which mode the snow started in (Auto or Test), whether Experimental is on, the screen size, and then a speed check taken 20 s later, when start-up work is over, with the number of animations really running. A check interrupted by the guide closing is dropped."
+      ]
+    },
     {
       "name": "Alpha 0.53.20",
       "date": "2026-11-21",
@@ -67,17 +75,6 @@ window.RELEASE = {
         "**Options** list fades at the foot so it is clear that it scrolls.",
         "**Version label** now reads the current version (the changelog dates were in a format the version tool skipped, so the app said 0.53.2).",
         "**Disney shorts**: a show flagged `shorts` in the library is a plain list of shorts with no season or episode labels, no series art or TVmaze lookups, and a generated title card. Needs a scraper rebuild, then Sync episode meta and Send to TV app."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.13",
-      "date": "2026-11-21",
-      "notes": [
-        "**Playback bar** is shorter: the poster stub is smaller, the time sits at the end of the progress line, padding is tighter. The lettered placeholder poster is gone (the title moves left when there is no real picture). Pause carries an amber tint so it reads as the main button.",
-        "**Rail** focus dims the page behind its label. Favourites now has the rail too (Left from the first item), so it is not a dead end.",
-        "**Favourites** shows two rows: Channels, then Shows. The \"On <channel>\" row is gone (use Open in On Demand from a channel's menu). The empty-state text wraps in balanced lines.",
-        "**Guide:** titles such as \"The Bill (1983) S11 DVD Rip\" or \"The Bill (1983) - S15E067 - …\" now show \"The Bill\" with \"S11\" or \"S15 E067\" under it. The snow no longer falls over the header, the programme title or the grid; it stays in the margins, beside the little TV and along the foot.",
-        "**Loading screen** reads \"Loading channels 12 of 31\", and after 20 seconds adds \"The first start takes longest\"."
       ]
     }
   ]

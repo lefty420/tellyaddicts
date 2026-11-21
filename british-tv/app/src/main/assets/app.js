@@ -5328,22 +5328,14 @@
   var arIdx = 0;
   // Buttons on the bar, left to right: playback on the left, then two short lists (Guide, Sources) and the settings.
   // During an ad break Next reads "Skip adverts" (it always skipped the break there).
-  var OB_ALL = ['pp', 'next', 'tracks', 'more'];
-  var OB_EVERY = ['pp', 'next', 'tracks', 'more', 'stop', 'restart', 'gguide', 'gsrc', 'options'];    // every button in the page; those not in OB_ALL stay hidden
-  /** The list behind More...: the rest of what the bar used to hold in one row. */
-  function popRows(g) {
-    if (g !== 'more') return OB_POP[g];
-    var r = [{ id: 'restart', t: 'Restart' }, { id: 'stop', t: 'Stop' }, { id: 'guide', t: 'TV Guide', key: 'GUIDE' }, { id: 'od', t: 'On Demand' }];
-    if (expOn && cur && !cur.ad && cur.prog && adLive().length) r.push({ id: 'find', t: 'Find sources' }, { id: 'src', t: 'Auto play from addons' });
-    r.push({ id: 'options', t: 'Options' });
-    return r;
-  }
+  var OB_ALL = ['pp', 'next', 'restart', 'stop', 'gguide', 'gsrc', 'tracks', 'options'];     // every button stays on the bar; only the look is slimmer
   var OB_POP = {
     gguide: [{ id: 'guide', t: 'TV Guide', key: 'GUIDE' }, { id: 'sched', t: 'Channel schedule' }, { id: 'od', t: 'On Demand' }],
     gsrc: [{ id: 'src', t: 'Auto play from addons' }, { id: 'find', t: 'Find sources' }]
   };
+  function popRows(g) { return OB_POP[g]; }
   /** The buttons showing now: Audio & subs only when the file has tracks to pick; Sources only with Experimental on and an addon. */
-  function obList() { return OB_ALL.filter(function (id) { return id === 'tracks' ? trHas() : true; }); }
+  function obList() { return OB_ALL.filter(function (id) { return id === 'tracks' ? trHas() : id === 'gsrc' ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
   var osdPop = null;                     // the open list above the bar: { g: 'gguide' | 'gsrc', i: row }
   var osdStopped = false;                // Stop pressed: the picture is held and the guide is up; Back from the guide joins the channel again
@@ -6500,7 +6492,7 @@
     var ob = obList();
     if (osdSel > ob.length - 1) osdSel = ob.length - 1;
     if (osdPop && ob.indexOf(osdPop.g) < 0) osdPop = null;
-    OB_EVERY.forEach(function (id) { var i = ob.indexOf(id), e = $('ob-' + id); e.className = 'ob' + (i < 0 ? ' hidden' : '') + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
+    OB_ALL.forEach(function (id) { var i = ob.indexOf(id), e = $('ob-' + id); e.className = 'ob' + (i < 0 ? ' hidden' : '') + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
     var bx = $('obtns'); bx.className = '';                               // widest first; step down until every button is on screen
     if (bx.scrollWidth > bx.clientWidth + 1) { bx.className = 'tight'; if (bx.scrollWidth > bx.clientWidth + 1) bx.className = 'tighter'; }
     renderPop();
@@ -6660,7 +6652,7 @@
   }
 
   function osdAct(id) {
-    if (id === 'more' || OB_POP[id]) { popOpen(id); return; }
+    if (OB_POP[id]) { popOpen(id); return; }
     if (id === 'stop') { stopShow(); return; }
     if (id === 'pp') togglePlay();
     else if (id === 'next') { closeOsd(); if (cur && cur.ad && !isAdChan(cur.ch)) skipAds(); else playNext(); return; }

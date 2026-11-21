@@ -178,6 +178,7 @@
       start: function () { if (running) return; running = true; build(); box.className = ''; },
       // a menu is over the guide: hold the snow still, carry on when it closes
       hold: function (on) { if (running) setPlay(!on); },
+      on: function () { return running; },
       stop: function () { running = false; clearTimeout(resumeT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; },
       // the guide is being scrolled: hold the snow still until it has settled
       touch: function () { if (!running) return; setPlay(false); clearTimeout(resumeT); resumeT = setTimeout(function () { if (running) setPlay(true); }, CFG.PAUSE_MS); }

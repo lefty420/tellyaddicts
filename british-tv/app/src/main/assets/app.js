@@ -39,24 +39,41 @@
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
     getItem: function (k) {
       if (kv.big(k)) { try { return NativeHttp.kvGet(k); } catch (e) { return null; } }
-      return localStorage.getItem(k);
+      var v = localStorage.getItem(k);
+      // settings are also kept as files (below): if the page's storage lost them, they are read back from there
+      if (v === null && kv.mirrored(k)) { try { v = NativeHttp.kvGet('ls:' + k); if (v) { try { localStorage.setItem(k, v); } catch (e2) { /* read from the file next time */ } } } catch (e) { v = null; } if (v === undefined || v === '') v = null; }
+      return v;
     },
+    /** The page's storage is written to disk some seconds after a change, so closing or updating the app quickly after changing a
+     *  setting (Experimental, Test snow, a favourite) lost it. Small saved things are written to a file at once as well. */
+    mirrored: function (k) { return KV_NATIVE && k !== 'dbglog1' && !/^(ls:|tvdbtok)/.test(k); },
     setItem: function (k, v) {                        // throws when it will not fit, like localStorage
       if (kv.big(k)) { var ok = false; try { ok = NativeHttp.kvSet(k, v); } catch (e) { ok = false; } if (!ok) throw new Error('not saved'); if (kvNames) kvNames[k] = 1; return; }
       localStorage.setItem(k, v);
+      if (kv.mirrored(k) && v.length < 60000) { try { NativeHttp.kvSet('ls:' + k, v); } catch (e) { /* the page's storage still has it */ } }
     },
     removeItem: function (k) {
       if (kv.big(k)) { try { NativeHttp.kvRemove(k); } catch (e) { /* nothing to remove */ } if (kvNames) delete kvNames[k]; return; }
       localStorage.removeItem(k);
+      if (kv.mirrored(k)) { try { NativeHttp.kvRemove('ls:' + k); } catch (e) { /* none */ } }
     },
     /** Every key, in the page's storage and in the files. */
     keys: function () {
       var out = [], i;
       try { for (i = 0; i < localStorage.length; i++) out.push(localStorage.key(i)); } catch (e) { /* blocked */ }
-      if (KV_NATIVE) out = out.concat(Object.keys(kvNative()));
+      if (KV_NATIVE) out = out.concat(Object.keys(kvNative()).filter(function (k) { return k.indexOf('ls:') !== 0; }));
       return out;
     }
   };
+  // Settings saved by an earlier version are only in the page's storage: copy them to files once, shortly after start
+  if (KV_NATIVE) setTimeout(function () {
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && kv.mirrored(k) && !kv.big(k) && !kvNative()['ls:' + k]) { var t = localStorage.getItem(k); if (t && t.length < 60000) NativeHttp.kvSet('ls:' + k, t); if (kvNames) kvNames['ls:' + k] = 1; }
+      }
+    } catch (e) { /* the page's storage still has them */ }
+  }, 4000);
   var store = {
     get: function (k) { try { return JSON.parse(kv.getItem(k)); } catch (e) { return null; } },
     set: function (k, x) {
@@ -4031,16 +4048,32 @@
   // ---- seasonal effects (seasons.js): a decorative overlay over the guide, only while it is open and a season is on
   var seasonOn = store.get('seasonal') !== 'off', seasonTest = store.get('seasonal') === 'test' && store.get('exp1') === 'on', seasonOv = null, seasonLogged = -1;
   if (window.SEASONS) SEASONS.force(seasonTest);
+  /** Measures how smoothly the snow (and Santa's plough) draws, for 12 seconds after it starts, and writes it to the debug log, so a slow
+   *  screen can be told from a smooth one without watching it: frames per second, the slowest frame, and how many took over 50 ms. */
+  var probeAt = 0;
+  function snowProbe() {
+    if (!window.requestAnimationFrame || Date.now() - probeAt < 60000) return;
+    probeAt = Date.now();
+    var t0 = performance.now(), last = t0, n = 0, worst = 0, slow = 0;
+    (function tick(t) {
+      var d = t - last; last = t;
+      if (n > 0) { n++; if (d > worst) worst = d; if (d > 50) slow++; } else n = 1;
+      if (t - t0 < 12000) { requestAnimationFrame(tick); return; }
+      dlog('SNOW: ' + Math.round(n * 1000 / (t - t0)) + ' fps over ' + Math.round((t - t0) / 1000) + ' s, slowest frame ' + Math.round(worst) + ' ms, ' + slow + ' over 50 ms' + (guideOpen ? '' : ' (guide closed)'));
+    })(t0);
+  }
   function seasonUpdate() {
     if (!window.SEASONS) return;
     var want = seasonOn && guideOpen && !!SEASONS.current();
     if (want && !seasonOv) seasonOv = SEASONS.snow($('gsnow'), function () {
       var rows = document.querySelectorAll('#guide .grow'), last = rows.length ? rows[rows.length - 1] : null;
       var free = last ? window.innerHeight - last.getBoundingClientRect().bottom : 40;
-      if (free !== seasonLogged) { seasonLogged = free; dlog('SNOW: free strip under the last row ' + Math.round(free) + ' px at ' + window.innerWidth + 'x' + window.innerHeight + (free < 56 ? ' (under 56: no plough)' : '')); }
+      if (free !== seasonLogged) { seasonLogged = free; dlog('SNOW: free strip under the last row ' + Math.round(free) + ' px at ' + window.innerWidth + 'x' + window.innerHeight); }
       return free;
     });
+    var was = seasonOv && seasonOv.on ? seasonOv.on() : false;
     if (want) seasonOv.start(); else if (seasonOv) seasonOv.stop();
+    if (want && !was) snowProbe();
     if (seasonOv) seasonOv.hold(!!gm);        // a hold-OK menu is open: the snow holds still
     SEASONS.hat(want ? SEASONS.current() : null);
   }

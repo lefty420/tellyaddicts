@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-20T19:50:53Z",
+ "updated": "2026-11-21T18:08:03Z",
  "channels": {
   "bbc": "24c32c04f5",
   "childrens": "db5d36bcdb",
@@ -7,13 +7,13 @@
   "citv": "4a93b64993",
   "comedy": "5dc3566706",
   "cooking": "518a61b645",
-  "disney": "3f1189a39e",
+  "disney": "0c46f8f659",
   "drama": "df05637d7e",
   "games": "a5a759d16e",
   "gameshows": "436fa8e023",
   "itv": "39747fa8b9",
-  "kidsmovies": "6b704f1b4a",
-  "kidsxmas": "dd059389f4",
+  "kidsmovies": "f294f77408",
+  "kidsxmas": "d9027bd98e",
   "mtv": "210d4224b3",
   "music": "9d1e1cf0cb",
   "noel": "166e1125f1",
@@ -25,8 +25,8 @@
   "tvarchive": "3d5cbb8c91",
   "usdrama": "7ecadb452d",
   "ussitcoms": "df7296fc63",
-  "videoshop": "bc65b5760f",
-  "xmasmovies": "6a01d8cd6c",
+  "videoshop": "ecf85c20c3",
+  "xmasmovies": "3889285650",
   "xmasmusic": "53e422fd54"
  },
  "counts": {
@@ -36,13 +36,13 @@
   "citv": 1955,
   "comedy": 288,
   "cooking": 10,
-  "disney": 658,
+  "disney": 659,
   "drama": 291,
   "games": 514,
   "gameshows": 753,
   "itv": 1719,
-  "kidsmovies": 90,
-  "kidsxmas": 144,
+  "kidsmovies": 85,
+  "kidsxmas": 143,
   "mtv": 976,
   "music": 263,
   "noel": 3,
@@ -54,18 +54,18 @@
   "tvarchive": 113,
   "usdrama": 201,
   "ussitcoms": 419,
-  "videoshop": 371,
-  "xmasmovies": 50,
+  "videoshop": 369,
+  "xmasmovies": 57,
   "xmasmusic": 65
  },
- "library": "dfa140ccce",
+ "library": "d1f25bbb43",
  "library_counts": {
-  "shows": 814,
-  "episodes": 60571,
-  "copies": 160151
+  "shows": 815,
+  "episodes": 60370,
+  "copies": 160154
  },
  "routes": "e6b4648097",
- "art": "746f149e4b",
+ "art": "f927c4a6dc",
  "eps": {
   "2point4-children": "38cf7ce50e",
   "3-2-1": "db1acfe603",
@@ -203,6 +203,7 @@
   "chewin-the-fat": "8b65426ddf",
   "chief": "eb097b34dc",
   "chip-n-dale": "bde6da7e00",
+  "chip-n-dale-rescue-rangers": "312e0bfb10",
   "chocky": "5172a7a733",
   "chorlton-and-the-wheelies": "15941e1771",
   "chucklevision": "cf7221d511",
@@ -797,7 +798,5 @@
   "z-cars": "efe0d0df33",
   "zillion": "bb965baf1a"
  },
- "adverts": "be61407605",
- "filmdb": "e160251497",
- "epdb": "0ea81da1a0"
+ "adverts": "be61407605"
 }

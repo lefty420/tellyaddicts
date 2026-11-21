@@ -3740,9 +3740,34 @@
   var gFocus = 0;    // time the cursor is on
   var guideTimer = null;
 
+  var favs = (function () { var a = store.get('fav1'); return Array.isArray(a) ? a : []; })();
+  var favOnly = !!store.get('favonly1');
+  function isFav(c) { return !!c && favs.indexOf(c.id) >= 0; }
+  function favSave() { store.set('fav1', favs); store.set('favonly1', favOnly); }
   function guideList() {
-    return channels.filter(function (c) { return c.status !== 'empty'; })
+    var all = channels.filter(function (c) { return c.status !== 'empty'; })
       .sort(function (a, b) { return a.n - b.n; });
+    if (guideOpen && favOnly) {                       // the guide alone: channel surfing and digits still see every channel
+      var f = all.filter(isFav);
+      if (f.length) return f;
+    }
+    return all;
+  }
+  /** Add or remove a channel from the favourites, and redraw the guide so the star shows. */
+  function favToggle(c) {
+    var i = favs.indexOf(c.id);
+    if (i >= 0) favs.splice(i, 1); else favs.push(c.id);
+    if (!favs.length) favOnly = false;
+    favSave();
+    toast(i >= 0 ? c.name + ' removed from favourites' : c.name + ' added to favourites', 2200);
+    gPaint = null; renderGuide();
+  }
+  function favFilter() {
+    if (!favOnly && !favs.length) { toast('No favourites yet: hold OK on a channel and choose Add to favourites', 4000); return; }
+    favOnly = !favOnly;
+    favSave();
+    gPaint = null; gTop = 0; renderGuide();
+    toast(favOnly ? 'Showing favourite channels only' : 'Showing all channels', 2200);
   }
 
   function floorHalf(ms) { return Math.floor(ms / HALF) * HALF; }
@@ -3851,6 +3876,7 @@
     }
 
     $('gclock').textContent = fmtTime(now);
+    var gt = $('gtop').firstElementChild; if (gt) gt.textContent = favOnly && list.every(isFav) ? '\u2605 Favourites' : 'TV Guide';
 
     var grid = $('ggrid');
     grid.textContent = '';
@@ -3879,7 +3905,7 @@
       var cell = div('gch' + (r === gRow ? ' sel' : ''));
       if (window.PHONE) tapGuide(cell, ch, null);
       cell.appendChild(div('n', ch.n));
-      cell.appendChild(div('name', ch.name));
+      cell.appendChild(div('name', (isFav(ch) ? '\u2605 ' : '') + ch.name));
       row.appendChild(cell);
       var rec = { ch: ch, cell: cell, blocks: [] };
       gPaint.rows.push(rec);
@@ -4259,6 +4285,10 @@
     if (c.status !== 'ready') { toast(c.name + ' is still loading', 2000); return; }
     var b = E.blockAt(c.sched, gFocus);
     if (!b || !b.prog) return;
+    var favItems = [
+      { t: isFav(c) ? 'Remove from favourites' : 'Add to favourites', sub: c.n + '  ' + c.name, f: function () { gmClose(); favToggle(c); } },
+      { t: favOnly ? 'Show all channels' : 'Show favourites only', sub: favs.length ? favs.length + ' favourite channel' + (favs.length > 1 ? 's' : '') : 'None chosen yet', f: function () { gmClose(); favFilter(); } }
+    ];
     var p = b.prog, name = gmName(p), now = Date.now(), live = b.startMs <= now && now < b.endMs;
     var items = [];
     items.push({ t: 'On Demand', sub: name, f: function () {
@@ -4268,6 +4298,7 @@
     } });
     items.push({ t: 'Channel schedule', sub: 'Everything on ' + c.name + ', with times', f: function () { gmClose(); csOpen(c, 'guide'); } });
     items.push({ t: 'Watch from the start', sub: 'Begin this programme at the beginning', f: function () { gmClose(); watchFromGuide(true); } });
+    items.push(favItems[0], favItems[1]);
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
     if (ref || film) items.push({ t: 'Try another version', sub: 'Look for a different copy if this one is poor', f: function () { gmClose(); gmAlt(c, p); } });

@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.3 — 21 Nov 2026
+- **Favourites.** Hold OK (or Info) on a guide channel and choose *Add to favourites*. Favourites show a ★ in the guide. *Show favourites only* trims the guide to them (the header reads ★ Favourites); channel surfing and digits still reach every channel. Saved across restarts.
+
 ## Alpha 0.53.2 — 2026-11-21
 
 - Mini guide: the bar that comes up with OK over a channel now has a list above it: this channel and the ones either side of it (higher numbers above, as Up moves), each with what is on now and what is next. Press Up from the progress line to move into it, Up and Down to choose, OK to tune to that channel (the bar closes) and Down to come back. Up and Down on the remote still change channel at once, as before. Not shown on On Demand programmes, adverts or the phone.

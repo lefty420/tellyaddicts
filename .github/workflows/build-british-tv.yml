@@ -49,6 +49,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: tellyaddicts-${{ steps.version.outputs.version }}
+          retention-days: 2      # the APK is also what you download from the run; keeping 90 days of 15 MB builds filled the free storage
           path: |
             british-tv/tellyaddicts-tv.apk
             british-tv/tellyaddicts-mobile.apk

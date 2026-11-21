@@ -5992,7 +5992,7 @@
     about: 'Where the programmes, artwork and details come from.',
     epg: 'What each channel\u2019s guide is built from and what it will show for the next 24 hours, with any problems such as the same show three times in a row.',
     log: 'What failed to play and why, ready to send when something goes wrong.',
-    live: 'Shows this screen, the debug text and a remote on a browser on the same Wi-Fi: open the address shown here. It switches itself off when the app closes.',
+    live: 'Shows this screen, the debug text and a remote on a browser on the same Wi-Fi: open the address shown here. Once it is on it stays on: it starts again by itself each time the app launches, until you switch it off here.',
     gaps: 'Shows with episodes or seasons missing, set against the episode guide.'
   };
   var optsShown = {};     // what each row last said, so a key press only touches the rows that changed
@@ -6142,18 +6142,33 @@
       'Screen: ' + (optsOpen ? 'Options' : odOpen ? 'On Demand' : guideOpen ? 'Guide' : 'Playing'), '', perfText(), ''];
     return o.concat(DLOG.slice(-80)).join('\n');
   }
-  function liveToggle() {
-    if (!window.NativeHttp || !NativeHttp.liveStart) { toast('Needs a newer app', 2500); return; }
-    if (liveAddr) {
+  /** Start or stop the Live view. The choice is kept (live1), so a Live view that was on starts again by itself at the next launch. */
+  function liveSet(on, quiet) {
+    if (!window.NativeHttp || !NativeHttp.liveStart) { if (!quiet) toast('Needs a newer app', 2500); return false; }
+    if (!on) {
       try { NativeHttp.liveStop(); } catch (e) { /* ignore */ }
       liveAddr = ''; clearInterval(liveTimer); liveTimer = null;
-    } else {
-      try { liveAddr = NativeHttp.liveStart() || ''; } catch (e) { liveAddr = ''; }
-      if (!liveAddr) toast('No home network found', 2500);
-      else { perfStart(); liveTimer = setInterval(function () { try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }, 2000); try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }
+      store.set('live1', 'off');
+      return true;
     }
-    renderOpts();
+    if (liveAddr) return true;
+    try { liveAddr = NativeHttp.liveStart() || ''; } catch (e) { liveAddr = ''; }
+    if (!liveAddr) { if (!quiet) toast('No home network found', 2500); return false; }
+    store.set('live1', 'on');
+    perfStart(); liveTimer = setInterval(function () { try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }, 2000);
+    try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ }
+    return true;
   }
+  function liveToggle() { liveSet(!liveAddr, false); renderOpts(); }
+  // it was on when the app last ran: on again now (the home network can take a few seconds to come up, so it tries a few times)
+  (function () {
+    if (store.get('live1') !== 'on') return;
+    var tries = 0;
+    setTimeout(function again() {
+      if (liveAddr) return;
+      if (!liveSet(true, true) && ++tries < 8) setTimeout(again, 5000); else if (liveAddr) { renderOpts(); dlog('LIVE VIEW: back on from the last run, ' + liveAddr); }
+    }, 2000);
+  })();
 
   function optsChange(d) {
     var id = OPTS[optsSel];

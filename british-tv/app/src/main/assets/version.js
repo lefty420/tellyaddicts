@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.6",
-  "version": "0.52.6",
-  "code": 5206,
+  "name": "Alpha 0.52.7",
+  "version": "0.52.7",
+  "code": 5207,
   "date": "2026-11-21",
   "notes": [
-    "On-screen display: a film, an episode and anything else now read the same way. The title line is the film or the show (no more raw \"S01E01\" codes), the line under it is year, certificate and length for a film or Series, Episode and the episode's name for an episode, and the addon's name is no longer repeated (the badge already says it). A picture tile is always on the left (the poster, or a coloured tile with the first letter until one is found), so the bar never changes shape. \"Next\" shows the show and its series and episode.",
-    "Seasonal snow: the flakes now come in a range of sizes in a 16-bit look, from single pixels up to big shaded snowflakes, near ones larger and quicker, far ones smaller and slower."
+    "Debug > Live view now remembers it is on: if it was on when the app last ran it starts again by itself at launch (it retries for 40 s while the home network comes up), and stays off once you switch it off. With Open debug address on, the address is the same every time, so no code to type."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.6",
+      "date": "2026-11-21",
+      "notes": [
+        "On-screen display: a film, an episode and anything else now read the same way. The title line is the film or the show (no more raw \"S01E01\" codes), the line under it is year, certificate and length for a film or Series, Episode and the episode's name for an episode, and the addon's name is no longer repeated (the badge already says it). A picture tile is always on the left (the poster, or a coloured tile with the first letter until one is found), so the bar never changes shape. \"Next\" shows the show and its series and episode.",
+        "Seasonal snow: the flakes now come in a range of sizes in a 16-bit look, from single pixels up to big shaded snowflakes, near ones larger and quicker, far ones smaller and slower."
+      ]
+    },
     {
       "name": "Alpha 0.52.5",
       "date": "2026-11-21",
@@ -59,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "TV Guide snow: the drifts along the bottom no longer paint over the last row of the guide; they stay in the space under it."
-      ]
-    },
-    {
-      "name": "Alpha 0.51.5",
-      "date": "2026-11-21",
-      "notes": [
-        "On Demand: the top of the highlighted poster (its amber ring and the enlarged card) was cut off by the row above. The rows now have room for it."
       ]
     }
   ]

@@ -4291,13 +4291,15 @@
     ];
     var p = b.prog, name = gmName(p), now = Date.now(), live = b.startMs <= now && now < b.endMs;
     var items = [];
-    items.push({ t: 'On Demand', sub: name, f: function () {
+    items.push({ t: 'Episodes', sub: 'Open ' + name + ' in On Demand', f: function () {
       gmClose();
       if (odChannels().indexOf(c) < 0) { toast('Nothing on demand for ' + c.name, 3000); return; }
       odOpenUi(); odJump(c, p);
     } });
     items.push({ t: 'Channel schedule', sub: 'Everything on ' + c.name + ', with times', f: function () { gmClose(); csOpen(c, 'guide'); } });
     items.push({ t: 'Watch from the start', sub: 'Begin this programme at the beginning', f: function () { gmClose(); watchFromGuide(true); } });
+    var mlg = { name: name, chan: c };
+    items.push({ t: mlHas(mlg) ? 'Remove from My list' : 'Add to My list', sub: name, f: function () { gmClose(); mlToggle(mlg); } });
     items.push(favItems[0], favItems[1]);
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });

@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.5 — 21 Nov 2026
+- **Guide programme menu.** Hold OK on a programme now offers *Episodes* (opens the show in On Demand), *Watch from the start*, *Add to My list* and *Add to favourites* near the top.
+
 ## Alpha 0.53.4 — 21 Nov 2026
 - **Badges on On Demand cards.** Show posters carry the age certificate (top left) and the decade, such as 80s (top right). They come from the index, so they appear as soon as the row does.
 

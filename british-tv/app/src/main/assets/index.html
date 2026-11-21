@@ -998,6 +998,17 @@
   .ode em.rs { color: #ffcb6b; }
   /* Browse: the channels down the left, the shows as a grid of posters, and Sort / Decade / Hide watched across the top */
   #odgrid { position: absolute; inset: 0; }
+  #odfav { position: absolute; inset: 0; padding: calc(7 * var(--u)) calc(5 * var(--uw)) calc(9 * var(--u)); display: flex; flex-direction: column; gap: calc(1.6 * var(--u)); }
+  #odfav .ofh { display: flex; align-items: baseline; gap: calc(2 * var(--uw)); }
+  #odfav h2 { margin: 0; font-size: calc(5 * var(--u)); } #odfav .ofh span { font-size: calc(2.6 * var(--u)); color: #b9d1ff; }
+  #odfav .ofhelp { margin: 0; font-size: calc(2.2 * var(--u)); color: #9aa6c4; }
+  #odfav .ofc { display: flex; gap: calc(1.2 * var(--uw)); margin-top: calc(1.5 * var(--u)); }
+  #odfav .ofs { margin: calc(2 * var(--u)) 0 0; font-size: calc(3 * var(--u)); }
+  #odfav .ofp { display: flex; gap: calc(1 * var(--uw)); } #odfav .ofp p { font-size: calc(2.4 * var(--u)); color: #9aa6c4; }
+  #odfav .ofe { margin: auto; text-align: center; max-width: calc(60 * var(--uw)); display: flex; flex-direction: column; align-items: center; gap: calc(1.4 * var(--u)); }
+  #odfav .ofstar { font-size: calc(12 * var(--u)); color: #ffcb6b; line-height: 1; }
+  #odfav .ofe h3 { margin: 0; font-size: calc(4.4 * var(--u)); } #odfav .ofe p { margin: 0; font-size: calc(2.6 * var(--u)); color: #c3cadb; } #odfav .ofe .ofhow { color: #ffcb6b; }
+  #odfav .ofbs { display: flex; gap: calc(2 * var(--uw)); margin-top: calc(2 * var(--u)); }
   #ogl { position: absolute; left: calc(5 * var(--uw)); top: calc(12 * var(--u)); width: calc(19 * var(--uw)); }
   .ogli { display: flex; justify-content: space-between; align-items: center; height: calc(5.6 * var(--u)); padding: 0 calc(1 * var(--uw)); margin-bottom: calc(.5 * var(--u)); border-radius: calc(1 * var(--u)); font-size: calc(2.3 * var(--u)); color: #cdd3e4; overflow: hidden; white-space: nowrap; }
   .ogli small { font-size: calc(1.9 * var(--u)); opacity: .7; margin-left: calc(.8 * var(--uw)); }
@@ -1171,6 +1182,7 @@
   <div id="odgrid" class="hidden">
     <div id="ogl"></div><div id="ogc"></div><div id="ogg"></div><div id="ogt"></div>
   </div>
+  <div id="odfav" class="hidden"></div>
   <div id="odshow" class="hidden">
     <div id="odsh"><div id="odpost"></div><div><div id="odsm"></div><h1 id="odst"></h1><img id="odlogo2" class="hidden" alt=""><div id="odsp"></div><div id="odbtn"></div></div></div>
     <div id="odrail"></div><div id="odrmore"></div>

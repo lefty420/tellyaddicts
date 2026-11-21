@@ -3790,7 +3790,8 @@
     if (i >= 0) favs.splice(i, 1); else favs.push(c.id);
     if (!favs.length) favOnly = false;
     favSave();
-    toast(i >= 0 ? c.name + ' removed from favourites' : c.name + ' added to favourites', 2200);
+    toast(i >= 0 ? 'Removed ' + c.name + ' from Favourites' : 'Added ' + c.name + ' to Favourites', 2200);
+    if (i < 0) store.set('favhint1', 1);
     odRowsMemo = null; onSig = '';
     if (guideOpen) { gPaint = null; renderGuide(); }
   }
@@ -4036,6 +4037,7 @@
     var list = guideList();
     if (!list.length) return;
     guideOpen = true;
+    if (!favs.length && !store.get('favhint1')) { store.set('favhint1', 1); setTimeout(function () { if (guideOpen && !favs.length) toast('Hold OK on a channel to add it to Favourites', 5000); }, 1200); }
     gFree = false;
     var now = Date.now();
     gChan = cur && list.indexOf(cur.ch) >= 0 ? cur.ch : list[0];
@@ -7318,6 +7320,7 @@
   var OD_RAIL = [
     ['<svg viewBox="0 0 24 24" width="62%" fill="currentColor"><path d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3z"/></svg>', 'Home'],
     ['<svg viewBox="0 0 24 24" width="62%" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/></svg>', 'Browse'],
+    ['<svg viewBox="0 0 24 24" width="62%" fill="currentColor"><path d="M12 2.5l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.7 5.9 21.1l1.4-6.8L2.2 9.6l6.9-.8z"/></svg>', 'Favourites'],
     ['<svg viewBox="0 0 24 24" width="62%" fill="currentColor"><path d="M3 4h18v12H3zm2 2v8h14V6zM8 18h8v2H8z"/></svg>', 'Guide'],
     ['<svg viewBox="0 0 24 24" width="62%"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="2.6"/></svg>', 'Search'],
     ['<svg viewBox="0 0 24 24" width="62%"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3" stroke="currentColor" stroke-width="2.4"/></svg>', 'Options']
@@ -7535,7 +7538,7 @@
     $('odload').className = odOpen && odBusy ? '' : 'hidden';      // never for the home page: it draws at once and the rows fill in
     odRenderBar();
     $('odbar').style.display = odView === 'home' ? '' : 'none'; $('odside').style.display = odView === 'home' ? '' : 'none';
-    if (odView === 'show') odRenderShow(); else if (odView === 'grid') odRenderGrid(); else odRenderHome();
+    if (odView === 'show') odRenderShow(); else if (odView === 'grid') odRenderGrid(); else if (odView === 'fav') odRenderFav(); else odRenderHome();
     var nm = odView === 'home' && odNone;
     $('odnomatch').className = nm ? '' : 'hidden'; $('odrows').style.visibility = $('odhero').style.visibility = nm ? 'hidden' : '';
     if (nm) {
@@ -7544,6 +7547,7 @@
     }
     var hint = odView === 'show' ? [['\u25b2 \u25bc', 'Move'], ['\u25c0 \u25b6', 'Choose'], ['OK', 'Select / Play'], ['Hold OK', 'More'], ['Back', 'Back']]
       : odView === 'grid' ? [['\u25b2 \u25bc \u25c0 \u25b6', 'Move'], ['OK', 'Open'], ['Back', 'Home']]
+      : odView === 'fav' ? (odFavList().length ? [['OK', 'Watch live'], ['Hold OK', 'Menu'], ['\u25b2 \u25bc \u25c0 \u25b6', 'Move'], ['Back', 'Home']] : [['\u25c0 \u25b6', 'Choose'], ['OK', 'Select'], ['Back', 'Home']])
       : nm ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Select'], ['Back', 'Browse']]
       : odZn === 'rail' ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Open'], ['Back', 'Close']]
       : odZn === 'chips' ? [['\u25c0 \u25b6', 'Choose'], ['OK', 'Select'], ['\u25bc', 'Down'], ['Back', 'Exit']]
@@ -7811,6 +7815,7 @@
     $('odhome').className = v === 'home' ? '' : 'hidden';
     $('odshow').className = v === 'show' ? '' : 'hidden';
     $('odgrid').className = v === 'grid' ? '' : 'hidden';
+    $('odfav').className = v === 'fav' ? '' : 'hidden';
   }
   /** Going onto a show's page remembers where it came from (hero, Browse); Back there puts it all back. */
   function odShowView(on) {
@@ -7820,7 +7825,7 @@
     else odSetView('home');
   }
   function odJumpTo(g) {
-    odRet = { rc: odRc, ri: odRi, zn: odZn, view: odView === 'grid' ? 'grid' : 'home' };
+    odRet = { rc: odRc, ri: odRi, zn: odZn, view: odView === 'grid' || odView === 'fav' ? odView : 'home' };
     var sh = (g.chan && odShowsOf(g.chan)) || [g], i = Math.max(0, sh.indexOf(g));
     odData._jp = { shows: sh }; odJumpRow = { id: '_jp', name: g.chan ? g.chan.name : '' }; odPos._jp = i;
     odRowsMemo = null; odRc = odJumpRow; odRi = 0;
@@ -7950,8 +7955,9 @@
   function odRailGo(i) {
     if (i === 0) { if (odView !== 'home') odSetView('home'); odChip = 0; odCi = 0; odRowsMemo = null; odRi = 0; odRc = null; odZn = 'chips'; odHeroI = 0; }
     else if (i === 1) { odGridOpen(); return; }
-    else if (i === 2) { odClose(false); openGuide(); return; }
-    else if (i === 3) { odZn = odRailBack; odSearchAsk(); return; }
+    else if (i === 2) { odFavOpen(); return; }
+    else if (i === 3) { odClose(false); openGuide(); return; }
+    else if (i === 4) { odZn = odRailBack; odSearchAsk(); return; }
     else { odClose(false); openOpts(); return; }
     odRender();
   }
@@ -7965,6 +7971,7 @@
       if (odView === 'home' && odZn === 'hero') { odOpenHero(); return true; }
       if (odView === 'home' && odZn === 'rows' && !odNone) { var q = odSel().g; if (q && !q.onnow) odmOpen(); }
       else if (odView === 'show') odmOpen();
+      else if (odView === 'fav') { var fc = odFavList()[odFi]; if (fc && odFz === 'cards') odmFavCard(fc); }
       else if (odView === 'grid' && odGz === 'list') { var gc = odGridChans()[odGl]; if (gc) odmChan(gc); }
       return true;
     }
@@ -7972,6 +7979,7 @@
     if (k === 'Yellow') { odSearchAsk(); return true; }
     if (odView === 'show') return odKeyShow(k);
     if (odView === 'grid') return odKeyGrid(k);
+    if (odView === 'fav') return odKeyFav(k);
     var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ';
     if (odNone) {
       if (k === 'ArrowUp' || k === 'ArrowDown') odNoneI = 1 - odNoneI;
@@ -8145,6 +8153,87 @@
     }
     odRender();
     return true;
+  }
+  // ---- the Favourites screen: the favourite channels with what is on now and next, and the shows of the one in focus
+  var odFi = 0, odFz = 'cards', odFp = 0, odFb = 0;     // odFb: the button on the empty page
+  function odFavList() { return odChannels().filter(isFav); }
+  function odFavOpen() {
+    odRet = null; odFi = 0; odFz = 'cards'; odFp = 0; odFb = 0;
+    odSetView('fav');
+    var c = odFavList()[0]; if (c) odLoadChannel(c).then(function () { if (odOpen && odView === 'fav') odRender(); });
+    odRender();
+  }
+  function odFavEntry(c) {
+    var now = Date.now(), bl = [];
+    try { bl = E.blocks(c.sched, now, now + 4 * 3600000); } catch (e) { bl = []; }
+    var b = bl[0], nx = bl[1];
+    var e = { name: b && b.prog ? (gmName(b.prog) || b.prog.title || '') : c.name, chan: c, eps: [], flat: [], sea: [] };
+    e.onnow = b ? { start: b.startMs, end: b.endMs, sig: b.startMs, next: nx && nx.prog && !nx.prog.ad ? { t: gmName(nx.prog) || nx.prog.title || '', at: nx.startMs } : null } : { start: now, end: now + 1, sig: 0, next: null };
+    return e;
+  }
+  function odRenderFav() {
+    odSetBg(null);
+    var l = odFavList(), box = $('odfav'); box.textContent = '';
+    var hd = odEl('div', 'ofh'); hd.appendChild(odEl('h2', '', '\u2605 Favourites'));
+    if (l.length) hd.appendChild(odEl('span', '', l.length + (l.length === 1 ? ' channel' : ' channels')));
+    box.appendChild(hd);
+    if (!l.length) {
+      var em = odEl('div', 'ofe');
+      em.appendChild(odEl('div', 'ofstar', '\u2605'));
+      em.appendChild(odEl('h3', '', 'No favourite channels yet'));
+      em.appendChild(odEl('p', '', 'Pick the channels you watch most and they will live here, with what is on now and what is next.'));
+      em.appendChild(odEl('p', 'ofhow', 'Highlight any channel in the Guide or Browse, then hold OK and choose Add to favourites'));
+      var bs = odEl('div', 'ofbs');
+      ['Open Browse', 'Open the Guide'].forEach(function (t, i) { bs.appendChild(odEl('div', 'odb' + (odFb === i ? ' sel' : ''), t)); });
+      em.appendChild(bs); box.appendChild(em); return;
+    }
+    box.appendChild(odEl('p', 'ofhelp', 'Hold OK on any channel, in the Guide or in Browse, to add or remove it.'));
+    odFi = Math.max(0, Math.min(odFi, l.length - 1));
+    var cards = odEl('div', 'ofc'), first = Math.max(0, Math.min(odFi - 2, l.length - 5));
+    for (var i = first; i < Math.min(l.length, first + 5); i++) cards.appendChild(odOnCard(odFavEntry(l[i]), odFz === 'cards' && i === odFi));
+    box.appendChild(cards);
+    var c = l[odFi], sh = odShowsOf(c);
+    box.appendChild(odEl('h3', 'ofs', 'On ' + c.name));
+    var row = odEl('div', 'ofp');
+    if (!sh) row.appendChild(odEl('p', '', 'Loading\u2026'));
+    else if (!sh.length) row.appendChild(odEl('p', '', 'Nothing on demand for this channel'));
+    else {
+      odFp = Math.max(0, Math.min(odFp, sh.length - 1));
+      var st = Math.max(0, Math.min(odFp - 2, sh.length - 7));
+      odDecOn = false;
+      for (var j = st; j < Math.min(sh.length, st + 7); j++) row.appendChild(odCard(sh[j], odFz === 'posters' && j === odFp));
+    }
+    box.appendChild(row);
+  }
+  function odmFavCard(c) {
+    odm = { mode: 'menu', g: null, i: 0, title: c.name, items: [
+      { t: 'Watch live', sub: 'Tune to ' + c.name, f: function () { odmClose(); odWatchLive(c); } },
+      { t: 'Open in On Demand', sub: 'Browse its shows', f: function () { odmClose(); odGFav = false; odGridOpen(); var at = odGridChans().indexOf(c); if (at >= 0) { odGl = at; odGKey = ''; odGridLoad(); } odRender(); } },
+      { t: 'Remove from favourites', sub: c.n + '  ' + c.name, f: function () { odmClose(); favToggle(c); odFi = Math.max(0, Math.min(odFi, odFavList().length - 1)); odRender(); } }] };
+    odmRender();
+  }
+  function odKeyFav(k) {
+    var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ', l = odFavList();
+    if (back) { if (l.length && odFz === 'posters') odFz = 'cards'; else { odSetView('home'); odZn = 'rail'; odRailI = 2; } odRender(); return true; }
+    if (!l.length) {
+      if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') odFb = 1 - odFb;
+      else if (ok) { if (odFb === 0) odGridOpen(); else { odClose(false); openGuide(); } return true; }
+      odRender(); return true;
+    }
+    if (odFz === 'cards') {
+      if (k === 'ArrowLeft') { odFi = Math.max(0, odFi - 1); odFp = 0; }
+      else if (k === 'ArrowRight') { odFi = Math.min(l.length - 1, odFi + 1); odFp = 0; }
+      else if (k === 'ArrowDown') { var sh0 = odShowsOf(l[odFi]); if (sh0 && sh0.length) odFz = 'posters'; }
+      else if (ok) { odWatchLive(l[odFi]); return true; }
+      var c = l[odFi]; if (c && !odShowsOf(c)) odLoadChannel(c).then(function () { if (odOpen && odView === 'fav') odRender(); });
+    } else {
+      var sh = odShowsOf(l[odFi]) || [];
+      if (k === 'ArrowLeft') odFp = Math.max(0, odFp - 1);
+      else if (k === 'ArrowRight') odFp = Math.min(sh.length - 1, odFp + 1);
+      else if (k === 'ArrowUp') odFz = 'cards';
+      else if (ok && sh[odFp]) { odJumpTo(sh[odFp]); odOpenShow(); return true; }
+    }
+    odRender(); return true;
   }
   // ---- artwork menu: hold OK (or Menu) on a show. Scrape it again, choose the right show, or pick a poster or background
   // from what TVmaze has, like the scrapers in Kodi. What is picked is kept on this TV and used from then on.

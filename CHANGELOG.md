@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.8 — 21 Nov 2026
+- **Favourites screen.** On Demand's left rail has a ★ Favourites item between Browse and Guide. It shows your favourite channels as cards (what is on now, progress, what is next) and, below, the shows of the channel in focus. OK watches live; hold OK offers Watch live, Open in On Demand and Remove from favourites. With none chosen it explains how to add one and offers Open Browse or Open the Guide.
+- The first time the guide opens with no favourites, a toast says how to add one (once only). Toasts now read "Added … to Favourites" and "Removed … from Favourites".
+
 ## Alpha 0.53.7 — 21 Nov 2026
 Following the design reply on 0.53.0 to 0.53.6.
 - **Favourite channels in On Demand.** Favourite channels come first in the On now row with a ★. Browse lists them first with a ★, has a *★ Favourites* chip that shows only them, and hold OK on a channel adds or removes it. Titles go on My list only.

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.7",
-  "version": "0.52.7",
-  "code": 5207,
+  "name": "Alpha 0.52.8",
+  "version": "0.52.8",
+  "code": 5208,
   "date": "2026-11-21",
   "notes": [
-    "Debug > Live view now remembers it is on: if it was on when the app last ran it starts again by itself at launch (it retries for 40 s while the home network comes up), and stays off once you switch it off. With Open debug address on, the address is the same every time, so no code to type."
+    "Loading screens, from the design review: (1) in Whole screen the \"Please stand by\" plate now grows with its words, so the last line is no longer on its edge; (2) in Set in the room the start-up TV's aerials no longer poke through the logo; (3) while a programme is being found the last line steps through what is happening (Scraping your debrid / Found a source, starting / Playing the library copy / Found it on archive.org) and after 8 seconds shows how long it has been; (4) the start-up TV says READY and \"Opening the guide…\" once every channel has answered, instead of sitting on \"TUNING 31 / 31\"."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.7",
+      "date": "2026-11-21",
+      "notes": [
+        "Debug > Live view now remembers it is on: if it was on when the app last ran it starts again by itself at launch (it retries for 40 s while the home network comes up), and stays off once you switch it off. With Open debug address on, the address is the same every time, so no code to type."
+      ]
+    },
     {
       "name": "Alpha 0.52.6",
       "date": "2026-11-21",
@@ -59,13 +66,6 @@ window.RELEASE = {
         "TV Guide: opening the guide puts the channel that is playing on the top row (it used to be on the bottom row), so you see what comes after it. Near the end of the list it shows the last screenful.",
         "Finding a programme: \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are now written on the loading screen with the pictures instead of a message along the bottom.",
         "Options > Experimental > Loading screen now changes at once, and every loading screen (the start-up one and this one) uses the look you pick, Set in the room, Whole screen, Classic or Surprise me."
-      ]
-    },
-    {
-      "name": "Alpha 0.51.6",
-      "date": "2026-11-21",
-      "notes": [
-        "TV Guide snow: the drifts along the bottom no longer paint over the last row of the guide; they stay in the space under it."
       ]
     }
   ]

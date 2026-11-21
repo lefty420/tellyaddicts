@@ -264,12 +264,13 @@
   #splash[data-ld="room"] #sptv::after { transform: rotate(26deg); }
   #splash[data-ld="room"] #spcab { background: linear-gradient(160deg, #5a3a22, #3b2515 55%, #2a1a0e); }
   #splash[data-ld="room"] #sppanel i, #splash[data-ld="room"] #sppanel i { background: repeating-conic-gradient(#3a3a3a 0deg 6deg, #151515 6deg 12deg); }
-  #splash[data-ld="room"] #logo { height: calc(12 * var(--u)); }
+  #splash[data-ld="room"] #logo { height: calc(12 * var(--u)); margin-bottom: calc(9 * var(--u)); }      /* clear of the set's aerials */
   #splash[data-ld="room"] #spmsg { font-size: calc(3.6 * var(--u)); color: #f3e9d8; }
   /* the big TUNING on the glass, over the static */
   #splash[data-ld="room"] #spglare::before, #splash[data-ld="full"] #spglare::before { content: "TUNING"; position: absolute; left: 50%; top: 36%; transform: translateX(-50%); padding: 0 calc(2 * var(--u));
     background: rgba(0,0,0,.5); font: calc(11 * var(--u))/1.05 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .06em; color: #fff; text-shadow: calc(.5 * var(--u)) 0 rgba(255,60,90,.8), calc(-.5 * var(--u)) 0 rgba(60,220,255,.8); }
   #splash[data-ld="full"] #spglare::before { font-size: calc(21 * var(--u)); top: 34%; }
+  #splash.ready[data-ld="room"] #spglare::before, #splash.ready[data-ld="full"] #spglare::before { content: "READY"; }
   #splash[data-ld="full"] #logo { position: absolute; left: calc(4 * var(--uw)); top: calc(4 * var(--u)); height: calc(9 * var(--u)); z-index: 5; }
   #splash[data-ld="full"] #sptv { position: absolute; inset: 0; width: auto; }
   #splash[data-ld="full"] #spcab { position: absolute; inset: 0; padding: 0; gap: 0; border-radius: 0; background: none; box-shadow: none; }
@@ -486,7 +487,7 @@
   #standby[data-ld="full"].tv #sbscreen { position: absolute; inset: 0; aspect-ratio: auto; border-radius: calc(9 * var(--u)) / calc(7 * var(--u)); box-shadow: none; }
   #standby[data-ld="full"].tv #sbpanel { position: absolute; left: calc(8 * var(--uw)); bottom: calc(8.4 * var(--u)); flex-direction: row; width: auto; padding: 0; gap: calc(2.4 * var(--uw)); z-index: 5; }
   #standby[data-ld="full"].tv #sbpanel i { width: calc(9 * var(--u)); height: calc(9 * var(--u)); background: repeating-conic-gradient(#3a3a3a 0deg 6deg, #151515 6deg 12deg); }
-  #standby[data-ld="full"].tv #sbmain { left: calc(6 * var(--uw)); right: calc(6 * var(--uw)); bottom: calc(6 * var(--u)); height: calc(18 * var(--u)); width: auto; padding: 0 calc(3 * var(--uw)) 0 calc(19 * var(--uw)); align-items: flex-start; text-align: left;
+  #standby[data-ld="full"].tv #sbmain { left: calc(6 * var(--uw)); right: calc(6 * var(--uw)); bottom: calc(6 * var(--u)); height: auto; min-height: calc(18 * var(--u)); width: auto; padding: calc(2 * var(--u)) calc(3 * var(--uw)) calc(2 * var(--u)) calc(19 * var(--uw)); align-items: flex-start; text-align: left;
     border-radius: calc(3 * var(--u)); background: rgba(8,6,6,.72); box-shadow: inset 0 0 0 calc(.2 * var(--u)) rgba(201,171,120,.35); }
   #sbpage { position: absolute; top: calc(17.5 * var(--u)); right: calc(3 * var(--uw)); font-family: monospace; font-size: calc(2.6 * var(--u)); color: #00e5e5; background: #000; padding: calc(.3 * var(--u)) calc(1 * var(--u)); }
   #info { position: fixed; inset: 0; z-index: 60; color: #fff; background: #050a2a; overflow: hidden; }

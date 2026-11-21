@@ -1191,7 +1191,10 @@
       var first = spDone < 0;
       spDone = settled;
       $('sptrack').style.setProperty('--p', Math.round(100 * settled / channels.length) + '%');
-      $('spscale').firstChild.textContent = 'TUNING  ' + settled + ' / ' + channels.length;
+      var allIn = settled >= channels.length;                    // every channel has answered: say so, rather than sit on "31 / 31"
+      $('spscale').firstChild.textContent = allIn ? 'READY  ' + settled + ' / ' + channels.length : 'TUNING  ' + settled + ' / ' + channels.length;
+      $('splash').classList.toggle('ready', allIn);
+      if (allIn) $('spmsg').textContent = 'Opening the guide\u2026';
       var scr = $('spscreen');
       if (!first) { scr.classList.add('lock'); setTimeout(function () { scr.classList.remove('lock'); }, 180); }   // a flash of colour bars as a channel locks on
     }
@@ -3582,6 +3585,7 @@
     }
     var sbe = $('standby');
     if (sbe.className === 'hidden' || /snowout/.test(sbe.className)) return;
+    sbStageEnd();
     // leaving: the picture breaks up into static and the set fades out, the way a real TV lost its signal
     sbe.className += ' snowout';
     clearTimeout(sbOutTimer);
@@ -4961,19 +4965,32 @@
   // While a programme is being found, the "Please stand by" screen is already up with what is happening on its last line, so the one
   // screen stays from the press of OK until the picture plays (it does not swap to a second screen when the video starts loading).
   var amSplash = false, amSplashT = 0;
+  // the last line of the "Please stand by" screen says what step it is on, and after 8 s how long it has been
+  var sbWaitT0 = 0, sbWaitBase = '', sbWaitTimer = null;
+  function sbStage(msg) {
+    sbWaitBase = msg; if (!sbWaitT0) sbWaitT0 = Date.now();
+    $('sbfoot').textContent = msg;
+    if (!sbWaitTimer) sbWaitTimer = setInterval(function () {
+      if ($('standby').className === 'hidden') { sbStageEnd(); return; }       // the screen has gone: stop counting
+      var n = Math.round((Date.now() - sbWaitT0) / 1000);
+      $('sbfoot').textContent = sbWaitBase + (n >= 8 ? '  \u00b7  ' + n + ' sec' : '');
+    }, 1000);
+  }
+  function sbStageEnd() { clearInterval(sbWaitTimer); sbWaitTimer = null; sbWaitT0 = 0; $('sbfoot').textContent = 'This channel is loading'; }
   function amNote(msg) {
     amMsg = true;
     if (!started || !cur || cur.ad) { toast(msg, 15000); return; }
     applyLd();                                                   // Surprise me picks again for each one
-    $('sbfoot').textContent = msg;
     renderStandby(true);
+    sbStage(msg);
     $('standby').classList.remove('hidden');
     amSplash = true;
     clearTimeout(amSplashT); amSplashT = setTimeout(function () { amNoteOff(); }, 40000);
   }
-  function amNoteOff() {
+  /** The lookup is over. With a next step the screen stays up on it, still counting, until the picture plays. */
+  function amNoteOff(next) {
     amMsg = false; clearTimeout(amSplashT);
-    if (amSplash) { amSplash = false; $('sbfoot').textContent = 'This channel is loading'; }
+    if (amSplash) { amSplash = false; if (next) sbStage(next); }
     toast('', 1);
   }
   function amReq(p) {
@@ -5018,7 +5035,7 @@
   /** A virtual episode no addon had: remember that, and go to the next programme (a real one after a few misses in a row). */
   function vMiss(ch, index, prog, announce) {
     var me = cur, skip = function () {
-      amNoteOff();
+      amNoteOff('Moving on to the next programme\u2026');
       markSlow(prog.id); vSkips++;
       dlog('MAGIC EPG: no source for ' + prog.title);
       toast('No source for ' + prog.title + ', moving on', 3000);
@@ -5039,7 +5056,7 @@
       probeUrl(url, 15000).then(function (ok) {
         if (cur !== me) return;
         if (!ok) { skip(); return; }
-        amNoteOff(); vSkips = 0;
+        amNoteOff('Found it on archive.org, starting\u2026'); vSkips = 0;
         dlog('MAGIC EPG: archive.org link for ' + prog.title);
         amSkip = true;
         try { playSlot(ch, index, 0, announce, false, { id: hit.id || prog.id, item: hit.item || 'archive', url: url, title: prog.title, sub: '', dur: hit.dur || prog.dur, show: prog.show, group: prog.group, aired: prog.aired }); }
@@ -5051,7 +5068,7 @@
   function amFallback(lib, why) {
     var vp = lib.po || (lib.ch.sched && lib.ch.sched.order[lib.index]);
     if (vp && vp.virtual) { vMiss(lib.ch, lib.index, vp, !!lib.announce); return; }     // a Magic EPG episode has no library file: archive.org, else on
-    amNoteOff();
+    amNoteOff('Playing the library copy\u2026');
     dlog('ADDONS MAIN SOURCE: ' + why + ', playing the library link');
     amSkip = true;
     var od = lib.me && lib.me.od;
@@ -5073,7 +5090,7 @@
     var go = function (list) {
       if (cur !== me) return;                                  // the viewer changed channel while it was looking
       if (!list.length) { if (prog && prog.virtual) { vMiss(ch, index, prog, announce); return; } amFallback(lib, 'no source found'); return; }
-      amNoteOff();
+      amNoteOff('Found a source, starting\u2026');
       adFall = { ch: ch, g: rq.g, ep: rq.ep, q: list.slice(1), auto: 0, lib: lib };
       vSkips = 0;
       dlog('ADDONS MAIN SOURCE: ' + rq.g.name + ' | ' + list[0].addon);

@@ -4958,25 +4958,24 @@
   // ---- Use addons as a main source (Options > Experimental): every programme with an episode number, and every film,
   // is first looked up with the addons and played from the best link; the library's own link is the fallback.
   var amOn = store.get('am1') === 'on', amSkip = false, amPre = null, amMsg = false;   // amMsg: the 'Scraping your debrid' message is on screen
-  // The start-up loading screen (the TV with the pictures, in whichever look is chosen) also shows while a programme is being found,
-  // with what is happening written on it, in place of a message along the bottom.
+  // While a programme is being found, the "Please stand by" screen is already up with what is happening on its last line, so the one
+  // screen stays from the press of OK until the picture plays (it does not swap to a second screen when the video starts loading).
   var amSplash = false, amSplashT = 0;
   function amNote(msg) {
     amMsg = true;
-    if (!started) { toast(msg, 15000); return; }
-    try { spInit(); } catch (e) { /* no pictures */ }
+    if (!started || !cur || cur.ad) { toast(msg, 15000); return; }
     applyLd();                                                   // Surprise me picks again for each one
-    var sm = $('spmsg'); if (sm) sm.textContent = msg;
-    $('splash').className = 'busy'; amSplash = true;
-    clearTimeout(amSplashT); amSplashT = setTimeout(function () { amNoteOff(); }, 40000);      // never stays up
+    $('sbfoot').textContent = msg;
+    renderStandby(true);
+    $('standby').classList.remove('hidden');
+    amSplash = true;
+    clearTimeout(amSplashT); amSplashT = setTimeout(function () { amNoteOff(); }, 40000);
   }
   function amNoteOff() {
     amMsg = false; clearTimeout(amSplashT);
-    if (amSplash) { amSplash = false; $('splash').className = 'hidden'; }
+    if (amSplash) { amSplash = false; $('sbfoot').textContent = 'This channel is loading'; }
     toast('', 1);
   }
-  function amActive() { return amOn && expOn && adLive().length > 0; }
-  /** The title and episode to look up for a programme, or null when it is not an episode or a film. */
   function amReq(p) {
     if (!p || p.ad || p.adBlock || p.addon || p.song) return null;
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!(p.filmKey || p.afilm);

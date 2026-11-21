@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.3",
-  "version": "0.52.3",
-  "code": 5203,
+  "name": "Alpha 0.52.4",
+  "version": "0.52.4",
+  "code": 5204,
   "date": "2026-11-21",
   "notes": [
-    "Loading screen: Surprise me now picks again for every loading screen (start-up, finding a programme, loading a channel, episode or film), not once per start. Switching Experimental off or on changes the look at once."
+    "Loading a programme is now one screen. \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are written on the \"Please stand by\" screen itself (in whichever Loading screen look is set), so it no longer shows one TV screen and then swaps to a different one when the video starts to load."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.3",
+      "date": "2026-11-21",
+      "notes": [
+        "Loading screen: Surprise me now picks again for every loading screen (start-up, finding a programme, loading a channel, episode or film), not once per start. Switching Experimental off or on changes the look at once."
+      ]
+    },
     {
       "name": "Alpha 0.52.2",
       "date": "2026-11-21",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "TV Guide: with Interface size on Large the bottom channel row was cut off by the screen edge. The guide now shows as many rows as fit at the chosen size (6 on Large, 7 otherwise)."
-      ]
-    },
-    {
-      "name": "Alpha 0.51.2",
-      "date": "2026-11-20",
-      "notes": [
-        "On Demand, from the design review: the hero now has Play and More info buttons (OK plays it, hold OK opens the show page), a year / seasons / genre line with the certificate in a small badge when it has one, and amber dots showing which of the five slides is on. The highlight ring on cards is now amber, 3 px with a gap. The rail has a Guide icon that jumps to the TV guide."
       ]
     }
   ]

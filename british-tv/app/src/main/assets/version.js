@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.17",
-  "version": "0.53.17",
-  "code": 5317,
+  "name": "Alpha 0.53.18",
+  "version": "0.53.18",
+  "code": 5318,
   "date": "2026-11-21",
   "notes": [
-    "**Seasonal effects > Test** (Experimental on) now also runs the snow on a 30 second cycle, so the build-up and Santa's plough can be watched without waiting 15 minutes. Auto keeps the 15 minute cycle.",
-    "Fixes a syntax slip pushed a moment earlier that stopped the seasonal script loading."
+    "**Santa's plough is never skipped**: when the free strip under the last guide row is short, the plough is drawn with smaller pixels to fit it, instead of not appearing at all."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.17",
+      "date": "2026-11-21",
+      "notes": [
+        "**Seasonal effects > Test** (Experimental on) now also runs the snow on a 30 second cycle, so the build-up and Santa's plough can be watched without waiting 15 minutes. Auto keeps the 15 minute cycle.",
+        "Fixes a syntax slip pushed a moment earlier that stopped the seasonal script loading."
+      ]
+    },
     {
       "name": "Alpha 0.53.16",
       "date": "2026-11-21",
@@ -70,13 +77,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "**Start-up waits for every channel.** The loading screen now stays up until all channels have loaded into the guide, then the guide opens complete, instead of opening early and stalling while the rest filled in. A 60 second limit remains only for a connection that never answers; the guide then opens on what is ready and tunes to your last channel as soon as it is. This replaces the early open from 0.53.1."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.9",
-      "date": "2026-11-21",
-      "notes": [
-        "**My list and Favourites are now one thing in On Demand.** The My list row is gone from the home page. Hold OK on any title and choose *Add to favourites* (on a show's page the button reads ☆ Favourite). The ★ Favourites screen in the rail shows both: favourite channels as live cards, favourite shows as a poster row, then the shows of the focused channel. Hold OK on a show there to play, open or remove it. Shows saved earlier on My list carry over."
       ]
     }
   ]

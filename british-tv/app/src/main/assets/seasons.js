@@ -152,17 +152,17 @@
       // left; the drifts are cut away exactly at its blade (a clip-path moving with it), so the snow behind it is gone.
       var cyc = Math.max(20000, CFG.CYCLE_MS), run = Math.min(CFG.PLOUGH_MS, cyc / 4), grow = 1 - run / cyc,
           startY = Math.round(d[2] * (1 - Math.max(0, Math.min(1, CFG.START)))),
-          pw = PLOUGH_W * px, front = PLOUGH_FRONT * px, endX = sw + front, opt = { duration: cyc, iterations: Infinity, delay: -((Date.now() - T0) % cyc) };
+          pp = Math.max(1, Math.min(px, Math.floor(((bottomClear ? bottomClear() : 56) - 4) / PLOUGH_H))),   // the plough's own pixel size: smaller when the free strip is short, never skipped
+          pw = PLOUGH_W * pp, front = PLOUGH_FRONT * pp, endX = sw + front, opt = { duration: cyc, iterations: Infinity, delay: -((Date.now() - T0) % cyc) };
       var rise = [
         { offset: 0,    transform: 'translateY(' + startY + 'px)', clipPath: 'inset(0 0 0 0)', easing: 'steps(' + Math.max(1, Math.round(startY / px)) + ')' },
         { offset: grow, transform: 'translateY(0)',                clipPath: 'inset(0 0 0 0)', easing: 'linear' },
         { offset: 1,    transform: 'translateY(0)',                clipPath: 'inset(0 0 0 ' + endX + 'px)' }
       ];
       [d[0], d[1]].forEach(function (el) { anims.push(el.animate(rise, opt)); });
-      // the plough needs a free strip of about 56 px under the last row; with less, the snow just melts without it
-      if ((bottomClear ? bottomClear() : 56) >= PLOUGH_H * px + 4) {
+      {
         var pl = paintPlough();
-        pl.style.cssText = 'top:auto;bottom:0;width:' + pw + 'px;height:' + (PLOUGH_H * px) + 'px';
+        pl.style.cssText = 'top:auto;bottom:0;width:' + pw + 'px;height:' + (PLOUGH_H * pp) + 'px';
         box.appendChild(pl);
         anims.push(pl.animate([                                                    // waits off the left edge, then crosses at the same speed as the cut
           { offset: 0,    transform: 'translateX(' + (-pw) + 'px)' },

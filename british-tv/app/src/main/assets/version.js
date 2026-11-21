@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.20",
-  "version": "0.53.20",
-  "code": 5320,
+  "name": "Alpha 0.53.21",
+  "version": "0.53.21",
+  "code": 5321,
   "date": "2026-11-21",
   "notes": [
-    "**Settings survive a relaunch or an update**: saved settings (Experimental, Seasonal effects Test, favourites, looks and so on) are now also written to a file the moment they change. The page's own storage is written to disk some seconds later, so closing or updating the app soon after changing one could lose it. Settings from earlier versions are copied across a few seconds after start.",
-    "**Snow performance check**: 12 seconds after the snow starts the debug log gets a line `SNOW: N fps ... slowest frame ... ms`, so Santa's plough can be judged from the log."
+    "**Snow log is cleaner**: the debug log says which mode the snow started in (Auto or Test), whether Experimental is on, the screen size, and then a speed check taken 20 s later, when start-up work is over, with the number of animations really running. A check interrupted by the guide closing is dropped."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.20",
+      "date": "2026-11-21",
+      "notes": [
+        "**Settings survive a relaunch or an update**: saved settings (Experimental, Seasonal effects Test, favourites, looks and so on) are now also written to a file the moment they change. The page's own storage is written to disk some seconds later, so closing or updating the app soon after changing one could lose it. Settings from earlier versions are copied across a few seconds after start.",
+        "**Snow performance check**: 12 seconds after the snow starts the debug log gets a line `SNOW: N fps ... slowest frame ... ms`, so Santa's plough can be judged from the log."
+      ]
+    },
     {
       "name": "Alpha 0.53.19",
       "date": "2026-11-21",
@@ -71,13 +78,6 @@ window.RELEASE = {
         "**Favourites** shows two rows: Channels, then Shows. The \"On <channel>\" row is gone (use Open in On Demand from a channel's menu). The empty-state text wraps in balanced lines.",
         "**Guide:** titles such as \"The Bill (1983) S11 DVD Rip\" or \"The Bill (1983) - S15E067 - …\" now show \"The Bill\" with \"S11\" or \"S15 E067\" under it. The snow no longer falls over the header, the programme title or the grid; it stays in the margins, beside the little TV and along the foot.",
         "**Loading screen** reads \"Loading channels 12 of 31\", and after 20 seconds adds \"The first start takes longest\"."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.12",
-      "date": "2026-11-21",
-      "notes": [
-        "**Playback bar: every button is back.** Pause, Next, Restart, Stop, Guide, Sources, Audio & subs and Options all sit on the bar again, in the new thin dark style. Nothing is hidden behind a More… list."
       ]
     }
   ]

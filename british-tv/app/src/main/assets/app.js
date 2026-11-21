@@ -4048,19 +4048,28 @@
   // ---- seasonal effects (seasons.js): a decorative overlay over the guide, only while it is open and a season is on
   var seasonOn = store.get('seasonal') !== 'off', seasonTest = store.get('seasonal') === 'test' && store.get('exp1') === 'on', seasonOv = null, seasonLogged = -1;
   if (window.SEASONS) SEASONS.force(seasonTest);
-  /** Measures how smoothly the snow (and Santa's plough) draws, for 12 seconds after it starts, and writes it to the debug log, so a slow
-   *  screen can be told from a smooth one without watching it: frames per second, the slowest frame, and how many took over 50 ms. */
-  var probeAt = 0;
+  /** Measures how smoothly the page draws while the snow is on, and writes it to the debug log: frames per second, the slowest frame, and
+   *  how many took over 50 ms, with how many snow animations are really running. It waits 20 s after the snow starts (so start-up work is
+   *  over), measures for 12 s, and says nothing if the guide closes meanwhile. The mode (Auto or Test) is logged when the snow starts. */
+  var probeAt = 0, probeRun = 0;
   function snowProbe() {
-    if (!window.requestAnimationFrame || Date.now() - probeAt < 60000) return;
+    dlog('SNOW: starting, ' + (seasonTest ? 'Test mode (30 s cycle)' : 'Auto (15 min cycle)') + ', Experimental ' + (expOn ? 'on' : 'off') + ', saved choice "' + (store.get('seasonal') || '') + '", screen ' + window.innerWidth + 'x' + window.innerHeight + ' at ' + (window.devicePixelRatio || 1) + 'x');
+    if (!window.requestAnimationFrame || Date.now() - probeAt < 120000) return;
     probeAt = Date.now();
-    var t0 = performance.now(), last = t0, n = 0, worst = 0, slow = 0;
-    (function tick(t) {
-      var d = t - last; last = t;
-      if (n > 0) { n++; if (d > worst) worst = d; if (d > 50) slow++; } else n = 1;
-      if (t - t0 < 12000) { requestAnimationFrame(tick); return; }
-      dlog('SNOW: ' + Math.round(n * 1000 / (t - t0)) + ' fps over ' + Math.round((t - t0) / 1000) + ' s, slowest frame ' + Math.round(worst) + ' ms, ' + slow + ' over 50 ms' + (guideOpen ? '' : ' (guide closed)'));
-    })(t0);
+    var run = ++probeRun;
+    setTimeout(function () {
+      if (run !== probeRun || !guideOpen) return;
+      var t0 = performance.now(), last = t0, n = 0, worst = 0, slow = 0;
+      (function tick(t) {
+        if (run !== probeRun) return;
+        if (!guideOpen) { probeAt = 0; return; }              // closed meanwhile: a measurement of something else
+        var d = t - last; last = t;
+        if (n > 0) { n++; if (d > worst) worst = d; if (d > 50) slow++; } else n = 1;
+        if (t - t0 < 12000) { requestAnimationFrame(tick); return; }
+        var an = 0; try { an = document.getAnimations().filter(function (x) { return x.playState === 'running'; }).length; } catch (e) { /* older browser */ }
+        dlog('SNOW: ' + Math.round(n * 1000 / (t - t0)) + ' fps over ' + Math.round((t - t0) / 1000) + ' s, slowest frame ' + Math.round(worst) + ' ms, ' + slow + ' over 50 ms, ' + an + ' animations running');
+      })(t0);
+    }, 20000);
   }
   function seasonUpdate() {
     if (!window.SEASONS) return;
@@ -4073,7 +4082,7 @@
     });
     var was = seasonOv && seasonOv.on ? seasonOv.on() : false;
     if (want) seasonOv.start(); else if (seasonOv) seasonOv.stop();
-    if (want && !was) snowProbe();
+    if (want && !was) snowProbe(); else if (!want) probeRun++;
     if (seasonOv) seasonOv.hold(!!gm);        // a hold-OK menu is open: the snow holds still
     SEASONS.hat(want ? SEASONS.current() : null);
   }

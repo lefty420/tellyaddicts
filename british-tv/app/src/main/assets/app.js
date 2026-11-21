@@ -4036,6 +4036,7 @@
       return last ? window.innerHeight - last.getBoundingClientRect().bottom : 40;
     });
     if (want) seasonOv.start(); else if (seasonOv) seasonOv.stop();
+    if (seasonOv) seasonOv.hold(!!gm);        // a hold-OK menu is open: the snow holds still
     SEASONS.hat(want ? SEASONS.current() : null);
   }
   function openGuide() {
@@ -4372,6 +4373,7 @@
     } });
     gm = { items: items, i: 0, title: top.title, sub: top.sub };
     gmRender();
+    seasonUpdate();
   }
 
   /** The show this programme belongs to on its channel, and where the programme sits in its episode list. */
@@ -4469,7 +4471,7 @@
     }, function () { toast('Could not reach TVmaze', 3500); });
   }
 
-  function gmClose() { gm = null; $('gmenu').className = 'hidden'; }
+  function gmClose() { gm = null; $('gmenu').className = 'hidden'; seasonUpdate(); }
   function gmRender() {
     var box = $('gml'); box.textContent = '';
     $('gmt').textContent = gm.title;

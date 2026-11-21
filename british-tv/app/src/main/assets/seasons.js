@@ -11,7 +11,11 @@
   ];
 
   // How it looks. PIXEL = screen pixels per canvas pixel (2 = 16-bit, 3 = chunkier). DRIFT is 0 to 10.
-  var CFG = { PIXEL: 2, FLAKES: 64, DRIFT: 5, PAUSE_MS: 180 };
+  var CFG = { PIXEL: 2, FLAKES: 64, DRIFT: 5, PAUSE_MS: 180,
+              CYCLE_MS: 900000,      // drifts grow for this long (15 min), then the plough clears them and it starts again
+              PLOUGH_MS: 12000,      // the plough's drive across the screen
+              START: 0.2 };          // share of full drift height showing at the start of a cycle (0 to 1)
+  var T0 = Date.now();               // the cycle runs from app start, so closing and opening the guide does not restart it
 
   function inSeason(s, d) {
     var v = d.getMonth() * 100 + d.getDate(), a = s.from[0] * 100 + s.from[1], b = s.to[0] * 100 + s.to[1];
@@ -87,12 +91,13 @@
 
     function paintDrifts(W, H) {
       var c = mk('sn-drift', W, H), x = c.getContext('2d'), px = CFG.PIXEL, k = Math.max(0, Math.min(10, CFG.DRIFT)) / 10 * 2;
-      var clear = bottomClear ? Math.max(0, bottomClear()) : 40, cap = Math.max(6, Math.round((clear - 4) / px)), tops = [];
+      var clear = bottomClear ? Math.max(0, bottomClear()) : 40, cap = Math.max(6, Math.round((clear - 4) / px)), tops = [], tall = 1;
       DRIFTS.forEach(function (D) {
         var base = D.h * 5 * k, prev = -1;
         for (var i = 0; i < W; i++) {
           var h = base + base * 0.35 * Math.sin(i * D.f[0] + D.seed) + base * 0.18 * Math.sin(i * D.f[1] + D.seed * 2);
           h = Math.max(1, Math.min(cap, Math.round(h)));
+          if (h > tall) tall = h;
           x.fillStyle = D.body; x.fillRect(i, H - h, 1, h);
           x.fillStyle = D.top; x.fillRect(i, H - h, 1, 1);
           if (D.shade && prev > h) { x.fillStyle = D.shade; x.fillRect(i, H - h + 1, 1, Math.min(2, prev - h)); }
@@ -103,7 +108,24 @@
       var sp = mk('sn-sparkle', W, H), sx = sp.getContext('2d');
       sx.fillStyle = '#ffffff';
       tops.forEach(function (t) { sx.fillRect(t[0], t[1], 1, 1); });
-      return [c, sp];
+      return [c, sp, tall * px];   // and how tall the tallest drift is, in screen pixels: the build-up rises to exactly this
+    }
+
+    // Santa on a snow plough, facing right, 34 x 26 canvas pixels: [x, y, w, h, colour]. Its blade is the front edge (x = 33).
+    var PLOUGH = [
+      [16,0,3,3,'#fff'], [14,1,3,3,'#d8232a'], [9,3,7,3,'#d8232a'], [8,6,9,2,'#fff'], [9,8,7,3,'#f2c6a0'], [10,9,1,1,'#222'], [13,9,1,1,'#222'],
+      [8,11,9,3,'#fff'], [7,13,11,4,'#d8232a'], [16,14,5,2,'#d8232a'], [21,14,2,2,'#222'],
+      [0,11,6,6,'#8a5a2b'], [2,11,1,6,'#d8232a'], [0,13,6,1,'#d8232a'],
+      [5,12,2,5,'#14532a'], [2,17,26,5,'#1f7a3a'], [2,17,26,1,'#ffc83d'], [19,13,2,2,'#ffc83d'], [20,15,1,2,'#666'],
+      [1,22,28,4,'#1c1c24'], [3,23,2,2,'#777'], [9,23,2,2,'#777'], [15,23,2,2,'#777'], [21,23,2,2,'#777'], [26,23,2,2,'#777'],
+      [27,19,4,2,'#888'], [30,13,3,13,'#c8d2e0'], [32,13,1,13,'#8fa0b8'], [30,12,3,1,'#fff'],
+      [30,16,3,1,'#ffc83d'], [30,20,3,1,'#ffc83d'], [30,24,2,1,'#ffc83d'], [33,12,1,1,'#fff'], [32,10,1,1,'#fff'], [33,8,1,1,'#fff']
+    ];
+    var PLOUGH_W = 34, PLOUGH_H = 26, PLOUGH_FRONT = 33;
+    function paintPlough() {
+      var c = mk('sn-plough', PLOUGH_W, PLOUGH_H), x = c.getContext('2d');
+      PLOUGH.forEach(function (r) { x.fillStyle = r[4]; x.fillRect(r[0], r[1], r[2], r[3]); });
+      return c;
     }
 
     function build() {
@@ -123,12 +145,37 @@
       var d = paintDrifts(W, H);
       d[0].style.opacity = '0.85'; box.appendChild(d[0]); box.appendChild(d[1]);
       anims.push(d[1].animate([{ opacity: 0.1 }, { opacity: 1 }, { opacity: 0.1 }], { duration: 2400, iterations: Infinity, easing: 'steps(4)' }));
+      // The drifts are painted once at full height and slid up from below the screen: a transform, so the TV does no drawing.
+      // They rise in whole canvas pixels (steps) for the 16-bit look. At the end of the cycle Santa's snow plough drives in from the
+      // left; the drifts are cut away exactly at its blade (a clip-path moving with it), so the snow behind it is gone.
+      var cyc = Math.max(20000, CFG.CYCLE_MS), run = Math.min(CFG.PLOUGH_MS, cyc / 4), grow = 1 - run / cyc,
+          startY = Math.round(d[2] * (1 - Math.max(0, Math.min(1, CFG.START)))),
+          pw = PLOUGH_W * px, front = PLOUGH_FRONT * px, endX = sw + front, opt = { duration: cyc, iterations: Infinity, delay: -((Date.now() - T0) % cyc) };
+      var rise = [
+        { offset: 0,    transform: 'translateY(' + startY + 'px)', clipPath: 'inset(0 0 0 0)', easing: 'steps(' + Math.max(1, Math.round(startY / px)) + ')' },
+        { offset: grow, transform: 'translateY(0)',                clipPath: 'inset(0 0 0 0)', easing: 'linear' },
+        { offset: 1,    transform: 'translateY(0)',                clipPath: 'inset(0 0 0 ' + endX + 'px)' }
+      ];
+      [d[0], d[1]].forEach(function (el) { anims.push(el.animate(rise, opt)); });
+      // the plough needs a free strip of about 56 px under the last row; with less, the snow just melts without it
+      if ((bottomClear ? bottomClear() : 56) >= PLOUGH_H * px + 4) {
+        var pl = paintPlough();
+        pl.style.cssText = 'top:auto;bottom:0;width:' + pw + 'px;height:' + (PLOUGH_H * px) + 'px';
+        box.appendChild(pl);
+        anims.push(pl.animate([                                                    // waits off the left edge, then crosses at the same speed as the cut
+          { offset: 0,    transform: 'translateX(' + (-pw) + 'px)' },
+          { offset: grow, transform: 'translateX(' + (-pw) + 'px)' },
+          { offset: 1,    transform: 'translateX(' + sw + 'px)' }
+        ], opt));
+      }
     }
 
     function setPlay(on) { anims.forEach(function (a) { try { if (on) a.play(); else a.pause(); } catch (e) { /* ignore */ } }); }
 
     return {
       start: function () { if (running) return; running = true; build(); box.className = ''; },
+      // a menu is over the guide: hold the snow still, carry on when it closes
+      hold: function (on) { if (running) setPlay(!on); },
       stop: function () { running = false; clearTimeout(resumeT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; },
       // the guide is being scrolled: hold the snow still until it has settled
       touch: function () { if (!running) return; setPlay(false); clearTimeout(resumeT); resumeT = setTimeout(function () { if (running) setPlay(true); }, CFG.PAUSE_MS); }

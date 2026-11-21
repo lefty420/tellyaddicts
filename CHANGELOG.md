@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.15 — 2026-11-21
+From the designer's snow notes (build-up, then the plough).
+- **Guide snow builds up**: the drifts under the last row start low and rise slowly over 15 minutes, a pixel at a time, running from app start so opening and closing the guide does not restart it.
+- **Santa's snow plough**: at the end of each cycle he drives a green plough across the screen in 12 seconds and the snow is cut away exactly at his blade. The cycle then starts again from low. With too little room under the last row the plough is skipped and the snow just clears.
+- The snow holds still while a hold-OK menu is open, and carries on when it closes.
+
 ## Alpha 0.53.14 — 2026-11-21
 From the design review of Browse, Options and the guide menu, plus the Disney shorts note.
 - **Browse**: cards are 2:3, the "1 of N" counter sits at the right end of the hint bar so it no longer collides with it, every channel shows its show count (they load in turn), and Left from the list reaches the rail.

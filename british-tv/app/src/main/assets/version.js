@@ -1,18 +1,27 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.14",
-  "version": "0.53.14",
-  "code": 5314,
+  "name": "Alpha 0.53.15",
+  "version": "0.53.15",
+  "code": 5315,
   "date": "2026-11-21",
   "notes": [
-    "**Browse**: cards are 2:3, the \"1 of N\" counter sits at the right end of the hint bar so it no longer collides with it, every channel shows its show count (they load in turn), and Left from the list reaches the rail.",
-    "**Guide hold-OK menu** now has five items: Watch from the start, Episodes, Add show to favourites, Add channel to favourites, More... Channel schedule, Show favourites only, Info, Teletext and the rest are under More...",
-    "**Options** list fades at the foot so it is clear that it scrolls.",
-    "**Version label** now reads the current version (the changelog dates were in a format the version tool skipped, so the app said 0.53.2).",
-    "**Disney shorts**: a show flagged `shorts` in the library is a plain list of shorts with no season or episode labels, no series art or TVmaze lookups, and a generated title card. Needs a scraper rebuild, then Sync episode meta and Send to TV app."
+    "**Guide snow builds up**: the drifts under the last row start low and rise slowly over 15 minutes, a pixel at a time, running from app start so opening and closing the guide does not restart it.",
+    "**Santa's snow plough**: at the end of each cycle he drives a green plough across the screen in 12 seconds and the snow is cut away exactly at his blade. The cycle then starts again from low. With too little room under the last row the plough is skipped and the snow just clears.",
+    "The snow holds still while a hold-OK menu is open, and carries on when it closes."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.14",
+      "date": "2026-11-21",
+      "notes": [
+        "**Browse**: cards are 2:3, the \"1 of N\" counter sits at the right end of the hint bar so it no longer collides with it, every channel shows its show count (they load in turn), and Left from the list reaches the rail.",
+        "**Guide hold-OK menu** now has five items: Watch from the start, Episodes, Add show to favourites, Add channel to favourites, More... Channel schedule, Show favourites only, Info, Teletext and the rest are under More...",
+        "**Options** list fades at the foot so it is clear that it scrolls.",
+        "**Version label** now reads the current version (the changelog dates were in a format the version tool skipped, so the app said 0.53.2).",
+        "**Disney shorts**: a show flagged `shorts` in the library is a plain list of shorts with no season or episode labels, no series art or TVmaze lookups, and a generated title card. Needs a scraper rebuild, then Sync episode meta and Send to TV app."
+      ]
+    },
     {
       "name": "Alpha 0.53.13",
       "date": "2026-11-21",
@@ -70,13 +79,6 @@ window.RELEASE = {
         "**Title menu.** Hold OK on a title now shows at most five items: Resume or Play, Remove from Continue watching (only in that row), My list, Info, More… (Search, Fix artwork, Options, Hide). Focus starts on the first item. Removing a title keeps the highlight on the next card, and a show removed while it plays is not put straight back.",
         "**Badges.** The certificate shows on every card; the decade only in Browse and search results; phones show the certificate only.",
         "**Playback.** The next-episode card reads \"Next in N s\" with \"OK plays now, Back stays\", and hides while the bar or mini guide is open. \"Are you still watching?\" is now a centred prompt with Keep watching (default) and Stop, and stops on its own after 5 minutes with no key."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.6",
-      "date": "2026-11-21",
-      "notes": [
-        "**On Demand: next episode and \"Are you still watching?\"** In the last 12 seconds of an On Demand episode a card names what plays next (OK plays it now, Back hides the card). After 3 episodes in a row, or 90 minutes, with no key pressed, playback pauses and asks before the next one (OK carries on, Back returns to On Demand). Live channels are not affected."
       ]
     }
   ]

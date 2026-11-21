@@ -6357,8 +6357,35 @@
     if (/^https?:\/\/([a-z0-9-]+\.)*archive\.org\//i.test(String(p.url || ''))) return { c: 'archive', t: 'ARCHIVE.ORG' };
     return null;
   }
+  // ---- Mini guide in the bar of a channel: the channels either side of this one (the higher numbers above, as Up moves), with what
+  // is on now and what is next on each. Up from the progress line moves into it, OK on a channel tunes to it, Down comes back.
+  var omgI = 0, omgRows = [], omgSig = '';
+  function omgBuild() {
+    omgRows = [];
+    if (!cur || cur.od || cur.ad || window.PHONE) return;
+    var list = ready().filter(function (c) { return c.id !== 'adbreak' && c.sched; }), i = list.indexOf(cur.ch), seen = {};
+    if (i < 0 || list.length < 2) return;
+    [2, 1, 0, -1].forEach(function (d) { var j = (i + d + list.length * 2) % list.length; if (!seen[j]) { seen[j] = 1; omgRows.push(list[j]); } });
+  }
+  function renderMg() {
+    var box = $('omg');
+    if (!omgRows.length || !cur) { box.className = 'hidden'; box.textContent = ''; omgSig = ''; return; }
+    var now = Date.now(), sig = Math.floor(now / 30000) + '|' + osdZone + '|' + omgI + '|' + cur.ch.id;
+    if (sig === omgSig) return;
+    omgSig = sig; box.className = ''; box.textContent = '';
+    omgRows.forEach(function (c, n) {
+      var bl; try { bl = E.blocks(c.sched, now, now + 4 * 3600000); } catch (e) { bl = []; }
+      var b = bl[0], nx = bl[1], row = div('omgr' + (c === cur.ch ? ' cur' : '') + (osdZone === 'mg' && n === omgI ? ' sel' : ''));
+      row.appendChild(div('omgn', String(c.n)));
+      row.appendChild(div('omgc', c.name));
+      row.appendChild(div('omgt', b && b.prog && !b.prog.ad ? splitTitle(b.prog.title).show : ''));
+      if (nx && nx.prog && !nx.prog.ad) { var d = new Date(nx.startMs); row.appendChild(div('omgx', 'Next ' + two(d.getHours()) + ':' + two(d.getMinutes()) + '  ' + splitTitle(nx.prog.title).show)); }
+      box.appendChild(row);
+    });
+  }
   function renderOsd() {
     if (!cur) return;
+    renderMg();
     var sched = cur.ch.sched;
     var next = cur.od ? odPeek() : sched.order[(cur.index + 1) % sched.order.length];
     $('onum').textContent = cur.ch.n;
@@ -6490,6 +6517,7 @@
 
   function openOsd() {
     if (!cur) { openGuide(); return; }
+    omgBuild(); omgSig = '';
     osdOpen = true;
     document.body.classList.add('osdup');      // lifts any subtitles above the bar
     osdArt();
@@ -6582,6 +6610,12 @@
       if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { popClose(); return true; }
       if (k === 'ArrowLeft' || k === 'ArrowRight') popClose();
     }
+    if (osdZone === 'mg' && (k === 'ArrowUp' || k === 'ArrowDown' || k === 'ArrowLeft' || k === 'ArrowRight' || k === 'Enter')) {
+      if (k === 'ArrowUp') omgI = Math.max(0, omgI - 1);
+      else if (k === 'ArrowDown') { if (omgI < omgRows.length - 1) omgI++; else osdZone = 'bar'; }
+      else if (k === 'Enter') { var mc = omgRows[omgI]; closeOsd(); if (mc && cur && mc !== cur.ch) tune(mc, true); return true; }
+      renderOsd(); return true;
+    }
     if (k === 'ArrowLeft' || k === 'ArrowRight') {
       if (osdZone === 'bar') scrubKey(k === 'ArrowLeft' ? -1 : 1);
       else { var _n = obList().length; osdSel = (osdSel + (k === 'ArrowLeft' ? -1 : 1) + _n) % _n; renderOsd(); }
@@ -6596,6 +6630,7 @@
     else if (k === 'Guide' || k === 'Red') { closeOsd(); openGuide(); }
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace' || k === 'Info') closeOsd();
     else if (k === 'ArrowUp' && osdZone === 'btn') { osdZone = 'bar'; renderOsd(); }
+    else if (k === 'ArrowUp' && osdZone === 'bar' && omgRows.length) { scrubApply(); osdZone = 'mg'; omgI = Math.max(0, omgRows.indexOf(cur.ch)); renderOsd(); }
     else if (k === 'ArrowDown' && osdZone === 'bar') { scrubApply(); osdZone = 'btn'; renderOsd(); }
     else if (k === 'ArrowUp' || k === 'ChannelUp') { closeOsd(); surf(1); }
     else if (k === 'ArrowDown' || k === 'ChannelDown') { closeOsd(); surf(-1); }

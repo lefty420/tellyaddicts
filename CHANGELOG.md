@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.2 — 2026-11-21
+
+- Mini guide: the bar that comes up with OK over a channel now has a list above it: this channel and the ones either side of it (higher numbers above, as Up moves), each with what is on now and what is next. Press Up from the progress line to move into it, Up and Down to choose, OK to tune to that channel (the bar closes) and Down to come back. Up and Down on the remote still change channel at once, as before. Not shown on On Demand programmes, adverts or the phone.
+
 ## Alpha 0.53.1 — 2026-11-21
 
 - Faster start: the guide no longer waits up to 10 s for every channel. It opens as soon as the channel that was on last is ready (waiting at most 5 s for it) and the rest fill in behind. If that channel is slower than 5 s, the guide opens on what is ready and the app tunes to the last channel by itself the moment it is ready, unless a key has been pressed in the meantime.

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.1",
-  "version": "0.53.1",
-  "code": 5301,
+  "name": "Alpha 0.53.2",
+  "version": "0.53.2",
+  "code": 5302,
   "date": "2026-11-21",
   "notes": [
-    "Faster start: the guide no longer waits up to 10 s for every channel. It opens as soon as the channel that was on last is ready (waiting at most 5 s for it) and the rest fill in behind. If that channel is slower than 5 s, the guide opens on what is ready and the app tunes to the last channel by itself the moment it is ready, unless a key has been pressed in the meantime."
+    "Mini guide: the bar that comes up with OK over a channel now has a list above it: this channel and the ones either side of it (higher numbers above, as Up moves), each with what is on now and what is next. Press Up from the progress line to move into it, Up and Down to choose, OK to tune to that channel (the bar closes) and Down to come back. Up and Down on the remote still change channel at once, as before. Not shown on On Demand programmes, adverts or the phone."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.1",
+      "date": "2026-11-21",
+      "notes": [
+        "Faster start: the guide no longer waits up to 10 s for every channel. It opens as soon as the channel that was on last is ready (waiting at most 5 s for it) and the rest fill in behind. If that channel is slower than 5 s, the guide opens on what is ready and the app tunes to the last channel by itself the moment it is ready, unless a key has been pressed in the meantime."
+      ]
+    },
     {
       "name": "Alpha 0.53.0",
       "date": "2026-11-21",
@@ -63,13 +70,6 @@ window.RELEASE = {
       "notes": [
         "On-screen display: a film, an episode and anything else now read the same way. The title line is the film or the show (no more raw \"S01E01\" codes), the line under it is year, certificate and length for a film or Series, Episode and the episode's name for an episode, and the addon's name is no longer repeated (the badge already says it). A picture tile is always on the left (the poster, or a coloured tile with the first letter until one is found), so the bar never changes shape. \"Next\" shows the show and its series and episode.",
         "Seasonal snow: the flakes now come in a range of sizes in a 16-bit look, from single pixels up to big shaded snowflakes, near ones larger and quicker, far ones smaller and slower."
-      ]
-    },
-    {
-      "name": "Alpha 0.52.5",
-      "date": "2026-11-21",
-      "notes": [
-        "On-screen display: the button row always fits. On a film (which adds Sources and Audio & subs) the Options button was clipped at the right edge; the buttons now step down in size until all of them are on screen."
       ]
     }
   ]

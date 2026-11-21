@@ -834,6 +834,18 @@
   #oart.hidden { display: none; }
   #oart ~ #onum { min-width: calc(5.5 * var(--uw)); padding-left: 0; }
   #oart.hidden ~ #onum { min-width: calc(8 * var(--uw)); padding-left: calc(2.2 * var(--uw)); }       /* no picture: the number must not sit on the gold edge */
+  /* mini guide: what is on the channels either side of this one, above the bar of a channel (Up from the progress line moves into it) */
+  #omg { display: flex; flex-direction: column; gap: calc(.5 * var(--u)); padding: calc(1.4 * var(--u)) calc(2 * var(--uw)) calc(.4 * var(--u)) calc(15 * var(--uw)); }
+  #omg.hidden { display: none; }
+  .omgr { display: flex; align-items: baseline; gap: calc(1.4 * var(--uw)); padding: calc(.7 * var(--u)) calc(1.4 * var(--uw)); border-radius: calc(.7 * var(--u)); background: rgba(255,255,255,.07); font-size: calc(2.4 * var(--u)); color: rgba(255,255,255,.72); white-space: nowrap; overflow: hidden; }
+  .omgr.cur { background: rgba(255,255,255,.16); color: #fff; }
+  .omgr.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
+  .omgn { flex: none; width: calc(3.6 * var(--uw)); font-weight: 700; color: var(--hi2); }
+  .omgr.sel .omgn { color: var(--ink); }
+  .omgc { flex: none; width: calc(16 * var(--uw)); font-size: calc(2 * var(--u)); letter-spacing: .08em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; }
+  .omgt { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .omgx { flex: none; max-width: calc(30 * var(--uw)); font-size: calc(2.1 * var(--u)); opacity: .85; overflow: hidden; text-overflow: ellipsis; }
+  html.phone #omg { display: none; }
   #onow { display: flex; align-items: stretch; }
   #onum { padding: calc(1.6 * var(--u)) calc(2.2 * var(--uw)); font-size: calc(6 * var(--u)); font-weight: 700; color: var(--hi2); min-width: calc(8 * var(--uw)); text-align: center; }
   #oinfo { padding: calc(1.6 * var(--u)) calc(1 * var(--uw)) calc(1 * var(--u)) 0; flex: 1; min-width: 0; }
@@ -1111,6 +1123,7 @@
 </div>
 <div id="osd" class="off">
   <div id="obg"></div>
+  <div id="omg" class="hidden"></div>
   <div id="onow">
     <img id="oart" class="hidden" alt="">
     <div id="onum"></div>

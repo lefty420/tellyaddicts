@@ -1,15 +1,27 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.11",
-  "version": "0.52.11",
-  "code": 5211,
+  "name": "Alpha 0.53.0",
+  "version": "0.53.0",
+  "code": 5300,
   "date": "2026-11-21",
   "notes": [
-    "Loading screens: Set in the room and Whole screen now use the classic TV style (its brown cabinet and grey knobs, the green channel number and tuning scale) at the larger size. The aerials, wood cabinet, ribbed knobs and the big white TUNING / READY word are gone.",
-    "The Please stand by TV tunes again like the start-up one: green channel number and tuning scale with a sweeping needle on the glass, the knobs turning, and colour bars flashing now and then."
+    "On Demand opens straight away. The \"Getting your shows ready…\" popup is gone from the home page, and nothing blocks the keys while rows fill in.",
+    "On Demand now has an index: one small row per show (name, slug, poster, logo, backdrop, certificate, year, episode and season counts), kept per channel under the library revision like the sorted lists, and built in the background after the guide is up. The home rows, the hero and Browse read only from it; opening the home page no longer loads a channel's list, fills in episodes or groups them.",
+    "A show's episodes, seasons and copies are put together (Magic EPG fill included) only when its page is opened, for that show alone. Compared with the old whole-channel build on 2,700 shows, the episodes, seasons and certificates are identical.",
+    "First run, or a new library revision: the chips, rail and hero draw at once and each row fills in as its channel is indexed (placeholder posters, no popup).",
+    "The debug log now says how long it took from pressing On Demand to the first row (ONDEMAND: first row drawn … ms, warm start or index being built).",
+    "Still shown: the short wait when On Demand opens straight onto the show that is playing."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.11",
+      "date": "2026-11-21",
+      "notes": [
+        "Loading screens: Set in the room and Whole screen now use the classic TV style (its brown cabinet and grey knobs, the green channel number and tuning scale) at the larger size. The aerials, wood cabinet, ribbed knobs and the big white TUNING / READY word are gone.",
+        "The Please stand by TV tunes again like the start-up one: green channel number and tuning scale with a sweeping needle on the glass, the knobs turning, and colour bars flashing now and then."
+      ]
+    },
     {
       "name": "Alpha 0.52.10",
       "date": "2026-11-21",
@@ -58,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "Loading a programme is now one screen. \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are written on the \"Please stand by\" screen itself (in whichever Loading screen look is set), so it no longer shows one TV screen and then swaps to a different one when the video starts to load."
-      ]
-    },
-    {
-      "name": "Alpha 0.52.3",
-      "date": "2026-11-21",
-      "notes": [
-        "Loading screen: Surprise me now picks again for every loading screen (start-up, finding a programme, loading a channel, episode or film), not once per start. Switching Experimental off or on changes the look at once."
       ]
     }
   ]

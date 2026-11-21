@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|sched1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|filmdb1$|epl1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|odi1:|sched1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|filmdb1$|epl1:)/;
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   // The files' names, read from the app once per start and kept up to date here: listing the folder over the bridge
   // was done for every channel built, and the folder holds thousands of files.
@@ -341,7 +341,7 @@
   // a hash of its own routed rows, so still only the channels that changed are rebuilt. Anything missing falls back
   // to the per-channel files.
   var SHOWS_URL = 'https://raw.githubusercontent.com/lefty420/tellyaddicts/main/tools/shows.json';
-  var libP = null, libRevs = null, libCatchUp = null, libRevsOld = false;
+  var dataRevs = null, libP = null, libRevs = null, libCatchUp = null, libRevsOld = false;
   var listStats = { saved: 0, none: 0, old: 0, ms: 0, names: [] };      // this start: lists read from storage, rebuilt for want of one, rebuilt for age   // libCatchUp: set when this start opened on an earlier library's lists
 
   /** data/routes.json is the scraper's current word on where its shows go, and the latest copy wins: a show it lists
@@ -526,12 +526,14 @@
           route().then(function (revs) {
             indexP = Promise.resolve(revs);   // what this start is still missing is built and saved now, so the next start opens on it straight away
             dlog('library: caught up with the new library in the background');
+            odiMem = {}; odiJobs = {}; odWarmed = false; setTimeout(odWarm, 5000);      // On Demand's rows for the new revisions
             channels.forEach(function (c) { if (!isAdChan(c)) loadPrograms(Object.create(c)).then(null, function () { /* built at the next start */ }); });
           });
         };
         return old.revs;
       }, function () { return chans; });
     }, function () { return {}; });
+    indexP.then(function (r) { dataRevs = r || null; }, function () { /* no revisions */ });      // On Demand's index is keyed by them
     return indexP;
   }
 
@@ -6871,11 +6873,16 @@
       return r === n ? p : Object.assign({}, p, { show: r, group: r });
     });
   }
+  /** The title a programme is listed under in On Demand: a film is its own title, and two spellings of one show are one show. */
+  function odShowName(p, films) {
+    var name = (p.filmKey || films) ? (p.title || 'Film') : (p.show || p.group || (parseTitle(p.title || '').show) || 'Other');
+    if (!films && !p.filmKey && SHOW_ALIAS[LIBROUTE.norm(name)]) name = SHOW_ALIAS[LIBROUTE.norm(name)];
+    return name;
+  }
   function odGroup(progs, films) {          // films: a film channel, where every video is its own title
     var by = {}, shows = [];
     progs.forEach(function (p) {
-      var name = (p.filmKey || films) ? (p.title || 'Film') : (p.show || p.group || (parseTitle(p.title || '').show) || 'Other');   // a film is its own title
-      if (!films && !p.filmKey && SHOW_ALIAS[LIBROUTE.norm(name)]) name = SHOW_ALIAS[LIBROUTE.norm(name)];       // two spellings of one show are one show
+      var name = odShowName(p, films);
       var k = 'k' + LIBROUTE.norm(name);
       var g = by[k];
       if (!g) { g = by[k] = { name: name, eps: [], seen: {} }; shows.push(g); }
@@ -6916,31 +6923,140 @@
     });
     return shows;
   }
+  // ---- On Demand index. One small row per show (name, slug, poster p, logo l, backdrop b, certificate, year, how many
+  // episodes and seasons, and which rows of the channel's list it is made of), kept per channel under the revision of the
+  // library like rt1:, and built in slices after the guide is up. The home rows, the hero and Browse read only this: the
+  // heavy steps (virtualFill, odGroup) run for one show when its page is opened (odHydrate), never for a whole channel.
+  var odiJobs = {}, odiMem = {}, odRaw = {}, odRawOrder = [];
+  function odRevOf(id) { return (libRevs && libRevs[id]) || (dataRevs && dataRevs[id]) || ''; }
+  function odiSig() { return E.hash(['1', depgActive() ? 'm' : '', adCut ? 'c' : '', ukOn ? ukRev : '', removedRev, filmdbRev, artRev, BAD_SALT, E.hash(Object.keys(hid).sort().join(','))].join('.')).toString(36); }
+  function odiKey(id) { var r = odRevOf(id); return r ? 'odi1:' + id + ':' + r + ':' + odiSig() : ''; }
+  /** Whether a channel's rows are saved for this library revision (without reading them). */
+  function odiHas(id) { var key = odiKey(id), m = odiMem[id]; return !!((m && m.key === key) || (key && KV_NATIVE && kvNative()[key])); }
+  /** The saved rows of a channel for this library revision, or null when they have not been built yet. */
+  function odiRead(id) {
+    var key = odiKey(id), m = odiMem[id];
+    if (m && m.key === key) return m.rows;
+    if (!key || !KV_NATIVE) return null;
+    try { var t = kv.getItem(key), j = t && JSON.parse(t); if (j && j.rows) { odiMem[id] = { key: key, rows: j.rows }; return j.rows; } } catch (e) { /* built again */ }
+    return null;
+  }
+  function odiKeep(id, rows) {
+    var key = odiKey(id);
+    odiMem[id] = { key: key, rows: rows };
+    if (!key || !KV_NATIVE) return;
+    try {
+      kv.setItem(key, JSON.stringify({ rows: rows }));
+      Object.keys(kvNative()).forEach(function (kn) { if (kn !== key && kn.indexOf('odi1:' + id + ':') === 0) kv.removeItem(kn); });
+    } catch (e) { /* too big to keep: built again when wanted */ }
+  }
+  function odiDrop(id) {
+    var key = odiKey(id); delete odiMem[id]; delete odiJobs[id]; delete odRaw[id];
+    try { if (key) kv.removeItem(key); } catch (e) { /* ignore */ }
+  }
+  /** The library rows of a channel turned into programmes, in small slices; each programme remembers the row it came from (_ix). */
+  function odiConvert(items, chId) {
+    return new Promise(function (resolve) {
+      var out = [], i = 0, n = 4;
+      (function step() {
+        if (!odOpen && userBusy()) { setTimeout(step, 250); return; }
+        var t0 = performance.now(), end = Math.min(items.length, i + n);
+        for (var j = i; j < end; j++) { var part = progsFromData([items[j]], chId, true); for (var k = 0; k < part.length; k++) { part[k]._ix = j; out.push(part[k]); } }
+        var ms = performance.now() - t0; i = end;
+        n = ms < 5 ? n * 2 : ms > 10 ? Math.max(1, n >> 1) : n;
+        if (i < items.length) setTimeout(step, 0); else resolve(out);
+      })();
+    });
+  }
+  function odiArt(name) {
+    if (!artIdx || !name) return null;
+    var w = String(name).split(/\s+/);
+    for (var n = w.length; n >= 1; n--) { var h = artIdx[normShow(w.slice(0, n).join(' '))]; if (h && (n > 1 || w.length === 1)) return h; }
+    return null;
+  }
+  /** Build and keep one channel's rows. */
+  function odiBuild(ch) {
+    if (odiJobs[ch.id]) return odiJobs[ch.id];
+    var films = !!OD_FILMS[ch.id], t0 = Date.now();
+    return (odiJobs[ch.id] = odiItems(ch).then(function (items) {
+      return odiConvert(items || [], ch.id);
+    }).then(function (all) {
+      return ytLoad().then(function (yt) { var y = ytProgs(yt, ch.id); y.forEach(function (p) { p._ix = -1; }); return y.length ? all.concat(y) : all; });
+    }).then(function (all) {
+      return Promise.all([loadFilmdb(), loadUk(), loadArt()]).then(function () { return all; });
+    }).then(function (all) {
+      var progs = ukFilter(all.filter(function (p) { return (films || !p.filmKey) && !blocked(p); }));
+      progs = films ? virtualFilms(ch, progs, true) : odRenameProgs(progs).filter(function (p) { return ch.id === 'disney' || inEra(p); });
+      var by = {}, rows = [];
+      progs.forEach(function (p) {
+        var nm = odShowName(p, films), k = LIBROUTE.norm(nm), r = by[k];
+        if (!r) { r = by[k] = { n: nm, ix: [], ne: 0, ses: {}, y: 0 }; rows.push(r); }
+        if (p._ix >= 0) { if (r.ix.indexOf(p._ix) < 0) r.ix.push(p._ix); } else if (p._ix === -1) r.yt = 1; else if (p.virtual) r.v = 1;
+        r.ne++;
+        if (p.filmKey) { r.f = 1; r.k = r.k || p.filmKey; }
+        if (p.cert && !r.c) r.c = String(p.cert);
+        var ref = window.LINKS && LINKS.parseEp(p.title); if (ref && ref.s > 0) r.ses[ref.s] = 1;
+        var a = parseInt(String(p.aired || '').slice(0, 4), 10); if (a > 1900 && (!r.y || a < r.y)) r.y = a;
+      });
+      rows.forEach(function (r) {
+        r.ns = Object.keys(r.ses).length; delete r.ses; r.s = odSlug(r.n);
+        if (r.f) { delete r.yt; if (r.v) delete r.ix; } else { r.f = 0; }
+        if (!r.ix || !r.ix.length) delete r.ix;
+        var a = !r.f && odiArt(r.n); if (a) { if (a.p) r.p = a.p; if (a.b) r.b = a.b; if (a.l) r.l = a.l; }
+      });
+      rows.sort(function (a, b) { var x = LIBROUTE.norm(a.n), y = LIBROUTE.norm(b.n); return x < y ? -1 : x > y ? 1 : 0; });
+      odiKeep(ch.id, rows);
+      dlog('ONDEMAND: index built for ' + ch.id + ': ' + rows.length + ' shows in ' + (Date.now() - t0) + ' ms');
+      return rows;
+    }));
+  }
+  /** A channel's raw library rows, the last three kept for the shows being opened. */
+  function odiItems(ch) {
+    if (odRaw[ch.id]) return odRaw[ch.id];
+    var rev = odRevOf(ch.id);
+    var p = odRaw[ch.id] = loadDataIndex().then(function (idx) { return loadChannelData(ch.id, rev || idx[ch.id] || ''); });
+    odRawOrder = odRawOrder.filter(function (x) { return x !== ch.id; }); odRawOrder.push(ch.id);
+    while (odRawOrder.length > 3) delete odRaw[odRawOrder.shift()];
+    return p;
+  }
+  /** A row of the index as a show that has no episodes yet: enough to draw its card, the hero and Browse. */
+  function odiStub(r, ch) {
+    var g = { name: r.n, chan: ch, film: !!r.f, eps: [], sea: [], flat: [], stub: true, ix: r.ix || null, k: r.k || '', virt: !!r.v, yt: !!r.yt,
+              nEps: r.ne || 0, nSea: r.ns || 0, cert: r.c || '', yr: r.y || 0, il: r.l || '' };
+    if (r.f) g.eps = [{ p: { filmKey: r.k, title: r.n, show: '', cert: r.c || '', aired: r.y ? String(r.y) : '' }, s: 0, e: 0 }];
+    else if (r.p || r.b) { g._k = { poster: https(r.p || ''), back: https(r.b || '') }; g._kg = odKGen; }
+    return g;
+  }
+  /** Put a show's episodes, seasons and copies together, for this one show: what opening its page needs. */
+  function odHydrate(g) {
+    if (!g || !g.stub) return Promise.resolve(g);
+    if (g._hp) return g._hp;
+    var ch = g.chan, films = !!OD_FILMS[ch.id], key = LIBROUTE.norm(g.name);
+    return (g._hp = Promise.all([g.ix ? odiItems(ch) : null, ytLoad(), loadEpdb(), loadFilmdb(), loadUk()]).then(function (r) {
+      var items = r[0] || [], rows = (g.ix || []).map(function (i) { return items[i]; }).filter(Boolean);
+      var all = rows.length ? progsFromData(rows, ch.id, true) : [];
+      if (g.yt) all = all.concat(ytProgs(r[1], ch.id));
+      all = all.filter(function (p) { return (films || !p.filmKey) && !blocked(p); });
+      if (films) { if (g.virt) all = virtualFilms(ch, [], true).filter(function (p) { return p.filmKey === g.k; }); }
+      else all = virtualFill(ch, odRenameProgs(all), true);
+      all = all.filter(function (p) { return LIBROUTE.norm(odShowName(p, films)) === key && (films || ch.id === 'disney' || inEra(p)); });
+      var h = odGroup(all, films).filter(function (x) { return LIBROUTE.norm(x.name) === key; })[0];
+      g._hp = null;
+      if (!h || !h.eps.length) throw new Error('no episodes found for ' + g.name);
+      g.eps = h.eps; g.sea = h.sea; g.flat = h.flat; g.film = h.film; g.stub = false; g.ix = null;
+      return g;
+    }, function (e) { g._hp = null; throw e; }));
+  }
   function odLoadChannel(ch) {
     if (ch.id === '_sr') return Promise.resolve(odData._sr || { shows: [] });       // the search row, like Continue watching, is made from the others
     if (ch.id === '_cw') return Promise.resolve(odData._cw || { shows: [] });     // the Continue watching row is made from the others
     var rec = odData[ch.id];
     if (rec) return rec.p;
     rec = odData[ch.id] = { shows: null };
-    rec.p = loadDataIndex().then(function (idx) { return loadChannelData(ch.id, idx[ch.id] || ''); }).then(function (rows) {
-      return rows && rows.length ? progsFromDataSliced(rows, ch.id, true) : [];
-    }).then(function (all) {
-      return ytLoad().then(function (yt) { var y = ytProgs(yt, ch.id); return y.length ? all.concat(y) : all; });
-    }).then(function (all) {
-      return Promise.all([loadEpdb(), loadFilmdb(), loadUk()]).then(function () { return all; });          // Content, and Magic EPG: the episode database is in before the shows are grouped
-    }).then(function (all) {
-      var progs = ukFilter(all.filter(function (p) { return (OD_FILMS[ch.id] || !p.filmKey) && !blocked(p); }));
-      progs = OD_FILMS[ch.id] ? virtualFilms(ch, progs, true) : virtualFill(ch, odRenameProgs(progs), true);      // Magic EPG: every episode the scrapers know, not only the ones with a file
-      return new Promise(function (r) { setTimeout(function () { r(progs); }, 0); });     // a breath for the screen before the grouping, the other long step
-    }).then(function (progs) {
-      // On Demand shows everything that is stored: no certificate is needed for a film, and the two film channels
-      // are not trimmed by era either. (The schedule on the guide still applies those rules.)
-      rec.shows = odGroup(OD_FILMS[ch.id] ? progs : progs.filter(function (p) { return ch.id === 'disney' || inEra(p); }), !!OD_FILMS[ch.id]);
-      rec.shows.forEach(function (g) { g.chan = ch; });
-      odRowsMemo = null;
-      return rec;
-    }, function () { rec.shows = []; return rec; });
-    return rec.p;
+    var take = function (rows) { rec.shows = rows.map(function (r) { return odiStub(r, ch); }); odRowsMemo = null; return rec; };
+    var saved = odiRead(ch.id);
+    if (saved) { take(saved); return (rec.p = Promise.resolve(rec)); }      // built before: read at once, nothing to wait for
+    return (rec.p = odiBuild(ch).then(take, function () { rec.shows = []; return rec; }));
   }
   /** A show's episode details (titles, summaries, stills) from the scraper's data/eps/<slug>.json, kept for a week. */
   function odSlug(name) { return LIBROUTE.norm(name).replace(/ /g, '-'); }
@@ -7166,10 +7282,11 @@
     (function next() {
       var c = todo.shift();
       if (!c || !odOpen) { row._busy = false; return; }
+      var fast = odiHas(c.id);                   // its rows are saved: nothing to wait for before the next one
       odLoadChannel(c).then(function () { return null; }, function () { return null; }).then(function () {
         odRowsMemo = null; odHeroPick();
         if (odOpen && odView === 'home') odRender();
-        setTimeout(next, 150);
+        setTimeout(next, fast ? 0 : 150);
       });
     })();
   }
@@ -7282,7 +7399,7 @@
    *  The text stays until the picture has loaded, and comes back if it fails. */
   function odLogo(img, h1, g) {
     var f = g && g.film && g.flat && g.flat[0] ? filmFor(g.flat[0].p) : null;
-    var url = f && f.logo ? https(f.logo) : (g && !g.film && g.art && g.art.l ? https(g.art.l) : '');
+    var url = f && f.logo ? https(f.logo) : (g && !g.film && g.art && g.art.l ? https(g.art.l) : (g && !g.film && g.il ? https(g.il) : ''));
     if (!url) { if (img.dataset.src) { img.dataset.src = ''; img.className = 'hidden'; img.removeAttribute('src'); } h1.style.display = ''; return; }
     if (img.dataset.src === url) return;
     img.dataset.src = url; img.className = 'hidden'; h1.style.display = '';
@@ -7296,8 +7413,9 @@
     return x ? [x.n || '', x.y ? x.y + (x.e && x.e !== x.y ? '–' + x.e : '') : '', x.g || ''].filter(Boolean).join('  ·  ') : '';
   }
   var odBusy = false;     // opening straight onto the show that is playing: nothing to show until it is found
+  var odT1 = 0, odT0 = 0, odT0Warm = false;      // when On Demand was pressed, and whether its rows were already saved (for the debug line)
   function odRender() {
-    $('odload').className = odOpen && (odBusy || (odView === 'home' && odSel().sh == null)) ? '' : 'hidden';
+    $('odload').className = odOpen && odBusy ? '' : 'hidden';      // never for the home page: it draws at once and the rows fill in
     odRenderBar();
     $('odbar').style.display = odView === 'home' ? '' : 'none'; $('odside').style.display = odView === 'home' ? '' : 'none';
     if (odView === 'show') odRenderShow(); else if (odView === 'grid') odRenderGrid(); else odRenderHome();
@@ -7420,6 +7538,8 @@
             cards.appendChild(x.c.id === '_on' ? odOnCard(x.sh[i], sel) : odCard(x.sh[i], sel));
           }
           rowIsCw = false;
+          if (odT1 && x.n && x.c.ch) { dlog('ONDEMAND: first genre row (' + x.c.name + ') drawn ' + Math.round(performance.now() - odT1) + ' ms after pressing On Demand'); odT1 = 0; }
+          if (odT0 && x.n) { dlog('ONDEMAND: first row drawn ' + Math.round(performance.now() - odT0) + ' ms after pressing On Demand (' + (odT0Warm ? 'warm start, rows saved' : 'index being built') + ', ' + x.c.name + ', ' + x.n + ' shows)'); odT0 = 0; }
         }
         row.appendChild(cards); frag.appendChild(row);
         odDom.push({ c: x.c, sh: x.sh, start: x.start, n: x.n, gen: odKGen, sel: x.ri === odRi && inRows && x.n ? x.pos - x.start : -1 });
@@ -7442,7 +7562,7 @@
     if (top && g && !g.onnow) { hb.appendChild(odEl('div', 'odb' + (odZn === 'hero' ? ' sel' : ''), '\u25b6  Play')); hb.appendChild(odEl('div', 'odb', '\u24d8  More info   (hold OK)')); }
     if (top && g && !g.onnow) { var cert = odCertOf(g), mm = $('odm'); mm.textContent = ''; if (cert) mm.appendChild(odEl('span', 'odcert', cert)); mm.appendChild(document.createTextNode(odHeroMeta(g))); }
     else $('odm').textContent = g ? (g.onnow ? 'Live now on ' + g.chan.name : (odInfoLine(g) || (g.chan ? g.chan.name : (s.c && s.c.name) || ''))) : '';
-    $('odp').textContent = g ? (odDesc(g) || (g.film || g.onnow ? '' : g.eps.length + (g.eps.length === 1 ? ' video' : ' videos'))) : '';
+    $('odp').textContent = g ? (odDesc(g) || (g.film || g.onnow ? '' : (g.stub ? g.nEps : g.eps.length) + ((g.stub ? g.nEps : g.eps.length) === 1 ? ' video' : ' videos'))) : '';
     var dots = $('oddots');
     if (top && odHero.length > 1) {
       if (dots.children.length !== odHero.length) { dots.textContent = ''; odHero.forEach(function () { dots.appendChild(odEl('i')); }); }
@@ -7460,17 +7580,17 @@
       if (odOpen && odView === 'home' && !odm && (odZn === 'chips' || odZn === 'hero')) { odHeroI = (odHeroI + 1) % odHero.length; odRender(); }
     }, 7000);
   }
-  function odCertOf(g) { var p = g && g.eps && g.eps[0] && g.eps[0].p; return p && p.cert ? String(p.cert) : ''; }
+  function odCertOf(g) { var p = g && g.eps && g.eps[0] && g.eps[0].p; return p && p.cert ? String(p.cert) : (g && g.cert ? String(g.cert) : ''); }
   /** The line under the hero: year, seasons, genre. */
   function odHeroMeta(g) {
-    var seasons = g.sea ? g.sea.filter(function (x) { return /^Season/.test(x.name); }).length : 0;
+    var seasons = g.stub ? g.nSea : g.sea ? g.sea.filter(function (x) { return /^Season/.test(x.name); }).length : 0;
     return [odInfoLine(g), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : ''].filter(Boolean).join('  \u00b7  ') || (g.chan ? g.chan.name : '');
   }
   function odPlayHero() {
     var g = odHero[Math.min(odHeroI, odHero.length - 1)];
     if (!g) return;
     odJumpTo(g);
-    var b = odBtns(g)[0]; if (b) b.f();
+    odHydrate(g).then(function () { var b = odBtns(g)[0]; if (b) b.f(); }, function () { toast('Could not play that show', 2500); });
   }
   function odWatchLive(c) {
     if (!c) return;
@@ -7592,6 +7712,10 @@
   function odOpenShow() {
     var s0 = odSel(), g = s0.g;
     if (!g) return;
+    if (g.stub) {                                  // only the index row so far: this show's episodes are put together now, for it alone
+      odHydrate(g).then(function () { if (odOpen && odSel().g === g) odOpenShow(); }, function (e) { dlog('ONDEMAND: could not open ' + g.name + ': ' + e.message); toast('Could not open that show', 2500); });
+      return;
+    }
     if (g.film && g.flat && g.flat.length === 1) { odClose(false); odStart(g.chan || s0.c, g.flat, 0); return; }     // a film is one video: OK plays it
     odZone = 0; odSea = 0; odEi = 0; odBi = 0;
     odShowView(true);
@@ -7605,6 +7729,7 @@
     odGuide = guideOpen ? { chan: gChan, win: gWin, focus: gFocus } : null;     // so leaving On Demand lands back on the same programme
     closeOsd(); closeOpts();
     if (guideOpen) closeGuide();
+    odT0 = odT1 = performance.now(); odT0Warm = odChannels().every(function (c) { return odiHas(c.id); });
     odOpen = true; odArtFor = ''; odBgFor = ''; odTop = 0; odNone = '';
     odRet = null; odJumpRow = null; odRowsMemo = null; odChip = 0; odCi = 0; odHeroI = 0; odHero = []; odZn = 'chips'; odRailBack = 'rows'; odGKey = '';
     odSetView('home');
@@ -7628,19 +7753,24 @@
       if (!odOpen || odView !== 'home') return;
       var sh = odShowsOf(c) || [];
       var name = prog.show || prog.group || (parseTitle(prog.title || '').show) || '', key = LIBROUTE.norm(name), si = -1;
-      sh.forEach(function (g, i) { if (si < 0 && (LIBROUTE.norm(g.name) === key || g.eps.some(function (ep) { return rwSame(ep.p, prog); }))) si = i; });
+      sh.forEach(function (g, i) { if (si < 0 && (LIBROUTE.norm(g.name) === key || (!g.stub && g.eps.some(function (ep) { return rwSame(ep.p, prog); })))) si = i; });
       if (si < 0) { odRender(); return; }
       var g = sh[si];
       odJumpTo(g);                                   // the channel's shows become the row the show page belongs to
       if (g.film) { odRet = null; odZn = 'rows'; odRender(); if (after) after(); return; }      // a film is one video: land on its poster, don't start it again
       odRet = { rc: null, ri: 0, zn: 'chips', view: 'home' };       // Back from the show page goes to the top of On Demand
-      odOpenShow();
-      for (var s = 0; s < g.sea.length; s++) {
-        var e = -1; g.sea[s].eps.forEach(function (ep, n) { if (e < 0 && rwSame(ep.p, prog)) e = n; });
-        if (e >= 0) { odSea = s; odEi = e; odZone = 2; break; }
-      }
-      odRender();
-      if (always && after) after();
+      odBusy = true; odRender();
+      odHydrate(g).then(function () {
+        odBusy = false;
+        if (!odOpen || odView !== 'home') return;
+        odOpenShow();
+        for (var s = 0; s < g.sea.length; s++) {
+          var e = -1; g.sea[s].eps.forEach(function (ep, n) { if (e < 0 && rwSame(ep.p, prog)) e = n; });
+          if (e >= 0) { odSea = s; odEi = e; odZone = 2; break; }
+        }
+        odRender();
+        if (always && after) after();
+      }, function () { odBusy = false; odRender(); });
     });
   }
   function odClose(restore) {
@@ -7677,16 +7807,17 @@
   function odWarm() {
     if (odWarmed) return;
     odWarmed = true;
-    // Only the channel that was on and those with a show in Continue watching (that row is built from them): grouping
-    // a channel's shows with Magic EPG takes seconds on the box and blocks the screen, so warming every channel froze
-    // the guide again and again for minutes after start. The rest load when On Demand opens on them.
-    var want = {}; want[store.get('last')] = 1; cwGet().forEach(function (e) { want[e.ch] = 1; });
-    var i = 0, list = odChannels().filter(function (c) { return want[c.id]; }).sort(function (a, b) { return (a.id === store.get('last') ? -1 : b.id === store.get('last') ? 1 : 0); });
+    // Build the On Demand index (one small row per show) for every channel that has none saved for this library revision,
+    // one channel at a time and only while nothing else is loading. A channel's rows are read from the file afterwards, so
+    // opening On Demand never builds anything; the heavy grouping happens only for the show whose page is opened.
+    var list = odChannels().filter(function (c) { return !odiHas(c.id); }), i = 0, t0 = Date.now();
+    if (!list.length) return;
+    dlog('ONDEMAND: building the index for ' + list.length + ' channels');
     (function next() {
-      if (i >= list.length) return;
-      if (odOpen || !quiet() || Date.now() - lastKeyAt < 4000) { setTimeout(next, 4000); return; }   // never while On Demand is on screen (it loads its own) or channels are still loading
+      if (i >= list.length) { dlog('ONDEMAND: index built for ' + list.length + ' channels in ' + Math.round((Date.now() - t0) / 100) / 10 + ' s'); return; }
+      if (!quiet() || Date.now() - lastKeyAt < 4000) { setTimeout(next, 4000); return; }
       var c = list[i++];
-      odLoadChannel(c).then(function () { setTimeout(next, 1500); }, function () { setTimeout(next, 1500); });
+      odiBuild(c).then(function () { setTimeout(next, 800); }, function (e) { dlog('ONDEMAND: index for ' + c.id + ' failed: ' + (e && e.message)); setTimeout(next, 800); });
     })();
   }
   /** Load the focused channel's shows first, then show them. */
@@ -7806,9 +7937,10 @@
   function odYear(g) {
     if (g._yr !== undefined && g._yg === odKGen) return g._yr;
     var y = 0;
-    if (g.film) y = filmYear(g.eps[0].p) || 0;
+    if (g.film) y = filmYear(g.eps[0].p) || g.yr || 0;
     else {
       y = g.art && parseInt(g.art.y, 10) || 0;
+      if (!y && g.yr) y = g.yr;
       if (!y) (g.eps || []).forEach(function (e) { var a = parseInt(String(e.p && e.p.aired || '').slice(0, 4), 10); if (a > 1900 && (!y || a < y)) y = a; });
     }
     g._yg = odKGen; return (g._yr = y);
@@ -7925,6 +8057,7 @@
   /** Throw away a channel's grouped shows and build them again (after a show is renamed), landing on the show called `name`. */
   function odRegroup(g, name) {
     var c = g.chan; if (!c || !odData[c.id]) { odRender(); return; }
+    odiDrop(c.id);                                 // the new name changes how this channel's shows group: its rows are built again
     delete odData[c.id]; odRowsMemo = null;
     odLoadChannel(c).then(function () {
       var sh = odShowsOf(c) || [], k = LIBROUTE.norm(name), i = -1;
@@ -7951,6 +8084,7 @@
   function odmOpen() {
     var g = odSel().g;
     if (!g) return;
+    if (g.stub) { odHydrate(g).then(function () { if (odOpen && odSel().g === g && !odm) odmOpen(); }, function () { /* no menu for a show that will not open */ }); return; }
     var optsItem = { t: 'Options', sub: 'Settings, help and debug', f: function () { odmClose(); openOpts(); } };
     var searchItem = { t: 'Search', sub: odQuery ? 'Find a show or film by name (now: ' + odQuery + ')' : 'Find a show or film by name', f: function () { odmClose(); odSearchAsk(); } };
     var infoItem = { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = (g.flat && g.flat[0]) || (g.eps && g.eps[0]); if (e0) openInfo({ prog: e0.p, ch: g.chan }); } };

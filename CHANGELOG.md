@@ -7,6 +7,15 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.0 — 2026-11-21
+
+- On Demand opens straight away. The "Getting your shows ready…" popup is gone from the home page, and nothing blocks the keys while rows fill in.
+- On Demand now has an index: one small row per show (name, slug, poster, logo, backdrop, certificate, year, episode and season counts), kept per channel under the library revision like the sorted lists, and built in the background after the guide is up. The home rows, the hero and Browse read only from it; opening the home page no longer loads a channel's list, fills in episodes or groups them.
+- A show's episodes, seasons and copies are put together (Magic EPG fill included) only when its page is opened, for that show alone. Compared with the old whole-channel build on 2,700 shows, the episodes, seasons and certificates are identical.
+- First run, or a new library revision: the chips, rail and hero draw at once and each row fills in as its channel is indexed (placeholder posters, no popup).
+- The debug log now says how long it took from pressing On Demand to the first row (ONDEMAND: first row drawn … ms, warm start or index being built).
+- Still shown: the short wait when On Demand opens straight onto the show that is playing.
+
 ## Alpha 0.52.11 — 2026-11-21
 
 - Loading screens: Set in the room and Whole screen now use the classic TV style (its brown cabinet and grey knobs, the green channel number and tuning scale) at the larger size. The aerials, wood cabinet, ribbed knobs and the big white TUNING / READY word are gone.

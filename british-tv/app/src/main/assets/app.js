@@ -4977,6 +4977,7 @@
     }, 1000);
   }
   function sbStageEnd() { clearInterval(sbWaitTimer); sbWaitTimer = null; sbWaitT0 = 0; $('sbfoot').textContent = 'This channel is loading'; }
+  function amActive() { return amOn && expOn && adLive().length > 0; }
   function amNote(msg) {
     amMsg = true;
     if (!started || !cur || cur.ad) { toast(msg, 15000); return; }

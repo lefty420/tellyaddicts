@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.8",
-  "version": "0.52.8",
-  "code": 5208,
+  "name": "Alpha 0.52.9",
+  "version": "0.52.9",
+  "code": 5209,
   "date": "2026-11-21",
   "notes": [
-    "Loading screens, from the design review: (1) in Whole screen the \"Please stand by\" plate now grows with its words, so the last line is no longer on its edge; (2) in Set in the room the start-up TV's aerials no longer poke through the logo; (3) while a programme is being found the last line steps through what is happening (Scraping your debrid / Found a source, starting / Playing the library copy / Found it on archive.org) and after 8 seconds shows how long it has been; (4) the start-up TV says READY and \"Opening the guide…\" once every channel has answered, instead of sitting on \"TUNING 31 / 31\"."
+    "Fixed: the app would not get past the loading screen (stuck on \"Opening the guide\"). Release 0.52.4 removed a helper by mistake. 0.52.4 to 0.52.8 are affected, so update to this one."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.8",
+      "date": "2026-11-21",
+      "notes": [
+        "Loading screens, from the design review: (1) in Whole screen the \"Please stand by\" plate now grows with its words, so the last line is no longer on its edge; (2) in Set in the room the start-up TV's aerials no longer poke through the logo; (3) while a programme is being found the last line steps through what is happening (Scraping your debrid / Found a source, starting / Playing the library copy / Found it on archive.org) and after 8 seconds shows how long it has been; (4) the start-up TV says READY and \"Opening the guide…\" once every channel has answered, instead of sitting on \"TUNING 31 / 31\"."
+      ]
+    },
     {
       "name": "Alpha 0.52.7",
       "date": "2026-11-21",
@@ -57,15 +64,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "Loading screen: the Classic TV no longer flashes up before the look you chose (Whole screen, Set in the room); the screen stays blank until the app has picked it."
-      ]
-    },
-    {
-      "name": "Alpha 0.52.0",
-      "date": "2026-11-21",
-      "notes": [
-        "TV Guide: opening the guide puts the channel that is playing on the top row (it used to be on the bottom row), so you see what comes after it. Near the end of the list it shows the last screenful.",
-        "Finding a programme: \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are now written on the loading screen with the pictures instead of a message along the bottom.",
-        "Options > Experimental > Loading screen now changes at once, and every loading screen (the start-up one and this one) uses the look you pick, Set in the room, Whole screen, Classic or Surprise me."
       ]
     }
   ]

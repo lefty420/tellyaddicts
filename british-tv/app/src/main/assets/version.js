@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.4",
-  "version": "0.52.4",
-  "code": 5204,
+  "name": "Alpha 0.52.5",
+  "version": "0.52.5",
+  "code": 5205,
   "date": "2026-11-21",
   "notes": [
-    "Loading a programme is now one screen. \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are written on the \"Please stand by\" screen itself (in whichever Loading screen look is set), so it no longer shows one TV screen and then swaps to a different one when the video starts to load."
+    "On-screen display: the button row always fits. On a film (which adds Sources and Audio & subs) the Options button was clipped at the right edge; the buttons now step down in size until all of them are on screen."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.4",
+      "date": "2026-11-21",
+      "notes": [
+        "Loading a programme is now one screen. \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are written on the \"Please stand by\" screen itself (in whichever Loading screen look is set), so it no longer shows one TV screen and then swaps to a different one when the video starts to load."
+      ]
+    },
     {
       "name": "Alpha 0.52.3",
       "date": "2026-11-21",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "Show page: the season chips no longer carry an unexplained number (\"Season 2 6\"); the heading above the episodes already says how many there are. \"2 more\" now sits on the heading line at the right instead of at the bottom, where it ran into the key legend."
-      ]
-    },
-    {
-      "name": "Alpha 0.51.3",
-      "date": "2026-11-21",
-      "notes": [
-        "TV Guide: with Interface size on Large the bottom channel row was cut off by the screen edge. The guide now shows as many rows as fit at the chosen size (6 on Large, 7 otherwise)."
       ]
     }
   ]

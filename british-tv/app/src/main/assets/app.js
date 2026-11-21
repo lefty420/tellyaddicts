@@ -6359,6 +6359,8 @@
     if (osdSel > ob.length - 1) osdSel = ob.length - 1;
     if (osdPop && ob.indexOf(osdPop.g) < 0) osdPop = null;
     OB_ALL.forEach(function (id) { var i = ob.indexOf(id), e = $('ob-' + id); e.className = 'ob' + (i < 0 ? ' hidden' : '') + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
+    var bx = $('obtns'); bx.className = '';                               // widest first; step down until every button is on screen
+    if (bx.scrollWidth > bx.clientWidth + 1) { bx.className = 'tight'; if (bx.scrollWidth > bx.clientWidth + 1) bx.className = 'tighter'; }
     renderPop();
   }
 

@@ -864,6 +864,13 @@
   .ob { padding-left: calc(1.2 * var(--uw)); padding-right: calc(1.2 * var(--uw)); }
   .ob .chev { font-size: calc(2 * var(--u)); opacity: .8; margin-left: calc(-.3 * var(--uw)); }
   #obsp { flex: 1; }
+  /* the row always fits: with many buttons (a film adds Sources and Audio & subs) the app steps these sizes down until nothing runs off the right edge */
+  #obtns.tight { gap: calc(.4 * var(--uw)); }
+  #obtns.tight .ob { font-size: calc(2.2 * var(--u)); padding-left: calc(.8 * var(--uw)); padding-right: calc(.8 * var(--uw)); gap: calc(.6 * var(--uw)); }
+  #obtns.tight .ob .ic { font-size: calc(2.3 * var(--u)); }
+  #obtns.tighter { gap: calc(.3 * var(--uw)); padding-left: calc(4 * var(--uw)); }
+  #obtns.tighter .ob { font-size: calc(2 * var(--u)); padding-left: calc(.6 * var(--uw)); padding-right: calc(.6 * var(--uw)); gap: calc(.4 * var(--uw)); }
+  #obtns.tighter .ob .ic { font-size: calc(2 * var(--u)); }
   /* the Guide and Sources buttons open a short list above the bar */
   #opop { position: absolute; bottom: calc(100% - calc(2.4 * var(--u))); min-width: calc(19 * var(--uw)); padding: calc(.8 * var(--u)); display: flex; flex-direction: column; gap: calc(.4 * var(--u));
     background: #071d66; border: calc(.2 * var(--u)) solid rgba(255,255,255,.25); border-radius: calc(1 * var(--u)); box-shadow: 0 calc(1 * var(--u)) calc(4 * var(--u)) rgba(0,0,0,.6); z-index: 2; }

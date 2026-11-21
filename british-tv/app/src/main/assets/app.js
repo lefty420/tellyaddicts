@@ -4332,8 +4332,8 @@
     } });
     items.push({ t: 'Channel schedule', sub: 'Everything on ' + c.name + ', with times', f: function () { gmClose(); csOpen(c, 'guide'); } });
     items.push({ t: 'Watch from the start', sub: 'Begin this programme at the beginning', f: function () { gmClose(); watchFromGuide(true); } });
-    var mlg = { name: name, chan: c };
-    items.push({ t: mlHas(mlg) ? 'Remove from My list' : 'Add to My list', sub: name, f: function () { gmClose(); mlToggle(mlg); } });
+    var mlg = { name: name, chan: c };    // favourite shows are kept as the old My list
+    items.push({ t: mlHas(mlg) ? 'Remove show from favourites' : 'Add show to favourites', sub: name, f: function () { gmClose(); mlToggle(mlg); } });
     items.push(favItems[0], favItems[1]);
     var ref = window.LINKS && LINKS.parseEp(p.title), film = !!p.filmKey;
     if (ref) items.push({ t: 'Stream next episode', sub: 'Play the next episode of the series', f: function () { gmClose(); gmNext(c, p); } });
@@ -7337,7 +7337,7 @@
     l.forEach(function (e, n) { if (e.k === k) at = n; });
     if (at >= 0) l.splice(at, 1); else l.unshift({ k: k, n: g.name, ch: g.chan ? g.chan.id : '' });
     mlList = l.slice(0, 40); store.set('mylist1', mlList); mlSig = ''; odRowsMemo = null;
-    toast(at >= 0 ? 'Taken off My list' : 'Added to My list', 1800);
+    toast(at >= 0 ? 'Removed ' + g.name + ' from Favourites' : 'Added ' + g.name + ' to Favourites', 2200);
   }
   /** My list: the shows added from a show page, from the channels that are loaded. */
   function odMyRow() {
@@ -7431,7 +7431,6 @@
     if (odData._sr && odData._sr.shows.length) out.push(srPseudo);
     var on = !kind || kind === 'tv' ? odOnRow() : null; if (on) out.push(on);
     var cw = odCwRow(); if (cw) out.push(cw);
-    var ml = odMyRow(); if (ml) out.push(ml);
     OD_GENRES.forEach(function (row) {
       if (kind && (' ' + row.k + ' ').indexOf(' ' + kind + ' ') < 0) return;
       if (!row.ch.some(function (id) { return odCh[id]; })) return;
@@ -7799,14 +7798,14 @@
   }
   var OD_EPN = 5;           // episode cards across the show page
   function odEpKey(g, ep) { return LIBROUTE.norm(g.name) + '|' + (ep.p && (ep.p.url || ep.p.id) || ''); }
-  /** The buttons under a show's title: resume, play from the start, My list. */
+  /** The buttons under a show's title: resume, play from the start, Favourites. */
   function odBtns(g) {
     var first = g.flat[0], b = [];
     var rs = g._cw && g.flat.filter(function (e) { return odResumeAt(g, e); })[0];
     if (rs) b.push({ t: '▶  Resume' + (rs.s && rs.e > 0 ? ' S' + odPad(rs.s) + 'E' + odPad(rs.e) : ''), f: function () { odPlay(rs); } });
     var f0 = g.flat.filter(function (e) { return e.s > 0; })[0] || first;
     b.push({ t: '▶  ' + (g.film ? 'Play film' : rs ? 'Start from ' + (f0 && f0.s > 0 ? 'S' + f0.s + ' E' + f0.e : 'the beginning') : 'Play from the start'), f: function () { if (f0 || first) odPlay(f0 || first); } });
-    b.push({ t: mlHas(g) ? '✓  In My list' : '+  My list', f: function () { mlToggle(g); odRender(); } });
+    b.push({ t: mlHas(g) ? '★  In Favourites' : '☆  Favourite', f: function () { mlToggle(g); odRender(); } });
     return b;
   }
   var odRailSig = '', odEpSig = '', odEpBase = '', odEpTop = 0;
@@ -7971,7 +7970,10 @@
       if (odView === 'home' && odZn === 'hero') { odOpenHero(); return true; }
       if (odView === 'home' && odZn === 'rows' && !odNone) { var q = odSel().g; if (q && !q.onnow) odmOpen(); }
       else if (odView === 'show') odmOpen();
-      else if (odView === 'fav') { var fc = odFavList()[odFi]; if (fc && odFz === 'cards') odmFavCard(fc); }
+      else if (odView === 'fav') {
+        if (odFz === 'cards') { var fc = odFavList()[odFi]; if (fc) odmFavCard(fc); }
+        else { var fl = odFz === 'mine' ? odFavShows() : (odShowsOf(odFavList()[odFi]) || []), fg = fl[odFz === 'mine' ? odFm : odFp]; if (fg) odFavTitleMenu(fg); }
+      }
       else if (odView === 'grid' && odGz === 'list') { var gc = odGridChans()[odGl]; if (gc) odmChan(gc); }
       return true;
     }
@@ -8155,8 +8157,9 @@
     return true;
   }
   // ---- the Favourites screen: the favourite channels with what is on now and next, and the shows of the one in focus
-  var odFi = 0, odFz = 'cards', odFp = 0, odFb = 0;     // odFb: the button on the empty page
+  var odFi = 0, odFz = 'cards', odFp = 0, odFb = 0, odFm = 0;     // odFb: the button on the empty page
   function odFavList() { return odChannels().filter(isFav); }
+  function odFavShows() { return odMyRow() ? odData._ml.shows : []; }
   function odFavOpen() {
     odRet = null; odFi = 0; odFz = 'cards'; odFp = 0; odFb = 0;
     odSetView('fav');
@@ -8175,35 +8178,61 @@
     odSetBg(null);
     var l = odFavList(), box = $('odfav'); box.textContent = '';
     var hd = odEl('div', 'ofh'); hd.appendChild(odEl('h2', '', '\u2605 Favourites'));
-    if (l.length) hd.appendChild(odEl('span', '', l.length + (l.length === 1 ? ' channel' : ' channels')));
+    var fs = odFavShows();
+    var cnt = (l.length ? l.length + (l.length === 1 ? ' channel' : ' channels') : '') + (l.length && fs.length ? '  \u00b7  ' : '') + (fs.length ? fs.length + (fs.length === 1 ? ' show' : ' shows') : '');
+    if (cnt) hd.appendChild(odEl('span', '', cnt));
     box.appendChild(hd);
-    if (!l.length) {
+    if (!l.length && !fs.length) {
       var em = odEl('div', 'ofe');
       em.appendChild(odEl('div', 'ofstar', '\u2605'));
-      em.appendChild(odEl('h3', '', 'No favourite channels yet'));
-      em.appendChild(odEl('p', '', 'Pick the channels you watch most and they will live here, with what is on now and what is next.'));
-      em.appendChild(odEl('p', 'ofhow', 'Highlight any channel in the Guide or Browse, then hold OK and choose Add to favourites'));
+      em.appendChild(odEl('h3', '', 'No favourites yet'));
+      em.appendChild(odEl('p', '', 'Pick the channels and shows you love most and they will live here, with what is on now and what is next.'));
+      em.appendChild(odEl('p', 'ofhow', 'Highlight a channel or a show in the Guide or Browse, then hold OK and choose Add to favourites'));
       var bs = odEl('div', 'ofbs');
       ['Open Browse', 'Open the Guide'].forEach(function (t, i) { bs.appendChild(odEl('div', 'odb' + (odFb === i ? ' sel' : ''), t)); });
       em.appendChild(bs); box.appendChild(em); return;
     }
-    box.appendChild(odEl('p', 'ofhelp', 'Hold OK on any channel, in the Guide or in Browse, to add or remove it.'));
+    box.appendChild(odEl('p', 'ofhelp', 'Hold OK on a channel or a show, in the Guide or in Browse, to add or remove it.'));
     odFi = Math.max(0, Math.min(odFi, l.length - 1));
-    var cards = odEl('div', 'ofc'), first = Math.max(0, Math.min(odFi - 2, l.length - 5));
-    for (var i = first; i < Math.min(l.length, first + 5); i++) cards.appendChild(odOnCard(odFavEntry(l[i]), odFz === 'cards' && i === odFi));
-    box.appendChild(cards);
-    var c = l[odFi], sh = odShowsOf(c);
-    box.appendChild(odEl('h3', 'ofs', 'On ' + c.name));
-    var row = odEl('div', 'ofp');
-    if (!sh) row.appendChild(odEl('p', '', 'Loading\u2026'));
-    else if (!sh.length) row.appendChild(odEl('p', '', 'Nothing on demand for this channel'));
-    else {
-      odFp = Math.max(0, Math.min(odFp, sh.length - 1));
-      var st = Math.max(0, Math.min(odFp - 2, sh.length - 7));
-      odDecOn = false;
-      for (var j = st; j < Math.min(sh.length, st + 7); j++) row.appendChild(odCard(sh[j], odFz === 'posters' && j === odFp));
+    if (odFz === 'cards' && !l.length) odFz = 'mine';
+    if (odFz === 'mine' && !fs.length) odFz = 'cards';
+    if (l.length) {
+      var cards = odEl('div', 'ofc'), first = Math.max(0, Math.min(odFi - 2, l.length - 5));
+      for (var i = first; i < Math.min(l.length, first + 5); i++) cards.appendChild(odOnCard(odFavEntry(l[i]), odFz === 'cards' && i === odFi));
+      box.appendChild(cards);
     }
-    box.appendChild(row);
+    odDecOn = false;
+    if (fs.length) {
+      box.appendChild(odEl('h3', 'ofs', 'Shows'));
+      var mr = odEl('div', 'ofp'); odFm = Math.max(0, Math.min(odFm, fs.length - 1));
+      var ms = Math.max(0, Math.min(odFm - 2, fs.length - 7));
+      for (var m = ms; m < Math.min(fs.length, ms + 7); m++) mr.appendChild(odCard(fs[m], odFz === 'mine' && m === odFm));
+      box.appendChild(mr);
+    }
+    if (l.length && !fs.length || (l.length && odFz !== 'mine')) {
+      var c = l[odFi], sh = odShowsOf(c);
+      box.appendChild(odEl('h3', 'ofs', 'On ' + c.name));
+      var row = odEl('div', 'ofp');
+      if (!sh) row.appendChild(odEl('p', '', 'Loading\u2026'));
+      else if (!sh.length) row.appendChild(odEl('p', '', 'Nothing on demand for this channel'));
+      else {
+        odFp = Math.max(0, Math.min(odFp, sh.length - 1));
+        var st = Math.max(0, Math.min(odFp - 2, sh.length - 7));
+        for (var j = st; j < Math.min(sh.length, st + 7); j++) row.appendChild(odCard(sh[j], odFz === 'posters' && j === odFp));
+      }
+      box.appendChild(row);
+    }
+  }
+  /** Hold OK on a show in Favourites: play it, or take it off / put it on the list. */
+  function odFavTitleMenu(g) {
+    odHydrate(g).then(function () {
+      var b0 = odBtns(g)[0];
+      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [
+        { t: 'Open', sub: 'Its page in On Demand', f: function () { odmClose(); odJumpTo(g); odOpenShow(); } },
+        { t: mlHas(g) ? 'Remove from favourites' : 'Add to favourites', sub: g.name, f: function () { odmClose(); mlToggle(g); odRender(); } }] };
+      if (b0) odm.items.unshift({ t: b0.t.indexOf('Resume') >= 0 ? 'Resume' : 'Play', sub: b0.t.replace(/^[^A-Za-z]+/, ''), f: function () { odmClose(); odJumpTo(g); b0.f(); } });
+      odmRender();
+    }, function () { toast('Could not open that show', 2500); });
   }
   function odmFavCard(c) {
     odm = { mode: 'menu', g: null, i: 0, title: c.name, items: [
@@ -8213,24 +8242,30 @@
     odmRender();
   }
   function odKeyFav(k) {
-    var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ', l = odFavList();
-    if (back) { if (l.length && odFz === 'posters') odFz = 'cards'; else { odSetView('home'); odZn = 'rail'; odRailI = 2; } odRender(); return true; }
-    if (!l.length) {
+    var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ', l = odFavList(), fs = odFavShows();
+    if (back) { if (odFz !== 'cards' && l.length) odFz = 'cards'; else if (odFz === 'posters' || (odFz === 'mine' && l.length)) odFz = 'cards'; else { odSetView('home'); odZn = 'rail'; odRailI = 2; } odRender(); return true; }
+    if (!l.length && !fs.length) {
       if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') odFb = 1 - odFb;
       else if (ok) { if (odFb === 0) odGridOpen(); else { odClose(false); openGuide(); } return true; }
       odRender(); return true;
     }
+    var sh = l.length ? (odShowsOf(l[odFi]) || []) : [];
     if (odFz === 'cards') {
       if (k === 'ArrowLeft') { odFi = Math.max(0, odFi - 1); odFp = 0; }
       else if (k === 'ArrowRight') { odFi = Math.min(l.length - 1, odFi + 1); odFp = 0; }
-      else if (k === 'ArrowDown') { var sh0 = odShowsOf(l[odFi]); if (sh0 && sh0.length) odFz = 'posters'; }
+      else if (k === 'ArrowDown') { if (fs.length) odFz = 'mine'; else if (sh.length) odFz = 'posters'; }
       else if (ok) { odWatchLive(l[odFi]); return true; }
       var c = l[odFi]; if (c && !odShowsOf(c)) odLoadChannel(c).then(function () { if (odOpen && odView === 'fav') odRender(); });
+    } else if (odFz === 'mine') {
+      if (k === 'ArrowLeft') odFm = Math.max(0, odFm - 1);
+      else if (k === 'ArrowRight') odFm = Math.min(fs.length - 1, odFm + 1);
+      else if (k === 'ArrowUp') { if (l.length) odFz = 'cards'; }
+      else if (k === 'ArrowDown') { if (sh.length) odFz = 'posters'; }
+      else if (ok && fs[odFm]) { odJumpTo(fs[odFm]); odOpenShow(); return true; }
     } else {
-      var sh = odShowsOf(l[odFi]) || [];
       if (k === 'ArrowLeft') odFp = Math.max(0, odFp - 1);
       else if (k === 'ArrowRight') odFp = Math.min(sh.length - 1, odFp + 1);
-      else if (k === 'ArrowUp') odFz = 'cards';
+      else if (k === 'ArrowUp') odFz = fs.length ? 'mine' : 'cards';
       else if (ok && sh[odFp]) { odJumpTo(sh[odFp]); odOpenShow(); return true; }
     }
     odRender(); return true;
@@ -8342,7 +8377,7 @@
     if (b0) top.push({ t: b0.t.indexOf('Resume') >= 0 ? 'Resume' : 'Play', sub: b0.t.replace(/^[^A-Za-z]+/, ''), f: function () { odmClose(); b0.f(); } });
     if (odView === 'home' && s.c === cwPseudo && g._cw) top.push({ t: 'Remove from Continue watching', sub: g.name, f: function () {
       odmClose(); cwDrop(g.name); cwSig = ''; odRowsMemo = null; toast('Removed from Continue watching', 2500); odRender(); } });
-    top.push({ t: mlHas(g) ? 'Remove from My list' : 'Add to My list', sub: g.name, f: function () { odmClose(); mlToggle(g); odRender(); } });
+    top.push({ t: mlHas(g) ? 'Remove from favourites' : 'Add to favourites', sub: g.name, f: function () { odmClose(); mlToggle(g); odRender(); } });
     top.push(infoItem);
     var more = { mode: 'menu', g: g, i: 0, sub: 1, title: 'More', items: rare };
     odm = more; adOdm(g); optsLast(more.items);

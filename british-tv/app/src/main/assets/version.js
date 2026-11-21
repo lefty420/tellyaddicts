@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.0",
-  "version": "0.52.0",
-  "code": 5200,
+  "name": "Alpha 0.52.1",
+  "version": "0.52.1",
+  "code": 5201,
   "date": "2026-11-21",
   "notes": [
-    "TV Guide: opening the guide puts the channel that is playing on the top row (it used to be on the bottom row), so you see what comes after it. Near the end of the list it shows the last screenful.",
-    "Finding a programme: \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are now written on the loading screen with the pictures instead of a message along the bottom.",
-    "Options > Experimental > Loading screen now changes at once, and every loading screen (the start-up one and this one) uses the look you pick, Set in the room, Whole screen, Classic or Surprise me."
+    "Loading screen: the Classic TV no longer flashes up before the look you chose (Whole screen, Set in the room); the screen stays blank until the app has picked it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.0",
+      "date": "2026-11-21",
+      "notes": [
+        "TV Guide: opening the guide puts the channel that is playing on the top row (it used to be on the bottom row), so you see what comes after it. Near the end of the list it shows the last screenful.",
+        "Finding a programme: \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are now written on the loading screen with the pictures instead of a message along the bottom.",
+        "Options > Experimental > Loading screen now changes at once, and every loading screen (the start-up one and this one) uses the look you pick, Set in the room, Whole screen, Classic or Surprise me."
+      ]
+    },
     {
       "name": "Alpha 0.51.6",
       "date": "2026-11-21",
@@ -63,13 +70,6 @@ window.RELEASE = {
         "Browse (the second icon on the rail): the channels down the left with their show counts, a 6-wide poster grid, and Sort (A-Z, newest, oldest), Decade and Hide watched across the top.",
         "Back goes: close the rail, then up to the top of the page, then out of On Demand. Opening On Demand while something is playing still lands on that show's page, and Back from it goes to the top.",
         "On Demand no longer loads every channel in the background when it opens; the search still does."
-      ]
-    },
-    {
-      "name": "Alpha 0.50.10",
-      "date": "2026-11-20",
-      "notes": [
-        "New in Options > Experimental: **Interface size** (Small, Normal, Large). Makes the whole app, guide, On Demand and Options included, about 8% smaller (room round the edges if your TV cuts them off) or 8% bigger (easier to read from the sofa). It changes at once, and Normal is exactly how it looked before. Needs Experimental on; turning Experimental off puts it back to Normal. Large shows slightly fewer guide rows."
       ]
     }
   ]

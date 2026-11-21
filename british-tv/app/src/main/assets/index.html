@@ -125,6 +125,7 @@
   #splash { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(2.4 * var(--u));
     background: radial-gradient(ellipse at 50% 55%, #232b5c 0%, #151b3d 55%, #0d1129 100%); color: #fff; }
   #splash.hidden { display: none; }
+  #splash:not([data-ld]) { visibility: hidden; }   /* until the app has chosen the loading look, so the Classic TV never flashes first */
   /* shown again while a programme is being found: only the TV and what is happening, not the start-up channel list */
   #splash.busy #chstatus, #splash.busy #spcount, #splash.busy #bars { display: none !important; }
   #sptv { width: calc(38 * var(--uw)); flex: none; }
@@ -1286,7 +1287,7 @@
   </div>
 </div>
 
-<div id="splash" data-ld="classic">
+<div id="splash">
   <div id="spbg"></div>
   <img id="logo" src="logo.png" alt="Telly Addicts">
   <div id="sptv">

@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.52.1 — 2026-11-21
+- Loading screen: the Classic TV no longer flashes up before the look you chose (Whole screen, Set in the room); the screen stays blank until the app has picked it.
+
 ## Alpha 0.52.0 — 2026-11-21
 - TV Guide: opening the guide puts the channel that is playing on the top row (it used to be on the bottom row), so you see what comes after it. Near the end of the list it shows the last screenful.
 - Finding a programme: "Scraping your debrid…" and "No addon had it, trying archive.org…" are now written on the loading screen with the pictures instead of a message along the bottom.

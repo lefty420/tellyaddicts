@@ -22,7 +22,9 @@
     return a <= b ? v >= a && v <= b : v >= a || v <= b;
   }
   /** The season that is on at a date, or null. */
+  var forced = false;                // test mode (Options, with Experimental on): the first season is on whatever the date
   function current(d) {
+    if (forced) return SEASONS[0];
     d = d || new Date();
     for (var i = 0; i < SEASONS.length; i++) if (inSeason(SEASONS[i], d)) return SEASONS[i];
     return null;
@@ -205,5 +207,5 @@
     b.classList.add('season-hat');
   }
 
-  window.SEASONS = { list: SEASONS, cfg: CFG, current: current, snow: snow, hat: hat };
+  window.SEASONS = { list: SEASONS, cfg: CFG, current: current, force: function (on) { forced = !!on; }, snow: snow, hat: hat };
 })();

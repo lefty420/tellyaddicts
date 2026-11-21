@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.16 — 2026-11-21
+- **Seasonal effects** has a third choice, **Test**, shown only with Experimental on: it forces the Christmas snow on out of season, so the build-up and the plough can be checked any time.
+- The debug log records the free strip under the last guide row (`SNOW: free strip ...`), and says when it is too small for the plough.
+
 ## Alpha 0.53.15 — 2026-11-21
 From the designer's snow notes (build-up, then the plough).
 - **Guide snow builds up**: the drifts under the last row start low and rise slowly over 15 minutes, a pixel at a time, running from app start so opening and closing the guide does not restart it.

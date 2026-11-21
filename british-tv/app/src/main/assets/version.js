@@ -1,16 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.15",
-  "version": "0.53.15",
-  "code": 5315,
+  "name": "Alpha 0.53.16",
+  "version": "0.53.16",
+  "code": 5316,
   "date": "2026-11-21",
   "notes": [
-    "**Guide snow builds up**: the drifts under the last row start low and rise slowly over 15 minutes, a pixel at a time, running from app start so opening and closing the guide does not restart it.",
-    "**Santa's snow plough**: at the end of each cycle he drives a green plough across the screen in 12 seconds and the snow is cut away exactly at his blade. The cycle then starts again from low. With too little room under the last row the plough is skipped and the snow just clears.",
-    "The snow holds still while a hold-OK menu is open, and carries on when it closes."
+    "**Seasonal effects** has a third choice, **Test**, shown only with Experimental on: it forces the Christmas snow on out of season, so the build-up and the plough can be checked any time.",
+    "The debug log records the free strip under the last guide row (`SNOW: free strip ...`), and says when it is too small for the plough."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.15",
+      "date": "2026-11-21",
+      "notes": [
+        "**Guide snow builds up**: the drifts under the last row start low and rise slowly over 15 minutes, a pixel at a time, running from app start so opening and closing the guide does not restart it.",
+        "**Santa's snow plough**: at the end of each cycle he drives a green plough across the screen in 12 seconds and the snow is cut away exactly at his blade. The cycle then starts again from low. With too little room under the last row the plough is skipped and the snow just clears.",
+        "The snow holds still while a hold-OK menu is open, and carries on when it closes."
+      ]
+    },
     {
       "name": "Alpha 0.53.14",
       "date": "2026-11-21",
@@ -69,16 +77,6 @@ window.RELEASE = {
       "notes": [
         "**Favourites screen.** On Demand's left rail has a ★ Favourites item between Browse and Guide. It shows your favourite channels as cards (what is on now, progress, what is next) and, below, the shows of the channel in focus. OK watches live; hold OK offers Watch live, Open in On Demand and Remove from favourites. With none chosen it explains how to add one and offers Open Browse or Open the Guide.",
         "The first time the guide opens with no favourites, a toast says how to add one (once only). Toasts now read \"Added … to Favourites\" and \"Removed … from Favourites\"."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.7",
-      "date": "2026-11-21",
-      "notes": [
-        "**Favourite channels in On Demand.** Favourite channels come first in the On now row with a ★. Browse lists them first with a ★, has a *★ Favourites* chip that shows only them, and hold OK on a channel adds or removes it. Titles go on My list only.",
-        "**Title menu.** Hold OK on a title now shows at most five items: Resume or Play, Remove from Continue watching (only in that row), My list, Info, More… (Search, Fix artwork, Options, Hide). Focus starts on the first item. Removing a title keeps the highlight on the next card, and a show removed while it plays is not put straight back.",
-        "**Badges.** The certificate shows on every card; the decade only in Browse and search results; phones show the certificate only.",
-        "**Playback.** The next-episode card reads \"Next in N s\" with \"OK plays now, Back stays\", and hides while the bar or mini guide is open. \"Are you still watching?\" is now a centred prompt with Keep watching (default) and Stop, and stops on its own after 5 minutes with no key."
       ]
     }
   ]

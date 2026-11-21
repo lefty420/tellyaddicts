@@ -4027,13 +4027,16 @@
   } catch (e) { /* no observer */ }
 
   // ---- seasonal effects (seasons.js): a decorative overlay over the guide, only while it is open and a season is on
-  var seasonOn = store.get('seasonal') !== 'off', seasonOv = null;
+  var seasonOn = store.get('seasonal') !== 'off', seasonTest = store.get('seasonal') === 'test' && store.get('exp1') === 'on', seasonOv = null, seasonLogged = -1;
+  if (window.SEASONS) SEASONS.force(seasonTest);
   function seasonUpdate() {
     if (!window.SEASONS) return;
     var want = seasonOn && guideOpen && !!SEASONS.current();
     if (want && !seasonOv) seasonOv = SEASONS.snow($('gsnow'), function () {
       var rows = document.querySelectorAll('#guide .grow'), last = rows.length ? rows[rows.length - 1] : null;
-      return last ? window.innerHeight - last.getBoundingClientRect().bottom : 40;
+      var free = last ? window.innerHeight - last.getBoundingClientRect().bottom : 40;
+      if (free !== seasonLogged) { seasonLogged = free; dlog('SNOW: free strip under the last row ' + Math.round(free) + ' px at ' + window.innerWidth + 'x' + window.innerHeight + (free < 56 ? ' (under 56: no plough)' : '')); }
+      return free;
     });
     if (want) seasonOv.start(); else if (seasonOv) seasonOv.stop();
     if (seasonOv) seasonOv.hold(!!gm);        // a hold-OK menu is open: the snow holds still
@@ -5963,7 +5966,7 @@
     if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs the newest app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  \u00b7  rescued ' + Object.keys(npKnown).length + (Object.keys(npKnown).length === 1 ? ' video' : ' videos') + ' so far' : '');
     if (id === 'span') return SPANS[spanIdx].label;
     if (id === 'theme') return THEMES[themeIdx].label;
-    if (id === 'season') return seasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
+    if (id === 'season') return seasonTest ? 'Test  (Christmas snow forced on)' : seasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'unhide') return unhideArmed ? 'Press OK again to confirm' : hidCount ? hidCount + ' hidden  \u00b7  OK to show all' : 'None';
@@ -6101,7 +6104,7 @@
   function optChoices(id) {
     if (id === 'player') return { l: PLAYERS.map(function (x) { return x.label; }), i: playerIdx };
     if (id === 'theme') return { l: THEMES.map(function (x) { return x.label; }), i: themeIdx };
-    if (id === 'season') return { l: ['Auto', 'Off'], i: seasonOn ? 0 : 1 };
+    if (id === 'season') return { l: expOn ? ['Auto', 'Off', 'Test'] : ['Auto', 'Off'], i: seasonTest ? 2 : seasonOn ? 0 : 1 };
     if (id === 'span') return { l: SPANS.map(function (x) { return x.label; }), i: spanIdx };
     if (id === 'keep') return { l: KEEP.map(function (x) { return x.label; }), i: keepIdx };
     if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };
@@ -6294,7 +6297,12 @@
     else if (id === 'ads') changeAds(d);
     else if (id === 'yt') changeYt();
     else if (id === 'real') changeReal();
-    else if (id === 'season') { seasonOn = !seasonOn; store.set('seasonal', seasonOn ? 'auto' : 'off'); seasonUpdate(); renderOpts(); }
+    else if (id === 'season') {
+      // Auto, Off and (only with Experimental on) Test, which forces the Christmas snow on out of season
+      var sm = seasonTest ? 2 : seasonOn ? 0 : 1, n = expOn ? 3 : 2; sm = (sm + 1) % n;
+      seasonOn = sm !== 1; seasonTest = sm === 2; if (window.SEASONS) SEASONS.force(seasonTest);
+      store.set('seasonal', sm === 2 ? 'test' : sm === 0 ? 'auto' : 'off'); seasonUpdate(); renderOpts();
+    }
     else if (id === 'player') changePlayer(d);
     else if (id === 'buf') changeBuf(d);
     else if (id === 'span') changeSpan(d);

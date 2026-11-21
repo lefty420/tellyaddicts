@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.51.5 — 2026-11-21
+- On Demand: the top of the highlighted poster (its amber ring and the enlarged card) was cut off by the row above. The rows now have room for it.
+
 ## Alpha 0.51.4 — 2026-11-21
 - Show page: the season chips no longer carry an unexplained number ("Season 2  6"); the heading above the episodes already says how many there are. "2 more" now sits on the heading line at the right instead of at the bottom, where it ran into the key legend.
 

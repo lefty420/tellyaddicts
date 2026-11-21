@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.51.4",
-  "version": "0.51.4",
-  "code": 5104,
+  "name": "Alpha 0.51.5",
+  "version": "0.51.5",
+  "code": 5105,
   "date": "2026-11-21",
   "notes": [
-    "Show page: the season chips no longer carry an unexplained number (\"Season 2 6\"); the heading above the episodes already says how many there are. \"2 more\" now sits on the heading line at the right instead of at the bottom, where it ran into the key legend."
+    "On Demand: the top of the highlighted poster (its amber ring and the enlarged card) was cut off by the row above. The rows now have room for it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.51.4",
+      "date": "2026-11-21",
+      "notes": [
+        "Show page: the season chips no longer carry an unexplained number (\"Season 2 6\"); the heading above the episodes already says how many there are. \"2 more\" now sits on the heading line at the right instead of at the bottom, where it ran into the key legend."
+      ]
+    },
     {
       "name": "Alpha 0.51.3",
       "date": "2026-11-21",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "Faster start: each channel's finished schedule (what plays when) is now kept on the device and read back at the next start, instead of being laid out again for all 60-odd channels. It is used only when the channel's list, the guide span, the Broadcast schedule setting and the app version are all the same; otherwise that channel is laid out again and kept. Live TV mode's daily episodes are still worked out at each start, so they move on as before. \"Build every channel afresh\" clears the kept schedules. The debug log shows how many were read and how many were laid out."
-      ]
-    },
-    {
-      "name": "Alpha 0.50.7",
-      "date": "2026-11-20",
-      "notes": [
-        "Magic EPG films: a guide channel now takes at most 800 programmes in all from the film database, like the missing episodes do, so a big film database cannot slow the guide down at start. On Demand still shows every film."
       ]
     }
   ]

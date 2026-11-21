@@ -4052,7 +4052,7 @@
    *  over), measures for 12 s, and says nothing if the guide closes meanwhile. The mode (Auto or Test) is logged when the snow starts. */
   var probeAt = 0, probeRun = 0;
   function snowProbe() {
-    dlog('SNOW: starting, 15 minute cycle, saved choice "' + (store.get('seasonal') || '') + '", screen ' + window.innerWidth + 'x' + window.innerHeight + ' at ' + (window.devicePixelRatio || 1) + 'x');
+    dlog('SNOW: starting, ' + Math.round(SEASONS.cfg.CYCLE_MS / 1000) + ' s cycle, saved choice "' + (store.get('seasonal') || '') + '", screen ' + window.innerWidth + 'x' + window.innerHeight + ' at ' + (window.devicePixelRatio || 1) + 'x');
     if (!window.requestAnimationFrame || Date.now() - probeAt < 120000) return;
     probeAt = Date.now();
     var run = ++probeRun;

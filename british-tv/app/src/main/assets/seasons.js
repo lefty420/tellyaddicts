@@ -12,7 +12,7 @@
 
   // How it looks. PIXEL = screen pixels per canvas pixel (2 = 16-bit, 3 = chunkier). DRIFT is 0 to 10.
   var CFG = { PIXEL: 2, FLAKES: 64, DRIFT: 5, PAUSE_MS: 180,
-              CYCLE_MS: 900000,      // drifts grow for this long (15 min), then the plough clears them and it starts again
+              CYCLE_MS: 45000,       // drifts grow for this long, then the plough clears them and it starts again (the design is 15 min = 900000; 45 s for now so it can be seen)
               PLOUGH_MS: 12000,      // the plough's drive across the screen
               START: 0.2 };          // share of full drift height showing at the start of a cycle (0 to 1)
   var T0 = Date.now();               // the cycle runs from app start, so closing and opening the guide does not restart it

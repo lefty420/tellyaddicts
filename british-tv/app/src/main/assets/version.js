@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.22",
-  "version": "0.53.22",
-  "code": 5322,
+  "name": "Alpha 0.53.23",
+  "version": "0.53.23",
+  "code": 5323,
   "date": "2026-11-21",
   "notes": [
-    "**Snow build-up and Santa's plough are part of the ordinary Christmas snow.** The Test choice is gone: Seasonal effects is just Auto or Off, and Auto does everything (snow, drifts building over 15 minutes, the plough crossing at the end of each cycle).",
-    "The debug log says when the plough is due after the snow starts, and when it sets off, so a crossing can be checked afterwards."
+    "The snow cycle (drifts build, then Santa's plough clears them) is 45 seconds for now, so it can be watched. It goes back to 15 minutes later."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.22",
+      "date": "2026-11-21",
+      "notes": [
+        "**Snow build-up and Santa's plough are part of the ordinary Christmas snow.** The Test choice is gone: Seasonal effects is just Auto or Off, and Auto does everything (snow, drifts building over 15 minutes, the plough crossing at the end of each cycle).",
+        "The debug log says when the plough is due after the snow starts, and when it sets off, so a crossing can be checked afterwards."
+      ]
+    },
     {
       "name": "Alpha 0.53.21",
       "date": "2026-11-21",
@@ -64,17 +71,6 @@ window.RELEASE = {
         "**Guide snow builds up**: the drifts under the last row start low and rise slowly over 15 minutes, a pixel at a time, running from app start so opening and closing the guide does not restart it.",
         "**Santa's snow plough**: at the end of each cycle he drives a green plough across the screen in 12 seconds and the snow is cut away exactly at his blade. The cycle then starts again from low. With too little room under the last row the plough is skipped and the snow just clears.",
         "The snow holds still while a hold-OK menu is open, and carries on when it closes."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.14",
-      "date": "2026-11-21",
-      "notes": [
-        "**Browse**: cards are 2:3, the \"1 of N\" counter sits at the right end of the hint bar so it no longer collides with it, every channel shows its show count (they load in turn), and Left from the list reaches the rail.",
-        "**Guide hold-OK menu** now has five items: Watch from the start, Episodes, Add show to favourites, Add channel to favourites, More... Channel schedule, Show favourites only, Info, Teletext and the rest are under More...",
-        "**Options** list fades at the foot so it is clear that it scrolls.",
-        "**Version label** now reads the current version (the changelog dates were in a format the version tool skipped, so the app said 0.53.2).",
-        "**Disney shorts**: a show flagged `shorts` in the library is a plain list of shorts with no season or episode labels, no series art or TVmaze lookups, and a generated title card. Needs a scraper rebuild, then Sync episode meta and Send to TV app."
       ]
     }
   ]

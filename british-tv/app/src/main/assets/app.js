@@ -6330,13 +6330,15 @@
     // where the picture comes from: a badge beside the channel name
     var sb = osdSource(cur.prog);
     if (sb) { var bd = document.createElement('span'); bd.className = 'srcb ' + sb.c; bd.textContent = sb.t; $('ochan').appendChild(bd); }
-    $('otitle').textContent = cur.prog.title;
-    $('osub').textContent = cur.prog.sub || '';
+    var ol = cur.ad ? { title: cur.prog.title, sub: cur.prog.sub || '' } : osdLines(cur.prog);
+    $('otitle').textContent = ol.title;
+    $('osub').textContent = ol.sub;
     $('onext').textContent = '';
     if (next) {
       $('onext').appendChild(document.createTextNode('Next'));
       var nb = document.createElement('b');
-      nb.textContent = next.title;
+      var nl = osdLines(next), nm2 = /^(.*?)\s+S(\d{1,4})[ED](\d{1,3})\b/.exec(String(next.title || ''));
+      nb.textContent = nm2 ? nl.title + '  S' + (+nm2[2]) + ' E' + (+nm2[3]) : nl.title;
       $('onext').appendChild(nb);
     }
     var dur = v.duration, pos = scrubT === null ? v.currentTime : scrubT;
@@ -6393,18 +6395,47 @@
   var gartOn = store.get('gart') !== 'off', gartFor = '', gartTimer = null;
   // artwork on the OSD: show poster (and a faint fanart backdrop) from TVmaze; nothing shown if there is none
   var artFor = '';
+  /** A tile for when there is no picture (yet): the same size as a poster, in the show's own colours, with its first letter. */
+  var osdPhCache = {};
+  function osdPh(name) {
+    var n = String(name || '?'); if (osdPhCache[n]) return osdPhCache[n];
+    var h = 0; for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) % 360;
+    var c = document.createElement('canvas'); c.width = 140; c.height = 210; var x = c.getContext('2d');
+    var g = x.createLinearGradient(0, 0, 140, 210); g.addColorStop(0, 'hsl(' + h + ',48%,40%)'); g.addColorStop(1, 'hsl(' + ((h + 45) % 360) + ',55%,16%)');
+    x.fillStyle = g; x.fillRect(0, 0, 140, 210);
+    x.fillStyle = 'rgba(255,255,255,.9)'; x.font = '700 84px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(n.replace(/^(the|a|an)\s+/i, '').charAt(0).toUpperCase(), 70, 108);
+    return (osdPhCache[n] = c.toDataURL());
+  }
+  /** What the bar says about whatever is playing, the same shape for a film, an episode and anything else:
+   *  a title line (the film, or the show) and a line under it (year, certificate and length / series, episode and its name). */
+  function osdLines(p) {
+    var t = String(p.title || ''), f = filmFor(p);
+    if (f || p.afilm) {
+      var name = (f && f.title) || t.replace(/\s*\(\d{4}\)\s*$/, ''), y = filmYear(p), mins = f && +f.mins || 0;
+      return { title: name, sub: [y || '', (f && f.cert) || p.cert || '', mins ? (mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60 ? mins % 60 + 'm' : '') : mins + ' min') : ''].filter(Boolean).join('  \u00b7  ').replace(/\s+$/, '') };
+    }
+    var m = /^(.*?)\s+S(\d{1,4})[ED](\d{1,3})\b\s*[-\u2013:]?\s*(.*)$/.exec(t);
+    if (m) {
+      return { title: p.show || m[1], sub: [(+m[2] < 1900 ? 'Series ' + (+m[2]) + '  \u00b7  ' : '') + 'Episode ' + (+m[3])].concat(m[4] ? [m[4]] : (p.addon || !p.sub ? [] : [p.sub])).join('  \u00b7  ') };
+    }
+    return { title: t, sub: p.addon ? '' : (p.sub || '') };
+  }
   function osdArt() {
     var art = $('oart'), bg = $('obg');
     if (!gartOn || !cur || cur.ad) { art.className = 'hidden'; bg.className = ''; artFor = ''; return; }
     var title = cur.prog.title || '';
     if (title === artFor || !quiet()) return;
     artFor = title;
-    art.className = 'hidden'; bg.className = '';
+    bg.className = '';
+    var nm = osdLines(cur.prog).title;
+    var holder = function () { art.onerror = null; art.src = osdPh(nm); art.className = ''; };    // always something on the left, so the bar keeps its shape
+    holder();
     var film = filmFor(cur.prog);                              // a film already has its poster: no lookup needed
     if (film) {
       if (film.poster) {
-        art.onerror = function () { art.className = 'hidden'; };
-        art.src = film.poster; art.className = '';
+        art.onerror = holder;
+        art.src = film.poster;
         bg.style.backgroundImage = 'url("' + film.poster + '")'; bg.className = 'on';
       }
       return;
@@ -6415,10 +6446,10 @@
     tvmInfo(p).then(function (d) {
       if (!d || artFor !== title || !cur || cur.prog.title !== title) return;
       var pic = d.show.poster || (d.ep && d.ep.image) || '';
-      if (pic) { art.onerror = function () { art.className = 'hidden'; }; art.src = pic; art.className = ''; }
+      if (pic) { art.onerror = holder; art.src = pic; art.className = ''; }
       var back = d.show.background || (d.ep && d.ep.image) || '';
       if (back) { bg.style.backgroundImage = 'url("' + back + '")'; bg.className = 'on'; }
-    }, function () { /* no artwork */ });
+    }, function () { /* no artwork: the tile stays */ });
   }
 
   function openOsd() {

@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.5",
-  "version": "0.52.5",
-  "code": 5205,
+  "name": "Alpha 0.52.6",
+  "version": "0.52.6",
+  "code": 5206,
   "date": "2026-11-21",
   "notes": [
-    "On-screen display: the button row always fits. On a film (which adds Sources and Audio & subs) the Options button was clipped at the right edge; the buttons now step down in size until all of them are on screen."
+    "On-screen display: a film, an episode and anything else now read the same way. The title line is the film or the show (no more raw \"S01E01\" codes), the line under it is year, certificate and length for a film or Series, Episode and the episode's name for an episode, and the addon's name is no longer repeated (the badge already says it). A picture tile is always on the left (the poster, or a coloured tile with the first letter until one is found), so the bar never changes shape. \"Next\" shows the show and its series and episode.",
+    "Seasonal snow: the flakes now come in a range of sizes in a 16-bit look, from single pixels up to big shaded snowflakes, near ones larger and quicker, far ones smaller and slower."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.5",
+      "date": "2026-11-21",
+      "notes": [
+        "On-screen display: the button row always fits. On a film (which adds Sources and Audio & subs) the Options button was clipped at the right edge; the buttons now step down in size until all of them are on screen."
+      ]
+    },
     {
       "name": "Alpha 0.52.4",
       "date": "2026-11-21",
@@ -58,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "On Demand: the top of the highlighted poster (its amber ring and the enlarged card) was cut off by the row above. The rows now have room for it."
-      ]
-    },
-    {
-      "name": "Alpha 0.51.4",
-      "date": "2026-11-21",
-      "notes": [
-        "Show page: the season chips no longer carry an unexplained number (\"Season 2 6\"); the heading above the episodes already says how many there are. \"2 more\" now sits on the heading line at the right instead of at the bottom, where it ran into the key legend."
       ]
     }
   ]

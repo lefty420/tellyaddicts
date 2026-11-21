@@ -11,7 +11,7 @@
   ];
 
   // How it looks. PIXEL = screen pixels per canvas pixel (2 = 16-bit, 3 = chunkier). DRIFT is 0 to 10.
-  var CFG = { PIXEL: 2, FLAKES: 55, DRIFT: 5, PAUSE_MS: 180 };
+  var CFG = { PIXEL: 2, FLAKES: 64, DRIFT: 5, PAUSE_MS: 180 };
 
   function inSeason(s, d) {
     var v = d.getMonth() * 100 + d.getDate(), a = s.from[0] * 100 + s.from[1], b = s.to[0] * 100 + s.to[1];
@@ -24,18 +24,27 @@
     return null;
   }
 
-  // Snow sprites ('#' = a filled pixel)
+  // Snow sprites, 16-bit style: '#' the flake's own colour, 'b' its shaded edge, 'w' a bright highlight, '.' nothing.
+  // Tiny and small flakes are plain; the medium and big ones are drawn with a shaded edge and a bright centre, like a 16-bit game.
   var SPR = {
     dot: ['#'], blob: ['##', '##'],
     plus: ['.#.', '###', '.#.'],
+    cross: ['#.#', '.#.', '#.#'],
     star: ['..#..', '.#.#.', '##.##', '.#.#.', '..#..'],
-    crystal: ['#.#.#', '.###.', '#####', '.###.', '#.#.#']
+    crystal: ['#.#.#', '.###.', '#####', '.###.', '#.#.#'],
+    ball: ['.###.', '#w###', '#####', '####b', '.bbb.'],
+    flake7: ['b..#..b', '.b.#.b.', '..###..', '###w###', '..###..', '.b.#.b.', 'b..#..b'],
+    flake9: ['....#....', '.#..#..#.', '..#.#.#..', '...b#b...', '####w####', '...b#b...', '..#.#.#..', '.#..#..#.', '....#....'],
+    flake11: ['.....#.....', '.#...#...#.', '..#..#..#..', '...#.#.#...', '....b#b....', '#####w#####', '....b#b....', '...#.#.#...', '..#..#..#..', '.#...#...#.', '.....#.....'],
+    big: ['...bb...', '..b##b..', '.b####b.', 'b#w####b', 'b######b', '.b####b.', '..b##b..', '...bb...']
   };
-  // three depth layers: share of the flakes, sprites, colours, alpha, speed (canvas px a second) and sway (canvas px)
+  // four depth layers, far to near: share of the flakes, sprites, colours (main, shade, highlight), alpha, speed (canvas px a second) and sway (canvas px).
+  // The small ones are many and slow, the big ones few and quick, so the nearest flakes drift past large and soft.
   var LAYERS = [
-    { share: 0.45, spr: ['dot', 'blob'], col: ['#6f86c4', '#8aa0d8'], a: 0.7, v: 5, sway: 0.8 },
-    { share: 0.35, spr: ['dot', 'blob', 'plus'], col: ['#b8d0f4', '#dfeaff'], a: 0.9, v: 9, sway: 1.4 },
-    { share: 0.20, spr: ['plus', 'star', 'crystal'], col: ['#ffffff', '#f2f8ff'], a: 1, v: 15, sway: 2.2 }
+    { share: 0.38, spr: ['dot', 'blob', 'plus'], col: ['#6f86c4', '#8aa0d8'], sh: '#4c63a0', hi: '#a9bdf0', a: 0.7, v: 5, sway: 0.8 },
+    { share: 0.30, spr: ['plus', 'cross', 'blob', 'star'], col: ['#b8d0f4', '#dfeaff'], sh: '#8aa6dc', hi: '#ffffff', a: 0.9, v: 9, sway: 1.4 },
+    { share: 0.20, spr: ['star', 'crystal', 'ball', 'flake7'], col: ['#ffffff', '#f2f8ff'], sh: '#aac4f0', hi: '#ffffff', a: 1, v: 15, sway: 2.2 },
+    { share: 0.12, spr: ['flake9', 'flake11', 'big', 'flake7'], col: ['#ffffff', '#eef5ff'], sh: '#9fbbea', hi: '#ffffff', a: 1, v: 21, sway: 3 }
   ];
   // snowdrifts, back to front: body, top edge, shaded underside, height share and noise frequencies
   var DRIFTS = [
@@ -63,10 +72,15 @@
       var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * L.share / 2);   // half of the layer's flakes: each layer is two sheets at different speeds
       x.imageSmoothingEnabled = false; x.globalAlpha = L.a;
       for (var i = 0; i < n; i++) {
-        var s = SPR[pick(L.spr)], fx = Math.round(rnd(4, W - 8)), fy = Math.round(rnd(0, H - 6));
-        x.fillStyle = pick(L.col);
+        var s = SPR[pick(L.spr)], fx = Math.round(rnd(4, W - 14)), fy = Math.round(rnd(0, H - s.length - 1));   // whole flakes only: none straddles the loop's seam
+        var main = pick(L.col);
         for (var h = 0; h < 2; h++)                                  // the same flake again one screen lower, so the loop has no seam
-          for (var r = 0; r < s.length; r++) for (var q = 0; q < s[r].length; q++) if (s[r].charAt(q) === '#') x.fillRect(fx + q, fy + r + h * H, 1, 1);
+          for (var r = 0; r < s.length; r++) for (var q = 0; q < s[r].length; q++) {
+            var ch = s[r].charAt(q);
+            if (ch === '.') continue;
+            x.fillStyle = ch === 'b' ? L.sh : ch === 'w' ? L.hi : main;
+            x.fillRect(fx + q, fy + r + h * H, 1, 1);
+          }
       }
       return c;
     }

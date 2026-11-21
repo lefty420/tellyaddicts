@@ -458,6 +458,35 @@
   #sbload i:nth-child(5) { animation-delay: .8s; } #sbload i:nth-child(6) { animation-delay: 1s; } #sbload i:nth-child(7) { animation-delay: 1.2s; }
   @keyframes sbpulse { 0% { opacity: 1; background: #ffe14d; } 14% { opacity: .2; background: #fff; } 100% { opacity: .2; background: #fff; } }
   #sbfoot { margin-top: calc(2.2 * var(--u)); font-size: calc(2.6 * var(--u)); letter-spacing: .3em; text-transform: uppercase; color: #9fb4ff; }
+
+  /* Experimental > Loading screen also dresses the "Please stand by" screen shown while a channel, episode or film loads (data-ld on #standby, set with #splash's) */
+  #standby[data-ld="room"].tv, #standby[data-ld="full"].tv { background: #0d0a12; }
+  #standby[data-ld="room"].tv #sbbars, #standby[data-ld="room"].tv #sbstrip, #standby[data-ld="room"].tv #sbpage,
+  #standby[data-ld="full"].tv #sbbars, #standby[data-ld="full"].tv #sbstrip, #standby[data-ld="full"].tv #sbpage,
+  #standby[data-ld="room"].tv #sbload, #standby[data-ld="room"].tv #sbfoot, #standby[data-ld="full"].tv #sbload, #standby[data-ld="full"].tv #sbfoot,
+  #standby[data-ld="full"].tv #sbfeet, #standby[data-ld="full"].tv #sbgrille, #standby[data-ld="full"].tv #sbled, #standby[data-ld="full"].tv #sbart { display: none; }
+  #standby[data-ld="room"].tv #sbmain, #standby[data-ld="full"].tv #sbmain { position: absolute; z-index: 4; }
+  #standby[data-ld="room"].tv #sblogo, #standby[data-ld="full"].tv #sblogo { display: none; }
+  #standby[data-ld="room"].tv #sbhead, #standby[data-ld="full"].tv #sbhead { font-size: calc(6 * var(--u)); }
+  #standby[data-ld="room"].tv #sbchan, #standby[data-ld="full"].tv #sbchan { margin-top: calc(1 * var(--u)); font-size: calc(3.4 * var(--u)); }
+  #standby[data-ld="room"].tv #sbprog, #standby[data-ld="full"].tv #sbprog { margin-top: calc(.6 * var(--u)); font-size: calc(2.6 * var(--u)); max-width: none; }
+  /* Set in the room: the picture blurred behind, a wooden set with its aerials, the words under it */
+  #standby[data-ld="room"].tv #sbart { display: block; }
+  #standby[data-ld="room"].tv #sbtv { left: calc(28 * var(--uw)); width: calc(44 * var(--uw)); top: calc(17 * var(--u)); }
+  #standby[data-ld="room"].tv #sbtv::before, #standby[data-ld="room"].tv #sbtv::after { content: ""; position: absolute; left: 50%; bottom: 100%; width: calc(.5 * var(--u)); height: calc(11 * var(--u)); margin-left: calc(-.25 * var(--u)); border-radius: calc(.3 * var(--u));
+    background: linear-gradient(90deg, #d4d4d4, #888); transform-origin: 50% 100%; transform: rotate(-26deg); }
+  #standby[data-ld="room"].tv #sbtv::after { transform: rotate(26deg); }
+  #standby[data-ld="room"].tv #sbcab { background: linear-gradient(160deg, #5a3a22, #3b2515 55%, #2a1a0e); }
+  #standby[data-ld="room"].tv #sbpanel i { background: repeating-conic-gradient(#3a3a3a 0deg 6deg, #151515 6deg 12deg); }
+  #standby[data-ld="room"].tv #sbmain { left: 0; right: 0; bottom: calc(5 * var(--u)); padding: 0 calc(6 * var(--uw)); width: auto; }
+  /* Whole screen: the picture fills the glass, the knobs and a dark plate with the words along the bottom */
+  #standby[data-ld="full"].tv #sbtv { left: 0; top: 0; width: auto; right: 0; bottom: 0; }
+  #standby[data-ld="full"].tv #sbcab { position: absolute; inset: 0; padding: 0; gap: 0; border-radius: 0; background: none; box-shadow: none; }
+  #standby[data-ld="full"].tv #sbscreen { position: absolute; inset: 0; aspect-ratio: auto; border-radius: calc(9 * var(--u)) / calc(7 * var(--u)); box-shadow: none; }
+  #standby[data-ld="full"].tv #sbpanel { position: absolute; left: calc(8 * var(--uw)); bottom: calc(8.4 * var(--u)); flex-direction: row; width: auto; padding: 0; gap: calc(2.4 * var(--uw)); z-index: 5; }
+  #standby[data-ld="full"].tv #sbpanel i { width: calc(9 * var(--u)); height: calc(9 * var(--u)); background: repeating-conic-gradient(#3a3a3a 0deg 6deg, #151515 6deg 12deg); }
+  #standby[data-ld="full"].tv #sbmain { left: calc(6 * var(--uw)); right: calc(6 * var(--uw)); bottom: calc(6 * var(--u)); height: calc(18 * var(--u)); width: auto; padding: 0 calc(3 * var(--uw)) 0 calc(19 * var(--uw)); align-items: flex-start; text-align: left;
+    border-radius: calc(3 * var(--u)); background: rgba(8,6,6,.72); box-shadow: inset 0 0 0 calc(.2 * var(--u)) rgba(201,171,120,.35); }
   #sbpage { position: absolute; top: calc(17.5 * var(--u)); right: calc(3 * var(--uw)); font-family: monospace; font-size: calc(2.6 * var(--u)); color: #00e5e5; background: #000; padding: calc(.3 * var(--u)) calc(1 * var(--u)); }
   #info { position: fixed; inset: 0; z-index: 60; color: #fff; background: #050a2a; overflow: hidden; }
   #info.hidden { display: none; }

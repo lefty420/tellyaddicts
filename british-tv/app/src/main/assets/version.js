@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.1",
-  "version": "0.52.1",
-  "code": 5201,
+  "name": "Alpha 0.52.2",
+  "version": "0.52.2",
+  "code": 5202,
   "date": "2026-11-21",
   "notes": [
-    "Loading screen: the Classic TV no longer flashes up before the look you chose (Whole screen, Set in the room); the screen stays blank until the app has picked it."
+    "Loading a channel, episode or film now uses the Loading screen look you chose (Set in the room or Whole screen) for its \"Please stand by\" screen too, with the programme's picture on the glass or blurred behind the set. Classic keeps the old test-card screen."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.1",
+      "date": "2026-11-21",
+      "notes": [
+        "Loading screen: the Classic TV no longer flashes up before the look you chose (Whole screen, Set in the room); the screen stays blank until the app has picked it."
+      ]
+    },
     {
       "name": "Alpha 0.52.0",
       "date": "2026-11-21",
@@ -58,18 +65,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "On Demand: the hero is now a large banner. At the top of the page (chips or hero) the show's backdrop fills the top two thirds of the screen, with its logo or a big title over it and one row below. Moving down into the rows shrinks it back to the compact layout."
-      ]
-    },
-    {
-      "name": "Alpha 0.51.0",
-      "date": "2026-11-20",
-      "notes": [
-        "On Demand reworked, in the style of Stremio / Nuvio. Top of the page: filter chips (All, TV, Films, Kids) and Search, with a rotating hero under them (five random shows with a backdrop, a new one every 7 seconds; Left and Right step it by hand; it pauses once you go down into the rows). A slim rail down the left (Home, Browse, Search, Options) opens when you press Left from the first card.",
-        "New rows: **On now** (what is on each guide channel at this moment, with a LIVE tag, a progress bar and what is next; OK tunes to it), Continue watching, **My list**, then rows by genre (Drama, Kids' TV and cartoons, Films, Kids' films, Comedy, Game shows, Entertainment, Soaps, Music TV, Food and factual, Christmas, By the decade). Genre rows are built from the channel lists and loaded only as you get near them, so nothing is built up front. Each row remembers its position.",
-        "Show page: buttons (Resume, Start from S1 E1, + My list), the seasons as chips, and one row of episode cards with their stills and a progress bar for the one you were part way through.",
-        "Browse (the second icon on the rail): the channels down the left with their show counts, a 6-wide poster grid, and Sort (A-Z, newest, oldest), Decade and Hide watched across the top.",
-        "Back goes: close the rail, then up to the top of the page, then out of On Demand. Opening On Demand while something is playing still lands on that show's page, and Back from it goes to the top.",
-        "On Demand no longer loads every channel in the background when it opens; the search still does."
       ]
     }
   ]

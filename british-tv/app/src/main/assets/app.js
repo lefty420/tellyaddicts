@@ -4525,6 +4525,7 @@
     var t = expOn ? LD[ldIdx].id : 'classic';
     if (t === 'mix') t = Math.random() < 0.5 ? 'room' : 'full';
     var sp = $('splash'); if (sp) sp.setAttribute('data-ld', t);
+    var sb = $('standby'); if (sb) sb.setAttribute('data-ld', t);      // the "Please stand by" screen shown while a channel, episode or film loads
   }
   applyLd();
   // Experimental: Interface size. Every size in the page is a multiple of --u (1vh) and --uw (1vw), so one number scales it all.

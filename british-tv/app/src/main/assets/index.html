@@ -567,7 +567,8 @@
     position: fixed; inset: 0; z-index: 40; color: var(--gtx, #fff); font-family: var(--gfont, inherit);
     background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 42%, var(--g3) 100%);
   }
-  #gsnow { position: absolute; inset: 0; z-index: 30; pointer-events: none; overflow: hidden; }
+  #ginfo, #ggrid, #glegend { z-index: 2; }       /* the seasonal snow falls behind the words, never over them */
+  #gsnow { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
   #gsnow.hidden { display: none; }
   #gsnow canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }
   #gsnow .sn-wrap { position: absolute; inset: 0; will-change: transform; }
@@ -822,20 +823,18 @@
 
   /* OSD bar (OK while watching): programme info, transport buttons and picture size */
   #osd {
-    position: fixed; left: calc(4 * var(--uw)); right: calc(4 * var(--uw)); bottom: calc(5 * var(--u)); z-index: 30; display: flex; flex-direction: column;
-    background: linear-gradient(90deg, rgba(7,29,102,.97), rgba(12,47,154,.93)); border-left: calc(1 * var(--u)) solid var(--hi2);
-    border-radius: calc(1 * var(--u)); box-shadow: 0 calc(1 * var(--u)) calc(4 * var(--u)) rgba(0,0,0,.6); transition: opacity .2s;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; flex-direction: column;
+    padding: calc(9 * var(--u)) calc(5 * var(--uw)) calc(4.5 * var(--u));
+    background: linear-gradient(0deg, rgba(0,0,0,.88) 58%, rgba(0,0,0,0)); transition: opacity .2s;
   }
   #osd.off { opacity: 0; pointer-events: none; }
-  #obg { position: absolute; inset: 0; border-radius: calc(1 * var(--u)); background-size: cover; background-position: center 30%; opacity: 0; transition: opacity .5s; pointer-events: none; }
+  #obg { display: none; position: absolute; inset: 0; border-radius: calc(1 * var(--u)); background-size: cover; background-position: center 30%; opacity: 0; transition: opacity .5s; pointer-events: none; }
   #obg.on { opacity: .22; }
   #osd > :not(#obg) { position: relative; }
-  #oart { flex: 0 0 auto; height: calc(21 * var(--u)); width: calc(14 * var(--u)); margin: calc(-8 * var(--u)) calc(1 * var(--uw)) calc(1 * var(--u)) calc(1.6 * var(--uw)); object-fit: cover; border-radius: calc(.8 * var(--u)); box-shadow: 0 calc(.8 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.7); border: calc(.2 * var(--u)) solid rgba(255,255,255,.35); background: #0a1f66; }
+  #oart { flex: 0 0 auto; height: calc(12 * var(--u)); width: calc(8 * var(--u)); margin: 0 calc(1.4 * var(--uw)) 0 0; object-fit: cover; border-radius: calc(.8 * var(--u)); box-shadow: 0 calc(.8 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.7); border: calc(.2 * var(--u)) solid rgba(255,255,255,.35); background: #0a1f66; }
   #oart.hidden { display: none; }
-  #oart ~ #onum { min-width: calc(5.5 * var(--uw)); padding-left: 0; }
-  #oart.hidden ~ #onum { min-width: calc(8 * var(--uw)); padding-left: calc(2.2 * var(--uw)); }       /* no picture: the number must not sit on the gold edge */
   /* mini guide: what is on the channels either side of this one, above the bar of a channel (Up from the progress line moves into it) */
-  #omg { display: flex; flex-direction: column; gap: calc(.5 * var(--u)); padding: calc(1.4 * var(--u)) calc(2 * var(--uw)) calc(.4 * var(--u)) calc(15 * var(--uw)); }
+  #omg { display: flex; flex-direction: column; gap: calc(.5 * var(--u)); padding: 0 0 calc(1.4 * var(--u)); }
   #omg.hidden { display: none; }
   .omgr { display: flex; align-items: baseline; gap: calc(1.4 * var(--uw)); padding: calc(.7 * var(--u)) calc(1.4 * var(--uw)); border-radius: calc(.7 * var(--u)); background: rgba(255,255,255,.07); font-size: calc(2.4 * var(--u)); color: rgba(255,255,255,.72); white-space: nowrap; overflow: hidden; }
   .omgr.cur { background: rgba(255,255,255,.16); color: #fff; }
@@ -846,18 +845,18 @@
   .omgt { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
   .omgx { flex: none; max-width: calc(30 * var(--uw)); font-size: calc(2.1 * var(--u)); opacity: .85; overflow: hidden; text-overflow: ellipsis; }
   html.phone #omg { display: none; }
-  #onow { display: flex; align-items: stretch; }
-  #onum { padding: calc(1.6 * var(--u)) calc(2.2 * var(--uw)); font-size: calc(6 * var(--u)); font-weight: 700; color: var(--hi2); min-width: calc(8 * var(--uw)); text-align: center; }
-  #oinfo { padding: calc(1.6 * var(--u)) calc(1 * var(--uw)) calc(1 * var(--u)) 0; flex: 1; min-width: 0; }
+  #onow { display: flex; align-items: center; }
+  #onum { padding: calc(.5 * var(--u)) calc(1.2 * var(--uw)); margin-right: calc(1.4 * var(--uw)); font-size: calc(3 * var(--u)); font-weight: 700; color: var(--hi2); background: rgba(255,255,255,.14); border-radius: calc(.7 * var(--u)); text-align: center; }
+  #oinfo { padding: 0 calc(1 * var(--uw)) 0 0; flex: 1; min-width: 0; }
   .srcb { display: inline-block; margin-left: calc(1.2 * var(--uw)); padding: calc(.5 * var(--u)) calc(.9 * var(--uw)); border-radius: calc(.5 * var(--uw)); font-weight: 700; font-size: calc(1.9 * var(--u)); letter-spacing: .12em; color: #fff; vertical-align: middle; text-transform: none; }
   .srcb.archive { background: #1c4f9c; border: calc(.18 * var(--uw)) solid #7fb0ff; }
   .srcb.addon { background: #0d7a3b; border: calc(.18 * var(--uw)) solid #6fe3a1; }
-  #ochan { font-size: calc(2.2 * var(--u)); text-transform: uppercase; letter-spacing: .12em; color: rgba(255,255,255,.7); }
-  #otitle { font-size: calc(3.8 * var(--u)); font-weight: 600; margin: calc(.3 * var(--u)) 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #ochan { font-size: calc(2 * var(--u)); text-transform: uppercase; letter-spacing: .12em; color: rgba(255,255,255,.7); }
+  #otitle { font-size: calc(3.6 * var(--u)); font-weight: 600; margin: calc(.3 * var(--u)) 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #osub { font-size: calc(2.3 * var(--u)); color: rgba(255,255,255,.7); }
-  #onext { padding: calc(1.6 * var(--u)) calc(2 * var(--uw)); font-size: calc(2.2 * var(--u)); color: rgba(255,255,255,.7); max-width: calc(28 * var(--uw)); align-self: center; }
-  #onext b { display: block; color: #fff; font-weight: 600; margin-top: calc(.3 * var(--u)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  #oprog { position: relative; margin: calc(.4 * var(--u)) calc(2 * var(--uw)) calc(.8 * var(--u)) calc(9.2 * var(--uw)); height: calc(1.2 * var(--u)); background: rgba(255,255,255,.2); border-radius: calc(.6 * var(--u)); }
+  #onext { padding: 0; font-size: calc(2 * var(--u)); color: rgba(255,255,255,.6); max-width: calc(34 * var(--uw)); align-self: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #onext b { display: inline; margin-left: calc(.6 * var(--uw)); color: rgba(255,255,255,.85); font-weight: 600; }
+  #oprog { position: relative; margin: calc(1.6 * var(--u)) 0 calc(.8 * var(--u)) 0; height: calc(1.2 * var(--u)); background: rgba(255,255,255,.2); border-radius: calc(.6 * var(--u)); }
   /* how far ahead the picture is loaded, behind the played part, the way a video site shows it */
   #obuf { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255,255,255,.42); border-radius: calc(.6 * var(--u)); width: 0; transition: width .3s linear; }
   /* amber while it is coming off this device rather than straight from archive.org */
@@ -868,7 +867,7 @@
   #oprog.sel #othumb { opacity: 1; }
   #oprog.scrub #obar { background: #ffd24d; }
   #otime { position: absolute; right: 0; top: calc(1.8 * var(--u)); font-size: calc(2 * var(--u)); color: rgba(255,255,255,.75); }
-  #obtns { display: flex; gap: calc(.6 * var(--uw)); padding: calc(3.8 * var(--u)) calc(2 * var(--uw)) calc(1.8 * var(--u)) calc(9.2 * var(--uw)); }
+  #obtns { display: flex; gap: calc(.8 * var(--uw)); padding: calc(3.4 * var(--u)) 0 0; }
   .ob { flex: none; display: flex; align-items: center; justify-content: center; gap: calc(.9 * var(--uw)); padding: calc(1.2 * var(--u)) calc(.45 * var(--uw));
     font-size: calc(2.5 * var(--u)); font-weight: 600; background: rgba(255,255,255,.1); border-radius: calc(.7 * var(--u)); white-space: nowrap; }
   .ob .ic { font-size: calc(2.6 * var(--u)); }
@@ -879,12 +878,12 @@
   #obtns.tight { gap: calc(.4 * var(--uw)); }
   #obtns.tight .ob { font-size: calc(2.2 * var(--u)); padding-left: calc(.8 * var(--uw)); padding-right: calc(.8 * var(--uw)); gap: calc(.6 * var(--uw)); }
   #obtns.tight .ob .ic { font-size: calc(2.3 * var(--u)); }
-  #obtns.tighter { gap: calc(.3 * var(--uw)); padding-left: calc(4 * var(--uw)); }
+  #obtns.tighter { gap: calc(.3 * var(--uw)); }
   #obtns.tighter .ob { font-size: calc(2 * var(--u)); padding-left: calc(.6 * var(--uw)); padding-right: calc(.6 * var(--uw)); gap: calc(.4 * var(--uw)); }
   #obtns.tighter .ob .ic { font-size: calc(2 * var(--u)); }
   /* the Guide and Sources buttons open a short list above the bar */
   #opop { position: absolute; bottom: calc(100% - calc(2.4 * var(--u))); min-width: calc(19 * var(--uw)); padding: calc(.8 * var(--u)); display: flex; flex-direction: column; gap: calc(.4 * var(--u));
-    background: #071d66; border: calc(.2 * var(--u)) solid rgba(255,255,255,.25); border-radius: calc(1 * var(--u)); box-shadow: 0 calc(1 * var(--u)) calc(4 * var(--u)) rgba(0,0,0,.6); z-index: 2; }
+    background: #12151d; border: calc(.2 * var(--u)) solid rgba(255,255,255,.25); border-radius: calc(1 * var(--u)); box-shadow: 0 calc(1 * var(--u)) calc(4 * var(--u)) rgba(0,0,0,.6); z-index: 2; }
   #opop.hidden { display: none; }
   .opi { display: flex; justify-content: space-between; align-items: center; gap: calc(2 * var(--uw)); padding: calc(1.5 * var(--u)) calc(1.2 * var(--uw)); font-size: calc(2.5 * var(--u)); font-weight: 600; border-radius: calc(.7 * var(--u)); white-space: nowrap; }
   .opi.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); }
@@ -904,9 +903,11 @@
   .odchip.on { background: rgba(255,255,255,.34); color: #fff; }
   .odchip.sel, #odsrch.sel { background: #fff; color: #000; outline: calc(.4 * var(--u)) solid #fff; }
   /* the slim rail down the left: Left from the first card opens it */
-  #odside { position: absolute; left: 0; top: 0; bottom: 0; width: calc(3.6 * var(--uw)); display: flex; flex-direction: column; justify-content: center; gap: calc(1.2 * var(--u)); z-index: 4; background: rgba(11,13,18,.55); }
-  .odsd { height: calc(7 * var(--u)); margin: 0 calc(.5 * var(--uw)); border-radius: calc(1 * var(--u)); display: flex; align-items: center; justify-content: center; font-size: calc(3.4 * var(--u)); color: #aab3cc; }
+  #odside { position: absolute; left: 0; top: 0; bottom: 0; width: calc(4.8 * var(--uw)); display: flex; flex-direction: column; justify-content: center; gap: calc(1.2 * var(--u)); z-index: 4; background: rgba(11,13,18,.55); }
+  .odsd { height: calc(8 * var(--u)); position: relative; margin: 0 calc(.5 * var(--uw)); border-radius: calc(1 * var(--u)); display: flex; align-items: center; justify-content: center; font-size: calc(3.4 * var(--u)); color: #aab3cc; }
   .odsd.sel { background: #fff; color: #000; }
+  .odsd svg { width: 74%; }
+  .odsd.sel::after { content: attr(data-l); position: absolute; left: 100%; margin-left: calc(.7 * var(--uw)); padding: calc(.8 * var(--u)) calc(1.2 * var(--uw)); border-radius: calc(.8 * var(--u)); background: #fff; color: #000; font-size: calc(2.4 * var(--u)); font-weight: 700; white-space: nowrap; z-index: 6; }
   #odhero { position: absolute; left: calc(5 * var(--uw)); top: calc(8 * var(--u)); width: calc(62 * var(--uw)); }
   #oddots { display: flex; gap: calc(.7 * var(--uw)); margin-top: calc(1.2 * var(--u)); }
   #oddots i { width: calc(1 * var(--uw)); height: calc(.8 * var(--u)); border-radius: calc(.4 * var(--u)); background: rgba(255,255,255,.3); }
@@ -1034,7 +1035,7 @@
   .odmc.po { width: calc(15 * var(--u)); height: calc(22.5 * var(--u)); } .odmc.bk { width: calc(19 * var(--uw)); height: calc(10.7 * var(--uw)); }
   .odmc.sel { outline: calc(.45 * var(--u)) solid #fff; transform: scale(1.05); }
   .odmn { width: 100%; margin-top: calc(1 * var(--u)); font-size: calc(2.2 * var(--u)); color: #aab3cc; }
-  #odfoot { position: absolute; left: calc(4 * var(--uw)); right: calc(4 * var(--uw)); bottom: calc(3.4 * var(--u)); display: flex; gap: calc(2.4 * var(--uw)); font-size: calc(2.2 * var(--u)); color: rgba(255,255,255,.7); }
+  #odfoot { position: absolute; left: calc(4 * var(--uw)); right: calc(4 * var(--uw)); bottom: calc(6.4 * var(--u)); display: flex; gap: calc(2.4 * var(--uw)); font-size: calc(2.2 * var(--u)); color: rgba(255,255,255,.7); }
   #odfoot b { color: #fff; font-weight: 700; }
   #odnomatch { position: absolute; left: calc(4 * var(--uw)); top: calc(34 * var(--u)); }
   #odnomatch.hidden { display: none; }
@@ -1157,15 +1158,12 @@
   </div>
   <div id="oprog"><i id="obuf"></i><i id="obar"></i><i id="othumb"></i><span id="otime"></span></div>
   <div id="obtns">
-    <div class="ob" id="ob-stop"><span class="ic">&#9632;</span><span>Stop</span></div>
-    <div class="ob" id="ob-restart"><span class="ic">&#8634;</span><span>Restart</span></div>
     <div class="ob" id="ob-pp"><span class="ic" id="oic-pp"></span><span id="olbl-pp"></span></div>
     <div class="ob" id="ob-next"><span class="ic" id="oic-next">&#9654;&#10072;</span><span id="olbl-next">Next</span></div>
-    <i id="obsp"></i>
-    <div class="ob" id="ob-gguide"><span>Guide</span><span class="chev">&#9652;</span></div>
-    <div class="ob" id="ob-gsrc"><span>Sources</span><span class="chev">&#9652;</span></div>
     <div class="ob" id="ob-tracks"><span class="ic">&#9835;</span><span>Audio &amp; subs</span></div>
-    <div class="ob" id="ob-options"><span class="ic">&#9881;</span><span>Options</span></div>
+    <div class="ob" id="ob-more"><span>More&hellip;</span><span class="chev">&#9652;</span></div>
+    <i id="obsp"></i>
+    <div class="ob hidden" id="ob-stop"></div><div class="ob hidden" id="ob-restart"></div><div class="ob hidden" id="ob-gguide"></div><div class="ob hidden" id="ob-gsrc"></div><div class="ob hidden" id="ob-options"></div>
     <div id="opop" class="hidden"></div>
   </div>
 </div>

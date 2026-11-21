@@ -2929,7 +2929,8 @@
   var bannerTimer = null;
   var toastTimer = null;
 
-  function toast(msg, ms, low) {          // low: bottom of the screen, so it never covers the guide's header or clock
+  function toast(msg, ms, low) {
+    if (guideOpen || odOpen) low = true;          // low: bottom of the screen, so it never covers the guide's header or clock
     var t = $('toast'), lo = low ? 'low ' : '';
     t.textContent = msg;
     t.className = lo.trim();
@@ -3745,8 +3746,8 @@
     if (!/\s/.test(t.trim()) || (t.match(/[._]/g) || []).length > 2) t = t.replace(/[._]+/g, ' ');
     t = t.replace(/\b(HEVC|x26[45]|h\.?26[45]|AAC\d?|AC3|DDP?\d?|10bit|(?:2160|1080|720|480)p|4K|WEB-?DL|WEB-?Rip|BluRay|BDRip|DVDRip|HDTV|REPACK|PROPER)\b.*$/i, '');
     t = t.replace(/\s*[|\u2013\-]\s*\[[^\]]{1,12}\]/, '').replace(/\s*\[[^\]]{1,12}\]\s*$/, '').replace(/\s*\|\s*$/, '');   // an uploader tag such as "| [WRR]"
-    var m = /\bS(\d{1,2})E(\d{1,3})\b/i.exec(t), show = t, ep = '';
-    if (m && m.index > 0) { show = t.slice(0, m.index); ep = m[0].toUpperCase(); var rest = t.slice(m.index + m[0].length).trim(); if (rest) ep += ' \u00b7 ' + rest; }
+    var m = /\bS(\d{1,2})[\s._-]*E(?:p(?:isode)?\.?\s*)?(\d{1,3})\b/i.exec(t), show = t, ep = '';
+    if (m && m.index > 0) { show = t.slice(0, m.index); ep = 'S' + m[1] + 'E' + m[2]; var rest = t.slice(m.index + m[0].length).trim(); if (rest) ep += ' \u00b7 ' + rest; }
     show = show.replace(/\s*\((?:19|20)\d\d\)\s*$/, '').replace(/^\d{1,2}\s+(?=[A-Za-z])/, '').replace(/\s+/g, ' ').trim();
     return { show: show || t.trim(), ep: ep.replace(/\s+/g, ' ').trim() };
   }
@@ -5327,13 +5328,22 @@
   var arIdx = 0;
   // Buttons on the bar, left to right: playback on the left, then two short lists (Guide, Sources) and the settings.
   // During an ad break Next reads "Skip adverts" (it always skipped the break there).
-  var OB_ALL = ['stop', 'restart', 'pp', 'next', 'gguide', 'gsrc', 'tracks', 'options'];
+  var OB_ALL = ['pp', 'next', 'tracks', 'more'];
+  var OB_EVERY = ['pp', 'next', 'tracks', 'more', 'stop', 'restart', 'gguide', 'gsrc', 'options'];    // every button in the page; those not in OB_ALL stay hidden
+  /** The list behind More...: the rest of what the bar used to hold in one row. */
+  function popRows(g) {
+    if (g !== 'more') return OB_POP[g];
+    var r = [{ id: 'restart', t: 'Restart' }, { id: 'stop', t: 'Stop' }, { id: 'guide', t: 'TV Guide', key: 'GUIDE' }, { id: 'od', t: 'On Demand' }];
+    if (expOn && cur && !cur.ad && cur.prog && adLive().length) r.push({ id: 'find', t: 'Find sources' }, { id: 'src', t: 'Auto play from addons' });
+    r.push({ id: 'options', t: 'Options' });
+    return r;
+  }
   var OB_POP = {
     gguide: [{ id: 'guide', t: 'TV Guide', key: 'GUIDE' }, { id: 'sched', t: 'Channel schedule' }, { id: 'od', t: 'On Demand' }],
     gsrc: [{ id: 'src', t: 'Auto play from addons' }, { id: 'find', t: 'Find sources' }]
   };
   /** The buttons showing now: Audio & subs only when the file has tracks to pick; Sources only with Experimental on and an addon. */
-  function obList() { return OB_ALL.filter(function (id) { return id === 'tracks' ? trHas() : id === 'gsrc' ? !!(expOn && cur && !cur.ad && cur.prog && adLive().length) : true; }); }
+  function obList() { return OB_ALL.filter(function (id) { return id === 'tracks' ? trHas() : true; }); }
   var osdOpen = false, osdSel = 1, osdTimer = null, osdTick = null;
   var osdPop = null;                     // the open list above the bar: { g: 'gguide' | 'gsrc', i: row }
   var osdStopped = false;                // Stop pressed: the picture is held and the guide is up; Back from the guide joins the channel again
@@ -6436,7 +6446,7 @@
   }
   function renderMg() {
     var box = $('omg');
-    if (!omgRows.length || !cur) { box.className = 'hidden'; box.textContent = ''; omgSig = ''; return; }
+    if (!omgRows.length || !cur || osdZone !== 'mg') { box.className = 'hidden'; box.textContent = ''; omgSig = ''; return; }     // shown only once Up from the progress line reaches it, so the bar stays thin
     var now = Date.now(), sig = Math.floor(now / 30000) + '|' + osdZone + '|' + omgI + '|' + cur.ch.id;
     if (sig === omgSig) return;
     omgSig = sig; box.className = ''; box.textContent = '';
@@ -6464,7 +6474,7 @@
     $('otitle').textContent = ol.title;
     $('osub').textContent = ol.sub;
     $('onext').textContent = '';
-    if (next) {
+    if (next && !cur.od && !cur.ad) {
       $('onext').appendChild(document.createTextNode('Next'));
       var nb = document.createElement('b');
       var nl = osdLines(next), nm2 = /^(.*?)\s+S(\d{1,4})[ED](\d{1,3})\b/.exec(String(next.title || ''));
@@ -6490,7 +6500,7 @@
     var ob = obList();
     if (osdSel > ob.length - 1) osdSel = ob.length - 1;
     if (osdPop && ob.indexOf(osdPop.g) < 0) osdPop = null;
-    OB_ALL.forEach(function (id) { var i = ob.indexOf(id), e = $('ob-' + id); e.className = 'ob' + (i < 0 ? ' hidden' : '') + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
+    OB_EVERY.forEach(function (id) { var i = ob.indexOf(id), e = $('ob-' + id); e.className = 'ob' + (i < 0 ? ' hidden' : '') + (osdZone === 'btn' && i === osdSel ? ' sel' : ''); });
     var bx = $('obtns'); bx.className = '';                               // widest first; step down until every button is on screen
     if (bx.scrollWidth > bx.clientWidth + 1) { bx.className = 'tight'; if (bx.scrollWidth > bx.clientWidth + 1) bx.className = 'tighter'; }
     renderPop();
@@ -6500,7 +6510,7 @@
   function renderPop() {
     var box = $('opop');
     if (!osdPop) { box.className = 'hidden'; return; }
-    var rows = OB_POP[osdPop.g], btn = $('ob-' + osdPop.g);
+    var rows = popRows(osdPop.g), btn = $('ob-' + osdPop.g);
     box.textContent = '';
     rows.forEach(function (r, i) {
       var d = document.createElement('div');
@@ -6650,7 +6660,7 @@
   }
 
   function osdAct(id) {
-    if (OB_POP[id]) { popOpen(id); return; }
+    if (id === 'more' || OB_POP[id]) { popOpen(id); return; }
     if (id === 'stop') { stopShow(); return; }
     if (id === 'pp') togglePlay();
     else if (id === 'next') { closeOsd(); if (cur && cur.ad && !isAdChan(cur.ch)) skipAds(); else playNext(); return; }
@@ -6670,7 +6680,7 @@
   function osdKey(k) {
     osdTouch();
     if (osdPop) {                       // a list is open above the bar: Up/Down pick, OK runs it, Left/Right go back to the bar
-      var rows = OB_POP[osdPop.g];
+      var rows = popRows(osdPop.g);
       if (k === 'ArrowUp') { osdPop.i = Math.max(0, osdPop.i - 1); renderPop(); return true; }
       if (k === 'ArrowDown') { if (osdPop.i < rows.length - 1) { osdPop.i++; renderPop(); } else popClose(); return true; }
       if (k === 'Enter') { var id = rows[osdPop.i].id; popClose(); osdAct(id); return true; }
@@ -7603,7 +7613,7 @@
     OD_CHIPS.forEach(function (t, i) { ch.appendChild(odEl('div', 'odchip' + (i === odChip ? ' on' : '') + (odZn === 'chips' && odCi === i ? ' sel' : ''), t)); });
     $('odsrch').className = odZn === 'chips' && odCi === 4 ? 'sel' : '';
     var sd = $('odside'); sd.textContent = '';
-    OD_RAIL.forEach(function (t, i) { var d = odEl('div', 'odsd' + (odZn === 'rail' && odRailI === i ? ' sel' : '')); d.innerHTML = t[0]; sd.appendChild(d); });
+    OD_RAIL.forEach(function (t, i) { var d = odEl('div', 'odsd' + (odZn === 'rail' && odRailI === i ? ' sel' : '')); d.innerHTML = t[0]; d.setAttribute('data-l', t[1]); sd.appendChild(d); });
   }
   /** One "On now" card: the programme, which channel it is on, how far through, and what follows. */
   function odOnCard(e, sel) {
@@ -7616,7 +7626,7 @@
       d.appendChild(odEl('div', 'odlive', 'LIVE'));
       d.appendChild(odEl('div', 'odch', (isFav(e.chan) ? '\u2605 ' : '') + e.chan.name));
       d.appendChild(odEl('b', '', e.name));
-      if (o.next) d.appendChild(odEl('small', '', 'Next ' + fmtTime(o.next.at) + '  ' + o.next.t));
+      if (o.next) d.appendChild(odEl('small', '', 'Next ' + fmtTime(o.next.at) + '  ' + (o.next.t === e.name ? 'more ' + e.name : o.next.t)));
       var w = Math.max(0, Math.min(100, Math.round(100 * (Date.now() - o.start) / Math.max(1, o.end - o.start))));
       var pg = odEl('div', 'odpg'), bar = odEl('i'); bar.style.width = w + '%'; pg.appendChild(bar); d.appendChild(pg);
     }

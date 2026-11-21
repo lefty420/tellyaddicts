@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.11 — 21 Nov 2026
+From the UI review of 0.53.8.
+- **Playback bar.** A thin dark bar over a bottom fade instead of the blue slab: channel number, title and episode on the left, what is next on live channels as a quiet line on the right, progress and time below. Four buttons only: Pause (first), Next, Audio & subs (when the file has tracks) and More…, which lists Restart, Stop, TV Guide, On Demand, Sources (Experimental) and Options. The poster sits inside the bar, and the mini guide appears only when you press Up from the progress line.
+- **Guide.** Episode codes written as "S15 E03" or "S15 Ep 3" are now split off the title so cells show the show name and the episode in full. Seasonal snow falls behind the text. Toasts show at the bottom while the guide or On Demand is open (the clock is no longer covered).
+- **On Demand.** The left rail is wider with larger icons, and the focused item shows its name. The key hints sit higher, clear of the screen edge. A card whose next programme is the same show reads "more <show>" instead of repeating it.
+
 ## Alpha 0.53.10 — 21 Nov 2026
 - **Start-up waits for every channel.** The loading screen now stays up until all channels have loaded into the guide, then the guide opens complete, instead of opening early and stalling while the rest filled in. A 60 second limit remains only for a connection that never answers; the guide then opens on what is ready and tunes to your last channel as soon as it is. This replaces the early open from 0.53.1.
 

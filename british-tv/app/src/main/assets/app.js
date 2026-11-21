@@ -7429,7 +7429,6 @@
       if (multi) {
         for (var i = cs; i < Math.min(g.sea.length, cs + OD_SEA); i++) {
           var sn = odEl('div', 'odsn' + (i === odSea ? ' on' : '') + (i === odSea && odZone === 1 ? ' sel' : ''), g.sea[i].name);
-          sn.appendChild(odEl('small', '', String(g.sea[i].eps.length)));
           rail.appendChild(sn);
         }
       }

@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.51.4 — 2026-11-21
+- Show page: the season chips no longer carry an unexplained number ("Season 2  6"); the heading above the episodes already says how many there are. "2 more" now sits on the heading line at the right instead of at the bottom, where it ran into the key legend.
+
 ## Alpha 0.51.3 — 2026-11-21
 - TV Guide: with Interface size on Large the bottom channel row was cut off by the screen edge. The guide now shows as many rows as fit at the chosen size (6 on Large, 7 otherwise).
 

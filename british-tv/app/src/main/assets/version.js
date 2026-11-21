@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.51.3",
-  "version": "0.51.3",
-  "code": 5103,
+  "name": "Alpha 0.51.4",
+  "version": "0.51.4",
+  "code": 5104,
   "date": "2026-11-21",
   "notes": [
-    "TV Guide: with Interface size on Large the bottom channel row was cut off by the screen edge. The guide now shows as many rows as fit at the chosen size (6 on Large, 7 otherwise)."
+    "Show page: the season chips no longer carry an unexplained number (\"Season 2 6\"); the heading above the episodes already says how many there are. \"2 more\" now sits on the heading line at the right instead of at the bottom, where it ran into the key legend."
   ],
   "history": [
+    {
+      "name": "Alpha 0.51.3",
+      "date": "2026-11-21",
+      "notes": [
+        "TV Guide: with Interface size on Large the bottom channel row was cut off by the screen edge. The guide now shows as many rows as fit at the chosen size (6 on Large, 7 otherwise)."
+      ]
+    },
     {
       "name": "Alpha 0.51.2",
       "date": "2026-11-20",
@@ -61,14 +68,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "Magic EPG films: a guide channel now takes at most 800 programmes in all from the film database, like the missing episodes do, so a big film database cannot slow the guide down at start. On Demand still shows every film."
-      ]
-    },
-    {
-      "name": "Alpha 0.50.6",
-      "date": "2026-11-20",
-      "notes": [
-        "No more freezes in the minutes after start: On Demand used to get every channel ready in the background, and with Magic EPG each one froze the screen for a second or more while it sorted its shows, again and again for several minutes. Now only the channel you were watching and the channels in Continue watching are got ready. The rest load when you open them in On Demand, and search still covers every channel.",
-        "The TV guide's day labels show the short month again (\"Fri 20 Nov\"). A second list of month names had been overwriting them with the long names."
       ]
     }
   ]

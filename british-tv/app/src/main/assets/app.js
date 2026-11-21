@@ -3353,7 +3353,26 @@
       if (v.currentTime < 0.5) onEnded();
     }, 5000);
   }
+  // On Demand only: after 3 episodes in a row (or 90 minutes) with no key pressed, ask before playing another
+  var odAuto = 0, odRunAt = 0, odNxHide = false, odNxFor = null, odStill = false;
+  function odNxEl(on, html) { var e = $('odnx'); if (!e) return; e.classList.toggle('hidden', !on); if (on) e.innerHTML = html; }
+  function odStillShow() {
+    odStill = true; v.pause();
+    odNxEl(true, '<b>Are you still watching?</b><span>OK to carry on \u00b7 Back to stop</span>');
+    dlog('ON DEMAND: still watching? asked after ' + odAuto + ' episodes');
+  }
+  function odStillKey(k) {
+    if (k === 'Enter' || k === ' ' || k === 'MediaPlayPause') { odStill = false; odAuto = 0; odRunAt = Date.now(); odNxEl(false); odStep(1); }
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odStill = false; odAuto = 0; odNxEl(false); odOpenUi(); }
+  }
   function onEnded() {
+    if (cur && cur.od && !cur.ad) {
+      odNxEl(false);
+      if (!odRunAt) odRunAt = lastKeyAt || Date.now();
+      if (lastKeyAt > odRunAt) { odRunAt = lastKeyAt; odAuto = 0; }
+      odAuto++;
+      if (cur.od.list[cur.od.i + 1] && (odAuto >= 3 || Date.now() - odRunAt > 90 * 60000)) return odStillShow();
+    }
     if (cur && cur.od) return odStep(1);
     // the break is a time budget (seconds), not a number of adverts: each one that ends uses up its own length
     if (cur && cur.ad) {
@@ -6742,6 +6761,11 @@
     }
 
     if (kbShown) { kbKey(e); e.preventDefault(); return; }
+    if (odStill) { odStillKey(k); e.preventDefault(); return; }
+    if (cur && cur.od && !odOpen && !guideOpen && !osdOpen && !gm && !$('odnx').classList.contains('hidden')) {
+      if (k === 'Enter' || k === ' ') { odNxEl(false); odStep(1); e.preventDefault(); return; }
+      if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odNxFor = cur.prog.url + '|x'; odNxEl(false); e.preventDefault(); return; }
+    }
     if (ad) { adnKey(k); e.preventDefault(); return; }
     if (tt) { ttKey(k); e.preventDefault(); return; }
     if (gm && cs) { if (k !== 'Info') gmKey(k); e.preventDefault(); return; }
@@ -7195,6 +7219,13 @@
     store.set('cw1', cwList);
     Object.keys(odData).forEach(function (k) { var r = odData[k]; if (r && r.shows) r.shows.forEach(function (g) { if (g._cw && g._cw.n === name) g._cw = null; }); });
   }
+  v.addEventListener('timeupdate', function () {         // the last 12 s of an On Demand episode: say what is next
+    var o = cur && cur.od, nx = o && !cur.ad && !odStill && odPeek();
+    if (!nx || !isFinite(v.duration) || v.duration < 120) { if (!odStill) odNxEl(false); return; }
+    var left = v.duration - v.currentTime;
+    if (left > 12 || left <= 0.3 || odNxFor === cur.prog.url + '|x') { if (left > 12 && odNxFor) { odNxFor = null; } odNxEl(false); return; }
+    odNxEl(true, '<b>Next in ' + Math.ceil(left) + '</b><span>' + (nx.title || 'Next episode').replace(/[<&]/g, '') + '</span><span>OK to play now \u00b7 Back to hide</span>');
+  });
   var cwLast = 0;
   v.addEventListener('timeupdate', function () {         // every 10 s of an On Demand episode, remember where you are
     var o = cur && cur.od;

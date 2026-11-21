@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.52.11 — 2026-11-21
+
+- Loading screens: Set in the room and Whole screen now use the classic TV style (its brown cabinet and grey knobs, the green channel number and tuning scale) at the larger size. The aerials, wood cabinet, ribbed knobs and the big white TUNING / READY word are gone.
+- The Please stand by TV tunes again like the start-up one: green channel number and tuning scale with a sweeping needle on the glass, the knobs turning, and colour bars flashing now and then.
+
 ## Alpha 0.52.10 — 2026-11-21
 
 - VHS, VHS OLED and VHS 2: live-action video could drift out of step with the sound because the colour filter made the TV drop frames. The check now reacts sooner (a few dropped frames, every 3 seconds) and, when it fires, takes the whole filter off the video, not only the blur. The scan lines stay.

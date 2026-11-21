@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.10",
-  "version": "0.52.10",
-  "code": 5210,
+  "name": "Alpha 0.52.11",
+  "version": "0.52.11",
+  "code": 5211,
   "date": "2026-11-21",
   "notes": [
-    "VHS, VHS OLED and VHS 2: live-action video could drift out of step with the sound because the colour filter made the TV drop frames. The check now reacts sooner (a few dropped frames, every 3 seconds) and, when it fires, takes the whole filter off the video, not only the blur. The scan lines stay."
+    "Loading screens: Set in the room and Whole screen now use the classic TV style (its brown cabinet and grey knobs, the green channel number and tuning scale) at the larger size. The aerials, wood cabinet, ribbed knobs and the big white TUNING / READY word are gone.",
+    "The Please stand by TV tunes again like the start-up one: green channel number and tuning scale with a sweeping needle on the glass, the knobs turning, and colour bars flashing now and then."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.10",
+      "date": "2026-11-21",
+      "notes": [
+        "VHS, VHS OLED and VHS 2: live-action video could drift out of step with the sound because the colour filter made the TV drop frames. The check now reacts sooner (a few dropped frames, every 3 seconds) and, when it fires, takes the whole filter off the video, not only the blur. The scan lines stay."
+      ]
+    },
     {
       "name": "Alpha 0.52.9",
       "date": "2026-11-21",
@@ -57,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "Loading screen: Surprise me now picks again for every loading screen (start-up, finding a programme, loading a channel, episode or film), not once per start. Switching Experimental off or on changes the look at once."
-      ]
-    },
-    {
-      "name": "Alpha 0.52.2",
-      "date": "2026-11-21",
-      "notes": [
-        "Loading a channel, episode or film now uses the Loading screen look you chose (Set in the room or Whole screen) for its \"Please stand by\" screen too, with the programme's picture on the glass or blurred behind the set. Classic keeps the old test-card screen."
       ]
     }
   ]

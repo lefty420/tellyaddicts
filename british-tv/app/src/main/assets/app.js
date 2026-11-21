@@ -3603,6 +3603,7 @@
       cur.sbShown = true;
       var next = cur.prog && cur.prog.title;
       $('sbnum').textContent = cur.ch.n;
+      $('sbosd').textContent = 'P' + (cur.ch.n < 10 ? '0' : '') + cur.ch.n;
       $('sbname').textContent = cur.ch.name;
       $('sbp').textContent = String(100 + cur.ch.n);
       var art = knownArt(cur.prog), sb = $('standby'), me = cur;

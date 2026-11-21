@@ -4533,6 +4533,8 @@
     uiF = expOn ? UI[uiIdx].f : 1;
     var st = document.documentElement.style;
     if (uiF === 1) { st.removeProperty('--u'); st.removeProperty('--uw'); } else { st.setProperty('--u', uiF + 'vh'); st.setProperty('--uw', uiF + 'vw'); }
+    // the guide grid starts 41 units down and each row takes 6.8, so a larger interface fits fewer rows before the last one runs off the screen
+    if (!window.PHONE) VISIBLE_ROWS = Math.max(5, Math.min(7, Math.floor((100 / uiF - 46.9) / 6.8)));
   }
   applyUi();
   function changeUi(d) {

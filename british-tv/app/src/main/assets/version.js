@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.51.2",
-  "version": "0.51.2",
-  "code": 5102,
-  "date": "2026-11-20",
+  "name": "Alpha 0.51.3",
+  "version": "0.51.3",
+  "code": 5103,
+  "date": "2026-11-21",
   "notes": [
-    "On Demand, from the design review: the hero now has Play and More info buttons (OK plays it, hold OK opens the show page), a year / seasons / genre line with the certificate in a small badge when it has one, and amber dots showing which of the five slides is on. The highlight ring on cards is now amber, 3 px with a gap. The rail has a Guide icon that jumps to the TV guide."
+    "TV Guide: with Interface size on Large the bottom channel row was cut off by the screen edge. The guide now shows as many rows as fit at the chosen size (6 on Large, 7 otherwise)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.51.2",
+      "date": "2026-11-20",
+      "notes": [
+        "On Demand, from the design review: the hero now has Play and More info buttons (OK plays it, hold OK opens the show page), a year / seasons / genre line with the certificate in a small badge when it has one, and amber dots showing which of the five slides is on. The highlight ring on cards is now amber, 3 px with a gap. The rail has a Guide icon that jumps to the TV guide."
+      ]
+    },
     {
       "name": "Alpha 0.51.1",
       "date": "2026-11-20",
@@ -62,13 +69,6 @@ window.RELEASE = {
       "notes": [
         "No more freezes in the minutes after start: On Demand used to get every channel ready in the background, and with Magic EPG each one froze the screen for a second or more while it sorted its shows, again and again for several minutes. Now only the channel you were watching and the channels in Continue watching are got ready. The rest load when you open them in On Demand, and search still covers every channel.",
         "The TV guide's day labels show the short month again (\"Fri 20 Nov\"). A second list of month names had been overwriting them with the long names."
-      ]
-    },
-    {
-      "name": "Alpha 0.50.5",
-      "date": "2026-11-20",
-      "notes": [
-        "Faster guide with Magic EPG on: each channel now gets at most 800 missing episodes (the earliest of each show, taken in turn) instead of every gap in every show. 80's and 90's TV were carrying over 20,000 programmes each, and all 66 channels were laid out again at every start, which froze the guide for half a minute after it opened. On Demand still lists every episode."
       ]
     }
   ]

@@ -6301,6 +6301,7 @@
       // Auto, Off and (only with Experimental on) Test, which forces the Christmas snow on out of season
       var sm = seasonTest ? 2 : seasonOn ? 0 : 1, n = expOn ? 3 : 2; sm = (sm + 1) % n;
       seasonOn = sm !== 1; seasonTest = sm === 2; if (window.SEASONS) SEASONS.force(seasonTest);
+      if (seasonOv) seasonOv.stop();           // so it is built again with the new cycle length
       store.set('seasonal', sm === 2 ? 'test' : sm === 0 ? 'auto' : 'off'); seasonUpdate(); renderOpts();
     }
     else if (id === 'player') changePlayer(d);

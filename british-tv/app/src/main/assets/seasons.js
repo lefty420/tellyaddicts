@@ -207,5 +207,5 @@
     b.classList.add('season-hat');
   }
 
-  window.SEASONS = { list: SEASONS, cfg: CFG, current: current, force: function (on) { forced = !!on; }, snow: snow, hat: hat };
+  window.SEASONS = { list: SEASONS, cfg: CFG, current: current, force: function (on) { forced = !!on; CFG.CYCLE_MS = forced ? 30000 : 900000; },   // test mode also runs a 30 second cycle, so the build-up and the plough can be watched snow: snow, hat: hat };
 })();

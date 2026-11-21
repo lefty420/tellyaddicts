@@ -7,6 +7,13 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.7 — 21 Nov 2026
+Following the design reply on 0.53.0 to 0.53.6.
+- **Favourite channels in On Demand.** Favourite channels come first in the On now row with a ★. Browse lists them first with a ★, has a *★ Favourites* chip that shows only them, and hold OK on a channel adds or removes it. Titles go on My list only.
+- **Title menu.** Hold OK on a title now shows at most five items: Resume or Play, Remove from Continue watching (only in that row), My list, Info, More… (Search, Fix artwork, Options, Hide). Focus starts on the first item. Removing a title keeps the highlight on the next card, and a show removed while it plays is not put straight back.
+- **Badges.** The certificate shows on every card; the decade only in Browse and search results; phones show the certificate only.
+- **Playback.** The next-episode card reads "Next in N s" with "OK plays now, Back stays", and hides while the bar or mini guide is open. "Are you still watching?" is now a centred prompt with Keep watching (default) and Stop, and stops on its own after 5 minutes with no key.
+
 ## Alpha 0.53.6 — 21 Nov 2026
 - **On Demand: next episode and "Are you still watching?"** In the last 12 seconds of an On Demand episode a card names what plays next (OK plays it now, Back hides the card). After 3 episodes in a row, or 90 minutes, with no key pressed, playback pauses and asks before the next one (OK carries on, Back returns to On Demand). Live channels are not affected.
 

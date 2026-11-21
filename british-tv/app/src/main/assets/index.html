@@ -939,7 +939,13 @@
   #odnx { position: fixed; right: calc(3 * var(--uw)); bottom: calc(9 * var(--u)); z-index: 60; max-width: calc(34 * var(--uw)); padding: calc(1.6 * var(--u)) calc(2 * var(--u)); border-radius: calc(1.2 * var(--u)); background: rgba(8,10,16,.88); color: #e8eefc; border: calc(.2 * var(--u)) solid rgba(255,255,255,.35); display: flex; flex-direction: column; gap: calc(.5 * var(--u)); }
   #odnx b { font-size: calc(3.2 * var(--u)); } #odnx span { font-size: calc(2.2 * var(--u)); color: #b9d1ff; }
   #odnx.hidden { display: none; }
-  .odtag { position: absolute; top: calc(.7 * var(--u)); z-index: 1; font-size: calc(1.7 * var(--u)); line-height: 1; padding: calc(.35 * var(--u)) calc(.6 * var(--u)); border-radius: calc(.5 * var(--u)); background: rgba(8,10,16,.78); color: #e8eefc; font-weight: 700; }
+  #odsw { position: fixed; inset: 0; z-index: 70; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(4 * var(--u)); background: rgba(5,7,12,.86); color: #fff; }
+  #odsw.hidden { display: none; }
+  #odsw h2 { margin: 0; font-size: calc(6 * var(--u)); }
+  #odsw div { display: flex; gap: calc(3 * var(--u)); }
+  #odsw span { font-size: calc(3.6 * var(--u)); padding: calc(1.6 * var(--u)) calc(4 * var(--u)); border-radius: calc(1.2 * var(--u)); background: rgba(255,255,255,.18); }
+  #odsw span.sel { background: #fff; color: #000; }
+  .odtag { position: absolute; top: calc(.7 * var(--u)); z-index: 1; font-size: calc(1.85 * var(--u)); line-height: 1; padding: calc(.35 * var(--u)) calc(.6 * var(--u)); border-radius: calc(.5 * var(--u)); background: rgba(8,10,16,.78); color: #e8eefc; font-weight: 700; }
   .odtag.cert { left: calc(.7 * var(--u)); border: calc(.15 * var(--u)) solid rgba(255,255,255,.5); }
   .odtag.yr { right: calc(.7 * var(--u)); color: #b9d1ff; }
   .odc b, #odpost b { position: absolute; left: calc(.9 * var(--u)); right: calc(.9 * var(--u)); bottom: calc(.9 * var(--u)); font-size: calc(2 * var(--u)); line-height: 1.1; z-index: 1; }
@@ -1123,6 +1129,7 @@
 
 <div id="subs" class="hidden"></div>
 <div id="odnx" class="hidden"></div>
+<div id="odsw" class="hidden"></div>
 <div id="banner" class="off">
   <div id="bnum"></div>
   <div id="binfo"><div id="bchan"></div><div id="btitle"></div><div id="bsub"></div></div>

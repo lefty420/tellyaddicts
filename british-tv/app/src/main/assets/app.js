@@ -3356,14 +3356,26 @@
   // On Demand only: after 3 episodes in a row (or 90 minutes) with no key pressed, ask before playing another
   var odAuto = 0, odRunAt = 0, odNxHide = false, odNxFor = null, odStill = false;
   function odNxEl(on, html) { var e = $('odnx'); if (!e) return; e.classList.toggle('hidden', !on); if (on) e.innerHTML = html; }
+  var odStillSel = 0, odStillT = null;
+  function odStillDraw() {
+    var e = $('odsw'); if (!e) return;
+    e.classList.toggle('hidden', !odStill);
+    if (!odStill) return;
+    e.innerHTML = '<h2>Are you still watching?</h2><div><span class="' + (odStillSel === 0 ? 'sel' : '') + '">Keep watching</span><span class="' + (odStillSel === 1 ? 'sel' : '') + '">Stop</span></div>';
+  }
   function odStillShow() {
-    odStill = true; v.pause();
-    odNxEl(true, '<b>Are you still watching?</b><span>OK to carry on \u00b7 Back to stop</span>');
+    odStill = true; odStillSel = 0; v.pause(); odStillDraw(); odNxEl(false);
+    clearTimeout(odStillT); odStillT = setTimeout(function () { if (odStill) odStillEnd(true); }, 5 * 60000);     // nobody there: stop on its own
     dlog('ON DEMAND: still watching? asked after ' + odAuto + ' episodes');
   }
+  function odStillEnd(stop) {
+    clearTimeout(odStillT); odStill = false; odAuto = 0; odRunAt = Date.now(); odStillDraw();
+    if (stop) odOpenUi(); else odStep(1);
+  }
   function odStillKey(k) {
-    if (k === 'Enter' || k === ' ' || k === 'MediaPlayPause') { odStill = false; odAuto = 0; odRunAt = Date.now(); odNxEl(false); odStep(1); }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odStill = false; odAuto = 0; odNxEl(false); odOpenUi(); }
+    if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') { odStillSel = 1 - odStillSel; odStillDraw(); }
+    else if (k === 'Enter' || k === ' ') odStillEnd(odStillSel === 1);
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') odStillEnd(true);
   }
   function onEnded() {
     if (cur && cur.od && !cur.ad) {
@@ -3779,7 +3791,8 @@
     if (!favs.length) favOnly = false;
     favSave();
     toast(i >= 0 ? c.name + ' removed from favourites' : c.name + ' added to favourites', 2200);
-    gPaint = null; renderGuide();
+    odRowsMemo = null; onSig = '';
+    if (guideOpen) { gPaint = null; renderGuide(); }
   }
   function favFilter() {
     if (!favOnly && !favs.length) { toast('No favourites yet: hold OK on a channel and choose Add to favourites', 4000); return; }
@@ -7214,22 +7227,24 @@
     cwList = l.slice(0, CW_MAX); cwGen++;
     store.set('cw1', cwList);
   }
+  var cwBlock = '';          // a show taken off Continue watching while it plays is not put straight back
   function cwDrop(name) {
+    cwBlock = name;
     cwList = cwGet().filter(function (e) { return e.n !== name; }); cwGen++;
     store.set('cw1', cwList);
     Object.keys(odData).forEach(function (k) { var r = odData[k]; if (r && r.shows) r.shows.forEach(function (g) { if (g._cw && g._cw.n === name) g._cw = null; }); });
   }
   v.addEventListener('timeupdate', function () {         // the last 12 s of an On Demand episode: say what is next
     var o = cur && cur.od, nx = o && !cur.ad && !odStill && odPeek();
-    if (!nx || !isFinite(v.duration) || v.duration < 120) { if (!odStill) odNxEl(false); return; }
+    if (!nx || !isFinite(v.duration) || v.duration < 120) { odNxEl(false); return; }
     var left = v.duration - v.currentTime;
-    if (left > 12 || left <= 0.3 || odNxFor === cur.prog.url + '|x') { if (left > 12 && odNxFor) { odNxFor = null; } odNxEl(false); return; }
-    odNxEl(true, '<b>Next in ' + Math.ceil(left) + '</b><span>' + (nx.title || 'Next episode').replace(/[<&]/g, '') + '</span><span>OK to play now \u00b7 Back to hide</span>');
+    if (left > 12 || left <= 0.3 || osdOpen || odNxFor === cur.prog.url + '|x') { odNxEl(false); return; }     // the bar and the mini guide win
+    odNxEl(true, '<b>Next in ' + Math.ceil(left) + ' s</b><span>' + (nx.title || 'Next episode').replace(/[<&]/g, '') + '</span><span>OK plays now, Back stays</span>');
   });
   var cwLast = 0;
   v.addEventListener('timeupdate', function () {         // every 10 s of an On Demand episode, remember where you are
     var o = cur && cur.od;
-    if (!o || cur.ad || !o.name || v.paused || !(v.currentTime > 5)) return;
+    if (!o || cur.ad || !o.name || o.name === cwBlock || v.paused || !(v.currentTime > 5)) return;
     var now = Date.now();
     if (now - cwLast < 10000) return;
     cwLast = now;
@@ -7350,6 +7365,9 @@
                   onnow: { start: b.startMs, end: b.endMs, sig: b.startMs, next: nx && nx.prog && !nx.prog.ad ? { t: gmName(nx.prog) || nx.prog.title || '', at: nx.startMs } : null } });
     });
     if (!list.length) return null;
+    var fi = function (e) { return isFav(e.chan) ? 0 : 1; };
+    list = list.map(function (e, i) { return { e: e, i: i }; }).sort(function (a, b) { return fi(a.e) - fi(b.e) || a.i - b.i; }).map(function (x) { return x.e; });
+    sig += '|f' + favs.length + (favs.length ? list.map(function (e) { return fi(e); }).join('') : '');
     if (sig !== onSig || !odData._on) { onSig = sig; odData._on = { shows: list }; }
     return onPseudo;
   }
@@ -7534,11 +7552,11 @@
     var ft = $('odfoot'); ft.textContent = '';
     hint.forEach(function (x) { var sp = odEl('span'); sp.appendChild(odEl('b', '', x[0])); sp.appendChild(document.createTextNode(' ' + x[1])); ft.appendChild(sp); });
   }
-  var rowIsCw = false;
+  var rowIsCw = false, odDecOn = false;   // odDecOn: the decade badge shows only where decades are mixed (Browse, search)
   /** One poster element per show, kept and reused: moving along a row re-attaches the ones already built (and decoded)
    *  instead of making new ones, which is what made browsing stutter on the TV. */
   function odCard(g, sel) {
-    var key = rowIsCw ? '_elc' : '_el', d = g[key], gen = odKGen + ':' + cwGen;
+    var key = rowIsCw ? '_elc' : '_el', dec = odDecOn && !window.PHONE, d = g[key], gen = odKGen + ':' + cwGen + (dec ? 'd' : '');
     if (!d) { d = g[key] = odEl('div', 'odc'); d._g = ''; }
     if (d._g !== gen) {
       d._g = gen; d.textContent = '';
@@ -7553,7 +7571,7 @@
       var bc = odCertOf(g), by = 0;
       try { by = g.stub ? (g.yr || 0) : odYear(g); } catch (e) { by = g.yr || 0; }
       if (bc) d.appendChild(odEl('span', 'odtag cert', bc));
-      if (by > 1900) d.appendChild(odEl('span', 'odtag yr', (Math.floor(by / 10) * 10 % 100 < 10 ? '0' : '') + (Math.floor(by / 10) * 10 % 100) + 's'));
+      if (dec && by > 1900) d.appendChild(odEl('span', 'odtag yr', (Math.floor(by / 10) * 10 % 100 < 10 ? '0' : '') + (Math.floor(by / 10) * 10 % 100) + 's'));
       var w = g._cw && g._cw.dur ? Math.min(100, Math.round(100 * g._cw.pos / g._cw.dur)) : 0;
       if (w > 1 && rowIsCw) { var pg = odEl('div', 'odpg'); var bar = odEl('i'); bar.style.width = w + '%'; pg.appendChild(bar); d.appendChild(pg); }
     }
@@ -7587,13 +7605,13 @@
   /** One "On now" card: the programme, which channel it is on, how far through, and what follows. */
   function odOnCard(e, sel) {
     var d = e._el; if (!d) { d = e._el = odEl('div', 'odc odon'); d._g = ''; }
-    var gen = odKGen + ':' + e.onnow.sig;
+    var gen = odKGen + ':' + e.onnow.sig + ':' + (isFav(e.chan) ? 'f' : '');
     if (d._g !== gen) {
       d._g = gen; d.textContent = '';
       var k = odKnown(e), u = k && (k.back || k.poster), o = e.onnow;
       d.style.backgroundImage = u ? 'url("' + u + '")' : odTone(e.name);
       d.appendChild(odEl('div', 'odlive', 'LIVE'));
-      d.appendChild(odEl('div', 'odch', e.chan.name));
+      d.appendChild(odEl('div', 'odch', (isFav(e.chan) ? '\u2605 ' : '') + e.chan.name));
       d.appendChild(odEl('b', '', e.name));
       if (o.next) d.appendChild(odEl('small', '', 'Next ' + fmtTime(o.next.at) + '  ' + o.next.t));
       var w = Math.max(0, Math.min(100, Math.round(100 * (Date.now() - o.start) / Math.max(1, o.end - o.start))));
@@ -7635,12 +7653,12 @@
         var cards = odEl('div', 'odcards');
         if (!x.sh) { for (var q = 0; q < x.vis; q++) cards.appendChild(odEl('div', 'odc odsk' + (x.c.id === '_on' ? ' odon' : ''))); }     // no list yet: plain blocks where the posters will be
         else {
-          rowIsCw = x.c === cwPseudo;
+          rowIsCw = x.c === cwPseudo; odDecOn = x.c === srPseudo;
           for (var i = x.start; i < Math.min(x.n, x.start + x.vis); i++) {
             var sel = x.ri === odRi && inRows && i === x.pos;
             cards.appendChild(x.c.id === '_on' ? odOnCard(x.sh[i], sel) : odCard(x.sh[i], sel));
           }
-          rowIsCw = false;
+          rowIsCw = false; odDecOn = false;
           if (odT1 && x.n && x.c.ch) { dlog('ONDEMAND: first genre row (' + x.c.name + ') drawn ' + Math.round(performance.now() - odT1) + ' ms after pressing On Demand'); odT1 = 0; }
           if (odT0 && x.n) { dlog('ONDEMAND: first row drawn ' + Math.round(performance.now() - odT0) + ' ms after pressing On Demand (' + (odT0Warm ? 'warm start, rows saved' : 'index being built') + ', ' + x.c.name + ', ' + x.n + ' shows)'); odT0 = 0; }
         }
@@ -7947,6 +7965,7 @@
       if (odView === 'home' && odZn === 'hero') { odOpenHero(); return true; }
       if (odView === 'home' && odZn === 'rows' && !odNone) { var q = odSel().g; if (q && !q.onnow) odmOpen(); }
       else if (odView === 'show') odmOpen();
+      else if (odView === 'grid' && odGz === 'list') { var gc = odGridChans()[odGl]; if (gc) odmChan(gc); }
       return true;
     }
     if (k === 'Guide' || k === 'Red') { odClose(false); openGuide(); return true; }
@@ -8049,7 +8068,7 @@
     g._yg = odKGen; return (g._yr = y);
   }
   function odGShows() {
-    var c = odChannels()[odGl]; if (!c) return null;
+    var c = odGridChans()[odGl]; if (!c) return null;
     var sh = odShowsOf(c); if (!sh) return null;
     var key = c.id + '|' + sh.length + '|' + odGs + '|' + odGd + '|' + odGh + '|' + odKGen;
     if (odGKey === key && odGlist) return odGlist;
@@ -8063,39 +8082,48 @@
     else l.sort(function (a, b) { var ya = odYear(a), yb = odYear(b); if (!ya !== !yb) return ya ? -1 : 1; return odGs === 1 ? yb - ya : ya - yb; });
     odGKey = key; return (odGlist = l);
   }
+  var odGFav = false;
+  /** Browse's channel list: the favourites first, or only they when the chip is on. */
+  function odGridChans() {
+    var all = odChannels(), f = all.filter(isFav);
+    if (odGFav && f.length) return f;
+    return f.length ? f.concat(all.filter(function (c) { return !isFav(c); })) : all;
+  }
   function odGridOpen() {
     odRet = null;
     odGz = 'list'; odGp = 0; odGKey = '';
-    var cs = odChannels(), at = cur ? cs.indexOf(cur.ch) : -1; if (at >= 0) odGl = at; odGl = Math.max(0, Math.min(odGl, cs.length - 1));
+    var cs = odGridChans(), at = cur ? cs.indexOf(cur.ch) : -1; if (at >= 0) odGl = at; odGl = Math.max(0, Math.min(odGl, cs.length - 1));
     odSetView('grid');
     odGridLoad();
     odRender();
   }
   function odGridLoad() {
-    var c = odChannels()[odGl]; if (!c) return;
+    var c = odGridChans()[odGl]; if (!c) return;
     odLoadChannel(c).then(function () { odGKey = ''; if (odOpen && odView === 'grid') odRender(); });
   }
   function odRenderGrid() {
     odSetBg(null);
-    var cs = odChannels(), gl = $('ogl'); gl.textContent = '';
+    var cs = odGridChans(), gl = $('ogl'); gl.textContent = '';
     var top = Math.max(0, Math.min(odGl - 4, cs.length - 10));
     for (var i = top; i < Math.min(cs.length, top + 10); i++) {
-      var r = odData[cs[i].id], it = odEl('div', 'ogli' + (i === odGl ? ' on' : '') + (i === odGl && odGz === 'list' ? ' sel' : ''), cs[i].name);
+      var r = odData[cs[i].id], it = odEl('div', 'ogli' + (i === odGl ? ' on' : '') + (i === odGl && odGz === 'list' ? ' sel' : ''), (isFav(cs[i]) ? '\u2605 ' : '') + cs[i].name);
       if (r && r.shows) it.appendChild(odEl('small', '', String(r.shows.length)));
       gl.appendChild(it);
     }
     var cc = $('ogc'); cc.textContent = '';
-    ['Sort: ' + OD_SORTS[odGs], OD_DECS[odGd], 'Hide watched: ' + (odGh ? 'On' : 'Off')].forEach(function (t, i) { cc.appendChild(odEl('div', 'odchip' + (odGz === 'chips' && odGci === i ? ' sel' : ''), t)); });
+    ['Sort: ' + OD_SORTS[odGs], OD_DECS[odGd], 'Hide watched: ' + (odGh ? 'On' : 'Off'), '\u2605 Favourites' + (odGFav ? ': On' : '')].forEach(function (t, i) { cc.appendChild(odEl('div', 'odchip' + (odGz === 'chips' && odGci === i ? ' sel' : ''), t)); });
     var sh = odGShows(), gg = $('ogg'); gg.textContent = '';
     if (!sh) { for (var q = 0; q < OD_GCOLS * OD_GROWS; q++) gg.appendChild(odEl('div', 'odc odsk')); $('ogt').textContent = 'Loading…'; return; }
     odGp = Math.max(0, Math.min(odGp, sh.length - 1));
     var row0 = Math.max(0, Math.min(Math.floor(odGp / OD_GCOLS) - 1, Math.ceil(sh.length / OD_GCOLS) - OD_GROWS));
+    odDecOn = true;
     for (var j = row0 * OD_GCOLS; j < Math.min(sh.length, (row0 + OD_GROWS) * OD_GCOLS); j++) gg.appendChild(odCard(sh[j], odGz === 'grid' && j === odGp));
+    odDecOn = false;
     $('ogt').textContent = sh.length ? (odGp + 1) + ' of ' + sh.length : 'Nothing matches these filters';
   }
   function odKeyGrid(k) {
     var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ';
-    var cs = odChannels(), sh = odGShows(), n = sh ? sh.length : 0;
+    var cs = odGridChans(), sh = odGShows(), n = sh ? sh.length : 0;
     if (back) { odSetView('home'); odZn = 'rows'; odRender(); return true; }
     if (odGz === 'list') {
       if (k === 'ArrowUp') { if (odGl > 0) { odGl--; odGp = 0; odGridLoad(); } else odGz = 'chips'; }
@@ -8103,9 +8131,9 @@
       else if (k === 'ArrowRight' || ok) odGz = 'grid';
     } else if (odGz === 'chips') {
       if (k === 'ArrowLeft') odGci = Math.max(0, odGci - 1);
-      else if (k === 'ArrowRight') odGci = Math.min(2, odGci + 1);
+      else if (k === 'ArrowRight') odGci = Math.min(3, odGci + 1);
       else if (k === 'ArrowDown') odGz = 'grid';
-      else if (ok) { if (odGci === 0) odGs = (odGs + 1) % OD_SORTS.length; else if (odGci === 1) odGd = (odGd + 1) % OD_DECS.length; else odGh = !odGh; odGp = 0; }
+      else if (ok) { if (odGci === 0) odGs = (odGs + 1) % OD_SORTS.length; else if (odGci === 1) odGd = (odGd + 1) % OD_DECS.length; else if (odGci === 2) odGh = !odGh; else { if (!odGFav && !favs.length) { toast('No favourite channels yet: hold OK on a channel', 3500); return true; } odGFav = !odGFav; odGl = 0; odGKey = ''; odGridLoad(); } odGp = 0; }
     } else {
       if (k === 'ArrowLeft') { if (odGp % OD_GCOLS === 0) odGz = 'list'; else odGp--; }
       else if (k === 'ArrowRight') odGp = Math.min(n - 1, odGp + 1);
@@ -8205,8 +8233,7 @@
       if (fixed && fixed.a) fix.push({ t: 'Back to automatic', sub: 'Forget the choices made for this film', f: function () {
         try { kv.removeItem('artfix:' + normShow(odArtName(g))); } catch (e) { /* ignore */ }
         g._k = null; odArtFor = ''; odBgFor = ''; odKGen++; odmClose(); toast('Artwork back to automatic', 2500); odRender(); } });
-      odm = { mode: 'menu', g: g, i: 0, title: g.name, items: [infoItem, searchItem, fixItem('Scrape it again, or choose the film, poster or background'), optsItem, hideItem] };
-      adOdm(g); optsLast(odm.items); odmRender(); return;
+      odmBuild(g, infoItem, [searchItem, fixItem('Scrape it again, or choose the film, poster or background'), optsItem, hideItem]); return;
     }
     fix = [
       { t: 'Scrape artwork', sub: 'Look the show up again and use the best match', f: function () { odmScrape(g); } },
@@ -8218,8 +8245,28 @@
         try { kv.removeItem('artfix:' + normShow(g.name)); kv.removeItem('eps1:' + odSlug(g.name)); if (back) kv.removeItem('artfix:' + back); } catch (e) { /* ignore */ }
         g.art = undefined; g.metaP = null; g.meta = null; odArtFor = ''; odBgFor = ''; odmClose(); toast('Artwork back to automatic', 2500);
         if (back) odRegroup(g, g.name); else odRender(); } }];
-    odm = { mode: 'menu', g: g, i: 0, items: [infoItem, searchItem, fixItem('Scrape it again, or choose the show, poster or background'), optsItem, hideItem], title: g.name };
-    adOdm(g); optsLast(odm.items); odmRender();
+    odmBuild(g, infoItem, [searchItem, fixItem('Scrape it again, or choose the show, poster or background'), optsItem, hideItem]);
+  }
+  /** The title menu: five items at most. The rare ones sit under More. Focus starts on the first, so a stray OK removes nothing. */
+  function odmBuild(g, infoItem, rare) {
+    var s = odSel(), b0 = odBtns(g)[0], top = [];
+    if (b0) top.push({ t: b0.t.indexOf('Resume') >= 0 ? 'Resume' : 'Play', sub: b0.t.replace(/^[^A-Za-z]+/, ''), f: function () { odmClose(); b0.f(); } });
+    if (odView === 'home' && s.c === cwPseudo && g._cw) top.push({ t: 'Remove from Continue watching', sub: g.name, f: function () {
+      odmClose(); cwDrop(g.name); cwSig = ''; odRowsMemo = null; toast('Removed from Continue watching', 2500); odRender(); } });
+    top.push({ t: mlHas(g) ? 'Remove from My list' : 'Add to My list', sub: g.name, f: function () { odmClose(); mlToggle(g); odRender(); } });
+    top.push(infoItem);
+    var more = { mode: 'menu', g: g, i: 0, sub: 1, title: 'More', items: rare };
+    odm = more; adOdm(g); optsLast(more.items);
+    top.push({ t: 'More\u2026', sub: 'Search, fix artwork, options, hide', f: function () { odm = more; odmRender(); } });
+    odm = { mode: 'menu', g: g, i: 0, items: top, title: g.name };
+    odmRender();
+  }
+  /** Hold OK on a channel in Browse: add or remove it from the favourite channels. */
+  function odmChan(c) {
+    var it = { t: isFav(c) ? 'Remove from favourites' : 'Add to favourites', sub: c.n + '  ' + c.name, f: function () {
+      odmClose(); favToggle(c); odGKey = ''; var at = odGridChans().indexOf(c); if (at >= 0) odGl = at; odGp = 0; odRender(); } };
+    odm = { mode: 'menu', g: null, i: 0, items: [it], title: c.name };
+    odmRender();
   }
   function odmClose() { odm = null; $('odmenu').className = 'hidden'; }
   function odmWait(text) { if (odm) { odm.mode = 'wait'; odm.items = []; odm.note = text; odmRender(); } }
@@ -8446,7 +8493,7 @@
     var info = { list: list, i: i, name: name || '' };
     playSlot(c, 0, offset || 0, true, true, list[i].p);
     if (cur) cur.od = info;
-    if (name) { cwPut(name, c.id, list[i].p.url, offset || 0, 0); odSeen(name); }
+    if (name) { cwBlock = ''; cwPut(name, c.id, list[i].p.url, offset || 0, 0); odSeen(name); }
     dlog('ON DEMAND ' + c.n + ' ' + c.name + ' | ' + (list[i].p.title || ''));
   }
   /** What comes after the episode playing, for the "Next" on the bar. */

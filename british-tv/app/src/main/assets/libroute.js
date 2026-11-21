@@ -265,6 +265,7 @@
           if (ep.a) d.a = ep.a;
           if (ep.l) d.l = ep.l;
           if (sh.song) d.song = 1;
+          if (sh.shorts) d.shorts = 1;      // a Disney short: no TVmaze id, no season or episode; its n is the cleaned title
           if (xmas) d.xmas = 1;
           if (sh.film) {
             // a film: its own title, no episode number to expect, and everything TMDb told the scraper about it.
@@ -313,7 +314,7 @@
    *  null = keep the engine's own tidy title. */
   function titleFor(show, d) {
     if (!d) return null;
-    if (d.song || d.film) return d.n || null;
+    if (d.song || d.film || d.shorts) return d.n || null;
     if (!d.tvm || !d.n) return null;
     return (show ? show + ' ' : '') + (d.c && d.c !== 'Special' ? d.c + ' ' : '') + d.n;
   }

@@ -909,7 +909,7 @@
   #odside { position: absolute; left: 0; top: 0; bottom: 0; width: calc(4.8 * var(--uw)); display: flex; flex-direction: column; justify-content: center; gap: calc(1.2 * var(--u)); z-index: 4; background: rgba(11,13,18,.55); }
   .odsd { height: calc(8 * var(--u)); position: relative; margin: 0 calc(.5 * var(--uw)); border-radius: calc(1 * var(--u)); display: flex; align-items: center; justify-content: center; font-size: calc(3.4 * var(--u)); color: #aab3cc; }
   .odsd.sel { background: #fff; color: #000; }
-  #od.railfocus #odhome, #od.railfocus #odfav { opacity: .4; }       /* the page dims while the rail has focus, so its label may lie over it */
+  #od.railfocus #odhome, #od.railfocus #odfav, #od.railfocus #odgrid { opacity: .4; }       /* the page dims while the rail has focus, so its label may lie over it */
   .odsd svg { width: 74%; }
   .odsd.sel::after { content: attr(data-l); position: absolute; left: 100%; margin-left: calc(.7 * var(--uw)); padding: calc(.8 * var(--u)) calc(1.2 * var(--uw)); border-radius: calc(.8 * var(--u)); background: #fff; color: #000; font-size: calc(2.4 * var(--u)); font-weight: 700; white-space: nowrap; z-index: 6; }
   #odhero { position: absolute; left: calc(5 * var(--uw)); top: calc(8 * var(--u)); width: calc(62 * var(--uw)); }
@@ -1021,8 +1021,8 @@
   .ogli.sel { background: #fff; color: #000; font-weight: 700; }
   #ogc { position: absolute; left: calc(27 * var(--uw)); right: calc(4 * var(--uw)); top: calc(12 * var(--u)); display: flex; gap: calc(.8 * var(--uw)); }
   #ogg { position: absolute; left: calc(27 * var(--uw)); right: calc(4 * var(--uw)); top: calc(20 * var(--u)); display: grid; grid-template-columns: repeat(6, 1fr); gap: calc(1.4 * var(--u)) calc(1 * var(--uw)); }
-  #ogg .odc { width: auto; height: calc(11.6 * var(--uw)); }
-  #ogt { position: absolute; left: calc(27 * var(--uw)); top: calc(89 * var(--u)); font-size: calc(2 * var(--u)); color: #8f98b0; }
+  #ogg .odc { width: auto; height: auto; aspect-ratio: 2 / 3; }
+  #ogt { position: absolute; right: calc(4 * var(--uw)); bottom: calc(6.4 * var(--u)); font-size: calc(2.2 * var(--u)); color: #aab3cc; }       /* at the right end of the hint bar, clear of it */
   #odmenu { position: absolute; inset: 0; z-index: 6; background: rgba(2,6,28,.86); display: flex; align-items: center; justify-content: center; }
   #odmenu.hidden { display: none; }
   #odmbox { width: calc(66 * var(--uw)); background: #061450; border: calc(.14 * var(--u)) solid rgba(255,255,255,.16); border-radius: calc(2.8 * var(--u)); padding: calc(3.4 * var(--u)) calc(2.4 * var(--uw)) calc(2.4 * var(--u)); box-shadow: 0 calc(2 * var(--u)) calc(6 * var(--u)) rgba(0,0,0,.7); }
@@ -1077,6 +1077,7 @@
   .ocat.cur { background: rgba(255,255,255,.14); color: #fff; }
   .ocat.sel { background: linear-gradient(180deg, var(--hi1), var(--hi2)); color: var(--ink); font-weight: 800; box-shadow: 0 calc(.8 * var(--u)) calc(2.6 * var(--u)) rgba(0,0,0,.4); }
   #opane { position: absolute; left: calc(31 * var(--uw)); right: calc(4.4 * var(--uw)); top: calc(16 * var(--u)); bottom: calc(24 * var(--u)); box-sizing: border-box; padding: 0 calc(2.4 * var(--uw)) calc(2.4 * var(--u)); border-radius: calc(2.8 * var(--u));
+  #opane { -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 7 * var(--u)), transparent); mask-image: linear-gradient(180deg, #000 calc(100% - 7 * var(--u)), transparent); }     /* the list fades at its foot: there is more below */
     background: #061450; border: calc(.14 * var(--u)) solid rgba(255,255,255,.14); display: flex; flex-direction: column; overflow: hidden; }
   .ogrp { display: none; flex-direction: column; gap: calc(.6 * var(--u)); }
   .ogrp.on { display: flex; }

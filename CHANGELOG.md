@@ -7,7 +7,15 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
-## Alpha 0.53.13 — 21 Nov 2026
+## Alpha 0.53.14 — 2026-11-21
+From the design review of Browse, Options and the guide menu, plus the Disney shorts note.
+- **Browse**: cards are 2:3, the "1 of N" counter sits at the right end of the hint bar so it no longer collides with it, every channel shows its show count (they load in turn), and Left from the list reaches the rail.
+- **Guide hold-OK menu** now has five items: Watch from the start, Episodes, Add show to favourites, Add channel to favourites, More... Channel schedule, Show favourites only, Info, Teletext and the rest are under More...
+- **Options** list fades at the foot so it is clear that it scrolls.
+- **Version label** now reads the current version (the changelog dates were in a format the version tool skipped, so the app said 0.53.2).
+- **Disney shorts**: a show flagged `shorts` in the library is a plain list of shorts with no season or episode labels, no series art or TVmaze lookups, and a generated title card. Needs a scraper rebuild, then Sync episode meta and Send to TV app.
+
+## Alpha 0.53.13 — 2026-11-21
 From the design reply on 0.53.12.
 - **Playback bar** is shorter: the poster stub is smaller, the time sits at the end of the progress line, padding is tighter. The lettered placeholder poster is gone (the title moves left when there is no real picture). Pause carries an amber tint so it reads as the main button.
 - **Rail** focus dims the page behind its label. Favourites now has the rail too (Left from the first item), so it is not a dead end.
@@ -15,42 +23,42 @@ From the design reply on 0.53.12.
 - **Guide:** titles such as "The Bill (1983) S11 DVD Rip" or "The Bill (1983) - S15E067 - …" now show "The Bill" with "S11" or "S15 E067" under it. The snow no longer falls over the header, the programme title or the grid; it stays in the margins, beside the little TV and along the foot.
 - **Loading screen** reads "Loading channels 12 of 31", and after 20 seconds adds "The first start takes longest".
 
-## Alpha 0.53.12 — 21 Nov 2026
+## Alpha 0.53.12 — 2026-11-21
 - **Playback bar: every button is back.** Pause, Next, Restart, Stop, Guide, Sources, Audio & subs and Options all sit on the bar again, in the new thin dark style. Nothing is hidden behind a More… list.
 
-## Alpha 0.53.11 — 21 Nov 2026
+## Alpha 0.53.11 — 2026-11-21
 From the UI review of 0.53.8.
 - **Playback bar.** A thin dark bar over a bottom fade instead of the blue slab: channel number, title and episode on the left, what is next on live channels as a quiet line on the right, progress and time below. Four buttons only: Pause (first), Next, Audio & subs (when the file has tracks) and More…, which lists Restart, Stop, TV Guide, On Demand, Sources (Experimental) and Options. The poster sits inside the bar, and the mini guide appears only when you press Up from the progress line.
 - **Guide.** Episode codes written as "S15 E03" or "S15 Ep 3" are now split off the title so cells show the show name and the episode in full. Seasonal snow falls behind the text. Toasts show at the bottom while the guide or On Demand is open (the clock is no longer covered).
 - **On Demand.** The left rail is wider with larger icons, and the focused item shows its name. The key hints sit higher, clear of the screen edge. A card whose next programme is the same show reads "more <show>" instead of repeating it.
 
-## Alpha 0.53.10 — 21 Nov 2026
+## Alpha 0.53.10 — 2026-11-21
 - **Start-up waits for every channel.** The loading screen now stays up until all channels have loaded into the guide, then the guide opens complete, instead of opening early and stalling while the rest filled in. A 60 second limit remains only for a connection that never answers; the guide then opens on what is ready and tunes to your last channel as soon as it is. This replaces the early open from 0.53.1.
 
-## Alpha 0.53.9 — 21 Nov 2026
+## Alpha 0.53.9 — 2026-11-21
 - **My list and Favourites are now one thing in On Demand.** The My list row is gone from the home page. Hold OK on any title and choose *Add to favourites* (on a show's page the button reads ☆ Favourite). The ★ Favourites screen in the rail shows both: favourite channels as live cards, favourite shows as a poster row, then the shows of the focused channel. Hold OK on a show there to play, open or remove it. Shows saved earlier on My list carry over.
 
-## Alpha 0.53.8 — 21 Nov 2026
+## Alpha 0.53.8 — 2026-11-21
 - **Favourites screen.** On Demand's left rail has a ★ Favourites item between Browse and Guide. It shows your favourite channels as cards (what is on now, progress, what is next) and, below, the shows of the channel in focus. OK watches live; hold OK offers Watch live, Open in On Demand and Remove from favourites. With none chosen it explains how to add one and offers Open Browse or Open the Guide.
 - The first time the guide opens with no favourites, a toast says how to add one (once only). Toasts now read "Added … to Favourites" and "Removed … from Favourites".
 
-## Alpha 0.53.7 — 21 Nov 2026
+## Alpha 0.53.7 — 2026-11-21
 Following the design reply on 0.53.0 to 0.53.6.
 - **Favourite channels in On Demand.** Favourite channels come first in the On now row with a ★. Browse lists them first with a ★, has a *★ Favourites* chip that shows only them, and hold OK on a channel adds or removes it. Titles go on My list only.
 - **Title menu.** Hold OK on a title now shows at most five items: Resume or Play, Remove from Continue watching (only in that row), My list, Info, More… (Search, Fix artwork, Options, Hide). Focus starts on the first item. Removing a title keeps the highlight on the next card, and a show removed while it plays is not put straight back.
 - **Badges.** The certificate shows on every card; the decade only in Browse and search results; phones show the certificate only.
 - **Playback.** The next-episode card reads "Next in N s" with "OK plays now, Back stays", and hides while the bar or mini guide is open. "Are you still watching?" is now a centred prompt with Keep watching (default) and Stop, and stops on its own after 5 minutes with no key.
 
-## Alpha 0.53.6 — 21 Nov 2026
+## Alpha 0.53.6 — 2026-11-21
 - **On Demand: next episode and "Are you still watching?"** In the last 12 seconds of an On Demand episode a card names what plays next (OK plays it now, Back hides the card). After 3 episodes in a row, or 90 minutes, with no key pressed, playback pauses and asks before the next one (OK carries on, Back returns to On Demand). Live channels are not affected.
 
-## Alpha 0.53.5 — 21 Nov 2026
+## Alpha 0.53.5 — 2026-11-21
 - **Guide programme menu.** Hold OK on a programme now offers *Episodes* (opens the show in On Demand), *Watch from the start*, *Add to My list* and *Add to favourites* near the top.
 
-## Alpha 0.53.4 — 21 Nov 2026
+## Alpha 0.53.4 — 2026-11-21
 - **Badges on On Demand cards.** Show posters carry the age certificate (top left) and the decade, such as 80s (top right). They come from the index, so they appear as soon as the row does.
 
-## Alpha 0.53.3 — 21 Nov 2026
+## Alpha 0.53.3 — 2026-11-21
 - **Favourites.** Hold OK (or Info) on a guide channel and choose *Add to favourites*. Favourites show a ★ in the guide. *Show favourites only* trims the guide to them (the header reads ★ Favourites); channel surfing and digits still reach every channel. Saved across restarts.
 
 ## Alpha 0.53.2 — 2026-11-21

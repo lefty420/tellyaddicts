@@ -604,6 +604,7 @@
           if (t) p.title = t;
           if (d.a) p.aired = d.a;
           if (d.l > 60) { p.dur = d.l; p.lenKnown = 1; }
+          if (d.shorts) p.shorts = 1;          // a Disney short: no season or episode, no series art, no TVmaze lookups
           if (d.film) { p.filmKey = keepFilm(d); p.cert = d.cert || ''; }   // TMDb details, and the certificate
         }
         out.push(p);
@@ -1442,7 +1443,7 @@
     return !!FILM_NAMES[normShow(n)];
   }
   function knownArt(prog) {
-    if (!gartOn || !prog || prog.ad) return null;
+    if (!gartOn || !prog || prog.ad || prog.shorts) return null;
     var film = filmFor(prog);
     var p = parseTitle(prog.title || '');
     if (prog.show) p.show = prog.show;
@@ -2062,7 +2063,7 @@
     var by = {}, out = progs.slice();
     progs.forEach(function (p) {
       var ref = window.LINKS && LINKS.parseEp(p.title), nm = gmName(p);
-      if (!ref || !nm || p.ad || p.adBlock || p.song || p.filmKey || p.addon) return;
+      if (!ref || !nm || p.ad || p.adBlock || p.song || p.filmKey || p.addon || p.shorts) return;
       var k = normShow(nm), g = by[k] = by[k] || { name: nm, have: {}, durs: [] };
       g.have[ref.s + ':' + ref.e] = 1; if (p.dur > 600) g.durs.push(p.dur);
     });
@@ -2108,7 +2109,7 @@
     var seen = {}, todo = [];
     channels.forEach(function (c) { (c.plan || []).forEach(function (p) {
       var nm = gmName(p), ref = window.LINKS && LINKS.parseEp(p.title);
-      if (!nm || !ref || p.ad || p.adBlock || p.song || p.filmKey) return;
+      if (!nm || !ref || p.ad || p.adBlock || p.song || p.filmKey || p.shorts) return;
       var k = normShow(nm); if (seen[k]) return; seen[k] = 1;
       var c0 = store.get('epl1:' + k);
       if (c0 && Date.now() - c0.t < (c0.d ? 30 : 3) * 86400000) return;
@@ -2167,14 +2168,14 @@
     if (!rwOn || !sched || !sched.order || !window.LINKS) return;
     var by = {};
     progs.forEach(function (p) {
-      if (p.ad || p.adBlock || p.song || p.filmKey) return;
+      if (p.ad || p.adBlock || p.song || p.filmKey || p.shorts) return;
       var ref = LINKS.parseEp(p.title); if (!ref || !(ref.s > 0)) return;
       var k = normShow(gmName(p)), g = by[k] = by[k] || { eps: [], seen: {} }, id = ref.s + ':' + ref.e;
       if (!g.seen[id]) { g.seen[id] = 1; g.eps.push({ p: p, s: +ref.s, e: +ref.e }); }
     });
     var slots = {}, st = {};
     sched.order.forEach(function (p, i) {
-      if (p.ad || p.adBlock || p.song || p.filmKey) return;
+      if (p.ad || p.adBlock || p.song || p.filmKey || p.shorts) return;
       var ref = LINKS.parseEp(p.title); if (!ref || !(ref.s > 0)) return;
       var k = normShow(gmName(p)); if (by[k] && by[k].eps.length > 1) (slots[k] = slots[k] || []).push(i);
     });
@@ -4326,7 +4327,7 @@
     var b = E.blockAt(c.sched, gFocus);
     if (!b || !b.prog) return;
     var favItems = [
-      { t: isFav(c) ? 'Remove from favourites' : 'Add to favourites', sub: c.n + '  ' + c.name, f: function () { gmClose(); favToggle(c); } },
+      { t: isFav(c) ? 'Remove channel from favourites' : 'Add channel to favourites', sub: c.n + '  ' + c.name, f: function () { gmClose(); favToggle(c); } },
       { t: favOnly ? 'Show all channels' : 'Show favourites only', sub: favs.length ? favs.length + ' favourite channel' + (favs.length > 1 ? 's' : '') : 'None chosen yet', f: function () { gmClose(); favFilter(); } }
     ];
     var p = b.prog, name = gmName(p), now = Date.now(), live = b.startMs <= now && now < b.endMs;
@@ -4358,15 +4359,17 @@
       dlog('REPORT (menu) ch ' + c.n + ' ' + c.name + ' | ' + (p.title || '') + ' | show: ' + name + ' | item: ' + String(p.id || '').split('/')[0] + ' | file: ' + decodeURIComponent(String(p.url || '').replace('https://archive.org/download/', '')));
       toast('Noted in the debug log', 2500);
     } });
-    // the rarely used actions go behind one entry, so what is used most stays on the first screen
-    var rare = items.filter(function (x) { return /^(Fix artwork|Hide this|Report a problem)/.test(x.t); });
-    items = items.filter(function (x) { return rare.indexOf(x) < 0; });
+    // five items at most on the first screen; everything else sits under More...
+    var TOPS = /^(Watch from the start|Episodes|Add show to|Remove show from|Add channel to|Remove channel from)/;
+    var first = items.filter(function (x) { return TOPS.test(x.t); }), rest = items.filter(function (x) { return !TOPS.test(x.t); });
+    first.sort(function (x, y) { function r(t) { return /^Watch/.test(t) ? 0 : /^Episodes/.test(t) ? 1 : /show/.test(t) ? 2 : 3; } return r(x.t) - r(y.t); });
     var top = { title: name, sub: c.n + '  ' + c.name };
-    items.push({ t: 'More\u2026', sub: 'Fix artwork, hide this ' + (film ? 'film' : 'show') + ', report a problem', f: function () {
-      gm = { items: rare, i: 0, title: name, sub: 'More', parent: gm };
+    optsLast(rest);
+    items = first;
+    items.push({ t: 'More\u2026', sub: 'Channel schedule, Info, Teletext and more', f: function () {
+      gm = { items: rest, i: 0, title: name, sub: 'More', parent: gm };
       gmRender();
     } });
-    optsLast(items);
     gm = { items: items, i: 0, title: top.title, sub: top.sub };
     gmRender();
   }
@@ -6876,7 +6879,7 @@
   function odPad(n) { return n < 10 ? '0' + n : String(n); }
   function odEpLabel(p, ref) {
     var m = /^(.*?)\s+S\d{1,4}[ED]\d{1,3}\b\s*(.*)$/i.exec(p.title || '');
-    if (ref && m) return 'E' + odPad(ref.e) + (m[2] ? '   ' + m[2] : '');
+    if (!p.shorts && ref && m) return 'E' + odPad(ref.e) + (m[2] ? '   ' + m[2] : '');
     return p.title || '';
   }
   /** A flat card colour for a show with no picture: the same name always gets the same colour. */
@@ -6960,7 +6963,7 @@
     var otherYt = [];
     g.eps.forEach(function (ep) { if (ep.s > 0) (by[ep.s] = by[ep.s] || []).push(ep); else if (ep.p.yt) otherYt.push(ep); else other.push(ep); });
     Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (n) { list.push({ name: n >= 1900 ? String(n) : 'Season ' + n, eps: by[n] }); });
-    if (other.length) list.push({ name: list.length ? 'Other videos' : 'Videos', eps: other });
+    if (other.length) list.push({ name: list.length ? 'Other videos' : g.shorts ? 'Shorts' : 'Videos', eps: other });
     if (otherYt.length) list.push({ name: 'More from YouTube', eps: otherYt });
     var per = {};
     g.eps.forEach(function (ep) { var m = /\/download\/([^/]+)\//.exec(ep.p.url || ''); ep.item = m ? m[1] : ''; if (ep.item) per[ep.item] = (per[ep.item] || 0) + 1; });
@@ -7033,6 +7036,7 @@
                String(a.label).localeCompare(String(b.label), undefined, { numeric: true, sensitivity: 'base' });
       });
       g.film = !!films || !!(g.eps[0] && g.eps[0].p.filmKey);
+      g.shorts = !g.film && g.eps.length > 0 && g.eps.every(function (e) { return e.p.shorts; });
       odSeasons(g);
     });
     return shows;
@@ -7043,7 +7047,7 @@
   // heavy steps (virtualFill, odGroup) run for one show when its page is opened (odHydrate), never for a whole channel.
   var odiJobs = {}, odiMem = {}, odRaw = {}, odRawOrder = [];
   function odRevOf(id) { return (libRevs && libRevs[id]) || (dataRevs && dataRevs[id]) || ''; }
-  function odiSig() { return E.hash(['1', depgActive() ? 'm' : '', adCut ? 'c' : '', ukOn ? ukRev : '', removedRev, filmdbRev, artRev, BAD_SALT, E.hash(Object.keys(hid).sort().join(','))].join('.')).toString(36); }
+  function odiSig() { return E.hash(['2', depgActive() ? 'm' : '', adCut ? 'c' : '', ukOn ? ukRev : '', removedRev, filmdbRev, artRev, BAD_SALT, E.hash(Object.keys(hid).sort().join(','))].join('.')).toString(36); }
   function odiKey(id) { var r = odRevOf(id); return r ? 'odi1:' + id + ':' + r + ':' + odiSig() : ''; }
   /** Whether a channel's rows are saved for this library revision (without reading them). */
   function odiHas(id) { var key = odiKey(id), m = odiMem[id]; return !!((m && m.key === key) || (key && KV_NATIVE && kvNative()[key])); }
@@ -7107,6 +7111,7 @@
         if (!r) { r = by[k] = { n: nm, ix: [], ne: 0, ses: {}, y: 0 }; rows.push(r); }
         if (p._ix >= 0) { if (r.ix.indexOf(p._ix) < 0) r.ix.push(p._ix); } else if (p._ix === -1) r.yt = 1; else if (p.virtual) r.v = 1;
         r.ne++;
+        if (p.shorts) r.sh = 1;
         if (p.filmKey) { r.f = 1; r.k = r.k || p.filmKey; }
         if (p.cert && !r.c) r.c = String(p.cert);
         var ref = window.LINKS && LINKS.parseEp(p.title); if (ref && ref.s > 0) r.ses[ref.s] = 1;
@@ -7116,7 +7121,7 @@
         r.ns = Object.keys(r.ses).length; delete r.ses; r.s = odSlug(r.n);
         if (r.f) { delete r.yt; if (r.v) delete r.ix; } else { r.f = 0; }
         if (!r.ix || !r.ix.length) delete r.ix;
-        var a = !r.f && odiArt(r.n); if (a) { if (a.p) r.p = a.p; if (a.b) r.b = a.b; if (a.l) r.l = a.l; }
+        var a = !r.f && !r.sh && odiArt(r.n); if (a) { if (a.p) r.p = a.p; if (a.b) r.b = a.b; if (a.l) r.l = a.l; }
       });
       rows.sort(function (a, b) { var x = LIBROUTE.norm(a.n), y = LIBROUTE.norm(b.n); return x < y ? -1 : x > y ? 1 : 0; });
       odiKeep(ch.id, rows);
@@ -7136,9 +7141,9 @@
   /** A row of the index as a show that has no episodes yet: enough to draw its card, the hero and Browse. */
   function odiStub(r, ch) {
     var g = { name: r.n, chan: ch, film: !!r.f, eps: [], sea: [], flat: [], stub: true, ix: r.ix || null, k: r.k || '', virt: !!r.v, yt: !!r.yt,
-              nEps: r.ne || 0, nSea: r.ns || 0, cert: r.c || '', yr: r.y || 0, il: r.l || '' };
+              shorts: !!r.sh, nEps: r.ne || 0, nSea: r.ns || 0, cert: r.c || '', yr: r.y || 0, il: r.l || '' };
     if (r.f) g.eps = [{ p: { filmKey: r.k, title: r.n, show: '', cert: r.c || '', aired: r.y ? String(r.y) : '' }, s: 0, e: 0 }];
-    else if (r.p || r.b) { g._k = { poster: https(r.p || ''), back: https(r.b || '') }; g._kg = odKGen; }
+    else if (!r.sh && (r.p || r.b)) { g._k = { poster: https(r.p || ''), back: https(r.b || '') }; g._kg = odKGen; }
     return g;
   }
   /** Put a show's episodes, seasons and copies together, for this one show: what opening its page needs. */
@@ -7157,7 +7162,7 @@
       var h = odGroup(all, films).filter(function (x) { return LIBROUTE.norm(x.name) === key; })[0];
       g._hp = null;
       if (!h || !h.eps.length) throw new Error('no episodes found for ' + g.name);
-      g.eps = h.eps; g.sea = h.sea; g.flat = h.flat; g.film = h.film; g.stub = false; g.ix = null;
+      g.eps = h.eps; g.sea = h.sea; g.flat = h.flat; g.film = h.film; g.shorts = h.shorts; g.stub = false; g.ix = null;
       return g;
     }, function (e) { g._hp = null; throw e; }));
   }
@@ -7475,6 +7480,7 @@
   var odKGen = 0;       // bumped whenever artwork is chosen, so remembered pictures are looked up again
   function odKnown(g) {
     if (!g) return null;
+    if (g.shorts) return null;         // a short's card is the generated title card, never a series' art
     if (g._k && g._kg === odKGen) return g._k;
     var k = knownArt(g.film ? g.eps[0].p : { title: g.name, show: g.name });
     if (k && (k.poster || k.back)) { g._k = k; g._kg = odKGen; }     // only a found picture is remembered; a missing one is asked again
@@ -7542,9 +7548,9 @@
   var odT1 = 0, odT0 = 0, odT0Warm = false;      // when On Demand was pressed, and whether its rows were already saved (for the debug line)
   function odRender() {
     $('odload').className = odOpen && odBusy ? '' : 'hidden';      // never for the home page: it draws at once and the rows fill in
-    $('od').classList.toggle('railfocus', odZn === 'rail' && (odView === 'home' || odView === 'fav'));
+    $('od').classList.toggle('railfocus', odZn === 'rail' && (odView === 'home' || odView === 'fav' || odView === 'grid'));
     odRenderBar();
-    $('odbar').style.display = odView === 'home' ? '' : 'none'; $('odside').style.display = odView === 'home' || odView === 'fav' ? '' : 'none';
+    $('odbar').style.display = odView === 'home' ? '' : 'none'; $('odside').style.display = odView === 'home' || odView === 'fav' || odView === 'grid' ? '' : 'none';
     if (odView === 'show') odRenderShow(); else if (odView === 'grid') odRenderGrid(); else if (odView === 'fav') odRenderFav(); else odRenderHome();
     var nm = odView === 'home' && odNone;
     $('odnomatch').className = nm ? '' : 'hidden'; $('odrows').style.visibility = $('odhero').style.visibility = nm ? 'hidden' : '';
@@ -7553,6 +7559,7 @@
       $('odnomatch').children[1].className = 'odb' + (odNoneI === 0 ? ' sel' : ''); $('odnomatch').children[2].className = 'odb' + (odNoneI === 1 ? ' sel' : '');
     }
     var hint = odView === 'show' ? [['\u25b2 \u25bc', 'Move'], ['\u25c0 \u25b6', 'Choose'], ['OK', 'Select / Play'], ['Hold OK', 'More'], ['Back', 'Back']]
+      : odView === 'grid' && odGz === 'rail' ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Open'], ['Back', 'Close']]
       : odView === 'grid' ? [['\u25b2 \u25bc \u25c0 \u25b6', 'Move'], ['OK', 'Open'], ['Back', 'Home']]
       : odView === 'fav' && odFz === 'rail' ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Open'], ['Back', 'Close']]
       : odView === 'fav' ? (odFavList().length ? [['OK', 'Watch live'], ['Hold OK', 'Menu'], ['\u25b2 \u25bc \u25c0 \u25b6', 'Move'], ['Back', 'Home']] : [['\u25c0 \u25b6', 'Choose'], ['OK', 'Select'], ['Back', 'Home']])
@@ -8074,7 +8081,7 @@
   }
   // ---- Browse: the channels down the left, the shows as a grid of posters, Sort / Decade / Hide watched across the top
   var odGz = 'list', odGl = 0, odGci = 0, odGs = 0, odGd = 0, odGh = false, odGp = 0, odGlist = null, odGKey = '';
-  var OD_SORTS = ['A–Z', 'Newest first', 'Oldest first'], OD_DECS = ['Any decade', '1970s', '1980s', '1990s'], OD_GCOLS = 6, OD_GROWS = 3;
+  var OD_SORTS = ['A–Z', 'Newest first', 'Oldest first'], OD_DECS = ['Any decade', '1970s', '1980s', '1990s'], OD_GCOLS = 6, OD_GROWS = 2;
   function odYear(g) {
     if (g._yr !== undefined && g._yg === odKGen) return g._yr;
     var y = 0;
@@ -8115,6 +8122,8 @@
     odSetView('grid');
     odGridLoad();
     odRender();
+    var rest = odGridChans().slice();          // every channel's count shows, so load the others in turn
+    (function next() { var c = rest.shift(); if (!c || !odOpen || odView !== 'grid') return; odLoadChannel(c).then(function () { if (odOpen && odView === 'grid') odRender(); setTimeout(next, 30); }, function () { setTimeout(next, 30); }); })();
   }
   function odGridLoad() {
     var c = odGridChans()[odGl]; if (!c) return;
@@ -8126,7 +8135,7 @@
     var top = Math.max(0, Math.min(odGl - 4, cs.length - 10));
     for (var i = top; i < Math.min(cs.length, top + 10); i++) {
       var r = odData[cs[i].id], it = odEl('div', 'ogli' + (i === odGl ? ' on' : '') + (i === odGl && odGz === 'list' ? ' sel' : ''), (isFav(cs[i]) ? '\u2605 ' : '') + cs[i].name);
-      if (r && r.shows) it.appendChild(odEl('small', '', String(r.shows.length)));
+      it.appendChild(odEl('small', '', r && r.shows ? String(r.shows.length) : '\u2022'));
       gl.appendChild(it);
     }
     var cc = $('ogc'); cc.textContent = '';
@@ -8143,8 +8152,16 @@
   function odKeyGrid(k) {
     var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ';
     var cs = odGridChans(), sh = odGShows(), n = sh ? sh.length : 0;
+    if (odGz === 'rail') {
+      if (k === 'ArrowUp') odRailI = Math.max(0, odRailI - 1);
+      else if (k === 'ArrowDown') odRailI = Math.min(OD_RAIL.length - 1, odRailI + 1);
+      else if (k === 'ArrowRight' || back) { odGz = 'list'; odZn = 'rows'; }
+      else if (ok) { odGz = 'list'; odZn = 'rows'; odRailGo(odRailI); return true; }
+      odRender(); return true;
+    }
     if (back) { odSetView('home'); odZn = 'rows'; odRender(); return true; }
     if (odGz === 'list') {
+      if (k === 'ArrowLeft') { odGz = 'rail'; odZn = 'rail'; odRailI = 1; odRender(); return true; }
       if (k === 'ArrowUp') { if (odGl > 0) { odGl--; odGp = 0; odGridLoad(); } else odGz = 'chips'; }
       else if (k === 'ArrowDown') { if (odGl < cs.length - 1) { odGl++; odGp = 0; odGridLoad(); } }
       else if (k === 'ArrowRight' || ok) odGz = 'grid';

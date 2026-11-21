@@ -1,75 +1,82 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.2",
-  "version": "0.53.2",
-  "code": 5302,
+  "name": "Alpha 0.53.14",
+  "version": "0.53.14",
+  "code": 5314,
   "date": "2026-11-21",
   "notes": [
-    "Mini guide: the bar that comes up with OK over a channel now has a list above it: this channel and the ones either side of it (higher numbers above, as Up moves), each with what is on now and what is next. Press Up from the progress line to move into it, Up and Down to choose, OK to tune to that channel (the bar closes) and Down to come back. Up and Down on the remote still change channel at once, as before. Not shown on On Demand programmes, adverts or the phone."
+    "**Browse**: cards are 2:3, the \"1 of N\" counter sits at the right end of the hint bar so it no longer collides with it, every channel shows its show count (they load in turn), and Left from the list reaches the rail.",
+    "**Guide hold-OK menu** now has five items: Watch from the start, Episodes, Add show to favourites, Add channel to favourites, More... Channel schedule, Show favourites only, Info, Teletext and the rest are under More...",
+    "**Options** list fades at the foot so it is clear that it scrolls.",
+    "**Version label** now reads the current version (the changelog dates were in a format the version tool skipped, so the app said 0.53.2).",
+    "**Disney shorts**: a show flagged `shorts` in the library is a plain list of shorts with no season or episode labels, no series art or TVmaze lookups, and a generated title card. Needs a scraper rebuild, then Sync episode meta and Send to TV app."
   ],
   "history": [
     {
-      "name": "Alpha 0.53.1",
+      "name": "Alpha 0.53.13",
       "date": "2026-11-21",
       "notes": [
-        "Faster start: the guide no longer waits up to 10 s for every channel. It opens as soon as the channel that was on last is ready (waiting at most 5 s for it) and the rest fill in behind. If that channel is slower than 5 s, the guide opens on what is ready and the app tunes to the last channel by itself the moment it is ready, unless a key has been pressed in the meantime."
+        "**Playback bar** is shorter: the poster stub is smaller, the time sits at the end of the progress line, padding is tighter. The lettered placeholder poster is gone (the title moves left when there is no real picture). Pause carries an amber tint so it reads as the main button.",
+        "**Rail** focus dims the page behind its label. Favourites now has the rail too (Left from the first item), so it is not a dead end.",
+        "**Favourites** shows two rows: Channels, then Shows. The \"On <channel>\" row is gone (use Open in On Demand from a channel's menu). The empty-state text wraps in balanced lines.",
+        "**Guide:** titles such as \"The Bill (1983) S11 DVD Rip\" or \"The Bill (1983) - S15E067 - …\" now show \"The Bill\" with \"S11\" or \"S15 E067\" under it. The snow no longer falls over the header, the programme title or the grid; it stays in the margins, beside the little TV and along the foot.",
+        "**Loading screen** reads \"Loading channels 12 of 31\", and after 20 seconds adds \"The first start takes longest\"."
       ]
     },
     {
-      "name": "Alpha 0.53.0",
+      "name": "Alpha 0.53.12",
       "date": "2026-11-21",
       "notes": [
-        "On Demand opens straight away. The \"Getting your shows ready…\" popup is gone from the home page, and nothing blocks the keys while rows fill in.",
-        "On Demand now has an index: one small row per show (name, slug, poster, logo, backdrop, certificate, year, episode and season counts), kept per channel under the library revision like the sorted lists, and built in the background after the guide is up. The home rows, the hero and Browse read only from it; opening the home page no longer loads a channel's list, fills in episodes or groups them.",
-        "A show's episodes, seasons and copies are put together (Magic EPG fill included) only when its page is opened, for that show alone. Compared with the old whole-channel build on 2,700 shows, the episodes, seasons and certificates are identical.",
-        "First run, or a new library revision: the chips, rail and hero draw at once and each row fills in as its channel is indexed (placeholder posters, no popup).",
-        "The debug log now says how long it took from pressing On Demand to the first row (ONDEMAND: first row drawn … ms, warm start or index being built).",
-        "Still shown: the short wait when On Demand opens straight onto the show that is playing."
+        "**Playback bar: every button is back.** Pause, Next, Restart, Stop, Guide, Sources, Audio & subs and Options all sit on the bar again, in the new thin dark style. Nothing is hidden behind a More… list."
       ]
     },
     {
-      "name": "Alpha 0.52.11",
+      "name": "Alpha 0.53.11",
       "date": "2026-11-21",
       "notes": [
-        "Loading screens: Set in the room and Whole screen now use the classic TV style (its brown cabinet and grey knobs, the green channel number and tuning scale) at the larger size. The aerials, wood cabinet, ribbed knobs and the big white TUNING / READY word are gone.",
-        "The Please stand by TV tunes again like the start-up one: green channel number and tuning scale with a sweeping needle on the glass, the knobs turning, and colour bars flashing now and then."
+        "**Playback bar.** A thin dark bar over a bottom fade instead of the blue slab: channel number, title and episode on the left, what is next on live channels as a quiet line on the right, progress and time below. Four buttons only: Pause (first), Next, Audio & subs (when the file has tracks) and More…, which lists Restart, Stop, TV Guide, On Demand, Sources (Experimental) and Options. The poster sits inside the bar, and the mini guide appears only when you press Up from the progress line.",
+        "**Guide.** Episode codes written as \"S15 E03\" or \"S15 Ep 3\" are now split off the title so cells show the show name and the episode in full. Seasonal snow falls behind the text. Toasts show at the bottom while the guide or On Demand is open (the clock is no longer covered).",
+        "**On Demand.** The left rail is wider with larger icons, and the focused item shows its name. The key hints sit higher, clear of the screen edge. A card whose next programme is the same show reads \"more <show>\" instead of repeating it."
       ]
     },
     {
-      "name": "Alpha 0.52.10",
+      "name": "Alpha 0.53.10",
       "date": "2026-11-21",
       "notes": [
-        "VHS, VHS OLED and VHS 2: live-action video could drift out of step with the sound because the colour filter made the TV drop frames. The check now reacts sooner (a few dropped frames, every 3 seconds) and, when it fires, takes the whole filter off the video, not only the blur. The scan lines stay."
+        "**Start-up waits for every channel.** The loading screen now stays up until all channels have loaded into the guide, then the guide opens complete, instead of opening early and stalling while the rest filled in. A 60 second limit remains only for a connection that never answers; the guide then opens on what is ready and tunes to your last channel as soon as it is. This replaces the early open from 0.53.1."
       ]
     },
     {
-      "name": "Alpha 0.52.9",
+      "name": "Alpha 0.53.9",
       "date": "2026-11-21",
       "notes": [
-        "Fixed: the app would not get past the loading screen (stuck on \"Opening the guide\"). Release 0.52.4 removed a helper by mistake. 0.52.4 to 0.52.8 are affected, so update to this one."
+        "**My list and Favourites are now one thing in On Demand.** The My list row is gone from the home page. Hold OK on any title and choose *Add to favourites* (on a show's page the button reads ☆ Favourite). The ★ Favourites screen in the rail shows both: favourite channels as live cards, favourite shows as a poster row, then the shows of the focused channel. Hold OK on a show there to play, open or remove it. Shows saved earlier on My list carry over."
       ]
     },
     {
-      "name": "Alpha 0.52.8",
+      "name": "Alpha 0.53.8",
       "date": "2026-11-21",
       "notes": [
-        "Loading screens, from the design review: (1) in Whole screen the \"Please stand by\" plate now grows with its words, so the last line is no longer on its edge; (2) in Set in the room the start-up TV's aerials no longer poke through the logo; (3) while a programme is being found the last line steps through what is happening (Scraping your debrid / Found a source, starting / Playing the library copy / Found it on archive.org) and after 8 seconds shows how long it has been; (4) the start-up TV says READY and \"Opening the guide…\" once every channel has answered, instead of sitting on \"TUNING 31 / 31\"."
+        "**Favourites screen.** On Demand's left rail has a ★ Favourites item between Browse and Guide. It shows your favourite channels as cards (what is on now, progress, what is next) and, below, the shows of the channel in focus. OK watches live; hold OK offers Watch live, Open in On Demand and Remove from favourites. With none chosen it explains how to add one and offers Open Browse or Open the Guide.",
+        "The first time the guide opens with no favourites, a toast says how to add one (once only). Toasts now read \"Added … to Favourites\" and \"Removed … from Favourites\"."
       ]
     },
     {
-      "name": "Alpha 0.52.7",
+      "name": "Alpha 0.53.7",
       "date": "2026-11-21",
       "notes": [
-        "Debug > Live view now remembers it is on: if it was on when the app last ran it starts again by itself at launch (it retries for 40 s while the home network comes up), and stays off once you switch it off. With Open debug address on, the address is the same every time, so no code to type."
+        "**Favourite channels in On Demand.** Favourite channels come first in the On now row with a ★. Browse lists them first with a ★, has a *★ Favourites* chip that shows only them, and hold OK on a channel adds or removes it. Titles go on My list only.",
+        "**Title menu.** Hold OK on a title now shows at most five items: Resume or Play, Remove from Continue watching (only in that row), My list, Info, More… (Search, Fix artwork, Options, Hide). Focus starts on the first item. Removing a title keeps the highlight on the next card, and a show removed while it plays is not put straight back.",
+        "**Badges.** The certificate shows on every card; the decade only in Browse and search results; phones show the certificate only.",
+        "**Playback.** The next-episode card reads \"Next in N s\" with \"OK plays now, Back stays\", and hides while the bar or mini guide is open. \"Are you still watching?\" is now a centred prompt with Keep watching (default) and Stop, and stops on its own after 5 minutes with no key."
       ]
     },
     {
-      "name": "Alpha 0.52.6",
+      "name": "Alpha 0.53.6",
       "date": "2026-11-21",
       "notes": [
-        "On-screen display: a film, an episode and anything else now read the same way. The title line is the film or the show (no more raw \"S01E01\" codes), the line under it is year, certificate and length for a film or Series, Episode and the episode's name for an episode, and the addon's name is no longer repeated (the badge already says it). A picture tile is always on the left (the poster, or a coloured tile with the first letter until one is found), so the bar never changes shape. \"Next\" shows the show and its series and episode.",
-        "Seasonal snow: the flakes now come in a range of sizes in a 16-bit look, from single pixels up to big shaded snowflakes, near ones larger and quicker, far ones smaller and slower."
+        "**On Demand: next episode and \"Are you still watching?\"** In the last 12 seconds of an On Demand episode a card names what plays next (OK plays it now, Back hides the card). After 3 episodes in a row, or 90 minutes, with no key pressed, playback pauses and asks before the next one (OK carries on, Back returns to On Demand). Live channels are not affected."
       ]
     }
   ]

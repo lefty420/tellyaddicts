@@ -3183,7 +3183,7 @@
   function playSlot(ch, index, offset, announce, tuning, progOverride) {
     var prog = progOverride || ch.sched.order[index];   // progOverride: Play Next plays an episode that is not in the schedule
     if (prog.virtual && !depgActive()) { playSlot(ch, (index + 1) % ch.sched.order.length, 0, announce, tuning); return; }   // no addon to play it: on to the next
-    if (amMsg) { amMsg = false; toast('', 1); }                  // a new channel or programme: the old scraping message goes
+    if (amMsg) amNoteOff();                                      // a new channel or programme: the old scraping message goes
     if (amTake(ch, index, offset, announce, tuning, progOverride, prog)) return;
     cur = { ch: ch, index: index, prog: prog, errors: cur && cur.ch === ch ? cur.errors : 0 };
     v.dataset.offset = String(offset || 0);
@@ -3974,7 +3974,7 @@
     var now = Date.now();
     gChan = cur && list.indexOf(cur.ch) >= 0 ? cur.ch : list[0];
     gRow = Math.max(0, list.indexOf(gChan));
-    gTop = Math.max(0, gRow - VISIBLE_ROWS + 1);
+    gTop = Math.max(0, Math.min(gRow, list.length - VISIBLE_ROWS));       // the channel that is on is the top row (the last screenful when it is near the end)
     gWin = floorHalf(now);
     gFocus = now;
     // Back to the picture and then back into the guide: it comes back exactly as it was left (same channel, rows and time), as long as
@@ -4521,11 +4521,12 @@
   // Experimental: the start-up TV in another look (CSS only, see #splash[data-ld] in index.html). Picked at each start; Classic is the default.
   var LD = [{ id: 'classic', label: 'Classic' }, { id: 'room', label: 'Set in the room' }, { id: 'full', label: 'Whole screen' }, { id: 'mix', label: 'Surprise me' }], ldIdx = 0;
   (function () { var id = store.get('ld1'); for (var i = 0; i < LD.length; i++) if (LD[i].id === id) ldIdx = i; })();
-  (function () {
+  function applyLd() {
     var t = expOn ? LD[ldIdx].id : 'classic';
     if (t === 'mix') t = Math.random() < 0.5 ? 'room' : 'full';
     var sp = $('splash'); if (sp) sp.setAttribute('data-ld', t);
-  })();
+  }
+  applyLd();
   // Experimental: Interface size. Every size in the page is a multiple of --u (1vh) and --uw (1vw), so one number scales it all.
   var UI = [{ id: 'small', label: 'Small', f: 0.92 }, { id: 'normal', label: 'Normal', f: 1 }, { id: 'large', label: 'Large', f: 1.08 }], uiIdx = 1, uiF = 1;
   (function () { var id = store.get('ui1'); for (var i = 0; i < UI.length; i++) if (UI[i].id === id) uiIdx = i; })();
@@ -4547,8 +4548,8 @@
     if (!expOn) { toast('Turn Experimental on first', 3000); return; }
     ldIdx = (ldIdx + (d < 0 ? -1 : 1) + LD.length) % LD.length;
     store.set('ld1', LD[ldIdx].id);
-    renderOpts();
-    toast('Loading screen: ' + LD[ldIdx].label + '. You will see it the next time the app starts.', 3000);
+    applyLd(); renderOpts();
+    toast('Loading screen: ' + LD[ldIdx].label + '. Every loading screen uses it.', 3000);
   }
   var adLang = store.get('adlang1') || 'en';                 // audio language: en = skip links that say they are in another language, any = take everything
   var adHist = store.get('adhist1') || [];                  // sources that worked, newest first, so a title can start again at once
@@ -4955,6 +4956,22 @@
   // ---- Use addons as a main source (Options > Experimental): every programme with an episode number, and every film,
   // is first looked up with the addons and played from the best link; the library's own link is the fallback.
   var amOn = store.get('am1') === 'on', amSkip = false, amPre = null, amMsg = false;   // amMsg: the 'Scraping your debrid' message is on screen
+  // The start-up loading screen (the TV with the pictures, in whichever look is chosen) also shows while a programme is being found,
+  // with what is happening written on it, in place of a message along the bottom.
+  var amSplash = false, amSplashT = 0;
+  function amNote(msg) {
+    amMsg = true;
+    if (!started) { toast(msg, 15000); return; }
+    try { spInit(); } catch (e) { /* no pictures */ }
+    var sm = $('spmsg'); if (sm) sm.textContent = msg;
+    $('splash').className = 'busy'; amSplash = true;
+    clearTimeout(amSplashT); amSplashT = setTimeout(function () { amNoteOff(); }, 40000);      // never stays up
+  }
+  function amNoteOff() {
+    amMsg = false; clearTimeout(amSplashT);
+    if (amSplash) { amSplash = false; $('splash').className = 'hidden'; }
+    toast('', 1);
+  }
   function amActive() { return amOn && expOn && adLive().length > 0; }
   /** The title and episode to look up for a programme, or null when it is not an episode or a film. */
   function amReq(p) {
@@ -4999,6 +5016,7 @@
   /** A virtual episode no addon had: remember that, and go to the next programme (a real one after a few misses in a row). */
   function vMiss(ch, index, prog, announce) {
     var me = cur, skip = function () {
+      amNoteOff();
       markSlow(prog.id); vSkips++;
       dlog('MAGIC EPG: no source for ' + prog.title);
       toast('No source for ' + prog.title + ', moving on', 3000);
@@ -5009,7 +5027,7 @@
     // no addon had it: archive.org may (the same lookup Play Next uses, for this exact episode)
     var ref = window.LINKS && LINKS.parseEp(prog.title);
     if (!ref) { skip(); return; }
-    toast('No addon had it, trying archive.org\u2026', 15000);
+    amNote('No addon had it, trying archive.org\u2026');
     var k = LINKS.key(ref.show, ref.s, ref.e);
     var look = LINKS.get(k).then(function (hit) { return hit || searchAndSave(ref, '', k).then(function () { return LINKS.get(k); }); });
     Promise.race([look, new Promise(function (res) { setTimeout(function () { res(null); }, 25000); })]).then(function (hit) {
@@ -5019,7 +5037,7 @@
       probeUrl(url, 15000).then(function (ok) {
         if (cur !== me) return;
         if (!ok) { skip(); return; }
-        toast('', 1); vSkips = 0;
+        amNoteOff(); vSkips = 0;
         dlog('MAGIC EPG: archive.org link for ' + prog.title);
         amSkip = true;
         try { playSlot(ch, index, 0, announce, false, { id: hit.id || prog.id, item: hit.item || 'archive', url: url, title: prog.title, sub: '', dur: hit.dur || prog.dur, show: prog.show, group: prog.group, aired: prog.aired }); }
@@ -5031,7 +5049,7 @@
   function amFallback(lib, why) {
     var vp = lib.po || (lib.ch.sched && lib.ch.sched.order[lib.index]);
     if (vp && vp.virtual) { vMiss(lib.ch, lib.index, vp, !!lib.announce); return; }     // a Magic EPG episode has no library file: archive.org, else on
-    toast('', 1);
+    amNoteOff();
     dlog('ADDONS MAIN SOURCE: ' + why + ', playing the library link');
     amSkip = true;
     var od = lib.me && lib.me.od;
@@ -5052,9 +5070,8 @@
     var pre = amPre && amPre.k === adKeyOf(rq.g, rq.ep) ? amPre : null; amPre = null;
     var go = function (list) {
       if (cur !== me) return;                                  // the viewer changed channel while it was looking
-      amMsg = false;
       if (!list.length) { if (prog && prog.virtual) { vMiss(ch, index, prog, announce); return; } amFallback(lib, 'no source found'); return; }
-      toast('', 1);
+      amNoteOff();
       adFall = { ch: ch, g: rq.g, ep: rq.ep, q: list.slice(1), auto: 0, lib: lib };
       vSkips = 0;
       dlog('ADDONS MAIN SOURCE: ' + rq.g.name + ' | ' + list[0].addon);
@@ -5064,7 +5081,7 @@
       if (cur && cur.prog && cur.prog.addon) { if (me.od) cur.od = me.od; else cur.am = { ch: ch, index: index }; }
     };
     if (pre) { go(pre.list); return true; }
-    toast('Scraping your debrid…', 15000); amMsg = true;
+    amNote('Scraping your debrid\u2026');
     amScrape(rq.g, rq.ep).then(go, function () { go([]); });
     return true;
   }
@@ -5818,7 +5835,7 @@
   function optValue(id) {
     if (id === 'exp') return expOn ? 'On' : 'Off  \u00b7  turn on to use the dimmed rows';
     if (id === 'uisize') return expOn ? UI[uiIdx].label + (uiIdx === 1 ? '  \u00b7  as designed' : '') : 'Turn Experimental on first';
-    if (id === 'ldscr') return expOn ? LD[ldIdx].label + '  \u00b7  from the next start' : 'Turn Experimental on first';
+    if (id === 'ldscr') return expOn ? LD[ldIdx].label : 'Turn Experimental on first';
     if (id === 'addons') return addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'ammain') return amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
     if (id === 'depg') return depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';

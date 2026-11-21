@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.51.6",
-  "version": "0.51.6",
-  "code": 5106,
+  "name": "Alpha 0.52.0",
+  "version": "0.52.0",
+  "code": 5200,
   "date": "2026-11-21",
   "notes": [
-    "TV Guide snow: the drifts along the bottom no longer paint over the last row of the guide; they stay in the space under it."
+    "TV Guide: opening the guide puts the channel that is playing on the top row (it used to be on the bottom row), so you see what comes after it. Near the end of the list it shows the last screenful.",
+    "Finding a programme: \"Scraping your debrid…\" and \"No addon had it, trying archive.org…\" are now written on the loading screen with the pictures instead of a message along the bottom.",
+    "Options > Experimental > Loading screen now changes at once, and every loading screen (the start-up one and this one) uses the look you pick, Set in the room, Whole screen, Classic or Surprise me."
   ],
   "history": [
+    {
+      "name": "Alpha 0.51.6",
+      "date": "2026-11-21",
+      "notes": [
+        "TV Guide snow: the drifts along the bottom no longer paint over the last row of the guide; they stay in the space under it."
+      ]
+    },
     {
       "name": "Alpha 0.51.5",
       "date": "2026-11-21",
@@ -61,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-20",
       "notes": [
         "New in Options > Experimental: **Interface size** (Small, Normal, Large). Makes the whole app, guide, On Demand and Options included, about 8% smaller (room round the edges if your TV cuts them off) or 8% bigger (easier to read from the sofa). It changes at once, and Normal is exactly how it looked before. Needs Experimental on; turning Experimental off puts it back to Normal. Large shows slightly fewer guide rows."
-      ]
-    },
-    {
-      "name": "Alpha 0.50.9",
-      "date": "2026-11-20",
-      "notes": [
-        "New in Options > Experimental: **Loading screen**. Pick how the start-up TV looks: Classic (as before, the default), Set in the room (a bigger wooden set with rabbit ears over blurred artwork, a big TUNING on the glass), Whole screen (the picture is the TV, with the dials and tuning scale in a strip along the bottom), or Surprise me (one of the two new looks each start). It needs Experimental on and shows from the next start. Everything is drawn in screen-relative sizes, so it looks the same on 1080p and 4K."
       ]
     }
   ]

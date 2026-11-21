@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-21T18:08:03Z",
+ "updated": "2026-11-21T18:14:48Z",
  "channels": {
   "bbc": "24c32c04f5",
   "childrens": "db5d36bcdb",
@@ -58,10 +58,10 @@
   "xmasmovies": 57,
   "xmasmusic": 65
  },
- "library": "d1f25bbb43",
+ "library": "3b9e1d9481",
  "library_counts": {
   "shows": 815,
-  "episodes": 60370,
+  "episodes": 60164,
   "copies": 160154
  },
  "routes": "e6b4648097",

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.52.9",
-  "version": "0.52.9",
-  "code": 5209,
+  "name": "Alpha 0.52.10",
+  "version": "0.52.10",
+  "code": 5210,
   "date": "2026-11-21",
   "notes": [
-    "Fixed: the app would not get past the loading screen (stuck on \"Opening the guide\"). Release 0.52.4 removed a helper by mistake. 0.52.4 to 0.52.8 are affected, so update to this one."
+    "VHS, VHS OLED and VHS 2: live-action video could drift out of step with the sound because the colour filter made the TV drop frames. The check now reacts sooner (a few dropped frames, every 3 seconds) and, when it fires, takes the whole filter off the video, not only the blur. The scan lines stay."
   ],
   "history": [
+    {
+      "name": "Alpha 0.52.9",
+      "date": "2026-11-21",
+      "notes": [
+        "Fixed: the app would not get past the loading screen (stuck on \"Opening the guide\"). Release 0.52.4 removed a helper by mistake. 0.52.4 to 0.52.8 are affected, so update to this one."
+      ]
+    },
     {
       "name": "Alpha 0.52.8",
       "date": "2026-11-21",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "Loading a channel, episode or film now uses the Loading screen look you chose (Set in the room or Whole screen) for its \"Please stand by\" screen too, with the programme's picture on the glass or blurred behind the set. Classic keeps the old test-card screen."
-      ]
-    },
-    {
-      "name": "Alpha 0.52.1",
-      "date": "2026-11-21",
-      "notes": [
-        "Loading screen: the Classic TV no longer flashes up before the look you chose (Whole screen, Set in the room); the screen stays blank until the app has picked it."
       ]
     }
   ]

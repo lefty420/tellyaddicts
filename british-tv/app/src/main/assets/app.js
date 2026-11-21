@@ -5353,11 +5353,11 @@
       fxLast = { t: q.totalVideoFrames, d: q.droppedVideoFrames };
       if (!p || document.body.classList.contains('fx-lite')) return;
       var total = fxLast.t - p.t, dropped = fxLast.d - p.d;
-      if (total >= 60 && dropped / total > 0.2) {
+      if (total >= 45 && dropped / total > 0.05) {
         document.body.classList.add('fx-lite'); fxLiteCount++;
         dlog('VIDEO EFFECT lightened: ' + dropped + ' of ' + total + ' frames dropped with ' + FXLABEL[fxMode] + ' on  ' + String(v.currentSrc || '').split('/').slice(-2).join('/'));
       }
-    }, 4000);
+    }, 3000);
   }
   v.addEventListener('loadstart', function () { fxLast = null; if (fxLiteCount < 2) document.body.classList.remove('fx-lite'); });
   // VHS OLED: the VHS lines swap places with their gaps every ten minutes, so no row of an OLED panel is always the dimmed one.

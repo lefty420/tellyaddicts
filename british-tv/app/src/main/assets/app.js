@@ -8638,8 +8638,8 @@
   // ------------------------------------------------------------------ start up
 
   var bootedAt = Date.now();
-  var FIRST_WAIT = 5000;      // how long to hold the loading screen for the channel we want to open on (if it is later than that, the guide opens on what is ready and tunes to it as soon as it is, see lateTune)
-  var ALL_WAIT = 2500;        // ... and, once that one is ready, only this long (from launch) for the others: a start that has them saved finishes within it and opens complete; any other opens with the first rows and the rest fill in (built in the order of the guide)
+  var FIRST_WAIT = 60000;     // the loading screen stays until every channel has answered, so the guide opens complete and never stalls while channels fill in; this is only the safety limit for a connection that never answers (the guide then opens on what is ready and tunes to the last channel once it is, see lateTune)
+  var ALL_WAIT = 60000;       // ... the same limit for all the others
 
   var lateWant = null, landedAt = 0;
   /** The channel that was on last was not ready when the guide opened: tune to it as soon as it is, unless a key has been pressed since. */

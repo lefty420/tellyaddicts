@@ -1,14 +1,7 @@
 name: Build Telly Addicts APK
 
 on:
-  push:
-    branches: [main, master]
-    paths:
-      - "british-tv/**"
-      - "!british-tv/data/**"
-      - "CHANGELOG.md"
-      - "tools/make_version.py"
-      - ".github/workflows/build-british-tv.yml"
+  # The app is built on the Mac with the scraper's builder app, so a push no longer starts this; run it by hand when wanted.
   workflow_dispatch:
 
 jobs:

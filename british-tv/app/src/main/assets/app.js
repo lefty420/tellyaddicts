@@ -6190,10 +6190,15 @@
       var pn = $('opane'), rw = optsZone ? $('or-' + OPTS[optsSel]) : null;
       if (!rw) pn.scrollTop = 0;
       else if (rw.offsetHeight) {
+        // The chosen row opens up to show its choices, so the rows around it change height as the highlight moves. To stop the list
+        // jumping, the highlighted row is held at one place a little way down the panel (the list slides past it, one row a press),
+        // except near the top and bottom of the list, where it simply stops. The opened row is always kept whole inside the panel.
         var rt = rw.offsetTop, rb = rt + rw.offsetHeight, gap = Math.round(window.innerHeight * 0.02);
         var hd = $('or-' + cat.rows[0]).offsetTop;                  // where the rows start: under the heading, which stays put at the top
-        if (rb + gap > pn.scrollTop + pn.clientHeight) pn.scrollTop = rb + gap - pn.clientHeight;
-        if (rt - gap < pn.scrollTop + hd) pn.scrollTop = Math.max(0, rt - gap - hd);
+        var hold = Math.round(pn.clientHeight * 0.16), want = rt - hd - hold;
+        if (rb + gap - want > pn.clientHeight) want = rb + gap - pn.clientHeight;
+        want = Math.max(0, Math.min(want, pn.scrollHeight - pn.clientHeight));
+        if (pn.scrollTop !== want) pn.scrollTop = want;
       }
     }
     applyTheme(gChan || (cur && cur.ch));

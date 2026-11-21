@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.23",
-  "version": "0.53.23",
-  "code": 5323,
+  "name": "Alpha 0.53.24",
+  "version": "0.53.24",
+  "code": 5324,
   "date": "2026-11-21",
   "notes": [
-    "The snow cycle (drifts build, then Santa's plough clears them) is 45 seconds for now, so it can be watched. It goes back to 15 minutes later."
+    "**Options no longer jumps about**: the highlighted row opens up to show its choices, so the rows around it changed height with every press and the list scrolled in uneven jumps. The highlighted row is now held at one place a little way down the panel and the list slides past it a row at a time, stopping naturally at the top and bottom. The opened row is still kept whole inside the panel."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.23",
+      "date": "2026-11-21",
+      "notes": [
+        "The snow cycle (drifts build, then Santa's plough clears them) is 45 seconds for now, so it can be watched. It goes back to 15 minutes later."
+      ]
+    },
     {
       "name": "Alpha 0.53.22",
       "date": "2026-11-21",
@@ -62,15 +69,6 @@ window.RELEASE = {
       "notes": [
         "**Seasonal effects** has a third choice, **Test**, shown only with Experimental on: it forces the Christmas snow on out of season, so the build-up and the plough can be checked any time.",
         "The debug log records the free strip under the last guide row (`SNOW: free strip ...`), and says when it is too small for the plough."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.15",
-      "date": "2026-11-21",
-      "notes": [
-        "**Guide snow builds up**: the drifts under the last row start low and rise slowly over 15 minutes, a pixel at a time, running from app start so opening and closing the guide does not restart it.",
-        "**Santa's snow plough**: at the end of each cycle he drives a green plough across the screen in 12 seconds and the snow is cut away exactly at his blade. The cycle then starts again from low. With too little room under the last row the plough is skipped and the snow just clears.",
-        "The snow holds still while a hold-OK menu is open, and carries on when it closes."
       ]
     }
   ]

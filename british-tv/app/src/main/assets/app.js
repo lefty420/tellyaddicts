@@ -7446,6 +7446,8 @@
   var seenSet = null;
   function odSeenSet() { if (!seenSet) seenSet = store.get('seen1') || {}; return seenSet; }
   function odSeen(name) { var k = LIBROUTE.norm(name || ''), s = odSeenSet(); if (!k || s[k]) return; s[k] = 1; store.set('seen1', s); }
+  /** The name an On now card shows: a film channel's programmes are grouped under the channel's name, so a film shows by its own title. */
+  function odOnName(p) { var f = p && p.filmKey && filmFor(p); return f && f.title || (p && p.filmKey && p.title) || gmName(p) || (p && p.title) || ''; }
   /** What is on right now on every guide channel (from the same schedule the guide shows, so the watershed already applies). */
   var onSig = '';
   function odOnRow() {
@@ -7454,9 +7456,9 @@
       if (c.status !== 'ready' || !c.sched || c.id === 'adbreak') return;
       var bl; try { bl = E.blocks(c.sched, now, now + 4 * 3600000); } catch (e) { return; }
       var b = bl[0]; if (!b || !b.prog || b.prog.ad) return;
-      var nx = bl[1], nm = gmName(b.prog) || b.prog.title || '';
+      var nx = bl[1], nm = odOnName(b.prog);
       sig += '|' + c.id + b.prog.id;
-      list.push({ name: nm, chan: c, eps: [], flat: [], sea: [],
+      list.push({ name: nm, chan: c, prog: b.prog, eps: [], flat: [], sea: [],
                   onnow: { start: b.startMs, end: b.endMs, sig: b.startMs, next: nx && nx.prog && !nx.prog.ad ? { t: gmName(nx.prog) || nx.prog.title || '', at: nx.startMs } : null } });
     });
     if (!list.length) return null;
@@ -7561,6 +7563,7 @@
   function odKnown(g) {
     if (!g) return null;
     if (g.shorts) return null;         // a short's card is the generated title card, never a series' art
+    if (g.onnow && g.prog && g.prog.filmKey) return knownArt(g.prog);      // a film on a film channel: the film's own picture, not the channel's name
     if (g._k && g._kg === odKGen) return g._k;
     var k = knownArt(g.film ? g.eps[0].p : { title: g.name, show: g.name });
     if (k && (k.poster || k.back)) { g._k = k; g._kg = odKGen; }     // only a found picture is remembered; a missing one is asked again
@@ -7707,7 +7710,7 @@
     var gen = odKGen + ':' + e.onnow.sig + ':' + (isFav(e.chan) ? 'f' : '');
     if (d._g !== gen) {
       d._g = gen; d.textContent = '';
-      var k = odKnown(e), u = k && (k.back || k.poster), o = e.onnow;
+      var k = e.prog && e.prog.filmKey ? knownArt(e.prog) : odKnown(e), u = k && (k.back || k.poster), o = e.onnow;
       d.style.backgroundImage = u ? 'url("' + u + '")' : odTone(e.name);
       d.appendChild(odEl('div', 'odlive', 'LIVE'));
       d.appendChild(odEl('div', 'odch', (isFav(e.chan) ? '\u2605 ' : '') + e.chan.name));
@@ -8276,7 +8279,7 @@
     var now = Date.now(), bl = [];
     try { bl = E.blocks(c.sched, now, now + 4 * 3600000); } catch (e) { bl = []; }
     var b = bl[0], nx = bl[1];
-    var e = { name: b && b.prog ? (gmName(b.prog) || b.prog.title || '') : c.name, chan: c, eps: [], flat: [], sea: [] };
+    var e = { name: b && b.prog ? odOnName(b.prog) : c.name, chan: c, prog: b && b.prog, eps: [], flat: [], sea: [] };
     e.onnow = b ? { start: b.startMs, end: b.endMs, sig: b.startMs, next: nx && nx.prog && !nx.prog.ad ? { t: gmName(nx.prog) || nx.prog.title || '', at: nx.startMs } : null } : { start: now, end: now + 1, sig: 0, next: null };
     return e;
   }
@@ -8825,11 +8828,12 @@
 
   // ---- The built schedule of each channel (what plays when) is kept, so a start reads it back instead of laying it out again.
   // It is a list of places in the channel's programme list, so it is only used when that list is exactly as it was: the key
-  // carries a fingerprint of the list, the span, the Broadcast schedule setting and the app version.
+  // carries a fingerprint of the list, the span, the Broadcast schedule setting and SCHED_LOGIC (so an update does not throw saved schedules away).
+  var SCHED_LOGIC = '1';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
   function schedKey(c, progs, seed, spanH) {
     if (!KV_NATIVE) return '';
     var sig = progs.map(function (p) { return (p.url || p.id) + ':' + p.dur; }).join('|');
-    return 'sched1:' + c.id + ':' + E.hash([(window.RELEASE || {}).version, seed, spanH, realOn ? 1 : 0, progs.length, sig].join('~'));
+    return 'sched1:' + c.id + ':' + E.hash([SCHED_LOGIC, seed, spanH, realOn ? 1 : 0, progs.length, sig].join('~'));
   }
   function schedRead(key, progs) {
     if (!key) return null;
@@ -8877,7 +8881,8 @@
     });
     order.forEach(function (c) {
       loadPrograms(c).then(function (progs) {
-        return Promise.all([loadEpdb(), loadUk()]).then(function () { return progs; });   // Magic EPG and Content: their data is in before the first guide is built
+        var tl = performance.now() - tmAt; tm.listN = (tm.listN || 0) + 1; tm.listFirst = Math.min(tm.listFirst === undefined ? tl : tm.listFirst, tl); tm.listLast = Math.max(tm.listLast || 0, tl);
+        return Promise.all([loadEpdb(), loadUk()]).then(function () { var td = performance.now() - tmAt; tm.dataFirst = Math.min(tm.dataFirst === undefined ? td : tm.dataFirst, td); tm.dataLast = Math.max(tm.dataLast || 0, td); return progs; });   // Magic EPG and Content: their data is in before the first guide is built
       }).then(function (progs) {
         // Building a channel's running order is the slow part of a start (seconds each on the box with Magic EPG), and
         // every channel's list was ready at once, so all of them ran back to back in one go: the screen could not move,
@@ -8915,6 +8920,7 @@
         }
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
+        if (finished === channels.length) dlog('START: wall clock (ms after the loading began at ' + Math.round(tmAt) + '): channel lists in from ' + Math.round(tm.listFirst) + ' to ' + Math.round(tm.listLast) + ', Magic EPG and Content data in from ' + Math.round(tm.dataFirst) + ' to ' + Math.round(tm.dataLast));
         if (finished === channels.length) dlog('START: time spent (ms, added up over the channels): prepare lists ' + Math.round(tm.prep) + ', schedules ' + Math.round(tm.sched) + ', real-world order ' + Math.round(tm.real) + ', names ' + Math.round(tm.names) + ', of ' + Math.round(performance.now() - tmAt) + ' in all'); if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
         renderStatus();
         if (finished === channels.length) setTimeout(seedLinks, 4000);

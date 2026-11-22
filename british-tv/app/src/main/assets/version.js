@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.29",
-  "version": "0.53.29",
-  "code": 5329,
+  "name": "Alpha 0.53.30",
+  "version": "0.53.30",
+  "code": 5330,
   "date": "2026-11-22",
   "notes": [
-    "With Debug connection on, three more pages can be opened from a browser on your Wi-Fi, each built fresh when asked: `/epg` (the EPG debug for every channel), `/gaps` (the missing-episodes report; add `?fresh=1` to check again) and `/log` (the whole debug log). No code, no need to open them on the TV first."
+    "**On Demand > On now: film channels now show the film.** Christmas Movies, Kids Films, The Video Shop and the other movie channels used to show a plain coloured card named after the channel. They now show the film that is on, with its own picture and title.",
+    "**Updating the app no longer throws away every saved schedule.** The saved schedules were keyed on the app version, so the first start after each update laid all 65 channels out again (35 s on the Shield). They now stay valid until how a schedule is laid out actually changes.",
+    "The debug log adds a wall-clock line for a start (when the channel lists and the Magic EPG data came in), to find where the rest of a cold start goes."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.29",
+      "date": "2026-11-22",
+      "notes": [
+        "With Debug connection on, three more pages can be opened from a browser on your Wi-Fi, each built fresh when asked: `/epg` (the EPG debug for every channel), `/gaps` (the missing-episodes report; add `?fresh=1` to check again) and `/log` (the whole debug log). No code, no need to open them on the TV first."
+      ]
+    },
     {
       "name": "Alpha 0.53.28",
       "date": "2026-11-22",
@@ -60,13 +69,6 @@ window.RELEASE = {
       "notes": [
         "**Snow build-up and Santa's plough are part of the ordinary Christmas snow.** The Test choice is gone: Seasonal effects is just Auto or Off, and Auto does everything (snow, drifts building over 15 minutes, the plough crossing at the end of each cycle).",
         "The debug log says when the plough is due after the snow starts, and when it sets off, so a crossing can be checked afterwards."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.21",
-      "date": "2026-11-21",
-      "notes": [
-        "**Snow log is cleaner**: the debug log says which mode the snow started in (Auto or Test), whether Experimental is on, the screen size, and then a speed check taken 20 s later, when start-up work is over, with the number of animations really running. A check interrupted by the guide closing is dropped."
       ]
     }
   ]

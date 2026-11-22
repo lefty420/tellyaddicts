@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.40",
-  "version": "0.53.40",
-  "code": 5340,
+  "name": "Alpha 0.53.41",
+  "version": "0.53.41",
+  "code": 5341,
   "date": "2026-11-22",
   "notes": [
-    "**Neighbours files named by episode number now get their season and episode.** About 1,500 Neighbours files (\"Neighbours Episode 2965\", \"Neighbours 1000\") had no season or episode in the name, so they were filed as Specials and Magic EPG could fill the same episode in again. A small table made from the episode guide (`absnum.js`, written by `tools/make_absnum.py`) turns the number into the season and episode, with nothing to download and no new scrape. 1,799 of the 1,871 Neighbours files are covered; the rest are named by date, which the scraper already handles."
+    "**The Neighbours numbering now applies to saved lists too.** 0.53.40 only worked when a channel's list was built fresh, but at a normal start the list is read back from storage with the old names (\"Neighbours 1215\"), so nothing changed on the guide. The lookup now also runs on a list read from storage, before the schedule is laid out."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.40",
+      "date": "2026-11-22",
+      "notes": [
+        "**Neighbours files named by episode number now get their season and episode.** About 1,500 Neighbours files (\"Neighbours Episode 2965\", \"Neighbours 1000\") had no season or episode in the name, so they were filed as Specials and Magic EPG could fill the same episode in again. A small table made from the episode guide (`absnum.js`, written by `tools/make_absnum.py`) turns the number into the season and episode, with nothing to download and no new scrape. 1,799 of the 1,871 Neighbours files are covered; the rest are named by date, which the scraper already handles."
+      ]
+    },
     {
       "name": "Alpha 0.53.39",
       "date": "2026-11-22",
@@ -64,14 +71,6 @@ window.RELEASE = {
       "date": "2026-11-22",
       "notes": [
         "**The loading TV no longer loses its picture partway through.** It showed each picture once from a small set loaded at the start, and by about channel 17 they had all been shown, so the screen and its backdrop went blank. It now loads more pictures up front, keeps topping up, and reuses one rather than show nothing."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.32",
-      "date": "2026-11-22",
-      "notes": [
-        "**Episode names are no longer looked up again at every start.** After each channel loaded, the app re-checked every show's saved episode list (a storage read and a parse for about 635 shows) to swap in real episode names, even when they were already right, because the \"checked\" mark was not saved with the channel. It is saved now, so the second and later starts skip the work. The first start after this update does it once.",
-        "The debug log adds how many shows were checked and how long it took."
       ]
     }
   ]

@@ -622,6 +622,17 @@
     var r = T[lo];
     return r && n >= r[0] && n < r[0] + r[3] ? { s: r[1], e: r[2] + (n - r[0]), n: n } : null;
   }
+  /** The same lookup for a list read back from storage, whose programmes were named before absnum.js knew the numbers. */
+  function codeByNumber(progs) {
+    if (!window.ABSNUM) return progs;
+    progs.forEach(function (p) {
+      var show = p.show || p.group;
+      if (!show || !ABSNUM[normShow(show)] || (window.LINKS && LINKS.parseEp(p.title))) return;
+      var ac = absEp(show, String(p.id || '').split('/').pop()) || absEp(show, p.title);
+      if (ac) p.title = show + ' S' + pad2(ac.s) + 'E' + pad2(ac.e) + ' Episode ' + ac.n;
+    });
+    return progs;
+  }
   function progsFromData(items, channelId, everything) {   // everything: On Demand lists files whether or not their names carry an episode code
     var out = [];
     items.forEach(function (it) {
@@ -8950,7 +8961,7 @@
   // ---- The built schedule of each channel (what plays when) is kept, so a start reads it back instead of laying it out again.
   // It is a list of places in the channel's programme list, so it is only used when that list is exactly as it was: the key
   // carries a fingerprint of the list, the span, the Broadcast schedule setting and SCHED_LOGIC (so an update does not throw saved schedules away).
-  var SCHED_LOGIC = '3';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
+  var SCHED_LOGIC = '4';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
   function schedKey(c, progs, seed, spanH) {
     if (!KV_NATIVE) return '';
     var sig = progs.map(function (p) { return (p.url || p.id) + ':' + p.dur; }).join('|');
@@ -9038,7 +9049,7 @@
       }).then(function (progs) {
         if (progs && progs.length) {
           var t1 = performance.now();
-          progs = dropSlow(dedupeProgs(virtualFilms(c, virtualFill(c, ukFilter(progs)))));
+          progs = dropSlow(dedupeProgs(virtualFilms(c, virtualFill(c, ukFilter(codeByNumber(progs))))));
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           progs = withBreaks(c, progs);
           var t2 = performance.now(); tm.prep += t2 - t1;

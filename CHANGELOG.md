@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.41 — 2026-11-22
+- **The Neighbours numbering now applies to saved lists too.** 0.53.40 only worked when a channel's list was built fresh, but at a normal start the list is read back from storage with the old names ("Neighbours 1215"), so nothing changed on the guide. The lookup now also runs on a list read from storage, before the schedule is laid out.
+
 ## Alpha 0.53.40 — 2026-11-22
 - **Neighbours files named by episode number now get their season and episode.** About 1,500 Neighbours files ("Neighbours Episode 2965", "Neighbours 1000") had no season or episode in the name, so they were filed as Specials and Magic EPG could fill the same episode in again. A small table made from the episode guide (`absnum.js`, written by `tools/make_absnum.py`) turns the number into the season and episode, with nothing to download and no new scrape. 1,799 of the 1,871 Neighbours files are covered; the rest are named by date, which the scraper already handles.
 

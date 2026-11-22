@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.33",
-  "version": "0.53.33",
-  "code": 5333,
+  "name": "Alpha 0.53.34",
+  "version": "0.53.34",
+  "code": 5334,
   "date": "2026-11-22",
   "notes": [
-    "**The loading TV no longer loses its picture partway through.** It showed each picture once from a small set loaded at the start, and by about channel 17 they had all been shown, so the screen and its backdrop went blank. It now loads more pictures up front, keeps topping up, and reuses one rather than show nothing."
+    "**The guide opens sooner: episode names are checked after it is up, not while the channels load.** On the Shield that check read about 2,000 shows' saved episode lists (over 10 s of a 26 s start) before the guide could open. It now waits until the guide is showing, then goes through the channels one at a time in the background, pausing whenever a button is pressed. Names appear a little later on a start; nothing else changes."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.33",
+      "date": "2026-11-22",
+      "notes": [
+        "**The loading TV no longer loses its picture partway through.** It showed each picture once from a small set loaded at the start, and by about channel 17 they had all been shown, so the screen and its backdrop went blank. It now loads more pictures up front, keeps topping up, and reuses one rather than show nothing."
+      ]
+    },
     {
       "name": "Alpha 0.53.32",
       "date": "2026-11-22",
@@ -62,13 +69,6 @@ window.RELEASE = {
       "notes": [
         "**Pressing Home no longer closes the app.** On a TV, Home used to close Telly Addicts on purpose, so every return was a cold start that laid out all 66 channels again. It now pauses and stays alive; coming back is instant. A live channel is tuned to what is on now if you were away more than 20 seconds, and anything else carries on where it stopped. (If the system needs the memory it can still close it, and then it starts as before.)",
         "The debug log notes when the app goes to the background and returns, and where a start spends its time (preparing lists, schedules, real-world order, names), so the slow part of a cold start can be found."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.25",
-      "date": "2026-11-21",
-      "notes": [
-        "**Options: OK confirms a choice.** On a row with choices, Left and Right pick one (applied straight away, as before) and OK now confirms it: the choices fold away and the row shows its value again, so there is no need to press Back to come out of it. OK again opens the choices; moving to another row also folds them. Rows that open a screen or run something are unchanged."
       ]
     }
   ]

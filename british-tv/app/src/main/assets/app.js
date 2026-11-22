@@ -1304,6 +1304,20 @@
   }
 
   /** Swap file-name episode titles for the real ones: "Lovejoy S04E12 Dainty Dish". Only when show and number match. */
+  // The episode-name check is not needed to open the guide, and reading every show's saved episode list while the channels load made a start
+  // take twice as long. Channels wait here until the guide is up, then are checked one at a time in the background.
+  var enrichQ = [], enrichRun = false;
+  function enrichLater(c, progs) {
+    enrichQ.push([c, progs]);
+    if (enrichRun) return;
+    enrichRun = true;
+    (function next() {
+      if (!started || userBusy()) { setTimeout(next, 1000); return; }
+      var j = enrichQ.shift();
+      if (!j) { enrichRun = false; return; }
+      enrichNames(j[0], j[1]).then(function () { setTimeout(next, 50); }, function () { setTimeout(next, 50); });
+    })();
+  }
   var nameStat = { n: 0, read: 0, loop: 0 };      // episode-name look-ups made at a start: how many, and the time reading them and comparing
   function enrichNames(ch, progs) {
     var byShow = {};
@@ -1318,7 +1332,7 @@
     var keys = Object.keys(byShow);
     var changed = false;
     return keys.reduce(function (chain, k) {
-      return chain.then(function () {
+      return chain.then(function () { return new Promise(function (r) { setTimeout(r, userBusy() ? 300 : 4); }); }).then(function () {      // a breath between shows, longer while a button is pressed
         var tq = performance.now();
         return tvmEpisodes(byShow[k].show).then(function (map) {
           var tr = performance.now();
@@ -8940,7 +8954,7 @@
           if (!(window.ADS && ADS.isXmasChannel(c.id))) realWorld(c.sched, progs, seed);
           var t4 = performance.now(); tm.real += t4 - t3;
           c.status = 'ready';
-          if (!isAdChan(c)) enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
+          if (!isAdChan(c)) enrichLater(c, progs);
           tm.names += performance.now() - t4;
         } else {
           c.status = 'empty';
@@ -8948,7 +8962,7 @@
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
         if (finished === channels.length) setTimeout(function () { loafLog('so far'); }, 0);
-        if (finished === channels.length) setTimeout(function () { dlog('START: episode names checked: ' + nameStat.n + ' shows, ' + Math.round(nameStat.read) + ' ms reading, ' + Math.round(nameStat.loop) + ' ms comparing (so far)'); }, 20000);
+        if (finished === channels.length) setTimeout(function () { dlog('START: episode names checked: ' + nameStat.n + ' shows, ' + Math.round(nameStat.read) + ' ms reading, ' + Math.round(nameStat.loop) + ' ms comparing (so far)'); }, 60000);
         if (finished === channels.length) dlog('START: wall clock (ms after the loading began at ' + Math.round(tmAt) + '): channel lists in from ' + Math.round(tm.listFirst) + ' to ' + Math.round(tm.listLast) + ', Magic EPG and Content data in from ' + Math.round(tm.dataFirst) + ' to ' + Math.round(tm.dataLast));
         if (finished === channels.length) dlog('START: time spent (ms, added up over the channels): prepare lists ' + Math.round(tm.prep) + ', schedules ' + Math.round(tm.sched) + ', real-world order ' + Math.round(tm.real) + ', names ' + Math.round(tm.names) + ', of ' + Math.round(performance.now() - tmAt) + ' in all'); if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
         renderStatus();

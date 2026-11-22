@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-22T12:54:38Z",
+ "updated": "2026-11-22T13:00:46Z",
  "channels": {
   "bbc": "24c32c04f5",
   "childrens": "db5d36bcdb",
@@ -27,7 +27,7 @@
   "ussitcoms": "df7296fc63",
   "videoshop": "ecf85c20c3",
   "xmasmovies": "3889285650",
-  "xmasmusic": "5dd30c0c52"
+  "xmasmusic": "953379e678"
  },
  "counts": {
   "bbc": 1742,
@@ -56,12 +56,12 @@
   "ussitcoms": 419,
   "videoshop": 369,
   "xmasmovies": 57,
-  "xmasmusic": 62
+  "xmasmusic": 28
  },
- "library": "9025c679b3",
+ "library": "d1184e22fc",
  "library_counts": {
   "shows": 813,
-  "episodes": 60149,
+  "episodes": 60115,
   "copies": 160142
  },
  "routes": "58a1166693",

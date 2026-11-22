@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "58a1166693",
+ "rev": "5a2a80e0d0",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
@@ -10,7 +10,8 @@
     "C.O.P.S.",
     "galaxy high",
     "round the bend",
-    "super gran"
+    "super gran",
+    "Wallace and Gromit"
    ]
   },
   "comedy": {
@@ -21,7 +22,6 @@
     "Allo Allo",
     "Chelmsford 123",
     "Chewin the Fat",
-    "Down to Earth",
     "Duty Free",
     "Fairly Secret Army",
     "Filthy Rich and Catflap",
@@ -43,7 +43,6 @@
     "No Place Like Home",
     "Oh Doctor Beeching",
     "People Like Us",
-    "Room 101",
     "Second Thoughts",
     "So Haunt Me",
     "Sorry",
@@ -70,7 +69,6 @@
     "Darkstalkers",
     "Donkey Kong Country",
     "Dragon's Lair",
-    "Final Fantasy",
     "Pac-Man",
     "Saturday Supercade",
     "Tekken",
@@ -113,7 +111,6 @@
   "xmasmusic": {
    "name": "Christmas Songs (70s-90s)",
    "shows": [
-    "magic christmas hits",
     "mtv christmas",
     "mtv xmas",
     "vhs christmas"

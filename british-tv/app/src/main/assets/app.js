@@ -5253,7 +5253,7 @@
   function changeExp() { expOn = !expOn; store.set('exp1', expOn ? 'on' : 'off'); applyUi(); applyLd(); dbgOpenApply(); renderOpts(); }
   function changeLang() { adLang = adLang === 'en' ? 'any' : 'en'; store.set('adlang1', adLang); renderOpts(); }
   var dbgOpen = store.get('dbgopen1') === 'on';
-  function dbgOpenApply() { try { if (window.NativeHttp && NativeHttp.debugOpen) NativeHttp.debugOpen(expOn && dbgOpen); } catch (e) { /* older app */ } }
+  function dbgOpenApply() { try { if (window.NativeHttp && NativeHttp.debugOpen) NativeHttp.debugOpen(true); } catch (e) { /* older app */ } }
   dbgOpenApply();
   function changeDbgOpen() { dbgOpen = !dbgOpen; store.set('dbgopen1', dbgOpen ? 'on' : 'off'); dbgOpenApply(); renderOpts(); toast(dbgOpen ? 'Debug address: no code. Open the debug log again to see it.' : 'Debug address: code back on', 3500); }
   function changeAdcut() { adCut = !adCut; store.set('adcut1', adCut ? 'on' : 'off'); renderOpts(); }
@@ -6139,7 +6139,7 @@
     about: 'Where the programmes, artwork and details come from.',
     epg: 'What each channel\u2019s guide is built from and what it will show for the next 24 hours, with any problems such as the same show three times in a row.',
     log: 'What failed to play and why, ready to send when something goes wrong.',
-    live: 'Shows this screen, the debug text and a remote on a browser on the same Wi-Fi: open the address shown here. Once it is on it stays on: it starts again by itself each time the app launches, until you switch it off here.',
+    live: 'On: the debug log, the screen and a remote can be opened from a browser on the same Wi-Fi at the address shown here (no code), so a problem can be looked at without sending anything. Once it is on it stays on: it starts again by itself each time the app launches, until you switch it off here.',
     gaps: 'Shows with episodes or seasons missing, set against the episode guide.'
   };
   var optsShown = {};     // what each row last said, so a key press only touches the rows that changed
@@ -6292,7 +6292,7 @@
       'Channel: ' + (cur && cur.ch ? cur.ch.n + ' ' + cur.ch.name : '(none)'), 'Programme: ' + (cur && cur.prog ? cur.prog.title : '(none)'),
       'Playing: ' + (v && !v.paused && v.currentTime > 0 ? 'yes at ' + Math.round(v.currentTime) + 's' : 'no'),
       'Screen: ' + (optsOpen ? 'Options' : odOpen ? 'On Demand' : guideOpen ? 'Guide' : 'Playing'), '', perfText(), ''];
-    return o.concat(DLOG.slice(-80)).join('\n');
+    return o.concat(DLOG.slice(-400)).join('\n');
   }
   /** Start or stop the Live view. The choice is kept (live1), so a Live view that was on starts again by itself at the next launch. */
   function liveSet(on, quiet) {

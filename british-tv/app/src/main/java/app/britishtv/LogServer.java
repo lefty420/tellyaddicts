@@ -24,8 +24,8 @@ final class LogServer {
     private ServerSocket server;
     private volatile String token = "";
     private volatile String text = "";
-    /** Experimental > Open debug address: no code in the address, anyone on the home network can open it. Off unless asked for. */
-    static volatile boolean open = false;
+    /** No code in the address: anyone on the home network can open it. Switched on for now so the debug log can be read without being sent; set false to bring the code back. */
+    static volatile boolean open = true;   // the code is switched off for now (it is easy to turn back on): the address is the same every launch
 
     /** A code for an address that only someone shown it can open: 10 characters, about 49 bits, from SecureRandom. */
     static String newToken() {

@@ -1,15 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.27",
-  "version": "0.53.27",
-  "code": 5327,
+  "name": "Alpha 0.53.28",
+  "version": "0.53.28",
+  "code": 5328,
   "date": "2026-11-22",
   "notes": [
-    "**The guide opens much sooner on a cold start.** It used to wait until all 66 channels had loaded, so a start took as long as the slowest channel. It now opens as soon as the channel you were last watching and the first ten channels in the guide are ready; the others finish behind it and appear as they land.",
-    "The hidden loading list is no longer redrawn once the guide is up, which saves work while the last channels finish."
+    "**Options > Debug > Debug connection** (was Live view) is the one On/Off switch for reading the app from a browser on your Wi-Fi. It stays on across launches, and the address no longer carries a code, so the same plain address works every time. The code can be brought back later.",
+    "The debug text it serves now holds the last 400 log lines instead of 80, so a whole start-up can be read without sending it."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.27",
+      "date": "2026-11-22",
+      "notes": [
+        "**The guide opens much sooner on a cold start.** It used to wait until all 66 channels had loaded, so a start took as long as the slowest channel. It now opens as soon as the channel you were last watching and the first ten channels in the guide are ready; the others finish behind it and appear as they land.",
+        "The hidden loading list is no longer redrawn once the guide is up, which saves work while the last channels finish."
+      ]
+    },
     {
       "name": "Alpha 0.53.26",
       "date": "2026-11-22",
@@ -60,15 +68,6 @@ window.RELEASE = {
       "notes": [
         "**Settings survive a relaunch or an update**: saved settings (Experimental, Seasonal effects Test, favourites, looks and so on) are now also written to a file the moment they change. The page's own storage is written to disk some seconds later, so closing or updating the app soon after changing one could lose it. Settings from earlier versions are copied across a few seconds after start.",
         "**Snow performance check**: 12 seconds after the snow starts the debug log gets a line `SNOW: N fps ... slowest frame ... ms`, so Santa's plough can be judged from the log."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.19",
-      "date": "2026-11-21",
-      "notes": [
-        "**Fits the screen**: the logo, set and \"Loading channels\" lines no longer run off the top and bottom. The set is sized by height as well as width.",
-        "**Backdrop follows the TV**: the blurred backdrop is now made of the same pictures as the TV, on the same timing, so it shows what the screen shows (and goes dark when the screen is on static). Before, it followed one picture in twelve.",
-        "**No more hanging on the colour bars**: the flash of bars when a channel locks on now ends by itself after a third of a second, even while the app is busy building guides."
       ]
     }
   ]

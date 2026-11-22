@@ -307,8 +307,12 @@
           var d = 9; idx.forEach(function (i) { d = Math.min(d, Math.abs(i - ci)); });
           more.push({ p: p, d: d });
         });
-        more.sort(function (a, b) { return a.d - b.d; });
-        return items.concat(more.slice(0, need).map(function (m) { return m.p; }));
+        var add = [];                                  // nearest lengths first, and within one length the shows in turn (not one show's whole run)
+        for (var d = 0; d <= 4 && add.length < need; d++) {
+          var at = more.filter(function (m) { return m.d === d; }).map(function (m) { return m.p; });
+          if (at.length) add = add.concat(inTurn(at, seed + 'bal' + want.join('') + d));
+        }
+        return items.concat(add.slice(0, need));
       }
       function listFor(kinds) {                        // the kinds named, in one list; everything when there are too few of them
         if (lists[kinds]) return lists[kinds];

@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.43 — 2026-11-22
+- **The balance fix no longer adds one show's whole run.** In 0.53.42 the programmes added to a one-show slot came from whichever show was first in the list (The Colbys ran five in a row on Dallas, Dynasty & Co). They are now taken from the other shows in turn.
+- **EPG debug reports airtime, not just programme counts.** "Fills 49% of the schedule" counted programmes, and Santa Barbara's many short files made it look bigger than it is. The "fills" warning and the most-common list now go by hours (for example "Santa Barbara: 118 (49 h)").
+
 ## Alpha 0.53.42 — 2026-11-22
 - **One show no longer takes over a channel's timetable.** With Real time EPG on, slots are filled by programme length, so a show whose episodes are all one length can own a whole kind of slot: Santa Barbara's files run about 40 minutes, so every half-hour slot on Dallas, Dynasty & Co was Santa Barbara (71% of the week). When one show is more than a third of the programmes that fit a kind of slot, the nearest-length programmes of the channel's other shows are added until it is about a quarter. On a test channel built like that one, Santa Barbara drops from 63% to 30% of the week. Channels with an even mix are unchanged.
 

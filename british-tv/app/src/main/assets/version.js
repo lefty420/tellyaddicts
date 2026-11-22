@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.42",
-  "version": "0.53.42",
-  "code": 5342,
+  "name": "Alpha 0.53.43",
+  "version": "0.53.43",
+  "code": 5343,
   "date": "2026-11-22",
   "notes": [
-    "**One show no longer takes over a channel's timetable.** With Real time EPG on, slots are filled by programme length, so a show whose episodes are all one length can own a whole kind of slot: Santa Barbara's files run about 40 minutes, so every half-hour slot on Dallas, Dynasty & Co was Santa Barbara (71% of the week). When one show is more than a third of the programmes that fit a kind of slot, the nearest-length programmes of the channel's other shows are added until it is about a quarter. On a test channel built like that one, Santa Barbara drops from 63% to 30% of the week. Channels with an even mix are unchanged."
+    "**The balance fix no longer adds one show's whole run.** In 0.53.42 the programmes added to a one-show slot came from whichever show was first in the list (The Colbys ran five in a row on Dallas, Dynasty & Co). They are now taken from the other shows in turn.",
+    "**EPG debug reports airtime, not just programme counts.** \"Fills 49% of the schedule\" counted programmes, and Santa Barbara's many short files made it look bigger than it is. The \"fills\" warning and the most-common list now go by hours (for example \"Santa Barbara: 118 (49 h)\")."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.42",
+      "date": "2026-11-22",
+      "notes": [
+        "**One show no longer takes over a channel's timetable.** With Real time EPG on, slots are filled by programme length, so a show whose episodes are all one length can own a whole kind of slot: Santa Barbara's files run about 40 minutes, so every half-hour slot on Dallas, Dynasty & Co was Santa Barbara (71% of the week). When one show is more than a third of the programmes that fit a kind of slot, the nearest-length programmes of the channel's other shows are added until it is about a quarter. On a test channel built like that one, Santa Barbara drops from 63% to 30% of the week. Channels with an even mix are unchanged."
+      ]
+    },
     {
       "name": "Alpha 0.53.41",
       "date": "2026-11-22",
@@ -64,13 +72,6 @@ window.RELEASE = {
       "date": "2026-11-22",
       "notes": [
         "The debug log adds a line at the end of a start: how many saved things of each kind were read, how big they were, and how long reading and parsing them took, to show which saved data holds up a cold start."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.34",
-      "date": "2026-11-22",
-      "notes": [
-        "**The guide opens sooner: episode names are checked after it is up, not while the channels load.** On the Shield that check read about 2,000 shows' saved episode lists (over 10 s of a 26 s start) before the guide could open. It now waits until the guide is showing, then goes through the channels one at a time in the background, pausing whenever a button is pressed. Names appear a little later on a start; nothing else changes."
       ]
     }
   ]

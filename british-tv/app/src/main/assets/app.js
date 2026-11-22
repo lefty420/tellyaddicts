@@ -5972,7 +5972,7 @@
     var key = function (p) { return String(p.show || p.group || String(p.title || '').replace(/\s+S\d+E\d+.*$/i, '')).toLowerCase(); };
     var cnt = {}, urls = {}, dupes = [], unknownLen = 0, uncoded = 0, runs = [];
     var uniq = {};
-    s.order.forEach(function (p) { var k = key(p); cnt[k] = (cnt[k] || 0) + 1; uniq[k] = p.show || p.group || p.title; if (!(p.lenKnown)) unknownLen++; if (!/S\d+E\d+/i.test(p.title || '') && !p.filmKey) uncoded++; });
+    var hrs = {}; s.order.forEach(function (p) { var k = key(p); cnt[k] = (cnt[k] || 0) + 1; hrs[k] = (hrs[k] || 0) + (p.dur || 0) / 3600; uniq[k] = p.show || p.group || p.title; if (!(p.lenKnown)) unknownLen++; if (!/S\d+E\d+/i.test(p.title || '') && !p.filmKey) uncoded++; });
     var run = 0, prev = '', runStart = 0;
     rows.forEach(function (bl) {
       var k = bl.prog.filmKey ? 'f:' + bl.prog.filmKey : key(bl.prog);
@@ -5988,7 +5988,8 @@
     runs.forEach(function (r) { probs.push(r.show + ' is on ' + r.n + ' times in a row from ' + fmtTime(r.at)); });
     if (dupes.length) probs.push(dupes.length + ' programme' + (dupes.length > 1 ? 's are' : ' is') + ' on more than twice in the day: ' + dupes.slice(0, 3).join('; '));
     var byCount = Object.keys(cnt).sort(function (x, y) { return cnt[y] - cnt[x]; }), topShow = byCount[0];
-    if (topShow && cnt[topShow] / s.order.length > 0.4 && byCount.length > 1) probs.push(uniq[topShow] + ' fills ' + Math.round(100 * cnt[topShow] / s.order.length) + '% of the schedule');
+    var byHrs = Object.keys(hrs).sort(function (x, y) { return hrs[y] - hrs[x]; }), topH = byHrs[0];
+    if (topH && hrs[topH] / (s.total / 3600) > 0.4 && byHrs.length > 1) probs.push(uniq[topH] + ' fills ' + Math.round(100 * hrs[topH] / (s.total / 3600)) + '% of the airtime');
     var prevK = '', runN = 0;
     return {
       head: [
@@ -6001,7 +6002,7 @@
         unknownLen + ' programmes have no confirmed running time; ' + uncoded + ' have no season and episode'
       ],
       probs: probs,
-      tops: byCount.slice(0, 10).map(function (k) { return uniq[k] + ': ' + cnt[k]; }),
+      tops: byHrs.slice(0, 10).map(function (k) { return uniq[k] + ': ' + cnt[k] + ' (' + Math.round(hrs[k]) + ' h)'; }),
       blocks: rows.map(function (bl) {
         var k = key(bl.prog); runN = k === prevK ? runN + 1 : 1; prevK = k;
         return fmtTime(bl.startMs) + '  ' + Math.round((bl.endMs - bl.startMs) / 60000) + ' min   ' + (bl.prog.title || '?') + (bl.count > 1 ? '  (+' + (bl.count - 1) + ' more)' : '') + (runN >= 3 ? '    ← ' + runN + ' in a row' : '');
@@ -8961,7 +8962,7 @@
   // ---- The built schedule of each channel (what plays when) is kept, so a start reads it back instead of laying it out again.
   // It is a list of places in the channel's programme list, so it is only used when that list is exactly as it was: the key
   // carries a fingerprint of the list, the span, the Broadcast schedule setting and SCHED_LOGIC (so an update does not throw saved schedules away).
-  var SCHED_LOGIC = '5';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
+  var SCHED_LOGIC = '6';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
   function schedKey(c, progs, seed, spanH) {
     if (!KV_NATIVE) return '';
     var sig = progs.map(function (p) { return (p.url || p.id) + ':' + p.dur; }).join('|');

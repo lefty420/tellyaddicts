@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "e6b4648097",
+ "rev": "9b45f73365",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "citv": {
@@ -114,7 +114,6 @@
   "xmasmusic": {
    "name": "Christmas Songs (70s-90s)",
    "shows": [
-    "hits christmas",
     "magic christmas hits",
     "mtv christmas",
     "mtv xmas",

@@ -1117,7 +1117,7 @@
         spCand.push({ u: u.replace('/original_untouched/', isBack ? '/medium_landscape/' : '/medium_portrait/'), back: isBack });
       });
       spCand.sort(function (x, y) { return (y.back ? 1 : 0) - (x.back ? 1 : 0); });    // stable enough: backdrops come before posters
-      spMore(30);
+      spMore(60);
     }
     try {                                          // films seen on earlier runs: their posters join the shows
       var fk = kv.keys().filter(function (k) { return k && k.indexOf('film1:') === 0; }).sort(function () { return Math.random() - 0.5; }).slice(0, 40), fn = 0;
@@ -1165,8 +1165,8 @@
     var pool = spPics.length ? spPics : spPosters;                   // backdrops only; posters just until a backdrop has loaded
     if (!pool.length) return;
     var fresh = pool.filter(function (u) { return !spSeen[u]; });    // never one already shown, while there is a new one to show
-    if (fresh.length < 8) spMore(10);                                // and keep fetching so there always is
-    if (!fresh.length && pool.length < 40) { el.className = 'spslot'; if (el._tw) el._tw.className = 'spbgslot'; return; }   // few pictures loaded so far: show nothing rather than the same one again (spFill gives it a new one as they arrive)
+    if (fresh.length < 14) spMore(12);                               // and keep fetching so there always is
+    if (!fresh.length && pool.length < 6) { el.className = 'spslot'; if (el._tw) el._tw.className = 'spbgslot'; return; }   // few pictures loaded so far: show nothing rather than the same one again (spFill gives it a new one as they arrive)
     if (!fresh.length) {                                             // only when every one has been seen does it start over, and then
       spSeen = {};                                                   // never with one of the last few shown (or the very last one, at least)
       fresh = pool.filter(function (u) { return spRecent.indexOf(u) < 0; });

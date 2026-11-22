@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.32",
-  "version": "0.53.32",
-  "code": 5332,
+  "name": "Alpha 0.53.33",
+  "version": "0.53.33",
+  "code": 5333,
   "date": "2026-11-22",
   "notes": [
-    "**Episode names are no longer looked up again at every start.** After each channel loaded, the app re-checked every show's saved episode list (a storage read and a parse for about 635 shows) to swap in real episode names, even when they were already right, because the \"checked\" mark was not saved with the channel. It is saved now, so the second and later starts skip the work. The first start after this update does it once.",
-    "The debug log adds how many shows were checked and how long it took."
+    "**The loading TV no longer loses its picture partway through.** It showed each picture once from a small set loaded at the start, and by about channel 17 they had all been shown, so the screen and its backdrop went blank. It now loads more pictures up front, keeps topping up, and reuses one rather than show nothing."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.32",
+      "date": "2026-11-22",
+      "notes": [
+        "**Episode names are no longer looked up again at every start.** After each channel loaded, the app re-checked every show's saved episode list (a storage read and a parse for about 635 shows) to swap in real episode names, even when they were already right, because the \"checked\" mark was not saved with the channel. It is saved now, so the second and later starts skip the work. The first start after this update does it once.",
+        "The debug log adds how many shows were checked and how long it took."
+      ]
+    },
     {
       "name": "Alpha 0.53.31",
       "date": "2026-11-22",
@@ -62,13 +69,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "**Options: OK confirms a choice.** On a row with choices, Left and Right pick one (applied straight away, as before) and OK now confirms it: the choices fold away and the row shows its value again, so there is no need to press Back to come out of it. OK again opens the choices; moving to another row also folds them. Rows that open a screen or run something are unchanged."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.24",
-      "date": "2026-11-21",
-      "notes": [
-        "**Options no longer jumps about**: the highlighted row opens up to show its choices, so the rows around it changed height with every press and the list scrolled in uneven jumps. The highlighted row is now held at one place a little way down the panel and the list slides past it a row at a time, stopping naturally at the top and bottom. The opened row is still kept whole inside the panel."
       ]
     }
   ]

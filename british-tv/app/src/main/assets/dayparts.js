@@ -314,16 +314,51 @@
         }
         return items.concat(add.slice(0, need));
       }
+      var days = [SUNDAY, WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, SATDAY];
+      if (kids) days = [SUNDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, SATDAY_KIDS];
+      var room = {};                                   // seconds of the week each kind of slot has to fill
+      days.forEach(function (slots) {
+        slots.forEach(function (sl, i) { var nx = slots[i + 1] ? slots[i + 1][0] : slots[0][0] + DAY; room[sl[2]] = (room[sl[2]] || 0) + nx - sl[0]; });
+      });
+      /** A kind of slot with too few programmes loops the same few all week (US Drama's half-hour slots were ten
+       *  files, mostly two shows, over a hundred hours). When the list does not cover the time, the nearest lengths
+       *  of other shows are added, the shows in turn, until it does. */
+      function capShows(list) {                        // no show more than about half as much again as an even share
+        var per = {}, ns = 0;
+        list.forEach(function (p) { var k = showOf(p); if (!per[k]) { per[k] = 0; ns++; } });
+        var cap = Math.max(4, Math.ceil(list.length / ns * 1.5));
+        return list.filter(function (p) { return ++per[showOf(p)] <= cap; });
+      }
+      function topUp(want, items, kinds) {
+        if (!manyShows) return items;
+        var need = room[kinds] || 0, have = 0, idx = want.map(function (k) { return ORDER.indexOf(k); });
+        items = capShows(items);
+        items.forEach(function (p) { have += p.dur || 0; });
+        if (have >= need) return items;
+        var seen = {}, more = [];
+        items.forEach(function (p) { seen[p.url || p.id] = 1; });
+        progs.forEach(function (p) {
+          var c = lengthClass(p), ci = ORDER.indexOf(c);
+          if (seen[p.url || p.id] || (c === 'film' && want.indexOf('film') < 0) || (c === 'long' && want.indexOf('long') < 0 && want.indexOf('film') < 0)) return;
+          var d = 9; idx.forEach(function (i) { d = Math.min(d, Math.abs(i - ci)); });
+          more.push({ p: p, d: d });
+        });
+        var out = items.slice();
+        for (var d = 0; d <= 4 && have < need; d++) {
+          var at = more.filter(function (m) { return m.d === d; }).map(function (m) { return m.p; });
+          inTurn(at, seed + 'top' + kinds + d).forEach(function (p) { if (have < need) { out.push(p); have += p.dur || 0; } });
+        }
+        return capShows(out);
+      }
       function listFor(kinds) {                        // the kinds named, in one list; everything when there are too few of them
         if (lists[kinds]) return lists[kinds];
         var items = [], want = kinds.split(' ');
         want.forEach(function (k) { if (byClass[k]) items = items.concat(byClass[k]); });
         items = balanced(want, items);
+        if (kinds) items = topUp(want, items, kinds);
         if (items.length < 3) return (lists[kinds] = listFor.all || (listFor.all = { key: 'any', items: inTurn(progs, seed + 'any') }));
         return (lists[kinds] = { key: kinds, items: inTurn(items, seed + kinds) });
       }
-      var days = [SUNDAY, WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, WEEKDAY, SATDAY];
-      if (kids) days = [SUNDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, WEEKDAY_KIDS, SATDAY_KIDS];
       var blocks = [];
       days.forEach(function (slots, d) {
         slots.forEach(function (sl) {

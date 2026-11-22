@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.45 — 2026-11-22
+- **US Drama (and every Real time EPG channel) uses its whole library, not the same few shows.** The half-hour slots on a channel cover about 100 hours a week, but only a handful of programmes are short enough to be "half", so on US Drama those ten or so files (mostly The X-Files and Buffy) looped all week: X-Files filled 47% of the airtime. Each kind of slot now checks it has enough programmes to cover its time, and if it does not, adds the nearest-length programmes of the other shows in turn (the hour-long Murder She Wrote, Waltons, Hill Street, MacGyver, Kojak and the rest). No show can hold more than about one and a half times an even share of a slot's list. On a test channel with 22 shows plus a 200-episode X-Files and a Buffy, Buffy drops from 43 programmes a week to 12.
+- Saved schedules are rebuilt once to pick this up.
+
 ## Alpha 0.53.44 — 2026-11-22
 - **The snow looks after its own speed.** Once the guide has been up for 15 seconds the app counts frames for eight seconds. If it is under 87% of what the screen can show (60, or 30 on a screen that only does 30), it moves to a lighter tier and measures again, up to tier 3, and remembers the tier for next time. Tier 1 removes the mask round the words (a mask makes the TV draw all the snow into a spare full-screen picture every frame; the words get a dark halo instead so a flake behind a letter does not hurt reading). Tier 2 uses two depths of flakes, not four. Tier 3 has fewer flakes and no side-to-side sway. The log shows each measurement and each step ("SNOW: tier 0: 41 fps ...").
 - **Smaller snow layers for every tier.** The drifts, their build-up layers and Santa's lane were each a full-screen layer that is empty except for the bottom strip. They are now only as tall as the strip, which is five or six full-screen layers fewer for the TV to blend every frame.

@@ -1,15 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.46",
-  "version": "0.53.46",
-  "code": 5346,
+  "name": "Alpha 0.53.47",
+  "version": "0.53.47",
+  "code": 5347,
   "date": "2026-11-22",
   "notes": [
-    "**One short file no longer fills every gap on a channel.** 0.53.45 fixed US Drama's slot lists, but The X-Files still took 90 of the week's 228 programmes. The cause: the timetable pads gaps (the overnight run and any slot that ends early) with the channel's short programmes, and US Drama had exactly one, a five-minute X-Files file, so that one file was the padding everywhere. Padding now needs at least eight short programmes from at least three shows; otherwise each show's shortest programme is used, so the gaps are shared across the channel.",
-    "Saved schedules are rebuilt once."
+    "**The snow speed check now waits for the guide.** The check that measures the snow's frame rate (and lightens it if it is under 60 or 30 fps) ran once, 15 seconds after the snow started, and gave up silently if the guide was not on screen at that moment. The live log from 0.53.46 shows exactly that: no \"SNOW: tier\" line at all, because the guide was opened after the 15 seconds had passed. It now tries again every five seconds (for up to ten minutes) until the guide is up, and starts again if the guide is closed part-way through the eight seconds.",
+    "Nothing else changes in this build."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.46",
+      "date": "2026-11-22",
+      "notes": [
+        "**One short file no longer fills every gap on a channel.** 0.53.45 fixed US Drama's slot lists, but The X-Files still took 90 of the week's 228 programmes. The cause: the timetable pads gaps (the overnight run and any slot that ends early) with the channel's short programmes, and US Drama had exactly one, a five-minute X-Files file, so that one file was the padding everywhere. Padding now needs at least eight short programmes from at least three shows; otherwise each show's shortest programme is used, so the gaps are shared across the channel.",
+        "Saved schedules are rebuilt once."
+      ]
+    },
     {
       "name": "Alpha 0.53.45",
       "date": "2026-11-22",
@@ -63,15 +71,6 @@ window.RELEASE = {
         "**No programme is in a guide channel twice.** The same episode or film could arrive from two places (a file and a filled-in gap, or two sources) and then came round twice in the loop. A guide channel now keeps one copy of each, and a file we have always beats a filled-in one. On Demand is not touched and still lists every episode.",
         "**EPG debug is accurate.** A programme only counts as a repeat when it is on more than twice in the day, judged by the programme itself (not its link, which empty filled-in episodes all shared), and different films no longer count as \"in a row\". Each channel also shows its pool in hours and whether it is long enough for each programme to come round at most twice a day.",
         "Only Magic EPG adds programmes that have no file of ours (the missing episodes and films); every other setting plays library files only. Checked in the code, no change needed."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.38",
-      "date": "2026-11-22",
-      "notes": [
-        "**The loading TV, its green channel number, the tuner needle and the room backdrop now change together.** Before, the needle swept on its own timer, the green \"P\" number was a random one, and the picture and backdrop each changed on their own. Now the TV surfs the dial: every couple of seconds the needle moves to the next channel's place on the scale, the green number shows that channel, and after a burst of static the picture and the backdrop change to the same new picture. With no picture loaded yet it shows static with the number, not a blank or bars.",
-        "**No more colour bars stuck on the loading TV.** A flash of colour bars fired each time a channel finished loading, and with many channels finishing close together it looked like the TV was stuck on bars. The flash is gone.",
-        "**Santa is smaller.** The plough is three quarters of the size it was in 0.53.37, so it sits mostly in the strip under the guide."
       ]
     }
   ]

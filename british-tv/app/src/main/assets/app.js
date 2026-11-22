@@ -4157,13 +4157,15 @@
   /** The snow looks after its own speed: once the guide has been up for a while, count the frames for eight seconds. Under
    *  about 87% of what the screen can show (60, or 30 on a screen that only does 30), drop to the next lighter tier and measure
    *  again, up to tier 3. The tier is kept for the next start. The log says what each step gave. */
-  function snowMeasure(run, delay) {
+  function snowMeasure(run, delay, tries) {
+    tries = tries || 0;
     setTimeout(function () {
-      if (run !== probeRun || !guideOpen || !seasonOv) return;
+      if (run !== probeRun || !seasonOv) return;
+      if (!guideOpen) { if (tries < 120) snowMeasure(run, 5000, tries + 1); return; }      // the guide is not on screen yet (or was closed): try again in five seconds, for up to ten minutes
       var t0 = performance.now(), last = t0, n = 0, worst = 0, slow = 0, ds = [];
       (function tick(t) {
         if (run !== probeRun) return;
-        if (!guideOpen) { probeAt = 0; return; }              // closed meanwhile: a measurement of something else
+        if (!guideOpen) { snowMeasure(run, 5000, tries + 1); return; }   // closed meanwhile: that was a measurement of something else, start again when it is back
         var d = t - last; last = t;
         if (n > 0) { n++; ds.push(d); if (d > worst) worst = d; if (d > 50) slow++; } else n = 1;
         if (t - t0 < 8000) { requestAnimationFrame(tick); return; }

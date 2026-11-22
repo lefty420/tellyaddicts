@@ -1,16 +1,25 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.37",
-  "version": "0.53.37",
-  "code": 5337,
+  "name": "Alpha 0.53.38",
+  "version": "0.53.38",
+  "code": 5338,
   "date": "2026-11-22",
   "notes": [
-    "**Lighter snow for the TV.** The Shield was measured dropping frames with the snow on (23 to 34 fps, with about 24 animations and eight full-screen layers). The flakes now use one sheet per depth instead of two, and the sway and the drift build-up are shared, so there are about 13 animations and half the layers to blend each frame.",
-    "**Santa is bigger.** The plough was drawn tiny (34 by 26 pixels) because the strip under the guide is short. It is now drawn at full size and drives over the bottom edge of the guide, above the last row, then is taken away when the snow stops.",
-    "**More snow, and the build-up shows.** About 50% more flakes, and each cycle starts with lower drifts, so the growth is easier to see."
+    "**The loading TV, its green channel number, the tuner needle and the room backdrop now change together.** Before, the needle swept on its own timer, the green \"P\" number was a random one, and the picture and backdrop each changed on their own. Now the TV surfs the dial: every couple of seconds the needle moves to the next channel's place on the scale, the green number shows that channel, and after a burst of static the picture and the backdrop change to the same new picture. With no picture loaded yet it shows static with the number, not a blank or bars.",
+    "**No more colour bars stuck on the loading TV.** A flash of colour bars fired each time a channel finished loading, and with many channels finishing close together it looked like the TV was stuck on bars. The flash is gone.",
+    "**Santa is smaller.** The plough is three quarters of the size it was in 0.53.37, so it sits mostly in the strip under the guide."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.37",
+      "date": "2026-11-22",
+      "notes": [
+        "**Lighter snow for the TV.** The Shield was measured dropping frames with the snow on (23 to 34 fps, with about 24 animations and eight full-screen layers). The flakes now use one sheet per depth instead of two, and the sway and the drift build-up are shared, so there are about 13 animations and half the layers to blend each frame.",
+        "**Santa is bigger.** The plough was drawn tiny (34 by 26 pixels) because the strip under the guide is short. It is now drawn at full size and drives over the bottom edge of the guide, above the last row, then is taken away when the snow stops.",
+        "**More snow, and the build-up shows.** About 50% more flakes, and each cycle starts with lower drifts, so the growth is easier to see."
+      ]
+    },
     {
       "name": "Alpha 0.53.36",
       "date": "2026-11-22",
@@ -63,13 +72,6 @@ window.RELEASE = {
         "**On Demand > On now: film channels now show the film.** Christmas Movies, Kids Films, The Video Shop and the other movie channels used to show a plain coloured card named after the channel. They now show the film that is on, with its own picture and title.",
         "**Updating the app no longer throws away every saved schedule.** The saved schedules were keyed on the app version, so the first start after each update laid all 65 channels out again (35 s on the Shield). They now stay valid until how a schedule is laid out actually changes.",
         "The debug log adds a wall-clock line for a start (when the channel lists and the Magic EPG data came in), to find where the rest of a cold start goes."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.29",
-      "date": "2026-11-22",
-      "notes": [
-        "With Debug connection on, three more pages can be opened from a browser on your Wi-Fi, each built fresh when asked: `/epg` (the EPG debug for every channel), `/gaps` (the missing-episodes report; add `?fresh=1` to check again) and `/log` (the whole debug log). No code, no need to open them on the TV first."
       ]
     }
   ]

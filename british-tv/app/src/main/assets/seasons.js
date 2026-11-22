@@ -159,7 +159,7 @@
       // left; the drifts are cut away exactly at its blade (a clip-path moving with it), so the snow behind it is gone.
       var cyc = Math.max(20000, CFG.CYCLE_MS), run = Math.min(CFG.PLOUGH_MS, cyc / 4), grow = 1 - run / cyc,
           startY = Math.round(d[2] * (1 - Math.max(0, Math.min(1, CFG.START)))),
-          pp = px,           // the plough is drawn at the full pixel size and rides over the bottom of the guide, so Santa can be seen
+          pp = px * 0.75,    // three quarters of the flakes' pixel size (3 device pixels on a 2x screen): big enough to be Santa, small enough to sit mostly in the strip under the guide
           pw = PLOUGH_W * pp, front = PLOUGH_FRONT * pp, endX = sw + front, opt = { duration: cyc, iterations: Infinity, delay: -((Date.now() - T0) % cyc) };
       var rise = [
         { offset: 0,    transform: 'translateY(' + startY + 'px)', easing: 'steps(' + Math.max(1, Math.round(startY / px)) + ')' },

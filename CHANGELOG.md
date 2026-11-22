@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.38 — 2026-11-22
+- **The loading TV, its green channel number, the tuner needle and the room backdrop now change together.** Before, the needle swept on its own timer, the green "P" number was a random one, and the picture and backdrop each changed on their own. Now the TV surfs the dial: every couple of seconds the needle moves to the next channel's place on the scale, the green number shows that channel, and after a burst of static the picture and the backdrop change to the same new picture. With no picture loaded yet it shows static with the number, not a blank or bars.
+- **No more colour bars stuck on the loading TV.** A flash of colour bars fired each time a channel finished loading, and with many channels finishing close together it looked like the TV was stuck on bars. The flash is gone.
+- **Santa is smaller.** The plough is three quarters of the size it was in 0.53.37, so it sits mostly in the strip under the guide.
+
 ## Alpha 0.53.37 — 2026-11-22
 - **Lighter snow for the TV.** The Shield was measured dropping frames with the snow on (23 to 34 fps, with about 24 animations and eight full-screen layers). The flakes now use one sheet per depth instead of two, and the sway and the drift build-up are shared, so there are about 13 animations and half the layers to blend each frame.
 - **Santa is bigger.** The plough was drawn tiny (34 by 26 pixels) because the strip under the guide is short. It is now drawn at full size and drives over the bottom edge of the guide, above the last row, then is taken away when the snow stops.

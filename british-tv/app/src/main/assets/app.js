@@ -1149,49 +1149,53 @@
     }).then(null, function () { /* static only */ });
   }
   // Start-up TV, all moved by CSS animations (see index.html): this only makes the pieces and keeps the pictures topped up.
-  var spSlots = [], spInited = false;
+  var spSlots = [], spInited = false, spSurfTimer = null, spStep = 0;
   function spInit() {
     if (spInited) return;
     spInited = true;
     var c = $('spnoise'), x = c.getContext('2d'), img = x.createImageData(c.width, c.height), d = img.data;     // four frames of static in one tall picture
     for (var i = 0; i < d.length; i += 4) { var v = (Math.random() * 255) | 0; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
     x.putImageData(img, 0, 0);
-    var box = $('spslides');
-    for (var n = 0; n < 12; n++) {
-      var el = document.createElement('div');
-      el.className = 'spslot'; el.style.animationDelay = (n * 1.7) + 's'; el.setAttribute('data-ch', 'P--');
-      // each time a picture comes round again it is a different one, on a different "channel"
-      el.addEventListener('animationiteration', function (e) { if (e.animationName === 'spslot') spSet(e.target); });
-      el.addEventListener('animationstart', function (e) { if (e.animationName === 'spslot') spSet(e.target); });
-      box.appendChild(el); spSlots.push(el);
-      var bgb = $('spbg');
-      if (bgb) { var tw = document.createElement('div'); tw.className = 'spbgslot'; tw.style.animationDelay = el.style.animationDelay; bgb.appendChild(tw); el._tw = tw; }
-    }
-    spFill();
+    // One screen that surfs the dial: every couple of seconds the needle moves to the next channel's place on the scale, the green number
+    // shows that channel, and the picture and the room's backdrop change to the same new picture together, after a burst of static.
+    var el = document.createElement('div');
+    el.className = 'spslot has now'; el.setAttribute('data-ch', 'P--');
+    $('spslides').appendChild(el); spSlots.push(el);
+    var bgb = $('spbg');
+    if (bgb) { var tw = document.createElement('div'); tw.className = 'spbgslot now'; bgb.appendChild(tw); el._tw = tw; }
+    spSurf();
+    spSurfTimer = setInterval(spSurf, 1700);
   }
-  var spRecent = [], spChi = 0, spDone = -1;
-  function spSet(el) {
+  var spRecent = [], spChi = 0, spDone = -1, spEver = false;
+  function spSurf() {
+    var el = spSlots[0]; if (!el) return;
     var pool = spPics.length ? spPics : spPosters;                   // backdrops only; posters just until a backdrop has loaded
-    if (!pool.length) return;
-    var fresh = pool.filter(function (u) { return !spSeen[u]; });    // never one already shown, while there is a new one to show
-    if (fresh.length < 14) spMore(12);                               // and keep fetching so there always is
-    if (!fresh.length && pool.length < 6) { el.className = 'spslot'; if (el._tw) el._tw.className = 'spbgslot'; return; }   // few pictures loaded so far: show nothing rather than the same one again (spFill gives it a new one as they arrive)
-    if (!fresh.length) {                                             // only when every one has been seen does it start over, and then
-      spSeen = {};                                                   // never with one of the last few shown (or the very last one, at least)
-      fresh = pool.filter(function (u) { return spRecent.indexOf(u) < 0; });
-      if (!fresh.length) fresh = pool.filter(function (u) { return u !== spRecent[spRecent.length - 1]; });
-      if (!fresh.length) fresh = pool.slice();
+    var list = channels.slice().sort(function (a, b) { return a.n - b.n; }), k = list.length ? spStep++ % list.length : 0, c = list[k];
+    var u = '';
+    if (pool.length) {
+      var fresh = pool.filter(function (p) { return !spSeen[p]; });  // never one already shown, while there is a new one to show
+      if (fresh.length < 14) spMore(12);                              // and keep fetching so there always is
+      if (!fresh.length) {                                            // every one seen: start over, never with one of the last few shown
+        spSeen = {};
+        fresh = pool.filter(function (p) { return spRecent.indexOf(p) < 0; });
+        if (!fresh.length) fresh = pool.slice();
+      }
+      u = fresh[(Math.random() * fresh.length) | 0];
+      spSeen[u] = 1; spRecent.push(u); if (spRecent.length > 6) spRecent.shift();
     }
-    var u = fresh[(Math.random() * fresh.length) | 0], pn = 1 + ((Math.random() * 40) | 0);
-    var tuned = channels.filter(function (c) { return c.status === 'ready'; });       // the picture is "tuned" to a channel that has really loaded
-    if (tuned.length) pn = tuned[spChi++ % tuned.length].n;
-    spSeen[u] = 1; spRecent.push(u); if (spRecent.length > 6) spRecent.shift();
-    el.style.backgroundImage = 'url("' + u + '")'; el.className = 'spslot has';
-    if (el._tw) { el._tw.style.backgroundImage = 'url("' + u + '")'; el._tw.className = 'spbgslot has'; }   // the room theme's blurred backdrop shows the same picture at the same moment
+    var pn = c ? c.n : 1 + k;
+    var nd = $('spneedle');
+    if (nd) { nd.style.animation = 'none'; nd.style.transition = 'left .45s ease-out'; nd.style.left = (list.length ? (k + 0.5) / list.length * 100 : 50) + '%'; }
     el.setAttribute('data-ch', 'P' + (pn < 10 ? '0' : '') + pn);
+    el.style.backgroundImage = 'none'; if (el._tw) el._tw.style.backgroundImage = 'none';     // static between channels, then the picture
+    setTimeout(function () {
+      if (!u) return;
+      spEver = true;
+      el.style.backgroundImage = 'url("' + u + '")'; if (el._tw) el._tw.style.backgroundImage = 'url("' + u + '")';
+    }, 160);
   }
-  /** A picture has loaded: any slot still empty can use it. */
-  function spFill() { spSlots.forEach(function (el) { if (el.className.indexOf('has') < 0) spSet(el); }); }
+  /** A picture has loaded: if the screen is still on static, give it one. */
+  function spFill() { if (!spEver && spSlots[0] && (spPics.length || spPosters.length)) spSurf(); }
   function renderStatus() {
     if (started) return;           // the loading screen is gone: nothing to draw while the rest of the channels finish
     var lines = channels.map(function (c) {
@@ -1233,7 +1237,6 @@
       $('splash').classList.toggle('ready', allIn);
       if (allIn) $('spmsg').textContent = 'Opening the guide\u2026';
       var scr = $('spscreen');
-      if (!first) { scr.classList.remove('lock'); void scr.offsetWidth; scr.classList.add('lock'); setTimeout(function () { scr.classList.remove('lock'); }, 180); }   // a flash of colour bars as a channel locks on
     }
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;
@@ -8879,7 +8882,7 @@
     var land = function () {
       landedAt = Date.now();
       $('splash').className = 'hidden';
-      clearInterval(spNoiseTimer); spNoiseTimer = null; clearInterval(bootTimer);   // nothing needs waking up 9 times a second now
+      clearInterval(spNoiseTimer); spNoiseTimer = null; clearInterval(bootTimer); clearInterval(spSurfTimer);   // nothing needs waking up 9 times a second now
       tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
       openGuide();               // ... but land in the TV guide
       greetRelease();            // and say once if this is a version they have not run before

@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.39",
-  "version": "0.53.39",
-  "code": 5339,
+  "name": "Alpha 0.53.40",
+  "version": "0.53.40",
+  "code": 5340,
   "date": "2026-11-22",
   "notes": [
-    "**No programme is in a guide channel twice.** The same episode or film could arrive from two places (a file and a filled-in gap, or two sources) and then came round twice in the loop. A guide channel now keeps one copy of each, and a file we have always beats a filled-in one. On Demand is not touched and still lists every episode.",
-    "**EPG debug is accurate.** A programme only counts as a repeat when it is on more than twice in the day, judged by the programme itself (not its link, which empty filled-in episodes all shared), and different films no longer count as \"in a row\". Each channel also shows its pool in hours and whether it is long enough for each programme to come round at most twice a day.",
-    "Only Magic EPG adds programmes that have no file of ours (the missing episodes and films); every other setting plays library files only. Checked in the code, no change needed."
+    "**Neighbours files named by episode number now get their season and episode.** About 1,500 Neighbours files (\"Neighbours Episode 2965\", \"Neighbours 1000\") had no season or episode in the name, so they were filed as Specials and Magic EPG could fill the same episode in again. A small table made from the episode guide (`absnum.js`, written by `tools/make_absnum.py`) turns the number into the season and episode, with nothing to download and no new scrape. 1,799 of the 1,871 Neighbours files are covered; the rest are named by date, which the scraper already handles."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.39",
+      "date": "2026-11-22",
+      "notes": [
+        "**No programme is in a guide channel twice.** The same episode or film could arrive from two places (a file and a filled-in gap, or two sources) and then came round twice in the loop. A guide channel now keeps one copy of each, and a file we have always beats a filled-in one. On Demand is not touched and still lists every episode.",
+        "**EPG debug is accurate.** A programme only counts as a repeat when it is on more than twice in the day, judged by the programme itself (not its link, which empty filled-in episodes all shared), and different films no longer count as \"in a row\". Each channel also shows its pool in hours and whether it is long enough for each programme to come round at most twice a day.",
+        "Only Magic EPG adds programmes that have no file of ours (the missing episodes and films); every other setting plays library files only. Checked in the code, no change needed."
+      ]
+    },
     {
       "name": "Alpha 0.53.38",
       "date": "2026-11-22",
@@ -65,13 +72,6 @@ window.RELEASE = {
       "notes": [
         "**Episode names are no longer looked up again at every start.** After each channel loaded, the app re-checked every show's saved episode list (a storage read and a parse for about 635 shows) to swap in real episode names, even when they were already right, because the \"checked\" mark was not saved with the channel. It is saved now, so the second and later starts skip the work. The first start after this update does it once.",
         "The debug log adds how many shows were checked and how long it took."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.31",
-      "date": "2026-11-22",
-      "notes": [
-        "The debug log adds a \"busy frames\" line at the end of a start: how long the page was too busy to draw, how much of that was scripts and how much was drawing, and which parts of the code took longest. It is there to find where a cold start spends its time."
       ]
     }
   ]

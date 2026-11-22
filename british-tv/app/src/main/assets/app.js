@@ -606,6 +606,22 @@
     if (m) for (var k in m) if (m.hasOwnProperty(k) && (m[k].song || m[k].film)) return false;
     return true;
   }
+  /** A soap file named by its overall number ("Neighbours Episode 2965", "Neighbours 1000") has no season or episode in its
+   *  name, so it was filed as a "Special" and Magic EPG filled the same episode in again. absnum.js (made from the episode
+   *  guides) turns the number into the season and episode. Only shows listed there; a number outside the guide is left alone. */
+  function absEp(show, file) {
+    var T = window.ABSNUM && ABSNUM[normShow(show)];
+    if (!T) return null;
+    var b = String(file || '').split('/').pop().replace(/\.[A-Za-z0-9]{2,4}$/, '').replace(/\.ia$/i, '');
+    if (/\bS\d+\s*E\d+|\b\d+x\d+\b/i.test(b)) return null;
+    var m = /\bEpisode\s*0*(\d{1,5})\b/i.exec(b) || /\bEp\.?\s*0*(\d{1,5})\b/i.exec(b);
+    if (!m) { var w = normShow(show).split(' ')[0]; m = new RegExp('^' + w + '[\\s_.-]+0*(\\d{1,5})(?!\\d)', 'i').exec(b); }
+    if (!m) return null;
+    var n = +m[1], lo = 0, hi = T.length - 1;
+    while (lo < hi) { var mid = (lo + hi + 1) >> 1; if (T[mid][0] <= n) lo = mid; else hi = mid - 1; }
+    var r = T[lo];
+    return r && n >= r[0] && n < r[0] + r[3] ? { s: r[1], e: r[2] + (n - r[0]), n: n } : null;
+  }
   function progsFromData(items, channelId, everything) {   // everything: On Demand lists files whether or not their names carry an episode code
     var out = [];
     items.forEach(function (it) {
@@ -633,6 +649,10 @@
           if (d.l > 60) { p.dur = d.l; p.lenKnown = 1; }
           if (d.shorts) p.shorts = 1;          // a Disney short: no season or episode, no series art, no TVmaze lookups
           if (d.film) { p.filmKey = keepFilm(d); p.cert = d.cert || ''; }   // TMDb details, and the certificate
+        }
+        if (show && window.ABSNUM && !(window.LINKS && LINKS.parseEp(p.title))) {
+          var ac = absEp(show, nm);
+          if (ac) p.title = show + ' S' + pad2(ac.s) + 'E' + pad2(ac.e) + ' Episode ' + ac.n;
         }
         out.push(p);
       });
@@ -8930,7 +8950,7 @@
   // ---- The built schedule of each channel (what plays when) is kept, so a start reads it back instead of laying it out again.
   // It is a list of places in the channel's programme list, so it is only used when that list is exactly as it was: the key
   // carries a fingerprint of the list, the span, the Broadcast schedule setting and SCHED_LOGIC (so an update does not throw saved schedules away).
-  var SCHED_LOGIC = '2';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
+  var SCHED_LOGIC = '3';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
   function schedKey(c, progs, seed, spanH) {
     if (!KV_NATIVE) return '';
     var sig = progs.map(function (p) { return (p.url || p.id) + ':' + p.dur; }).join('|');

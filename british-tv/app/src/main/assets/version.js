@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.28",
-  "version": "0.53.28",
-  "code": 5328,
+  "name": "Alpha 0.53.29",
+  "version": "0.53.29",
+  "code": 5329,
   "date": "2026-11-22",
   "notes": [
-    "**Options > Debug > Debug connection** (was Live view) is the one On/Off switch for reading the app from a browser on your Wi-Fi. It stays on across launches, and the address no longer carries a code, so the same plain address works every time. The code can be brought back later.",
-    "The debug text it serves now holds the last 400 log lines instead of 80, so a whole start-up can be read without sending it."
+    "With Debug connection on, three more pages can be opened from a browser on your Wi-Fi, each built fresh when asked: `/epg` (the EPG debug for every channel), `/gaps` (the missing-episodes report; add `?fresh=1` to check again) and `/log` (the whole debug log). No code, no need to open them on the TV first."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.28",
+      "date": "2026-11-22",
+      "notes": [
+        "**Options > Debug > Debug connection** (was Live view) is the one On/Off switch for reading the app from a browser on your Wi-Fi. It stays on across launches, and the address no longer carries a code, so the same plain address works every time. The code can be brought back later.",
+        "The debug text it serves now holds the last 400 log lines instead of 80, so a whole start-up can be read without sending it."
+      ]
+    },
     {
       "name": "Alpha 0.53.27",
       "date": "2026-11-22",
@@ -60,14 +67,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "**Snow log is cleaner**: the debug log says which mode the snow started in (Auto or Test), whether Experimental is on, the screen size, and then a speed check taken 20 s later, when start-up work is over, with the number of animations really running. A check interrupted by the guide closing is dropped."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.20",
-      "date": "2026-11-21",
-      "notes": [
-        "**Settings survive a relaunch or an update**: saved settings (Experimental, Seasonal effects Test, favourites, looks and so on) are now also written to a file the moment they change. The page's own storage is written to disk some seconds later, so closing or updating the app soon after changing one could lose it. Settings from earlier versions are copied across a few seconds after start.",
-        "**Snow performance check**: 12 seconds after the snow starts the debug log gets a line `SNOW: N fps ... slowest frame ... ms`, so Santa's plough can be judged from the log."
       ]
     }
   ]

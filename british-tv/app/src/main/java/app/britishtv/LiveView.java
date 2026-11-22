@@ -97,6 +97,45 @@ final class LiveView {
         state = text == null ? "" : text;
     }
 
+    // Pages the app builds only when asked (the EPG debug, the missing-episodes report, the full log): a request for /epg, /gaps or /log
+    // is noted here, the page script picks it up within a couple of seconds, builds the text and hands it back with putBlob.
+    private final java.util.concurrent.ConcurrentHashMap<String, String> blobs = new java.util.concurrent.ConcurrentHashMap<String, String>();
+    private final java.util.concurrent.ConcurrentLinkedQueue<String> wanted = new java.util.concurrent.ConcurrentLinkedQueue<String>();
+
+    /** Names asked for since the last call, comma-separated ("epg,gaps:fresh"), or "". */
+    String takeWanted() {
+        StringBuilder b = new StringBuilder();
+        String w;
+        while ((w = wanted.poll()) != null) {
+            if (b.length() > 0) {
+                b.append(',');
+            }
+            b.append(w);
+        }
+        return b.toString();
+    }
+
+    void putBlob(String name, String text) {
+        blobs.put(name, text == null ? "" : text);
+    }
+
+    private byte[] ask(String name, boolean fresh) throws IOException {
+        blobs.remove(name);
+        wanted.add(fresh ? name + ":fresh" : name);
+        for (int i = 0; i < 300; i++) {                     // up to 30 s
+            String t = blobs.get(name);
+            if (t != null) {
+                return t.getBytes("UTF-8");
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+        return "The app did not answer in time. Is it on the guide, and is the Debug connection still on?".getBytes("UTF-8");
+    }
+
     private void acceptLoop() {
         while (true) {
             ServerSocket ss = server;
@@ -156,6 +195,8 @@ final class LiveView {
                 } else {
                     reply(sock, "200 OK", "image/jpeg", jpg);
                 }
+            } else if (path.equals("/epg") || path.equals("/gaps") || path.equals("/log")) {
+                reply(sock, "200 OK", "text/plain; charset=utf-8", ask(path.substring(1), "1".equals(param(query, "fresh"))));
             } else if (path.equals("/state")) {
                 reply(sock, "200 OK", "text/plain; charset=utf-8", state.getBytes("UTF-8"));
             } else if (path.equals("/key")) {

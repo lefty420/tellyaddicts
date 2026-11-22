@@ -653,6 +653,20 @@ public class MainActivity extends Activity {
             }
         }
 
+        /** Pages asked for from the browser since the last call ("epg", "gaps", "log", with ":fresh" to redo), or "". */
+        @JavascriptInterface
+        public String liveWanted() {
+            return live != null ? live.takeWanted() : "";
+        }
+
+        /** The text for a page asked for from the browser. */
+        @JavascriptInterface
+        public void liveBlob(String name, String text) {
+            if (live != null) {
+                live.putBlob(name, text);
+            }
+        }
+
         /** The debug text the Live view page shows beside the picture. */
         @JavascriptInterface
         public void liveState(String text) {

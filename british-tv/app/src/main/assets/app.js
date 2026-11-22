@@ -6307,9 +6307,29 @@
     try { liveAddr = NativeHttp.liveStart() || ''; } catch (e) { liveAddr = ''; }
     if (!liveAddr) { if (!quiet) toast('No home network found', 2500); return false; }
     store.set('live1', 'on');
-    perfStart(); liveTimer = setInterval(function () { try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } }, 2000);
+    perfStart(); liveTimer = setInterval(function () { try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ } liveServe(); }, 2000);
     try { NativeHttp.liveState(liveText()); } catch (e) { /* ignore */ }
     return true;
+  }
+  /** Pages the browser asked for (/epg, /gaps, /log): built now, handed to the app's server, which answers the waiting request. */
+  function liveServe() {
+    var want = '';
+    try { want = NativeHttp.liveWanted ? NativeHttp.liveWanted() : ''; } catch (e) { want = ''; }
+    if (!want) return;
+    want.split(',').forEach(function (w) {
+      var name = w.split(':')[0], fresh = w.indexOf(':fresh') > 0, text = '';
+      try {
+        if (name === 'epg') text = epgDbgChannels().length ? epgText() : 'No channel is ready yet.';
+        else if (name === 'log') text = logText();
+        else if (name === 'gaps') {
+          gapStart(fresh);
+          var r = gapState.report;
+          text = (gapState.running ? 'STILL CHECKING: ' + gapState.done + ' of ' + (gapState.total || '?') + ' shows. ' + (r ? 'This is the last full report; ask again in a few minutes.' : 'Ask again in a few minutes.') + '\n' : '') +
+                 (r ? gapText() : '');
+        }
+      } catch (e) { text = 'Could not build ' + name + ': ' + e.message; }
+      try { NativeHttp.liveBlob(name, text); } catch (e) { /* ignore */ }
+    });
   }
   function liveToggle() { liveSet(!liveAddr, false); renderOpts(); }
   // it was on when the app last ran: on again now (the home network can take a few seconds to come up, so it tries a few times)

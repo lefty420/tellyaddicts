@@ -143,7 +143,14 @@
           { duration: H / (L.v * vf) * 1000, iterations: Infinity, easing: 'linear' }));
       });
       var d = paintDrifts(W, H);
-      d[0].style.opacity = '0.85'; box.appendChild(d[0]); box.appendChild(d[1]);
+      d[0].style.opacity = '0.85';
+      // the plough's cut is two nested layers sliding opposite ways (a transform, which the TV moves without redrawing), not an animated
+      // clip-path, which is redrawn every frame on the main thread and fell out of step with the plough. The outer layer hides everything
+      // left of the blade; the inner one slides back by the same amount so the drifts themselves stay where they are.
+      var cut = document.createElement('div'), un = document.createElement('div');
+      cut.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;will-change:transform';
+      un.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;will-change:transform';
+      un.appendChild(d[0]); un.appendChild(d[1]); cut.appendChild(un); box.appendChild(cut);
       anims.push(d[1].animate([{ opacity: 0.1 }, { opacity: 1 }, { opacity: 0.1 }], { duration: 2400, iterations: Infinity, easing: 'steps(4)' }));
       // The drifts are painted once at full height and slid up from below the screen: a transform, so the TV does no drawing.
       // They rise in whole canvas pixels (steps) for the 16-bit look. At the end of the cycle Santa's snow plough drives in from the
@@ -153,11 +160,13 @@
           pp = Math.max(1, Math.min(px, Math.floor(((bottomClear ? bottomClear() : 56) - 4) / PLOUGH_H))),   // the plough's own pixel size: smaller when the free strip is short, never skipped
           pw = PLOUGH_W * pp, front = PLOUGH_FRONT * pp, endX = sw + front, opt = { duration: cyc, iterations: Infinity, delay: -((Date.now() - T0) % cyc) };
       var rise = [
-        { offset: 0,    transform: 'translateY(' + startY + 'px)', clipPath: 'inset(0 0 0 0)', easing: 'steps(' + Math.max(1, Math.round(startY / px)) + ')' },
-        { offset: grow, transform: 'translateY(0)',                clipPath: 'inset(0 0 0 0)', easing: 'linear' },
-        { offset: 1,    transform: 'translateY(0)',                clipPath: 'inset(0 0 0 ' + endX + 'px)' }
+        { offset: 0,    transform: 'translateY(' + startY + 'px)', easing: 'steps(' + Math.max(1, Math.round(startY / px)) + ')' },
+        { offset: grow, transform: 'translateY(0)' },
+        { offset: 1,    transform: 'translateY(0)' }
       ];
       [d[0], d[1]].forEach(function (el) { anims.push(el.animate(rise, opt)); });
+      anims.push(cut.animate([{ offset: 0, transform: 'translateX(0)' }, { offset: grow, transform: 'translateX(0)' }, { offset: 1, transform: 'translateX(' + endX + 'px)' }], opt));
+      anims.push(un.animate([{ offset: 0, transform: 'translateX(0)' }, { offset: grow, transform: 'translateX(0)' }, { offset: 1, transform: 'translateX(' + (-endX) + 'px)' }], opt));
       // say in the debug log when the plough is due and when it sets off, so a crossing can be checked afterwards
       clearTimeout(noteT);
       var due = ((grow * cyc - ((Date.now() - T0) % cyc)) % cyc + cyc) % cyc;
@@ -184,6 +193,8 @@
       // a menu is over the guide: hold the snow still, carry on when it closes
       hold: function (on) { if (running) setPlay(!on); },
       on: function () { return running; },
+      /** Milliseconds until the plough sets off, and how long it drives: so its crossing can be measured. */
+      plough: function () { var cyc = Math.max(20000, CFG.CYCLE_MS), run = Math.min(CFG.PLOUGH_MS, cyc / 4), grow = 1 - run / cyc; return { due: ((grow * cyc - ((Date.now() - T0) % cyc)) % cyc + cyc) % cyc, run: run }; },
       stop: function () { running = false; clearTimeout(resumeT); clearTimeout(noteT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; },
       // the guide is being scrolled: hold the snow still until it has settled
       touch: function () { if (!running) return; setPlay(false); clearTimeout(resumeT); resumeT = setTimeout(function () { if (running) setPlay(true); }, CFG.PAUSE_MS); }

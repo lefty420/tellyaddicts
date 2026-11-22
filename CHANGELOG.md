@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.36 — 2026-11-22
+- **The snow now falls over the episode picture in the guide.** It used to be cut away from the whole top-right block, so it vanished wherever the picture was. It is now cut away only round the words themselves (each line as wide as its own text), so flakes drift over the picture and stay clear of the title, channel and time. The grid is still kept clear, with the drifts in the strip below it.
+- **Santa's plough clears the snow smoothly.** The cut that removes the drifts behind the plough was an animated clip-path, which the TV redraws every frame and which fell out of step with the plough, so the clearing jumped. It is now moved the same way the plough is, so the blade and the cut stay together.
+- The debug log adds a line for the plough's crossing: frames per second and the slowest frame while it drives.
+
 ## Alpha 0.53.35 — 2026-11-22
 - The debug log adds a line at the end of a start: how many saved things of each kind were read, how big they were, and how long reading and parsing them took, to show which saved data holds up a cold start.
 

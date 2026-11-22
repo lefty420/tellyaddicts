@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.35",
-  "version": "0.53.35",
-  "code": 5335,
+  "name": "Alpha 0.53.36",
+  "version": "0.53.36",
+  "code": 5336,
   "date": "2026-11-22",
   "notes": [
-    "The debug log adds a line at the end of a start: how many saved things of each kind were read, how big they were, and how long reading and parsing them took, to show which saved data holds up a cold start."
+    "**The snow now falls over the episode picture in the guide.** It used to be cut away from the whole top-right block, so it vanished wherever the picture was. It is now cut away only round the words themselves (each line as wide as its own text), so flakes drift over the picture and stay clear of the title, channel and time. The grid is still kept clear, with the drifts in the strip below it.",
+    "**Santa's plough clears the snow smoothly.** The cut that removes the drifts behind the plough was an animated clip-path, which the TV redraws every frame and which fell out of step with the plough, so the clearing jumped. It is now moved the same way the plough is, so the blade and the cut stay together.",
+    "The debug log adds a line for the plough's crossing: frames per second and the slowest frame while it drives."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.35",
+      "date": "2026-11-22",
+      "notes": [
+        "The debug log adds a line at the end of a start: how many saved things of each kind were read, how big they were, and how long reading and parsing them took, to show which saved data holds up a cold start."
+      ]
+    },
     {
       "name": "Alpha 0.53.34",
       "date": "2026-11-22",
@@ -60,14 +69,6 @@ window.RELEASE = {
       "notes": [
         "**Options > Debug > Debug connection** (was Live view) is the one On/Off switch for reading the app from a browser on your Wi-Fi. It stays on across launches, and the address no longer carries a code, so the same plain address works every time. The code can be brought back later.",
         "The debug text it serves now holds the last 400 log lines instead of 80, so a whole start-up can be read without sending it."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.27",
-      "date": "2026-11-22",
-      "notes": [
-        "**The guide opens much sooner on a cold start.** It used to wait until all 66 channels had loaded, so a start took as long as the slowest channel. It now opens as soon as the channel you were last watching and the first ten channels in the guide are ready; the others finish behind it and appear as they land.",
-        "The hidden loading list is no longer redrawn once the guide is up, which saves work while the last channels finish."
       ]
     }
   ]

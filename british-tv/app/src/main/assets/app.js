@@ -4086,6 +4086,21 @@
     if (!window.requestAnimationFrame || Date.now() - probeAt < 120000) return;
     probeAt = Date.now();
     var run = ++probeRun;
+    // the plough's own crossing: frames while it drives, and where the blade and the cut are against each other at the half way mark
+    try {
+      var pl = seasonOv.plough();
+      setTimeout(function () {
+        if (run !== probeRun || !guideOpen) return;
+        var t0 = performance.now(), last = t0, n = 0, worst = 0, slow = 0, span = Math.max(3000, pl.run - 800);
+        (function tick(t) {
+          if (run !== probeRun) return;
+          var d = t - last; last = t;
+          if (n > 0) { n++; if (d > worst) worst = d; if (d > 50) slow++; } else n = 1;
+          if (t - t0 < span) { requestAnimationFrame(tick); return; }
+          dlog('SNOW: plough crossing: ' + Math.round(n * 1000 / (t - t0)) + ' fps over ' + Math.round((t - t0) / 1000) + ' s, slowest frame ' + Math.round(worst) + ' ms, ' + slow + ' over 50 ms');
+        })(t0);
+      }, pl.due + 400);
+    } catch (e) { /* no plough timing */ }
     setTimeout(function () {
       if (run !== probeRun || !guideOpen) return;
       var t0 = performance.now(), last = t0, n = 0, worst = 0, slow = 0;
@@ -4100,6 +4115,40 @@
       })(t0);
     }, 20000);
   }
+  /** The snow falls over the episode picture but not over the words: the area it must keep clear is cut round the real text (each line as wide as
+   *  its own words), the little TV's neighbour the grid, and nothing else. Redone whenever the words change. */
+  var snowClipObs = null, snowClipRaf = 0;
+  function snowClip() {
+    var box = $('gsnow'); if (!box) return;
+    var W = window.innerWidth, H = window.innerHeight, holes = [];
+    function rectOf(el, pad) {
+      if (!el || !el.textContent) return;
+      var r; try { var rg = document.createRange(); rg.selectNodeContents(el); r = rg.getBoundingClientRect(); } catch (e) { return; }
+      if (!r || !r.width || !r.height) return;
+      holes.push([Math.max(0, r.left - pad), Math.max(0, r.top - 1), Math.min(W, r.right + pad), Math.min(H, r.bottom + 1)]);
+    }
+    ['gtitle', 'gchan', 'gtime', 'gsub'].forEach(function (id) { rectOf($(id), 6); });
+    var gt = $('gtop'); if (gt) Array.prototype.forEach.call(gt.children, function (c) { rectOf(c, 8); });
+    var g = $('ggrid'), rows = document.querySelectorAll('#guide .grow');      // the rows, down to the last one: the strip under them is where the drifts lie
+    if (g && rows.length) { var gr = g.getBoundingClientRect(), lb = rows[rows.length - 1].getBoundingClientRect().bottom; if (gr.width) holes.push([gr.left, gr.top, gr.right, Math.min(H, lb)]); }
+    // holes must not overlap (even-odd fill would give the snow back where two meet): later ones give way to earlier
+    var kept = [];
+    holes.forEach(function (h) {
+      kept.forEach(function (k) { if (h[0] < k[2] && h[2] > k[0] && h[1] < k[3] && h[3] > k[1]) { if (h[1] < k[1]) h[3] = Math.min(h[3], k[1]); else h[1] = Math.max(h[1], k[3]); } });
+      if (h[2] > h[0] && h[3] > h[1]) kept.push(h);
+    });
+    var p = 'M0 0H' + W + 'V' + H + 'H0Z';
+    kept.forEach(function (h) { p += 'M' + Math.round(h[0]) + ' ' + Math.round(h[1]) + 'H' + Math.round(h[2]) + 'V' + Math.round(h[3]) + 'H' + Math.round(h[0]) + 'Z'; });
+    box.style.clipPath = 'path(evenodd, "' + p + '")';
+  }
+  function snowClipWatch(on) {
+    if (!on) { if (snowClipObs) { snowClipObs.disconnect(); snowClipObs = null; } return; }
+    snowClip();
+    if (snowClipObs || !window.MutationObserver) return;
+    snowClipObs = new MutationObserver(function () { if (snowClipRaf) return; snowClipRaf = requestAnimationFrame(function () { snowClipRaf = 0; snowClip(); }); });
+    var gi = $('ginfo'); if (gi) snowClipObs.observe(gi, { childList: true, characterData: true, subtree: true });
+    var gg = $('ggrid'); if (gg) snowClipObs.observe(gg, { childList: true });
+  }
   function seasonUpdate() {
     if (!window.SEASONS) return;
     var want = seasonOn && guideOpen && !!SEASONS.current();
@@ -4112,6 +4161,7 @@
     var was = seasonOv && seasonOv.on ? seasonOv.on() : false;
     if (want) seasonOv.start(); else if (seasonOv) seasonOv.stop();
     if (want && !was) snowProbe(); else if (!want) probeRun++;
+    snowClipWatch(want);
     if (seasonOv) seasonOv.hold(!!gm);        // a hold-OK menu is open: the snow holds still
     SEASONS.hat(want ? SEASONS.current() : null);
   }

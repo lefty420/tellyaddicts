@@ -1641,7 +1641,18 @@
     return job;
   }
   /** The show as TheTVDB has it, in the shape the rest of the app reads; null when it has no match. Kept per show. */
-  function tvdbShow(name, year) {
+  /** The Disney cartoons that have no series of their own on TheTVDB (Donald Duck, Goofy, Pluto and the rest) are all in one
+   *  series there, "Disney Animated Shorts". For pictures only they share its poster and backdrop; episodes and summaries are
+   *  not taken from it, because its numbering is not theirs. */
+  var DISNEY_SHORTS = { 'donald duck': 1, 'goofy': 1, 'pluto': 1, 'mickey mouse': 1, 'minnie mouse': 1, 'daisy duck': 1, 'humphrey the bear': 1,
+    'scrooge mcduck': 1, 'silly symphonies': 1, 'silly symphony': 1, 'disney classic': 1, 'disney short': 1, 'disney shorts': 1, 'walt disney cartoon': 1, 'walt disney cartoons': 1 };
+  function disneyShort(name) { return !!DISNEY_SHORTS[normShow(name)]; }
+  function tvdbShow(name, year, shared) {
+    if (shared && disneyShort(name)) {
+      return tvdbShow('Disney Animated Shorts', 0).then(function (d) {
+        return d ? Object.assign({}, d, { name: name, summary: '', cast: [], year: '', ended: '', shared: 1 }) : null;
+      });
+    }
     var key = 'tvdb1:' + normShow(name), c = store.get(key);
     if (c && (c.d ? metaFresh(c) : Date.now() - c.t < TVM_MISS)) return Promise.resolve(c.d);
     var words = name.split(/\s+/), tries = [name];
@@ -1771,10 +1782,10 @@
   }
   /** What the Info screen wants, from TheTVDB; null (so TVmaze is asked) when it has nothing. */
   function tvdbInfo(p) {
-    return tvdbShow(p.show, p.year).then(function (sh) {
+    return tvdbShow(p.show, p.year, true).then(function (sh) {
       if (!sh) return null;
       var d = { show: Object.assign({}, sh), ep: null };
-      if (!p.e) return d;
+      if (!p.e || sh.shared) return d;
       return tvdbEpisode(sh, p).then(function (ep) { d.ep = ep; return d; });
     });
   }
@@ -1843,7 +1854,7 @@
     if (!tvdbReady()) return tvmArtMaze(p);
     var key = 'art2:' + normShow(p.show), c = store.get(key);
     if (metaFresh(c)) return Promise.resolve(c.d);
-    return tvdbShow(p.show, p.year).then(function (sh) {
+    return tvdbShow(p.show, p.year, true).then(function (sh) {
       if (!sh || !sh.background) return tvmArtMaze(p);
       var d = { background: sh.background };
       store.set(key, { t: Date.now(), d: d });
@@ -1909,7 +1920,7 @@
     });
   }
   var artScan = { running: false, fails: 0 };
-  function artScanKey() { return epgGen + ':' + (artRev || '') + ':' + E.hash(JSON.stringify(libRevs || {})); }
+  function artScanKey() { return 'dsh1:' + epgGen + ':' + (artRev || '') + ':' + E.hash(JSON.stringify(libRevs || {})); }
   function artScanStart() {
     if (artScan.running || !gartOn) return;
     var key = artScanKey();
@@ -1920,7 +1931,7 @@
         var noPic = [], noBack = [];
         list.forEach(function (n) {
           var m = store.get('artscan1:' + normShow(n));
-          if (m && Date.now() - m.t < TVM_MISS) return;               // TVmaze had nothing a few days ago
+          if (m && Date.now() - m.t < TVM_MISS && !disneyShort(n)) return;               // TVmaze had nothing a few days ago (the Disney shorts are asked again: they share a series now)
           var k = knownArt({ title: n, show: n });
           if (!k || !k.poster) noPic.push(n); else if (!k.back) noBack.push(n);
         });
@@ -2321,7 +2332,7 @@
     if (k && k.poster && k.back) return Promise.resolve('skip');
     if (!tvdbReady()) return artScanOne(name);
     var c = store.get('tvdb1:' + nk); if (c && !c.d) { try { kv.removeItem('tvdb1:' + nk); } catch (e) { /* none */ } }     // a miss is tried again when asked
-    return tvdbShow(name, 0).then(function (d) {
+    return tvdbShow(name, 0, true).then(function (d) {
       if (!d) return artScanOne(name);                                   // TheTVDB has nothing: TVmaze
       var key = 'info3:' + nk + ':0:0', old = store.get(key), os = old && old.d && old.d.show || {};
       var show = Object.assign({}, d, { poster: os.poster || d.poster, background: os.background || d.background });

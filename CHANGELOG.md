@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.49 — 2026-11-22
+- **The Disney cartoons share one poster and backdrop.** Donald Duck, Goofy, Pluto, Mickey Mouse, Minnie Mouse, Daisy Duck, Humphrey the Bear, Scrooge McDuck, Silly Symphonies, Disney Classic, Disney Short and Walt Disney Cartoon had no series of their own on TheTVDB ("no match for Donald Duck" and so on in the log), so they had no picture. They are all part of TheTVDB's "Disney Animated Shorts" series, so for pictures only they now borrow its poster and backdrop. Their names stay as they are, and episode names, numbers and summaries are not taken from it (its numbering is not theirs). The next picture scan asks for these again.
+
 ## Alpha 0.53.48 — 2026-11-22
 - **The snow no longer stutters for the first minute or two after a start.** The guide's log showed stalls of up to three seconds while the app checked episode names in the background (1,986 shows, about 15 seconds of reading). The check paused only 4 ms between shows, so it kept the TV busy about two thirds of the time. It now pauses four times as long as the last show took to read (at least 40 ms), so the picture and the snow keep drawing; the whole check takes a little longer but is done in the background.
 - **The snow speed check is not fooled by start-up work.** It measured during those stalls (25 fps, a 3-second frame) and locked the snow to its lightest tier, and remembered that. A measurement with a stall of a second or more, or while episode names are still being checked, is now thrown away and repeated 30 seconds later, with a log line saying so. Because an earlier spoilt measurement may have been saved, the saved tier is reset once so every TV starts at full snow again.

@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.48",
-  "version": "0.53.48",
-  "code": 5348,
+  "name": "Alpha 0.53.49",
+  "version": "0.53.49",
+  "code": 5349,
   "date": "2026-11-22",
   "notes": [
-    "**The snow no longer stutters for the first minute or two after a start.** The guide's log showed stalls of up to three seconds while the app checked episode names in the background (1,986 shows, about 15 seconds of reading). The check paused only 4 ms between shows, so it kept the TV busy about two thirds of the time. It now pauses four times as long as the last show took to read (at least 40 ms), so the picture and the snow keep drawing; the whole check takes a little longer but is done in the background.",
-    "**The snow speed check is not fooled by start-up work.** It measured during those stalls (25 fps, a 3-second frame) and locked the snow to its lightest tier, and remembered that. A measurement with a stall of a second or more, or while episode names are still being checked, is now thrown away and repeated 30 seconds later, with a log line saying so. Because an earlier spoilt measurement may have been saved, the saved tier is reset once so every TV starts at full snow again."
+    "**The Disney cartoons share one poster and backdrop.** Donald Duck, Goofy, Pluto, Mickey Mouse, Minnie Mouse, Daisy Duck, Humphrey the Bear, Scrooge McDuck, Silly Symphonies, Disney Classic, Disney Short and Walt Disney Cartoon had no series of their own on TheTVDB (\"no match for Donald Duck\" and so on in the log), so they had no picture. They are all part of TheTVDB's \"Disney Animated Shorts\" series, so for pictures only they now borrow its poster and backdrop. Their names stay as they are, and episode names, numbers and summaries are not taken from it (its numbering is not theirs). The next picture scan asks for these again."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.48",
+      "date": "2026-11-22",
+      "notes": [
+        "**The snow no longer stutters for the first minute or two after a start.** The guide's log showed stalls of up to three seconds while the app checked episode names in the background (1,986 shows, about 15 seconds of reading). The check paused only 4 ms between shows, so it kept the TV busy about two thirds of the time. It now pauses four times as long as the last show took to read (at least 40 ms), so the picture and the snow keep drawing; the whole check takes a little longer but is done in the background.",
+        "**The snow speed check is not fooled by start-up work.** It measured during those stalls (25 fps, a 3-second frame) and locked the snow to its lightest tier, and remembered that. A measurement with a stall of a second or more, or while episode names are still being checked, is now thrown away and repeated 30 seconds later, with a log line saying so. Because an earlier spoilt measurement may have been saved, the saved tier is reset once so every TV starts at full snow again."
+      ]
+    },
     {
       "name": "Alpha 0.53.47",
       "date": "2026-11-22",
@@ -63,13 +70,6 @@ window.RELEASE = {
       "date": "2026-11-22",
       "notes": [
         "**The Neighbours numbering now applies to saved lists too.** 0.53.40 only worked when a channel's list was built fresh, but at a normal start the list is read back from storage with the old names (\"Neighbours 1215\"), so nothing changed on the guide. The lookup now also runs on a list read from storage, before the schedule is laid out."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.40",
-      "date": "2026-11-22",
-      "notes": [
-        "**Neighbours files named by episode number now get their season and episode.** About 1,500 Neighbours files (\"Neighbours Episode 2965\", \"Neighbours 1000\") had no season or episode in the name, so they were filed as Specials and Magic EPG could fill the same episode in again. A small table made from the episode guide (`absnum.js`, written by `tools/make_absnum.py`) turns the number into the season and episode, with nothing to download and no new scrape. 1,799 of the 1,871 Neighbours files are covered; the rest are named by date, which the scraper already handles."
       ]
     }
   ]

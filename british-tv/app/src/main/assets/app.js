@@ -8961,7 +8961,7 @@
   // ---- The built schedule of each channel (what plays when) is kept, so a start reads it back instead of laying it out again.
   // It is a list of places in the channel's programme list, so it is only used when that list is exactly as it was: the key
   // carries a fingerprint of the list, the span, the Broadcast schedule setting and SCHED_LOGIC (so an update does not throw saved schedules away).
-  var SCHED_LOGIC = '4';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
+  var SCHED_LOGIC = '5';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
   function schedKey(c, progs, seed, spanH) {
     if (!KV_NATIVE) return '';
     var sig = progs.map(function (p) { return (p.url || p.id) + ':' + p.dur; }).join('|');

@@ -289,10 +289,32 @@
       var byClass = { bite: [], half: [], hour: [], long: [], film: [] };
       progs.forEach(function (p) { byClass[lengthClass(p)].push(p); });
       var lists = {};
+      var ORDER = ['bite', 'half', 'hour', 'long', 'film'], shows = {};
+      progs.forEach(function (p) { shows[showOf(p)] = 1; });
+      var manyShows = Object.keys(shows).length >= 3;
+      /** One show can own a whole kind of slot (Santa Barbara's files run 40 minutes, so every half-hour slot was
+       *  Santa Barbara). When a show is more than a third of the list, other shows' programmes of the nearest lengths are
+       *  added until it is about a quarter, so the slot still shows the variety the channel has. */
+      function balanced(want, items) {
+        var n = items.length, cnt = {}, top = '', t;
+        if (!manyShows || n < 6) return items;
+        items.forEach(function (p) { var k = showOf(p); cnt[k] = (cnt[k] || 0) + 1; if (!top || cnt[k] > cnt[top]) top = k; });
+        if (cnt[top] / n <= 0.35) return items;
+        var need = Math.ceil(cnt[top] / 0.25) - n, idx = want.map(function (k) { return ORDER.indexOf(k); }), more = [];
+        progs.forEach(function (p) {
+          var c = lengthClass(p), ci = ORDER.indexOf(c);
+          if (want.indexOf(c) >= 0 || showOf(p) === top || (c === 'film' && want.indexOf('film') < 0)) return;
+          var d = 9; idx.forEach(function (i) { d = Math.min(d, Math.abs(i - ci)); });
+          more.push({ p: p, d: d });
+        });
+        more.sort(function (a, b) { return a.d - b.d; });
+        return items.concat(more.slice(0, need).map(function (m) { return m.p; }));
+      }
       function listFor(kinds) {                        // the kinds named, in one list; everything when there are too few of them
         if (lists[kinds]) return lists[kinds];
-        var items = [];
-        kinds.split(' ').forEach(function (k) { if (byClass[k]) items = items.concat(byClass[k]); });
+        var items = [], want = kinds.split(' ');
+        want.forEach(function (k) { if (byClass[k]) items = items.concat(byClass[k]); });
+        items = balanced(want, items);
         if (items.length < 3) return (lists[kinds] = listFor.all || (listFor.all = { key: 'any', items: inTurn(progs, seed + 'any') }));
         return (lists[kinds] = { key: kinds, items: inTurn(items, seed + kinds) });
       }

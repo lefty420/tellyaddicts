@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.41",
-  "version": "0.53.41",
-  "code": 5341,
+  "name": "Alpha 0.53.42",
+  "version": "0.53.42",
+  "code": 5342,
   "date": "2026-11-22",
   "notes": [
-    "**The Neighbours numbering now applies to saved lists too.** 0.53.40 only worked when a channel's list was built fresh, but at a normal start the list is read back from storage with the old names (\"Neighbours 1215\"), so nothing changed on the guide. The lookup now also runs on a list read from storage, before the schedule is laid out."
+    "**One show no longer takes over a channel's timetable.** With Real time EPG on, slots are filled by programme length, so a show whose episodes are all one length can own a whole kind of slot: Santa Barbara's files run about 40 minutes, so every half-hour slot on Dallas, Dynasty & Co was Santa Barbara (71% of the week). When one show is more than a third of the programmes that fit a kind of slot, the nearest-length programmes of the channel's other shows are added until it is about a quarter. On a test channel built like that one, Santa Barbara drops from 63% to 30% of the week. Channels with an even mix are unchanged."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.41",
+      "date": "2026-11-22",
+      "notes": [
+        "**The Neighbours numbering now applies to saved lists too.** 0.53.40 only worked when a channel's list was built fresh, but at a normal start the list is read back from storage with the old names (\"Neighbours 1215\"), so nothing changed on the guide. The lookup now also runs on a list read from storage, before the schedule is laid out."
+      ]
+    },
     {
       "name": "Alpha 0.53.40",
       "date": "2026-11-22",
@@ -64,13 +71,6 @@ window.RELEASE = {
       "date": "2026-11-22",
       "notes": [
         "**The guide opens sooner: episode names are checked after it is up, not while the channels load.** On the Shield that check read about 2,000 shows' saved episode lists (over 10 s of a 26 s start) before the guide could open. It now waits until the guide is showing, then goes through the channels one at a time in the background, pausing whenever a button is pressed. Names appear a little later on a start; nothing else changes."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.33",
-      "date": "2026-11-22",
-      "notes": [
-        "**The loading TV no longer loses its picture partway through.** It showed each picture once from a small set loaded at the start, and by about channel 17 they had all been shown, so the screen and its backdrop went blank. It now loads more pictures up front, keeps topping up, and reuses one rather than show nothing."
       ]
     }
   ]

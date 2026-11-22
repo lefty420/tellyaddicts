@@ -1,17 +1,65 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "5a2a80e0d0",
+ "rev": "5f71c048cd",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
+  "childrens": {
+   "name": "Children's World: live action, youth TV and imported cartoons",
+   "shows": [
+    "Back Home",
+    "Get Set",
+    "Hey Hey It's Saturday",
+    "Knight School",
+    "Mighty Morphin Power Rangers",
+    "No. 73",
+    "On the Waterfront",
+    "Playdays",
+    "Round the Bend",
+    "The Muppet Show",
+    "Time Riders"
+   ]
+  },
   "citv": {
    "name": "80s & 90s Kids Cartoons (CBBC & CITV)",
    "shows": [
+    "2 Stupid Dogs",
+    "Attack of the Killer Tomatoes",
+    "Avenger Penguins",
+    "Babar",
     "C.O.P.S.",
+    "Camberwick Green",
+    "Dog City",
     "galaxy high",
-    "round the bend",
+    "Heathcliff",
+    "Huxley Pig",
+    "Joshua Jones",
+    "King Arthur and the Knights of Justice",
+    "La Linea",
+    "Let's Pretend",
+    "Little Dracula",
+    "Little Rosie",
+    "Pat and Mat",
+    "Pigeon Street",
+    "Pippi Longstocking",
+    "Saber Rider and the Star Sheriffs",
+    "Sali Mali",
+    "Shakespeare The Animated Tales",
+    "Simon in the Land of Chalk Drawings",
+    "Sonic SatAM",
     "super gran",
-    "Wallace and Gromit"
+    "The Bluffers",
+    "The Busy World of Richard Scarry",
+    "The Charlie Brown and Snoopy Show",
+    "The Kwicky Koala Show",
+    "The Magic School Bus",
+    "The Riddlers",
+    "The Smoggies",
+    "The Treacle People",
+    "Trumpton",
+    "Wallace and Gromit",
+    "William's Wish Wellingtons",
+    "Windfalls"
    ]
   },
   "comedy": {

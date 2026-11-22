@@ -276,8 +276,15 @@ public class MainActivity extends Activity {
         super.onStart();
         if (web != null) {
             web.onResume();
+            if (wentAway) {
+                wentAway = false;
+                web.evaluateJavascript("window.__bg&&window.__bg(false)", null);       // the page picks up where it was
+            }
         }
     }
+
+    /** Home was pressed on a TV and the app has not been closed: the page is told so it can resume on return. */
+    private boolean wentAway = false;
 
     @Override
     protected void onStop() {
@@ -286,14 +293,13 @@ public class MainActivity extends Activity {
             return;
         }
         if (onTv && !isChangingConfigurations()) {
-            // Home pressed on a TV: stop playback and close so audio never plays from a hidden screen.
-            web.evaluateJavascript(
-                    "document.querySelectorAll('video').forEach(function(m){try{m.pause();}catch(e){}})", null);
-            np.stop();
-            finish();
-        } else {
-            web.onPause();
+            // Home pressed on a TV: pause so audio never plays from a hidden screen, but stay alive. Closing here meant every
+            // return to the app was a cold start that laid out all the channels again.
+            wentAway = true;
+            web.evaluateJavascript("document.querySelectorAll('video').forEach(function(m){try{m.pause();}catch(e){}});window.__bg&&window.__bg(true)", null);
+            np.pause();
         }
+        web.onPause();
     }
 
     @Override

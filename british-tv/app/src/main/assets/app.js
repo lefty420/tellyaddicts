@@ -8732,6 +8732,27 @@
     tune(c, false, true);
     if (guideOpen) openGuide();
   }
+  // The app is no longer closed when Home is pressed on a TV (MainActivity.onStop), so coming back must be quick: playback is paused while
+  // away, and on return a live channel is tuned again (the programme on now has moved on) and anything else carries on where it stopped.
+  var bgAt = 0, bgPlaying = false;
+  window.__bg = function (away) {
+    try {
+      if (away) {
+        bgAt = Date.now(); bgPlaying = !!(cur && !v.paused);
+        try { v.pause(); } catch (e) { /* none */ }
+        dlog('APP: sent to the background');
+        return;
+      }
+      var gone = Date.now() - bgAt;
+      dlog('APP: back after ' + Math.round(gone / 1000) + ' s');
+      if (!started || !cur) return;
+      if (cur.od) { if (bgPlaying) v.play(); }
+      else if (gone > 20000 && cur.ch && cur.ch.sched) tune(cur.ch, false, true);      // live: what is on now, not where it paused
+      else if (bgPlaying) v.play();
+      seasonUpdate();
+    } catch (e) { dlog('APP: resume failed: ' + e.message); }
+  };
+
   function begin() {
     if (started) { lateTune(); return; }
     var list = ready();
@@ -8823,7 +8844,7 @@
     spSeen = {}; spRecent = [];                                     // each load starts with every picture unseen
     forgetOldChannels();
     channels.forEach(function (c) { c.status = 'loading'; c.sched = null; });
-    var finished = 0, sliceAt = Date.now();
+    var finished = 0, sliceAt = Date.now(), tm = { prep: 0, sched: 0, real: 0, names: 0 }, tmAt = performance.now();      // where a start spends its time, in ms added up over the channels
     // the native side now serves a few requests at a time, so ask in the order they are wanted: the channel that was
     // on last, then down the guide. The first rows fill in first instead of whichever channel happened to answer.
     var last = store.get('last');
@@ -8841,9 +8862,11 @@
         return new Promise(function (r) { setTimeout(function () { sliceAt = Date.now(); r(progs); }, 0); });
       }).then(function (progs) {
         if (progs && progs.length) {
+          var t1 = performance.now();
           progs = dropSlow(virtualFilms(c, virtualFill(c, ukFilter(progs))));
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           progs = withBreaks(c, progs);
+          var t2 = performance.now(); tm.prep += t2 - t1;
           var seed = c.id + (epgGen ? ':' + epgGen : '');
           // a channel with a daypart plan is laid out against the clock; the rest are one shuffled loop
           var spanH = SPANS[spanIdx].h;
@@ -8856,16 +8879,19 @@
                       E.buildSchedule(E.selectSpan(progs, spanH * 3600, seed), seed);
             schedKeep(c, sk, c.sched, progs);
           }
+          var t3 = performance.now(); tm.sched += t3 - t2;
           // Real world plays a series in order; a Christmas channel's specials are one-offs, so they keep their shuffle
           if (!(window.ADS && ADS.isXmasChannel(c.id))) realWorld(c.sched, progs, seed);
+          var t4 = performance.now(); tm.real += t4 - t3;
           c.status = 'ready';
           if (!isAdChan(c)) enrichNames(c, progs).then(null, function () { /* names stay as they are */ });
+          tm.names += performance.now() - t4;
         } else {
           c.status = 'empty';
         }
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
-        if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
+        if (finished === channels.length) dlog('START: time spent (ms, added up over the channels): prepare lists ' + Math.round(tm.prep) + ', schedules ' + Math.round(tm.sched) + ', real-world order ' + Math.round(tm.real) + ', names ' + Math.round(tm.names) + ', of ' + Math.round(performance.now() - tmAt) + ' in all'); if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
         renderStatus();
         if (finished === channels.length) setTimeout(seedLinks, 4000);
         if (finished === channels.length) setTimeout(veFill, 30000);

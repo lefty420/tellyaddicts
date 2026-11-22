@@ -1183,6 +1183,7 @@
   /** A picture has loaded: any slot still empty can use it. */
   function spFill() { spSlots.forEach(function (el) { if (el.className.indexOf('has') < 0) spSet(el); }); }
   function renderStatus() {
+    if (started) return;           // the loading screen is gone: nothing to draw while the rest of the channels finish
     var lines = channels.map(function (c) {
       var mark = c.status === 'ready' ? '✓' : c.status === 'empty' ? '–' : '…';
       return mark + '  ' + c.n + '  ' + c.name +
@@ -8719,6 +8720,7 @@
 
   var bootedAt = Date.now();
   var FIRST_WAIT = 60000;     // the loading screen stays until every channel has answered, so the guide opens complete and never stalls while channels fill in; this is only the safety limit for a connection that never answers (the guide then opens on what is ready and tunes to the last channel once it is, see lateTune)
+  var OPEN_ROWS = 10;         // channels at the top of the guide that must be ready before it opens (the last-watched one is waited for above)
   var ALL_WAIT = 60000;       // ... the same limit for all the others
 
   var lateWant = null, landedAt = 0;
@@ -8764,8 +8766,10 @@
     var prefer = channels.filter(function (c) { return c.id === want; })[0] ||
                  channels.slice().sort(function (a, b) { return a.n - b.n; })[0];
     if (prefer && prefer.status === 'loading' && Date.now() - bootedAt < FIRST_WAIT) return;
-    // stay on the loading screen until every channel has answered (or a slow connection runs out the clock)
-    if (Date.now() - bootedAt < ALL_WAIT && channels.some(function (c) { return c.status === 'loading'; })) return;
+    // Open once the channel that was on last and the first screenful of the guide are ready; the other channels finish behind it
+    // (the guide redraws as each one lands). Waiting for all of them made every start take as long as the slowest channel.
+    var top = channels.slice().sort(function (a, b) { return a.n - b.n; }).slice(0, OPEN_ROWS);
+    if (Date.now() - bootedAt < ALL_WAIT && top.some(function (c) { return c.status === 'loading'; })) return;
     started = true;
     dlog('START: guide opening ' + Math.round(performance.now() / 100) / 10 + ' s after launch, ' + list.length + ' of ' + channels.length + ' channels ready');
     var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];

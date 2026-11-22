@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.48 — 2026-11-22
+- **The snow no longer stutters for the first minute or two after a start.** The guide's log showed stalls of up to three seconds while the app checked episode names in the background (1,986 shows, about 15 seconds of reading). The check paused only 4 ms between shows, so it kept the TV busy about two thirds of the time. It now pauses four times as long as the last show took to read (at least 40 ms), so the picture and the snow keep drawing; the whole check takes a little longer but is done in the background.
+- **The snow speed check is not fooled by start-up work.** It measured during those stalls (25 fps, a 3-second frame) and locked the snow to its lightest tier, and remembered that. A measurement with a stall of a second or more, or while episode names are still being checked, is now thrown away and repeated 30 seconds later, with a log line saying so. Because an earlier spoilt measurement may have been saved, the saved tier is reset once so every TV starts at full snow again.
+
 ## Alpha 0.53.47 — 2026-11-22
 - **The snow speed check now waits for the guide.** The check that measures the snow's frame rate (and lightens it if it is under 60 or 30 fps) ran once, 15 seconds after the snow started, and gave up silently if the guide was not on screen at that moment. The live log from 0.53.46 shows exactly that: no "SNOW: tier" line at all, because the guide was opened after the 15 seconds had passed. It now tries again every five seconds (for up to ten minutes) until the guide is up, and starts again if the guide is closed part-way through the eight seconds.
 - Nothing else changes in this build.

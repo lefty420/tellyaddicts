@@ -1378,7 +1378,7 @@
       enrichNames(j[0], j[1]).then(function () { setTimeout(next, 50); }, function () { setTimeout(next, 50); });
     })();
   }
-  var nameStat = { n: 0, read: 0, loop: 0 };      // episode-name look-ups made at a start: how many, and the time reading them and comparing
+  var nameLast = 0, nameStat = { n: 0, read: 0, loop: 0 };      // episode-name look-ups made at a start: how many, and the time reading them and comparing
   function enrichNames(ch, progs) {
     var byShow = {};
     progs.forEach(function (p) {
@@ -1392,7 +1392,7 @@
     var keys = Object.keys(byShow);
     var changed = false;
     return keys.reduce(function (chain, k) {
-      return chain.then(function () { return new Promise(function (r) { setTimeout(r, userBusy() ? 300 : 4); }); }).then(function () {      // a breath between shows, longer while a button is pressed
+      return chain.then(function () { return new Promise(function (r) { setTimeout(r, userBusy() ? 300 : Math.max(40, nameLast * 4)); }); }).then(function () {      // a breath between shows (four times as long as the last one took, so the picture and the snow keep drawing), longer while a button is pressed
         var tq = performance.now();
         return tvmEpisodes(byShow[k].show).then(function (map) {
           var tr = performance.now();
@@ -1413,7 +1413,7 @@
             it.p.tvDone = true;
           });
           byShow[k].items.forEach(function (it) { if (!it.p.tvDone) { it.p.tvDone = true; changed = true; } });      // checked and nothing to change: not asked again at every start
-          nameStat.n++; nameStat.read += tr - tq; nameStat.loop += performance.now() - tr;
+          nameStat.n++; nameStat.read += tr - tq; nameStat.loop += performance.now() - tr; nameLast = performance.now() - tq;
         });
       });
     }, Promise.resolve()).then(function () {
@@ -4173,8 +4173,12 @@
         ds.sort(function (a, b) { return a - b; });
         var fps = n * 1000 / (t - t0), target = (ds[ds.length >> 1] || 16) > 25 ? 30 : 60, ok = fps >= target * 0.87 && slow <= 3;
         dlog('SNOW: tier ' + snowTier + ': ' + Math.round(fps) + ' fps over ' + Math.round((t - t0) / 1000) + ' s (screen about ' + target + ' Hz), slowest frame ' + Math.round(worst) + ' ms, ' + slow + ' over 50 ms, ' + an + ' animations running' + (ok ? ', fine' : ''));
+        if (!ok && tries < 40 && (worst > 1000 || enrichRun)) {                 // a stall of a second or more, or the episode-name check still running: that is start-up work, not the snow, so it is not blamed on it
+          dlog('SNOW: that measurement was spoilt by other work (slowest frame ' + Math.round(worst) + ' ms' + (enrichRun ? ', episode names still being checked' : '') + '), measuring again in 30 s');
+          snowMeasure(run, 30000, tries + 1); return;
+        }
         if (!ok && snowTier < 3) {
-          snowTier++; store.set('snowtier', snowTier);
+          snowTier++; store.set('snowtier2', snowTier);
           dlog('SNOW: not keeping up, moving to tier ' + snowTier + (snowTier === 1 ? ' (no mask round the words)' : snowTier === 2 ? ' (two depths of flakes, not four)' : ' (fewer flakes, no sway)'));
           if (seasonOv) seasonOv.stop(); seasonOv = null; probeAt = 0; seasonUpdate();
         }
@@ -4183,7 +4187,7 @@
   }
   /** The snow falls over the episode picture but not over the words: the area it must keep clear is cut round the real text (each line as wide as
    *  its own words), the little TV's neighbour the grid, and nothing else. Redone whenever the words change. */
-  var snowClipObs = null, snowClipRaf = 0, snowTier = Math.max(0, Math.min(3, +store.get('snowtier') || 0));
+  var snowClipObs = null, snowClipRaf = 0, snowTier = Math.max(0, Math.min(3, +store.get('snowtier2') || 0));
   function snowClip() {
     var box = $('gsnow'); if (!box) return;
     if (snowTier >= 1) { box.style.clipPath = 'none'; return; }          // a mask makes the TV draw all the snow into a spare full-screen picture every frame

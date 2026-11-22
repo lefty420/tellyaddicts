@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.44 — 2026-11-22
+- **The snow looks after its own speed.** Once the guide has been up for 15 seconds the app counts frames for eight seconds. If it is under 87% of what the screen can show (60, or 30 on a screen that only does 30), it moves to a lighter tier and measures again, up to tier 3, and remembers the tier for next time. Tier 1 removes the mask round the words (a mask makes the TV draw all the snow into a spare full-screen picture every frame; the words get a dark halo instead so a flake behind a letter does not hurt reading). Tier 2 uses two depths of flakes, not four. Tier 3 has fewer flakes and no side-to-side sway. The log shows each measurement and each step ("SNOW: tier 0: 41 fps ...").
+- **Smaller snow layers for every tier.** The drifts, their build-up layers and Santa's lane were each a full-screen layer that is empty except for the bottom strip. They are now only as tall as the strip, which is five or six full-screen layers fewer for the TV to blend every frame.
+- **EPG debug shows what the timetable is given.** Each channel now lists how many programmes were fed in, how many were filled in from the episode lists, how many fall in each length (bite, half, hour, long, film) and the biggest shows. That is what is needed to see why one show takes over a channel such as US Drama.
+
 ## Alpha 0.53.43 — 2026-11-22
 - **The balance fix no longer adds one show's whole run.** In 0.53.42 the programmes added to a one-show slot came from whichever show was first in the list (The Colbys ran five in a row on Dallas, Dynasty & Co). They are now taken from the other shows in turn.
 - **EPG debug reports airtime, not just programme counts.** "Fills 49% of the schedule" counted programmes, and Santa Barbara's many short files made it look bigger than it is. The "fills" warning and the most-common list now go by hours (for example "Santa Barbara: 118 (49 h)").

@@ -4152,25 +4152,39 @@
         })(t0);
       }, pl.due + 400);
     } catch (e) { /* no plough timing */ }
+    snowMeasure(run, 15000);
+  }
+  /** The snow looks after its own speed: once the guide has been up for a while, count the frames for eight seconds. Under
+   *  about 87% of what the screen can show (60, or 30 on a screen that only does 30), drop to the next lighter tier and measure
+   *  again, up to tier 3. The tier is kept for the next start. The log says what each step gave. */
+  function snowMeasure(run, delay) {
     setTimeout(function () {
-      if (run !== probeRun || !guideOpen) return;
-      var t0 = performance.now(), last = t0, n = 0, worst = 0, slow = 0;
+      if (run !== probeRun || !guideOpen || !seasonOv) return;
+      var t0 = performance.now(), last = t0, n = 0, worst = 0, slow = 0, ds = [];
       (function tick(t) {
         if (run !== probeRun) return;
         if (!guideOpen) { probeAt = 0; return; }              // closed meanwhile: a measurement of something else
         var d = t - last; last = t;
-        if (n > 0) { n++; if (d > worst) worst = d; if (d > 50) slow++; } else n = 1;
-        if (t - t0 < 12000) { requestAnimationFrame(tick); return; }
+        if (n > 0) { n++; ds.push(d); if (d > worst) worst = d; if (d > 50) slow++; } else n = 1;
+        if (t - t0 < 8000) { requestAnimationFrame(tick); return; }
         var an = 0; try { an = document.getAnimations().filter(function (x) { return x.playState === 'running'; }).length; } catch (e) { /* older browser */ }
-        dlog('SNOW: ' + Math.round(n * 1000 / (t - t0)) + ' fps over ' + Math.round((t - t0) / 1000) + ' s, slowest frame ' + Math.round(worst) + ' ms, ' + slow + ' over 50 ms, ' + an + ' animations running');
+        ds.sort(function (a, b) { return a - b; });
+        var fps = n * 1000 / (t - t0), target = (ds[ds.length >> 1] || 16) > 25 ? 30 : 60, ok = fps >= target * 0.87 && slow <= 3;
+        dlog('SNOW: tier ' + snowTier + ': ' + Math.round(fps) + ' fps over ' + Math.round((t - t0) / 1000) + ' s (screen about ' + target + ' Hz), slowest frame ' + Math.round(worst) + ' ms, ' + slow + ' over 50 ms, ' + an + ' animations running' + (ok ? ', fine' : ''));
+        if (!ok && snowTier < 3) {
+          snowTier++; store.set('snowtier', snowTier);
+          dlog('SNOW: not keeping up, moving to tier ' + snowTier + (snowTier === 1 ? ' (no mask round the words)' : snowTier === 2 ? ' (two depths of flakes, not four)' : ' (fewer flakes, no sway)'));
+          if (seasonOv) seasonOv.stop(); seasonOv = null; probeAt = 0; seasonUpdate();
+        }
       })(t0);
-    }, 20000);
+    }, delay);
   }
   /** The snow falls over the episode picture but not over the words: the area it must keep clear is cut round the real text (each line as wide as
    *  its own words), the little TV's neighbour the grid, and nothing else. Redone whenever the words change. */
-  var snowClipObs = null, snowClipRaf = 0;
+  var snowClipObs = null, snowClipRaf = 0, snowTier = Math.max(0, Math.min(3, +store.get('snowtier') || 0));
   function snowClip() {
     var box = $('gsnow'); if (!box) return;
+    if (snowTier >= 1) { box.style.clipPath = 'none'; return; }          // a mask makes the TV draw all the snow into a spare full-screen picture every frame
     var W = window.innerWidth, H = window.innerHeight, holes = [];
     function rectOf(el, pad) {
       if (!el || !el.textContent) return;
@@ -4203,6 +4217,7 @@
   function seasonUpdate() {
     if (!window.SEASONS) return;
     var want = seasonOn && guideOpen && !!SEASONS.current();
+    SEASONS.cfg.TIER = snowTier; document.body.classList.toggle('snow-lite', snowTier >= 1);
     if (want && !seasonOv) seasonOv = SEASONS.snow($('gsnow'), function () {
       var rows = document.querySelectorAll('#guide .grow'), last = rows.length ? rows[rows.length - 1] : null;
       var free = last ? window.innerHeight - last.getBoundingClientRect().bottom : 40;
@@ -5995,6 +6010,7 @@
       head: [
         'Guide length setting: ' + SPANS[spanIdx].label,
         'Built as ' + kind,
+        (c.poolInfo ? 'Fed to the timetable: ' + c.poolInfo.n + ' programmes (' + c.poolInfo.virt + ' filled in from the episode lists); lengths: bite ' + c.poolInfo.cls.bite + ', half ' + c.poolInfo.cls.half + ', hour ' + c.poolInfo.cls.hour + ', long ' + c.poolInfo.cls.long + ', film ' + c.poolInfo.cls.film + '; ' + Object.keys(c.poolInfo.shows).length + ' shows, the biggest: ' + Object.keys(c.poolInfo.shows).sort(function (a, b) { return c.poolInfo.shows[b].a - c.poolInfo.shows[a].a; }).slice(0, 8).map(function (k) { var g = c.poolInfo.shows[k]; return g.n + ' ' + g.a + (g.v ? ' (' + g.v + ' filled in)' : ''); }).join(', ') : 'Fed to the timetable: not recorded'),
         'Pool: ' + s.order.length + ' programmes, ' + (s.total / 3600).toFixed(1) + ' h' + (s.cycle ? '' : (s.total < 43200 ? ' (under 12 h, so each programme comes round more than twice a day)' : ' (each programme at most twice a day)')),
         s.order.length + ' programmes in the schedule, ' + byCount.length + ' different shows, ' + (s.total / 3600).toFixed(1) + ' hours in all',
         (c.plan ? c.plan.length : '?') + ' programmes stored for this channel before the guide length is applied',
@@ -9053,6 +9069,16 @@
           progs = dropSlow(dedupeProgs(virtualFilms(c, virtualFill(c, ukFilter(codeByNumber(progs))))));
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           progs = withBreaks(c, progs);
+          try {                                                  // what the timetable is given, for the EPG debug
+            var pi = { n: progs.length, virt: 0, cls: { bite: 0, half: 0, hour: 0, long: 0, film: 0 }, shows: {} };
+            progs.forEach(function (p) {
+              var d = p.dur || 0; pi.cls[d <= 1080 ? 'bite' : d <= 2400 ? 'half' : d <= 4200 ? 'hour' : d <= 6000 ? 'long' : 'film']++;
+              if (p.virtual) pi.virt++;
+              var sk = String(p.show || p.group || p.title || '').toLowerCase(), g = pi.shows[sk] = pi.shows[sk] || { n: p.show || p.group || p.title, a: 0, v: 0 };
+              g.a++; if (p.virtual) g.v++;
+            });
+            c.poolInfo = pi;
+          } catch (e) { c.poolInfo = null; }
           var t2 = performance.now(); tm.prep += t2 - t1;
           var seed = c.id + (epgGen ? ':' + epgGen : '');
           // a channel with a daypart plan is laid out against the clock; the rest are one shuffled loop

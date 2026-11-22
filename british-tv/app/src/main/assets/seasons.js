@@ -14,7 +14,8 @@
   var CFG = { PIXEL: 2, FLAKES: 96, DRIFT: 5, PAUSE_MS: 180,
               CYCLE_MS: 45000,       // drifts grow for this long, then the plough clears them and it starts again (the design is 15 min = 900000; 45 s for now so it can be seen)
               PLOUGH_MS: 12000,      // the plough's drive across the screen
-              START: 0.12 };          // share of full drift height showing at the start of a cycle (0 to 1)
+              START: 0.12,           // share of full drift height showing at the start of a cycle (0 to 1)
+              TIER: 0 };             // 0 the full look; 1 and up are lighter versions the TV can keep up with (see app.js snowMeasure)
   var T0 = Date.now();               // the cycle runs from app start, so closing and opening the guide does not restart it
 
   function inSeason(s, d) {
@@ -50,6 +51,15 @@
     { share: 0.20, spr: ['star', 'crystal', 'ball', 'flake7'], col: ['#ffffff', '#f2f8ff'], sh: '#aac4f0', hi: '#ffffff', a: 1, v: 15, sway: 2.2 },
     { share: 0.12, spr: ['flake9', 'flake11', 'big', 'flake7'], col: ['#ffffff', '#eef5ff'], sh: '#9fbbea', hi: '#ffffff', a: 1, v: 21, sway: 3 }
   ];
+  /** Tier 2 and up: the four depths become two (far and near), so the TV blends two full-screen sheets a frame, not four. */
+  function layersFor(tier) {
+    if (tier < 2) return LAYERS;
+    var a = LAYERS[0], b = LAYERS[1], c = LAYERS[2], d = LAYERS[3];
+    return [
+      { share: a.share + b.share, spr: a.spr.concat(b.spr), col: a.col.concat(b.col), sh: b.sh, hi: b.hi, a: 0.85, v: 7, sway: 1.1 },
+      { share: c.share + d.share, spr: c.spr.concat(d.spr), col: c.col, sh: c.sh, hi: c.hi, a: 1, v: 18, sway: 2.6 }
+    ];
+  }
   // snowdrifts, back to front: body, top edge, shaded underside, height share and noise frequencies
   var DRIFTS = [
     { body: '#5c74b8', top: '#7d93d0', shade: null, h: 3.2, f: [0.011, 0.027], seed: 1.3 },
@@ -73,7 +83,7 @@
     var anims = [], resumeT = 0, running = false, noteT = 0, ploughBox = null;
 
     function paintLayer(L, W, H) {
-      var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * L.share);
+      var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * (CFG.TIER >= 3 ? 0.6 : 1) * L.share);
       x.imageSmoothingEnabled = false; x.globalAlpha = L.a;
       for (var i = 0; i < n; i++) {
         var s = SPR[pick(L.spr)], fx = Math.round(rnd(4, W - 14)), fy = Math.round(rnd(0, H - s.length - 1));   // whole flakes only: none straddles the loop's seam
@@ -90,25 +100,38 @@
     }
 
     function paintDrifts(W, H) {
-      var c = mk('sn-drift', W, H), x = c.getContext('2d'), px = CFG.PIXEL, k = Math.max(0, Math.min(10, CFG.DRIFT)) / 10 * 2;
-      var clear = bottomClear ? Math.max(0, bottomClear()) : 40, cap = Math.max(6, Math.round((clear - 4) / px)), tops = [], tall = 1;
+      // The drifts only ever fill the strip under the guide, so their sheets are that tall, not the whole screen: a full-screen
+      // sheet that is empty above the drifts still has to be blended by the TV every frame.
+      var px = CFG.PIXEL, k = Math.max(0, Math.min(10, CFG.DRIFT)) / 10 * 2;
+      var clear = bottomClear ? Math.max(0, bottomClear()) : 40, cap = Math.max(6, Math.round((clear - 4) / px)), tops = [], tall = 1, cols = [];
       DRIFTS.forEach(function (D) {
-        var base = D.h * 5 * k, prev = -1;
+        var base = D.h * 5 * k, hs = [];
         for (var i = 0; i < W; i++) {
           var h = base + base * 0.35 * Math.sin(i * D.f[0] + D.seed) + base * 0.18 * Math.sin(i * D.f[1] + D.seed * 2);
           h = Math.max(1, Math.min(cap, Math.round(h)));
           if (h > tall) tall = h;
-          x.fillStyle = D.body; x.fillRect(i, H - h, 1, h);
-          x.fillStyle = D.top; x.fillRect(i, H - h, 1, 1);
-          if (D.shade && prev > h) { x.fillStyle = D.shade; x.fillRect(i, H - h + 1, 1, Math.min(2, prev - h)); }
-          if (D.shade && h > 3 && Math.random() < 0.012) tops.push([i, H - h - 1]);
+          hs.push(h);
+        }
+        cols.push(hs);
+      });
+      var SH = tall + 3;                                           // canvas pixels: the tallest drift, with room for a sparkle above it
+      var c = mk('sn-drift', W, SH), x = c.getContext('2d');
+      DRIFTS.forEach(function (D, di) {
+        var prev = -1;
+        for (var i = 0; i < W; i++) {
+          var h = cols[di][i];
+          x.fillStyle = D.body; x.fillRect(i, SH - h, 1, h);
+          x.fillStyle = D.top; x.fillRect(i, SH - h, 1, 1);
+          if (D.shade && prev > h) { x.fillStyle = D.shade; x.fillRect(i, SH - h + 1, 1, Math.min(2, prev - h)); }
+          if (D.shade && h > 3 && Math.random() < 0.012) tops.push([i, SH - h - 1]);
           prev = h;
         }
       });
-      var sp = mk('sn-sparkle', W, H), sx = sp.getContext('2d');
+      var sp = mk('sn-sparkle', W, SH), sx = sp.getContext('2d');
       sx.fillStyle = '#ffffff';
       tops.forEach(function (t) { sx.fillRect(t[0], t[1], 1, 1); });
-      return [c, sp, tall * px];   // and how tall the tallest drift is, in screen pixels: the build-up rises to exactly this
+      c.style.height = sp.style.height = (SH * px) + 'px';
+      return [c, sp, tall * px, SH * px];   // the tallest drift in screen pixels (the build-up rises to exactly this), and the strip's height
     }
 
     // Santa on a snow plough, facing right, 34 x 26 canvas pixels: [x, y, w, h, colour]. Its blade is the front edge (x = 33).
@@ -132,12 +155,12 @@
       var px = CFG.PIXEL, sw = window.innerWidth || 1920, sh = window.innerHeight || 1080, W = Math.ceil(sw / px), H = Math.ceil(sh / px);
       box.textContent = ''; anims = [];
       var sheets = [];
-      LAYERS.forEach(function (L) { sheets.push([L, 1, 1]); });      // one sheet a depth: fewer full-screen layers for the TV to blend each frame
+      layersFor(CFG.TIER).forEach(function (L) { sheets.push([L, 1, 1]); });      // one sheet a depth: fewer full-screen layers for the TV to blend each frame
       sheets.forEach(function (sh) {
         var L = sh[0], vf = sh[1], dir = sh[2], wrap = document.createElement('div'), c = paintLayer(L, W, H);
         wrap.className = 'sn-wrap'; c.style.height = (H * 2 * px) + 'px'; wrap.appendChild(c); box.appendChild(wrap);
         var amp = L.sway * px * 2.2;                                    // side to side, slow, a different pace for each depth
-        anims.push(wrap.animate([{ transform: 'translateX(' + (-amp) + 'px)' }, { transform: 'translateX(' + amp + 'px)' }],
+        if (CFG.TIER < 3) anims.push(wrap.animate([{ transform: 'translateX(' + (-amp) + 'px)' }, { transform: 'translateX(' + amp + 'px)' }],
           { duration: 5200 / (L.v / 5) * 1.6 * (dir > 0 ? 1 : 1.3), iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }));
         anims.push(c.animate([{ transform: 'translateY(' + (-H * px) + 'px)' }, { transform: 'translateY(0)' }],      // downwards: the sheet is two screens tall and slides from its lower half to its upper
           { duration: H / (L.v * vf) * 1000, iterations: Infinity, easing: 'linear' }));
@@ -147,11 +170,11 @@
       // the plough's cut is two nested layers sliding opposite ways (a transform, which the TV moves without redrawing), not an animated
       // clip-path, which is redrawn every frame on the main thread and fell out of step with the plough. The outer layer hides everything
       // left of the blade; the inner one slides back by the same amount so the drifts themselves stay where they are.
-      var cut = document.createElement('div'), un = document.createElement('div');
-      cut.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;will-change:transform';
-      un.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;will-change:transform';
+      var cut = document.createElement('div'), un = document.createElement('div'), strip = 'position:absolute;left:0;bottom:0;width:100%;height:' + d[3] + 'px;';
+      cut.style.cssText = strip + 'overflow:hidden;will-change:transform';
+      un.style.cssText = strip + 'will-change:transform';
       var rs = document.createElement('div');
-      rs.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;will-change:transform';
+      rs.style.cssText = strip + 'will-change:transform';
       rs.appendChild(d[0]); rs.appendChild(d[1]); un.appendChild(rs); cut.appendChild(un); box.appendChild(cut);
       anims.push(d[1].animate([{ opacity: 0.1 }, { opacity: 1 }, { opacity: 0.1 }], { duration: 2400, iterations: Infinity, easing: 'steps(4)' }));
       // The drifts are painted once at full height and slid up from below the screen: a transform, so the TV does no drawing.
@@ -182,7 +205,7 @@
         // above the guide's rows (the snow itself is behind them): its own layer in the guide, taken away again when the snow stops
         if (ploughBox && ploughBox.parentNode) ploughBox.parentNode.removeChild(ploughBox);
         ploughBox = document.createElement('div');
-        ploughBox.style.cssText = 'position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden';
+        ploughBox.style.cssText = 'position:absolute;left:0;right:0;bottom:0;height:' + Math.ceil(PLOUGH_H * pp + 2) + 'px;z-index:3;pointer-events:none;overflow:hidden';
         ploughBox.appendChild(pl);
         (box.parentNode || box).appendChild(ploughBox);
         anims.push(pl.animate([                                                    // waits off the left edge, then crosses at the same speed as the cut

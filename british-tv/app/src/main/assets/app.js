@@ -1061,6 +1061,23 @@
   var slow = store.get('slow1') || {};
   function isSlow(id) { return slow[id] && Date.now() - slow[id] < slowTtl(); }
   function markSlow(id) { if (!id) return; slow[id] = Date.now(); store.set('slow1', slow); }
+  /** One programme, one place in the list. The same episode or film can arrive twice (two sources, or a file and a filled-in
+   *  gap); a file we have always wins over a virtual one, and a second copy of either is dropped. */
+  function dedupeProgs(progs) {
+    var seen = {}, kk = function (p) {
+      if (p.ad || p.adBlock || p.song || p.shorts) return '';
+      if (p.filmKey) return 'f:' + p.filmKey;
+      var ref = window.LINKS && LINKS.parseEp(p.title), nm = gmName(p);
+      return ref && nm ? 'e:' + normShow(nm) + ':' + ref.s + ':' + ref.e : '';
+    };
+    progs.forEach(function (p) { if (!p.virtual) { var k = kk(p); if (k && !seen[k]) seen[k] = 1; } });
+    var taken = {}, out = progs.filter(function (p) {
+      var k = kk(p); if (!k) return true;
+      if (p.virtual) { if (seen[k]) return false; if (taken[k]) return false; taken[k] = 1; return true; }
+      if (taken[k]) return false; taken[k] = 1; return true;
+    });
+    return out.length >= 3 ? out : progs;
+  }
   function dropSlow(progs) {
     var ok = progs.filter(function (p) { return !isSlow(p.id); });
     return ok.length >= 3 ? ok : progs;
@@ -5927,9 +5944,10 @@
     s.order.forEach(function (p) { var k = key(p); cnt[k] = (cnt[k] || 0) + 1; uniq[k] = p.show || p.group || p.title; if (!(p.lenKnown)) unknownLen++; if (!/S\d+E\d+/i.test(p.title || '') && !p.filmKey) uncoded++; });
     var run = 0, prev = '', runStart = 0;
     rows.forEach(function (bl) {
-      var k = key(bl.prog);
+      var k = bl.prog.filmKey ? 'f:' + bl.prog.filmKey : key(bl.prog);
       if (k === prev) run++; else { if (run >= 3) runs.push({ show: uniq[prev] || prev, n: run, at: runStart }); run = 1; prev = k; runStart = bl.startMs; }
-      if (urls[bl.prog.url]) dupes.push(bl.prog.title); urls[bl.prog.url] = 1;
+      var ik = bl.prog.filmKey ? 'f:' + bl.prog.filmKey : bl.prog.id || bl.prog.title;
+      urls[ik] = (urls[ik] || 0) + 1; if (urls[ik] === 3) dupes.push(bl.prog.title);
     });
     if (run >= 3) runs.push({ show: uniq[prev] || prev, n: run, at: runStart });
     var kind = s.cycle === 'multi' ? 'a clock timetable, ' + s.n + ' ' + (s.unit === 604800 ? 'weeks' : 'days') + ' before it repeats'
@@ -5937,7 +5955,7 @@
       : 'one shuffled loop of ' + (s.total / 3600).toFixed(1) + ' hours';
     var probs = [];
     runs.forEach(function (r) { probs.push(r.show + ' is on ' + r.n + ' times in a row from ' + fmtTime(r.at)); });
-    if (dupes.length) probs.push(dupes.length + ' programme' + (dupes.length > 1 ? 's repeat' : ' repeats') + ' within the day: ' + dupes.slice(0, 3).join('; '));
+    if (dupes.length) probs.push(dupes.length + ' programme' + (dupes.length > 1 ? 's are' : ' is') + ' on more than twice in the day: ' + dupes.slice(0, 3).join('; '));
     var byCount = Object.keys(cnt).sort(function (x, y) { return cnt[y] - cnt[x]; }), topShow = byCount[0];
     if (topShow && cnt[topShow] / s.order.length > 0.4 && byCount.length > 1) probs.push(uniq[topShow] + ' fills ' + Math.round(100 * cnt[topShow] / s.order.length) + '% of the schedule');
     var prevK = '', runN = 0;
@@ -5945,6 +5963,7 @@
       head: [
         'Guide length setting: ' + SPANS[spanIdx].label,
         'Built as ' + kind,
+        'Pool: ' + s.order.length + ' programmes, ' + (s.total / 3600).toFixed(1) + ' h' + (s.cycle ? '' : (s.total < 43200 ? ' (under 12 h, so each programme comes round more than twice a day)' : ' (each programme at most twice a day)')),
         s.order.length + ' programmes in the schedule, ' + byCount.length + ' different shows, ' + (s.total / 3600).toFixed(1) + ' hours in all',
         (c.plan ? c.plan.length : '?') + ' programmes stored for this channel before the guide length is applied',
         'Where it comes from: ' + (c.decade ? 'the library, only ' + c.decade + 's (' + (c.decade + 9) + ')' : c.autoUsed ? 'the scraper’s whole library' : 'the channel’s own list'),
@@ -8911,7 +8930,7 @@
   // ---- The built schedule of each channel (what plays when) is kept, so a start reads it back instead of laying it out again.
   // It is a list of places in the channel's programme list, so it is only used when that list is exactly as it was: the key
   // carries a fingerprint of the list, the span, the Broadcast schedule setting and SCHED_LOGIC (so an update does not throw saved schedules away).
-  var SCHED_LOGIC = '1';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
+  var SCHED_LOGIC = '2';   // change this only when how a schedule is laid out changes; an app update that leaves it alone keeps every saved schedule
   function schedKey(c, progs, seed, spanH) {
     if (!KV_NATIVE) return '';
     var sig = progs.map(function (p) { return (p.url || p.id) + ':' + p.dur; }).join('|');
@@ -8999,7 +9018,7 @@
       }).then(function (progs) {
         if (progs && progs.length) {
           var t1 = performance.now();
-          progs = dropSlow(virtualFilms(c, virtualFill(c, ukFilter(progs))));
+          progs = dropSlow(dedupeProgs(virtualFilms(c, virtualFill(c, ukFilter(progs)))));
           progs.forEach(function (p) { if (durMem[p.id]) p.dur = durMem[p.id]; });   // real running time, once seen
           progs = withBreaks(c, progs);
           var t2 = performance.now(); tm.prep += t2 - t1;

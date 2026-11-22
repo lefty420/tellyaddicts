@@ -260,6 +260,7 @@
       var r = { i: p.id, u: u.indexOf(DL) === 0 ? u.slice(DL.length) : u, t: p.title, s: p.sub || '', d: p.dur };
       if (p.show) r.h = p.show;                                 // the scrape knew the real show name; don't lose it
       if (p.filmKey) r.f = p.filmKey;                           // where this film's TMDb details are kept
+      if (p.tvDone) r.v = 1;                                    // its episode name has been checked: not looked up again at every start
       if (p.cert) r.c = p.cert;                                 // BBFC certificate: decides what plays before nine
       if (p.group && p.group.indexOf('-') > 0) r.g = p.group;   // advert tier (uk/g), kept so UK adverts stay preferred
       return r;
@@ -267,7 +268,7 @@
   }
   function unpackPlan(rows) {
     return rows.map(function (r) {
-      return { show: r.h, id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g, filmKey: r.f, cert: r.c };
+      return { show: r.h, id: r.i, item: String(r.i).split('/')[0], url: E.canonicalUrl(/^https?:/.test(r.u) ? r.u : DL + r.u) || (/^https?:/.test(r.u) ? r.u : DL + r.u), title: r.t, sub: r.s, dur: r.d, group: r.g, filmKey: r.f, cert: r.c, tvDone: r.v ? true : undefined };
     });
   }
   var keepIdx = keepIndex((store.get('keep1') || '1w'));
@@ -1303,6 +1304,7 @@
   }
 
   /** Swap file-name episode titles for the real ones: "Lovejoy S04E12 Dainty Dish". Only when show and number match. */
+  var nameStat = { n: 0, read: 0, loop: 0 };      // episode-name look-ups made at a start: how many, and the time reading them and comparing
   function enrichNames(ch, progs) {
     var byShow = {};
     progs.forEach(function (p) {
@@ -1317,7 +1319,9 @@
     var changed = false;
     return keys.reduce(function (chain, k) {
       return chain.then(function () {
+        var tq = performance.now();
         return tvmEpisodes(byShow[k].show).then(function (map) {
+          var tr = performance.now();
           if (!map) return;
           byShow[k].items.forEach(function (it) {
             var hit = it.disc ? map['a:' + it.e] : map[it.s + ':' + it.e];
@@ -1334,6 +1338,8 @@
             if (t !== it.p.title) { it.p.title = t; changed = true; }
             it.p.tvDone = true;
           });
+          byShow[k].items.forEach(function (it) { if (!it.p.tvDone) { it.p.tvDone = true; changed = true; } });      // checked and nothing to change: not asked again at every start
+          nameStat.n++; nameStat.read += tr - tq; nameStat.loop += performance.now() - tr;
         });
       });
     }, Promise.resolve()).then(function () {
@@ -8942,6 +8948,7 @@
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
         if (finished === channels.length) setTimeout(function () { loafLog('so far'); }, 0);
+        if (finished === channels.length) setTimeout(function () { dlog('START: episode names checked: ' + nameStat.n + ' shows, ' + Math.round(nameStat.read) + ' ms reading, ' + Math.round(nameStat.loop) + ' ms comparing (so far)'); }, 20000);
         if (finished === channels.length) dlog('START: wall clock (ms after the loading began at ' + Math.round(tmAt) + '): channel lists in from ' + Math.round(tm.listFirst) + ' to ' + Math.round(tm.listLast) + ', Magic EPG and Content data in from ' + Math.round(tm.dataFirst) + ' to ' + Math.round(tm.dataLast));
         if (finished === channels.length) dlog('START: time spent (ms, added up over the channels): prepare lists ' + Math.round(tm.prep) + ', schedules ' + Math.round(tm.sched) + ', real-world order ' + Math.round(tm.real) + ', names ' + Math.round(tm.names) + ', of ' + Math.round(performance.now() - tmAt) + ' in all'); if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
         renderStatus();

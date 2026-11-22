@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.31",
-  "version": "0.53.31",
-  "code": 5331,
+  "name": "Alpha 0.53.32",
+  "version": "0.53.32",
+  "code": 5332,
   "date": "2026-11-22",
   "notes": [
-    "The debug log adds a \"busy frames\" line at the end of a start: how long the page was too busy to draw, how much of that was scripts and how much was drawing, and which parts of the code took longest. It is there to find where a cold start spends its time."
+    "**Episode names are no longer looked up again at every start.** After each channel loaded, the app re-checked every show's saved episode list (a storage read and a parse for about 635 shows) to swap in real episode names, even when they were already right, because the \"checked\" mark was not saved with the channel. It is saved now, so the second and later starts skip the work. The first start after this update does it once.",
+    "The debug log adds how many shows were checked and how long it took."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.31",
+      "date": "2026-11-22",
+      "notes": [
+        "The debug log adds a \"busy frames\" line at the end of a start: how long the page was too busy to draw, how much of that was scripts and how much was drawing, and which parts of the code took longest. It is there to find where a cold start spends its time."
+      ]
+    },
     {
       "name": "Alpha 0.53.30",
       "date": "2026-11-22",
@@ -61,13 +69,6 @@ window.RELEASE = {
       "date": "2026-11-21",
       "notes": [
         "**Options no longer jumps about**: the highlighted row opens up to show its choices, so the rows around it changed height with every press and the list scrolled in uneven jumps. The highlighted row is now held at one place a little way down the panel and the list slides past it a row at a time, stopping naturally at the top and bottom. The opened row is still kept whole inside the panel."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.23",
-      "date": "2026-11-21",
-      "notes": [
-        "The snow cycle (drifts build, then Santa's plough clears them) is 45 seconds for now, so it can be watched. It goes back to 15 minutes later."
       ]
     }
   ]

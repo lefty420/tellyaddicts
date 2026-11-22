@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.32 — 2026-11-22
+- **Episode names are no longer looked up again at every start.** After each channel loaded, the app re-checked every show's saved episode list (a storage read and a parse for about 635 shows) to swap in real episode names, even when they were already right, because the "checked" mark was not saved with the channel. It is saved now, so the second and later starts skip the work. The first start after this update does it once.
+- The debug log adds how many shows were checked and how long it took.
+
 ## Alpha 0.53.31 — 2026-11-22
 - The debug log adds a "busy frames" line at the end of a start: how long the page was too busy to draw, how much of that was scripts and how much was drawing, and which parts of the code took longest. It is there to find where a cold start spends its time.
 

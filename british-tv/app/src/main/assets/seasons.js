@@ -11,10 +11,10 @@
   ];
 
   // How it looks. PIXEL = screen pixels per canvas pixel (2 = 16-bit, 3 = chunkier). DRIFT is 0 to 10.
-  var CFG = { PIXEL: 2, FLAKES: 64, DRIFT: 5, PAUSE_MS: 180,
+  var CFG = { PIXEL: 2, FLAKES: 96, DRIFT: 5, PAUSE_MS: 180,
               CYCLE_MS: 45000,       // drifts grow for this long, then the plough clears them and it starts again (the design is 15 min = 900000; 45 s for now so it can be seen)
               PLOUGH_MS: 12000,      // the plough's drive across the screen
-              START: 0.2 };          // share of full drift height showing at the start of a cycle (0 to 1)
+              START: 0.12 };          // share of full drift height showing at the start of a cycle (0 to 1)
   var T0 = Date.now();               // the cycle runs from app start, so closing and opening the guide does not restart it
 
   function inSeason(s, d) {
@@ -70,10 +70,10 @@
    * sway on top. That keeps the movement smooth at the screen's own frame rate and costs the TV almost no work.
    */
   function snow(box, bottomClear, note) {
-    var anims = [], resumeT = 0, running = false, noteT = 0;
+    var anims = [], resumeT = 0, running = false, noteT = 0, ploughBox = null;
 
     function paintLayer(L, W, H) {
-      var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * L.share / 2);   // half of the layer's flakes: each layer is two sheets at different speeds
+      var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * L.share);
       x.imageSmoothingEnabled = false; x.globalAlpha = L.a;
       for (var i = 0; i < n; i++) {
         var s = SPR[pick(L.spr)], fx = Math.round(rnd(4, W - 14)), fy = Math.round(rnd(0, H - s.length - 1));   // whole flakes only: none straddles the loop's seam
@@ -132,7 +132,7 @@
       var px = CFG.PIXEL, sw = window.innerWidth || 1920, sh = window.innerHeight || 1080, W = Math.ceil(sw / px), H = Math.ceil(sh / px);
       box.textContent = ''; anims = [];
       var sheets = [];
-      LAYERS.forEach(function (L) { sheets.push([L, 0.8, 1], [L, 1.25, -1]); });
+      LAYERS.forEach(function (L) { sheets.push([L, 1, 1]); });      // one sheet a depth: fewer full-screen layers for the TV to blend each frame
       sheets.forEach(function (sh) {
         var L = sh[0], vf = sh[1], dir = sh[2], wrap = document.createElement('div'), c = paintLayer(L, W, H);
         wrap.className = 'sn-wrap'; c.style.height = (H * 2 * px) + 'px'; wrap.appendChild(c); box.appendChild(wrap);
@@ -150,21 +150,23 @@
       var cut = document.createElement('div'), un = document.createElement('div');
       cut.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;overflow:hidden;will-change:transform';
       un.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;will-change:transform';
-      un.appendChild(d[0]); un.appendChild(d[1]); cut.appendChild(un); box.appendChild(cut);
+      var rs = document.createElement('div');
+      rs.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;will-change:transform';
+      rs.appendChild(d[0]); rs.appendChild(d[1]); un.appendChild(rs); cut.appendChild(un); box.appendChild(cut);
       anims.push(d[1].animate([{ opacity: 0.1 }, { opacity: 1 }, { opacity: 0.1 }], { duration: 2400, iterations: Infinity, easing: 'steps(4)' }));
       // The drifts are painted once at full height and slid up from below the screen: a transform, so the TV does no drawing.
       // They rise in whole canvas pixels (steps) for the 16-bit look. At the end of the cycle Santa's snow plough drives in from the
       // left; the drifts are cut away exactly at its blade (a clip-path moving with it), so the snow behind it is gone.
       var cyc = Math.max(20000, CFG.CYCLE_MS), run = Math.min(CFG.PLOUGH_MS, cyc / 4), grow = 1 - run / cyc,
           startY = Math.round(d[2] * (1 - Math.max(0, Math.min(1, CFG.START)))),
-          pp = Math.max(1, Math.min(px, Math.floor(((bottomClear ? bottomClear() : 56) - 4) / PLOUGH_H))),   // the plough's own pixel size: smaller when the free strip is short, never skipped
+          pp = px,           // the plough is drawn at the full pixel size and rides over the bottom of the guide, so Santa can be seen
           pw = PLOUGH_W * pp, front = PLOUGH_FRONT * pp, endX = sw + front, opt = { duration: cyc, iterations: Infinity, delay: -((Date.now() - T0) % cyc) };
       var rise = [
         { offset: 0,    transform: 'translateY(' + startY + 'px)', easing: 'steps(' + Math.max(1, Math.round(startY / px)) + ')' },
         { offset: grow, transform: 'translateY(0)' },
         { offset: 1,    transform: 'translateY(0)' }
       ];
-      [d[0], d[1]].forEach(function (el) { anims.push(el.animate(rise, opt)); });
+      anims.push(rs.animate(rise, opt));
       anims.push(cut.animate([{ offset: 0, transform: 'translateX(0)' }, { offset: grow, transform: 'translateX(0)' }, { offset: 1, transform: 'translateX(' + endX + 'px)' }], opt));
       anims.push(un.animate([{ offset: 0, transform: 'translateX(0)' }, { offset: grow, transform: 'translateX(0)' }, { offset: 1, transform: 'translateX(' + (-endX) + 'px)' }], opt));
       // say in the debug log when the plough is due and when it sets off, so a crossing can be checked afterwards
@@ -176,8 +178,13 @@
       }
       {
         var pl = paintPlough();
-        pl.style.cssText = 'top:auto;bottom:0;width:' + pw + 'px;height:' + (PLOUGH_H * pp) + 'px';
-        box.appendChild(pl);
+        pl.style.cssText = 'position:absolute;left:0;image-rendering:pixelated;will-change:transform;top:auto;bottom:0;width:' + pw + 'px;height:' + (PLOUGH_H * pp) + 'px';
+        // above the guide's rows (the snow itself is behind them): its own layer in the guide, taken away again when the snow stops
+        if (ploughBox && ploughBox.parentNode) ploughBox.parentNode.removeChild(ploughBox);
+        ploughBox = document.createElement('div');
+        ploughBox.style.cssText = 'position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden';
+        ploughBox.appendChild(pl);
+        (box.parentNode || box).appendChild(ploughBox);
         anims.push(pl.animate([                                                    // waits off the left edge, then crosses at the same speed as the cut
           { offset: 0,    transform: 'translateX(' + (-pw) + 'px)' },
           { offset: grow, transform: 'translateX(' + (-pw) + 'px)' },
@@ -195,7 +202,7 @@
       on: function () { return running; },
       /** Milliseconds until the plough sets off, and how long it drives: so its crossing can be measured. */
       plough: function () { var cyc = Math.max(20000, CFG.CYCLE_MS), run = Math.min(CFG.PLOUGH_MS, cyc / 4), grow = 1 - run / cyc; return { due: ((grow * cyc - ((Date.now() - T0) % cyc)) % cyc + cyc) % cyc, run: run }; },
-      stop: function () { running = false; clearTimeout(resumeT); clearTimeout(noteT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; },
+      stop: function () { running = false; clearTimeout(resumeT); clearTimeout(noteT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; if (ploughBox && ploughBox.parentNode) ploughBox.parentNode.removeChild(ploughBox); ploughBox = null; },
       // the guide is being scrolled: hold the snow still until it has settled
       touch: function () { if (!running) return; setPlay(false); clearTimeout(resumeT); resumeT = setTimeout(function () { if (running) setPlay(true); }, CFG.PAUSE_MS); }
     };

@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.37 — 2026-11-22
+- **Lighter snow for the TV.** The Shield was measured dropping frames with the snow on (23 to 34 fps, with about 24 animations and eight full-screen layers). The flakes now use one sheet per depth instead of two, and the sway and the drift build-up are shared, so there are about 13 animations and half the layers to blend each frame.
+- **Santa is bigger.** The plough was drawn tiny (34 by 26 pixels) because the strip under the guide is short. It is now drawn at full size and drives over the bottom edge of the guide, above the last row, then is taken away when the snow stops.
+- **More snow, and the build-up shows.** About 50% more flakes, and each cycle starts with lower drifts, so the growth is easier to see.
+
 ## Alpha 0.53.36 — 2026-11-22
 - **The snow now falls over the episode picture in the guide.** It used to be cut away from the whole top-right block, so it vanished wherever the picture was. It is now cut away only round the words themselves (each line as wide as its own text), so flakes drift over the picture and stay clear of the title, channel and time. The grid is still kept clear, with the drifts in the strip below it.
 - **Santa's plough clears the snow smoothly.** The cut that removes the drifts behind the plough was an animated clip-path, which the TV redraws every frame and which fell out of step with the plough, so the clearing jumped. It is now moved the same way the plough is, so the blade and the cut stay together.

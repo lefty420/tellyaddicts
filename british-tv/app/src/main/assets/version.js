@@ -1,15 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.45",
-  "version": "0.53.45",
-  "code": 5345,
+  "name": "Alpha 0.53.46",
+  "version": "0.53.46",
+  "code": 5346,
   "date": "2026-11-22",
   "notes": [
-    "**US Drama (and every Real time EPG channel) uses its whole library, not the same few shows.** The half-hour slots on a channel cover about 100 hours a week, but only a handful of programmes are short enough to be \"half\", so on US Drama those ten or so files (mostly The X-Files and Buffy) looped all week: X-Files filled 47% of the airtime. Each kind of slot now checks it has enough programmes to cover its time, and if it does not, adds the nearest-length programmes of the other shows in turn (the hour-long Murder She Wrote, Waltons, Hill Street, MacGyver, Kojak and the rest). No show can hold more than about one and a half times an even share of a slot's list. On a test channel with 22 shows plus a 200-episode X-Files and a Buffy, Buffy drops from 43 programmes a week to 12.",
-    "Saved schedules are rebuilt once to pick this up."
+    "**One short file no longer fills every gap on a channel.** 0.53.45 fixed US Drama's slot lists, but The X-Files still took 90 of the week's 228 programmes. The cause: the timetable pads gaps (the overnight run and any slot that ends early) with the channel's short programmes, and US Drama had exactly one, a five-minute X-Files file, so that one file was the padding everywhere. Padding now needs at least eight short programmes from at least three shows; otherwise each show's shortest programme is used, so the gaps are shared across the channel.",
+    "Saved schedules are rebuilt once."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.45",
+      "date": "2026-11-22",
+      "notes": [
+        "**US Drama (and every Real time EPG channel) uses its whole library, not the same few shows.** The half-hour slots on a channel cover about 100 hours a week, but only a handful of programmes are short enough to be \"half\", so on US Drama those ten or so files (mostly The X-Files and Buffy) looped all week: X-Files filled 47% of the airtime. Each kind of slot now checks it has enough programmes to cover its time, and if it does not, adds the nearest-length programmes of the other shows in turn (the hour-long Murder She Wrote, Waltons, Hill Street, MacGyver, Kojak and the rest). No show can hold more than about one and a half times an even share of a slot's list. On a test channel with 22 shows plus a 200-episode X-Files and a Buffy, Buffy drops from 43 programmes a week to 12.",
+        "Saved schedules are rebuilt once to pick this up."
+      ]
+    },
     {
       "name": "Alpha 0.53.44",
       "date": "2026-11-22",
@@ -64,15 +72,6 @@ window.RELEASE = {
         "**The loading TV, its green channel number, the tuner needle and the room backdrop now change together.** Before, the needle swept on its own timer, the green \"P\" number was a random one, and the picture and backdrop each changed on their own. Now the TV surfs the dial: every couple of seconds the needle moves to the next channel's place on the scale, the green number shows that channel, and after a burst of static the picture and the backdrop change to the same new picture. With no picture loaded yet it shows static with the number, not a blank or bars.",
         "**No more colour bars stuck on the loading TV.** A flash of colour bars fired each time a channel finished loading, and with many channels finishing close together it looked like the TV was stuck on bars. The flash is gone.",
         "**Santa is smaller.** The plough is three quarters of the size it was in 0.53.37, so it sits mostly in the strip under the guide."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.37",
-      "date": "2026-11-22",
-      "notes": [
-        "**Lighter snow for the TV.** The Shield was measured dropping frames with the snow on (23 to 34 fps, with about 24 animations and eight full-screen layers). The flakes now use one sheet per depth instead of two, and the sway and the drift build-up are shared, so there are about 13 animations and half the layers to blend each frame.",
-        "**Santa is bigger.** The plough was drawn tiny (34 by 26 pixels) because the strip under the guide is short. It is now drawn at full size and drives over the bottom edge of the guide, above the last row, then is taken away when the snow stops.",
-        "**More snow, and the build-up shows.** About 50% more flakes, and each cycle starts with lower drifts, so the growth is easier to see."
       ]
     }
   ]

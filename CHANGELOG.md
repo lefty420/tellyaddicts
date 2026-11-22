@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.46 — 2026-11-22
+- **One short file no longer fills every gap on a channel.** 0.53.45 fixed US Drama's slot lists, but The X-Files still took 90 of the week's 228 programmes. The cause: the timetable pads gaps (the overnight run and any slot that ends early) with the channel's short programmes, and US Drama had exactly one, a five-minute X-Files file, so that one file was the padding everywhere. Padding now needs at least eight short programmes from at least three shows; otherwise each show's shortest programme is used, so the gaps are shared across the channel.
+- Saved schedules are rebuilt once.
+
 ## Alpha 0.53.45 — 2026-11-22
 - **US Drama (and every Real time EPG channel) uses its whole library, not the same few shows.** The half-hour slots on a channel cover about 100 hours a week, but only a handful of programmes are short enough to be "half", so on US Drama those ten or so files (mostly The X-Files and Buffy) looped all week: X-Files filled 47% of the airtime. Each kind of slot now checks it has enough programmes to cover its time, and if it does not, adds the nearest-length programmes of the other shows in turn (the hour-long Murder She Wrote, Waltons, Hill Street, MacGyver, Kojak and the rest). No show can hold more than about one and a half times an even share of a slot's list. On a test channel with 22 shows plus a 200-episode X-Files and a Buffy, Buffy drops from 43 programmes a week to 12.
 - Saved schedules are rebuilt once to pick this up.

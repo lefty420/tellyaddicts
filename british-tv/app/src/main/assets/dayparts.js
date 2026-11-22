@@ -283,7 +283,18 @@
 
   var REAL = {
     cycle: 'week',
-    filler: function (progs) { var f = progs.filter(shorter(900)); return f.length ? f : progs; },
+    /** Gap filler: the short programmes, but only when there are enough of them across enough shows. US Drama had one
+     *  five-minute X-Files file, which then filled every gap on the channel (90 of the week's 228 programmes). With too
+     *  few, each show's shortest programme stands in, so the gaps are shared out and each is cut to fit. */
+    filler: function (progs) {
+      var f = progs.filter(shorter(900)), seen = {}, n = 0;
+      f.forEach(function (p) { var k = showOf(p); if (!seen[k]) { seen[k] = 1; n++; } });
+      if (f.length >= 8 && n >= 3) return f;
+      var best = {};
+      progs.forEach(function (p) { var k = showOf(p); if (p.dur > 0 && (!best[k] || p.dur < best[k].dur)) best[k] = p; });
+      var out = Object.keys(best).map(function (k) { return best[k]; });
+      return out.length >= 3 ? out : (f.length ? f : progs);
+    },
     make: function (progs, seed, ctx) {
       var kids = !!KIDS[ctx && ctx.id];
       var byClass = { bite: [], half: [], hour: [], long: [], film: [] };

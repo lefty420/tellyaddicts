@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.34",
-  "version": "0.53.34",
-  "code": 5334,
+  "name": "Alpha 0.53.35",
+  "version": "0.53.35",
+  "code": 5335,
   "date": "2026-11-22",
   "notes": [
-    "**The guide opens sooner: episode names are checked after it is up, not while the channels load.** On the Shield that check read about 2,000 shows' saved episode lists (over 10 s of a 26 s start) before the guide could open. It now waits until the guide is showing, then goes through the channels one at a time in the background, pausing whenever a button is pressed. Names appear a little later on a start; nothing else changes."
+    "The debug log adds a line at the end of a start: how many saved things of each kind were read, how big they were, and how long reading and parsing them took, to show which saved data holds up a cold start."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.34",
+      "date": "2026-11-22",
+      "notes": [
+        "**The guide opens sooner: episode names are checked after it is up, not while the channels load.** On the Shield that check read about 2,000 shows' saved episode lists (over 10 s of a 26 s start) before the guide could open. It now waits until the guide is showing, then goes through the channels one at a time in the background, pausing whenever a button is pressed. Names appear a little later on a start; nothing else changes."
+      ]
+    },
     {
       "name": "Alpha 0.53.33",
       "date": "2026-11-22",
@@ -61,14 +68,6 @@ window.RELEASE = {
       "notes": [
         "**The guide opens much sooner on a cold start.** It used to wait until all 66 channels had loaded, so a start took as long as the slowest channel. It now opens as soon as the channel you were last watching and the first ten channels in the guide are ready; the others finish behind it and appear as they land.",
         "The hidden loading list is no longer redrawn once the guide is up, which saves work while the last channels finish."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.26",
-      "date": "2026-11-22",
-      "notes": [
-        "**Pressing Home no longer closes the app.** On a TV, Home used to close Telly Addicts on purpose, so every return was a cold start that laid out all 66 channels again. It now pauses and stays alive; coming back is instant. A live channel is tuned to what is on now if you were away more than 20 seconds, and anything else carries on where it stopped. (If the system needs the memory it can still close it, and then it starts as before.)",
-        "The debug log notes when the app goes to the background and returns, and where a start spends its time (preparing lists, schedules, real-world order, names), so the slow part of a cold start can be found."
       ]
     }
   ]

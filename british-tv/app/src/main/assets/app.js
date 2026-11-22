@@ -74,8 +74,17 @@
       }
     } catch (e) { /* the page's storage still has them */ }
   }, 4000);
+  var getStat = {};      // saved things read this run, by kind: how many, how big, time reading them from storage and time parsing them
   var store = {
-    get: function (k) { try { return JSON.parse(kv.getItem(k)); } catch (e) { return null; } },
+    get: function (k) {
+      var t0 = performance.now(), txt = null, out = null, t1;
+      try { txt = kv.getItem(k); } catch (e) { txt = null; }
+      t1 = performance.now();
+      try { out = JSON.parse(txt); } catch (e) { out = null; }
+      var g = getStat[String(k).split(':')[0]] || (getStat[String(k).split(':')[0]] = { n: 0, kb: 0, read: 0, parse: 0 });
+      g.n++; g.kb += txt ? txt.length / 1024 : 0; g.read += t1 - t0; g.parse += performance.now() - t1;
+      return out;
+    },
     set: function (k, x) {
       var text = JSON.stringify(x);
       try { kv.setItem(k, text); return true; } catch (e) { /* storage full or blocked */ }
@@ -8904,6 +8913,10 @@
       });
     }).observe({ type: 'long-animation-frame', buffered: true });
   } catch (e) { loaf = null; }
+  function getStatLog(tag) {
+    var rows = Object.keys(getStat).map(function (k) { var g = getStat[k]; return { k: k, t: g.read + g.parse, g: g }; }).sort(function (x, y) { return y.t - x.t; }).slice(0, 7);
+    dlog('START: saved data read ' + tag + ': ' + rows.map(function (r) { return r.k + ' x' + r.g.n + ' ' + Math.round(r.g.kb) + ' KB, read ' + Math.round(r.g.read) + ' ms, parse ' + Math.round(r.g.parse) + ' ms'; }).join(' | '));
+  }
   function loafLog(tag) {
     if (!loaf) { dlog('START: busy-frame timing is not available in this WebView'); return; }
     var top = Object.keys(loaf.top).sort(function (a, b) { return loaf.top[b] - loaf.top[a]; }).slice(0, 6).map(function (k) { return k + ' ' + Math.round(loaf.top[k]) + 'ms'; });
@@ -8962,6 +8975,7 @@
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
         if (finished === channels.length) setTimeout(function () { loafLog('so far'); }, 0);
+        if (finished === channels.length) setTimeout(function () { getStatLog('up to the guide opening'); }, 0);
         if (finished === channels.length) setTimeout(function () { dlog('START: episode names checked: ' + nameStat.n + ' shows, ' + Math.round(nameStat.read) + ' ms reading, ' + Math.round(nameStat.loop) + ' ms comparing (so far)'); }, 60000);
         if (finished === channels.length) dlog('START: wall clock (ms after the loading began at ' + Math.round(tmAt) + '): channel lists in from ' + Math.round(tm.listFirst) + ' to ' + Math.round(tm.listLast) + ', Magic EPG and Content data in from ' + Math.round(tm.dataFirst) + ' to ' + Math.round(tm.dataLast));
         if (finished === channels.length) dlog('START: time spent (ms, added up over the channels): prepare lists ' + Math.round(tm.prep) + ', schedules ' + Math.round(tm.sched) + ', real-world order ' + Math.round(tm.real) + ', names ' + Math.round(tm.names) + ', of ' + Math.round(performance.now() - tmAt) + ' in all'); if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));

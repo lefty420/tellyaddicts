@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.31 — 2026-11-22
+- The debug log adds a "busy frames" line at the end of a start: how long the page was too busy to draw, how much of that was scripts and how much was drawing, and which parts of the code took longest. It is there to find where a cold start spends its time.
+
 ## Alpha 0.53.30 — 2026-11-22
 - **On Demand > On now: film channels now show the film.** Christmas Movies, Kids Films, The Video Shop and the other movie channels used to show a plain coloured card named after the channel. They now show the film that is on, with its own picture and title.
 - **Updating the app no longer throws away every saved schedule.** The saved schedules were keyed on the app version, so the first start after each update laid all 65 channels out again (35 s on the Shield). They now stay valid until how a schedule is laid out actually changes.

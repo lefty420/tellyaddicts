@@ -8868,6 +8868,27 @@
   }
 
   var schedStat = { hit: 0, miss: 0 };
+  // Busy frames while the app starts (Chrome's long-animation-frame timing): how long the page was too busy to draw, how much of that was
+  // scripts and how much was drawing, and which script positions in this file took the most, so the slow part of a start can be named.
+  var loaf = { n: 0, dur: 0, scr: 0, rend: 0, top: {} };
+  try {
+    new PerformanceObserver(function (l) {
+      l.getEntries().forEach(function (e) {
+        loaf.n++; loaf.dur += e.duration;
+        if (e.renderStart) loaf.rend += Math.max(0, e.startTime + e.duration - e.renderStart);
+        (e.scripts || []).forEach(function (sc) {
+          loaf.scr += sc.duration;
+          var k = (sc.invoker || '?') + ' ' + (sc.sourceFunctionName || '') + '@' + String(sc.sourceURL || '').split('/').pop() + ':' + (sc.sourceCharPosition || 0);
+          loaf.top[k] = (loaf.top[k] || 0) + sc.duration;
+        });
+      });
+    }).observe({ type: 'long-animation-frame', buffered: true });
+  } catch (e) { loaf = null; }
+  function loafLog(tag) {
+    if (!loaf) { dlog('START: busy-frame timing is not available in this WebView'); return; }
+    var top = Object.keys(loaf.top).sort(function (a, b) { return loaf.top[b] - loaf.top[a]; }).slice(0, 6).map(function (k) { return k + ' ' + Math.round(loaf.top[k]) + 'ms'; });
+    dlog('START: busy frames ' + tag + ': ' + loaf.n + ' frames, ' + Math.round(loaf.dur) + ' ms busy, scripts ' + Math.round(loaf.scr) + ' ms, drawing ' + Math.round(loaf.rend) + ' ms; biggest: ' + top.join(' | '));
+  }
   function startLoading() {
     spSeen = {}; spRecent = [];                                     // each load starts with every picture unseen
     forgetOldChannels();
@@ -8920,6 +8941,7 @@
         }
       }, function () { c.status = 'empty'; }).then(function () {
         finished++;
+        if (finished === channels.length) setTimeout(function () { loafLog('so far'); }, 0);
         if (finished === channels.length) dlog('START: wall clock (ms after the loading began at ' + Math.round(tmAt) + '): channel lists in from ' + Math.round(tm.listFirst) + ' to ' + Math.round(tm.listLast) + ', Magic EPG and Content data in from ' + Math.round(tm.dataFirst) + ' to ' + Math.round(tm.dataLast));
         if (finished === channels.length) dlog('START: time spent (ms, added up over the channels): prepare lists ' + Math.round(tm.prep) + ', schedules ' + Math.round(tm.sched) + ', real-world order ' + Math.round(tm.real) + ', names ' + Math.round(tm.names) + ', of ' + Math.round(performance.now() - tmAt) + ' in all'); if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
         renderStatus();

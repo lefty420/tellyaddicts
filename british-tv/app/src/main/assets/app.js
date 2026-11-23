@@ -39,6 +39,9 @@
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
     getItem: function (k) {
       if (kv.big(k)) { try { return NativeHttp.kvGet(k); } catch (e) { return null; } }
+      // settings are written to the file at once but to the page's storage only some seconds later, so when the file has a
+      // value it is the newer one (a setting changed just before the app closed is only in the file)
+      if (kv.mirrored(k)) { try { var fv = NativeHttp.kvGet('ls:' + k); if (fv) { try { localStorage.setItem(k, fv); } catch (e3) { /* the file still has it */ } return fv; } } catch (e4) { /* no file: use the page's storage */ } }
       var v = localStorage.getItem(k);
       // settings are also kept as files (below): if the page's storage lost them, they are read back from there
       if (v === null && kv.mirrored(k)) { try { v = NativeHttp.kvGet('ls:' + k); if (v) { try { localStorage.setItem(k, v); } catch (e2) { /* read from the file next time */ } } } catch (e) { v = null; } if (v === undefined || v === '') v = null; }

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.54",
-  "version": "0.53.54",
-  "code": 5354,
+  "name": "Alpha 0.53.55",
+  "version": "0.53.55",
+  "code": 5355,
   "date": "2026-11-23",
   "notes": [
-    "**Start-up log shows which screen it opened.** With Start up in set to On Demand, the app still opened in the TV guide on one start. The debug log now says at start whether the setting was On Demand or EPG, whether Experimental is on, and how many On Demand channels were ready, so the cause shows up in the log."
+    "**Settings changed just before closing the app are kept.** Settings were written to the app's file at once but to the page's storage a few seconds later, and the app read the page's copy first. A setting changed and then closed quickly (such as Experimental's Start up in) came back to its old value on the next start. The app now reads the file's copy first, which is always the newer one."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.54",
+      "date": "2026-11-23",
+      "notes": [
+        "**Start-up log shows which screen it opened.** With Start up in set to On Demand, the app still opened in the TV guide on one start. The debug log now says at start whether the setting was On Demand or EPG, whether Experimental is on, and how many On Demand channels were ready, and logs each time the setting is changed with what was saved, so the cause shows up in the log."
+      ]
+    },
     {
       "name": "Alpha 0.53.53",
       "date": "2026-11-23",
@@ -59,14 +66,6 @@ window.RELEASE = {
       "notes": [
         "**The snow speed check now waits for the guide.** The check that measures the snow's frame rate (and lightens it if it is under 60 or 30 fps) ran once, 15 seconds after the snow started, and gave up silently if the guide was not on screen at that moment. The live log from 0.53.46 shows exactly that: no \"SNOW: tier\" line at all, because the guide was opened after the 15 seconds had passed. It now tries again every five seconds (for up to ten minutes) until the guide is up, and starts again if the guide is closed part-way through the eight seconds.",
         "Nothing else changes in this build."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.46",
-      "date": "2026-11-22",
-      "notes": [
-        "**One short file no longer fills every gap on a channel.** 0.53.45 fixed US Drama's slot lists, but The X-Files still took 90 of the week's 228 programmes. The cause: the timetable pads gaps (the overnight run and any slot that ends early) with the channel's short programmes, and US Drama had exactly one, a five-minute X-Files file, so that one file was the padding everywhere. Padding now needs at least eight short programmes from at least three shows; otherwise each show's shortest programme is used, so the gaps are shared across the channel.",
-        "Saved schedules are rebuilt once."
       ]
     }
   ]

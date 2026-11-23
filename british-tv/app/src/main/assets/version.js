@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.71",
-  "version": "0.53.71",
-  "code": 5371,
+  "name": "Alpha 0.53.72",
+  "version": "0.53.72",
+  "code": 5372,
   "date": "2026-11-23",
   "notes": [
-    "**The big YouTube scrape shows up in On Demand.** On Demand's saved lists did not know the YouTube list had changed, so the new shows (1366 shows, 29,246 videos, 5.4 MB, up from 19 shows) would only have appeared when a list happened to be built again. Each channel's saved list now carries a stamp of its YouTube shows, the YouTube list is loaded quietly 20 s after start-up, and a channel whose YouTube shows changed is built again in the background. The log says `YOUTUBE: the list changed`. Expect a few slow minutes of background building the first time."
+    "**Order of play is now fixed: addon, then archive, then YouTube.** With Magic EPG on, the addon is asked first, then the archive copy, then YouTube. With it off, the archive copy then YouTube. An archive copy that was the wrong length or an .mkv could previously score below a long, well-titled YouTube copy; now any archive copy is always tried before YouTube, which stays as the fall-back if the archive file will not play."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.71",
+      "date": "2026-11-23",
+      "notes": [
+        "**The big YouTube scrape shows up in On Demand.** On Demand's saved lists did not know the YouTube list had changed, so the new shows (1366 shows, 29,246 videos, 5.4 MB, up from 19 shows) would only have appeared when a list happened to be built again. Each channel's saved list now carries a stamp of its YouTube shows, the YouTube list is loaded quietly 20 s after start-up, and a channel whose YouTube shows changed is built again in the background. The log says `YOUTUBE: the list changed`. Expect a few slow minutes of background building the first time."
+      ]
+    },
     {
       "name": "Alpha 0.53.70",
       "date": "2026-11-23",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**Starting in On Demand shows the last On Demand screen at once.** The home screen (rows, hero and background) is saved as you use On Demand, about every 20 s while it is open. With Start up in set to On Demand, the app shows that saved screen straight after it starts, in place of the loading screen, while the channels load behind it. Buttons do nothing until the real On Demand takes over (about 8 s); then the rows redraw with the live On now. The first start after an update has no saved screen and shows the loading screen as before. The log says `START: showing the saved On Demand screen`."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.63",
-      "date": "2026-11-23",
-      "notes": [
-        "**Starting in On Demand opens after two channels, not eight.** In 0.53.62 the loading screen was gone after 7.6 s (it was about 16 s), but eight channels were still waited for. On Demand now opens as soon as two are ready, and the rest of the channels join the rows as they finish."
       ]
     }
   ]

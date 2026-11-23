@@ -7262,6 +7262,7 @@
       if (/\b(?:hd|hq|1080p|720p|remaster(?:ed)?)\b/i.test(t)) sc += 4;
     }
     if (med && p.dur && (p.lenKnown || p.yt)) sc -= Math.min(30, Math.round(Math.abs(p.dur - med) / med * 60));
+    if (!p.yt) sc = Math.max(sc, 26);          // order of play: the addon first (Magic EPG), then the archive copy, then YouTube; a poor archive copy still leads a YouTube one
     return sc;
   }
   window.__ytNote = function (t) { dlog('YOUTUBE stream: ' + t); };

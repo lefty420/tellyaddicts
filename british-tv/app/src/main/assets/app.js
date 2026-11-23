@@ -7603,8 +7603,12 @@
   var OD_CHIPS = ['All', 'TV', 'Films', 'Kids'];
   var OD_GENRES = [
     { id: '_g_drama', name: 'Drama', k: 'tv', ch: ['drama', 'usdrama', 'mc_crime', 'mc_period', 'mc_action_tv', 'mc_scifi'] },
+    { id: '_g_mix', name: 'A bit of everything', k: 'tv film kids', mix: 60, ch: ['drama', 'sitcoms', 'gameshows', 'comedy', 'usdrama', 'soaps', 'music', 'cooking', 'entertainment', 'tv70s', 'tv80s', 'tv90s', 'mc_scifi', 'mc_crime', 'mc_period', 'mc_sketch', 'mc_toons_classic', 'mc_xmas_comedy', 'videoshop', 'mc_horror', 'mc_comedy_movies', 'mc_thriller', 'kidsmovies', 'mc_rock'] },
+    { id: '_g_nostalgia', name: 'Throwback telly', k: 'tv kids', mix: 40, ch: ['tv70s', 'tv80s', 'tv90s', 'mc_toons80', 'mc_toons90', 'mc_sitcom90', 'mc_sitcom_gold', 'mc_teen', 'childrens', 'citv', 'saturday'] },
     { id: '_g_kids', name: 'Kids’ TV and cartoons', k: 'kids', ch: ['citv', 'childrens', 'offschool', 'disney', 'mc_cbbc', 'mc_toons80', 'mc_toons90', 'mc_toons_classic', 'mc_nursery', 'mc_teen', 'kidsxmas', 'mc_xmas_toons'] },
     { id: '_g_films', name: 'Films', k: 'film', ch: ['videoshop', 'mc_action', 'mc_horror', 'mc_scifi_movies', 'mc_comedy_movies', 'mc_thriller', 'mc_drama_movies'] },
+    { id: '_g_scifi', name: 'Sci-fi and fantasy', k: 'tv film', ch: ['mc_scifi', 'mc_scifi_movies'] },
+    { id: '_g_scary', name: 'Thrillers and horror', k: 'tv film', ch: ['mc_horror', 'mc_thriller', 'mc_crime'] },
     { id: '_g_kidsfilms', name: 'Kids’ films', k: 'kids film', ch: ['kidsmovies'] },
     { id: '_g_comedy', name: 'Comedy', k: 'tv', ch: ['sitcoms', 'comedy', 'ussitcoms', 'mc_sitcom_gold', 'mc_sitcom90', 'mc_tgif', 'mc_sketch'] },
     { id: '_g_games', name: 'Game shows', k: 'tv', ch: ['gameshows', 'mc_quiz', 'mc_challenge', 'games'] },
@@ -7682,7 +7686,7 @@
     var sig = loaded + '/' + total, cur = odData[row.id];
     if (cur && cur.sig === sig) return cur;
     var seen = {}, out = [], i = 0, more = true;
-    while (more && out.length < 150) {
+    while (more && out.length < (row.mix ? 600 : 150)) {
       more = false;
       lists.forEach(function (l) {
         if (i >= l.length) return;
@@ -7691,6 +7695,12 @@
         if (!seen[k]) { seen[k] = 1; out.push(g); }
       });
       i++;
+    }
+    if (row.mix && out.length) {            // a mixed row: shuffled, the same way all day, so it is not just the A-Z start of each channel
+      var sd = Math.floor(Date.now() / 86400000) + row.id.length * 7919;
+      var rnd = function () { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; };
+      for (var si = out.length - 1; si > 0; si--) { var sj = Math.floor(rnd() * (si + 1)), t = out[si]; out[si] = out[sj]; out[sj] = t; }
+      out = out.slice(0, row.mix);
     }
     return (odData[row.id] = { shows: loaded ? out : null, sig: sig });
   }

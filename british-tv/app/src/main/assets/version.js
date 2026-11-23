@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.67",
-  "version": "0.53.67",
-  "code": 5367,
+  "name": "Alpha 0.53.68",
+  "version": "0.53.68",
+  "code": 5368,
   "date": "2026-11-23",
   "notes": [
-    "**Hold OK works on On now.** Holding OK on a programme in the On now row did nothing. It now opens a menu: Watch live, Add (or Remove) channel from favourites, and Options. Favourite channels come first in On now."
+    "**More on the On Demand home screen.** Four new rows: **A bit of everything** (60 shows and films picked from across the library, shuffled once a day), **Throwback telly** (70s, 80s and 90s TV, cartoons and sitcoms mixed), **Sci-fi and fantasy** and **Thrillers and horror** (each mixing TV and films). Drama stays first so the first genre row still appears quickly. The TV, Films and Kids chips show the rows that fit them."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.67",
+      "date": "2026-11-23",
+      "notes": [
+        "**Hold OK works on On now.** Holding OK on a programme in the On now row did nothing. It now opens a menu: Watch live, Add (or Remove) channel from favourites, and Options. Favourite channels come first in On now."
+      ]
+    },
     {
       "name": "Alpha 0.53.66",
       "date": "2026-11-23",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**The log times the parts of an On Demand draw that take over 150 ms.** The long freezes in On Demand were all tagged \"draw On Demand\". Any draw over 150 ms now logs `DRAW slow … ms: rows …, background …, text and logo …, lookups …`, so the slow part can be found and fixed. Nothing else changes."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.59",
-      "date": "2026-11-23",
-      "notes": [
-        "**The log now names what caused each long freeze.** On Demand still froze for up to 4 s at times. Every stall over 250 ms is now logged as `STALL … ms on <screen>, jobs just before: …` with the jobs that had just started (reading a saved list, grouping a channel, drawing On Demand, episode-name checks, artwork look-ups, opening a show), so the next fix can aim at the real cause. Nothing else changes."
       ]
     }
   ]

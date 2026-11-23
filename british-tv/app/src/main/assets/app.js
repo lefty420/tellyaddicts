@@ -7130,7 +7130,9 @@
     else if (k === 'MediaNext') { playNext(); }
     else if (k === 'MediaPlay') { v.play(); }
     else if (k === 'MediaPause') { v.pause(); toast('Paused', 1500); }
-    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { openGuide(); }   // watching: Back goes to the TV guide
+    else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {          // watching: Back goes to the TV guide, or to On Demand when On Demand is home and this was picked there
+      if (odHomeMode() && cur && cur.od) odOpenUi(); else openGuide();
+    }
     else handled = false;
 
     if (handled) e.preventDefault();
@@ -8295,6 +8297,13 @@
       }, function () { odBusy = false; odRender(); });
     });
   }
+  /** Start up in is On Demand: it is home, so Back at its top does not go on to the TV guide; like the guide's own home, a second quick Back asks to quit. */
+  function odHomeMode() { return expOn && startOdOn; }
+  function odBackHome() {
+    var n = Date.now();
+    if (n - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); return; }
+    lastBack = n; pressBackToExit();
+  }
   function odClose(restore) {
     odOpen = false;
     clearTimeout(odMetaTimer);
@@ -8400,7 +8409,7 @@
       else if (k === 'ArrowRight') odCi = Math.min(4, odCi + 1);
       else if (k === 'ArrowDown') { odZn = odHero.length ? 'hero' : 'rows'; if (odZn === 'rows') odEnter(); }
       else if (ok) { if (odCi === 4) { odSearchAsk(); return true; } odSetChip(odCi); return true; }
-      else if (back) { odClose(true); return true; }
+      else if (back) { if (odHomeMode()) { odBackHome(); return true; } odClose(true); return true; }
       odRender(); return true;
     }
     if (odZn === 'hero') {
@@ -8409,7 +8418,7 @@
       else if (k === 'ArrowUp') odZn = 'chips';
       else if (k === 'ArrowDown') { odZn = 'rows'; odEnter(); return true; }
       else if (ok) { odPlayHero(); return true; }
-      else if (back) { odClose(true); return true; }
+      else if (back) { if (odHomeMode()) { odBackHome(); return true; } odClose(true); return true; }
       odRender(); return true;
     }
     var s = odSel(), c = s.c, sh = s.sh, pos = c ? (odPos[c.id] || 0) : 0, vis = odVis(c);

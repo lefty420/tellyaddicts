@@ -7174,13 +7174,37 @@
   var ytOn = store.get('yt1') !== 'off';
   var ytP = null, ytDead = store.get('ytdead2') || {};
   function ytAvailable() { try { return !!(window.NativeHttp && window.NativeHttp.npOpen); } catch (e) { return false; } }
+  // A channel's saved On Demand list has to be built again when the YouTube list for it changes: a small stamp per channel, kept between starts.
+  var ytRevMap = store.get('ytrev2') || {};
+  function ytRevOf(id) { return ytOn && ytRevMap[id] ? ':y' + ytRevMap[id] : ''; }
+  function ytRevSet(d) {
+    var acc = {};
+    Object.keys(d || {}).forEach(function (name) {
+      var sh = d[name]; if (!sh || !sh.videos) return;
+      var ch = sh.channel || 'gameshows';
+      acc[ch] = ((acc[ch] || 7) * 31 + sh.videos.length * 17 + name.length) % 1000000007;
+    });
+    var out = {}, changed = false;
+    Object.keys(acc).forEach(function (k) { out[k] = acc[k].toString(36); });
+    Object.keys(out).forEach(function (k) { if (ytRevMap[k] !== out[k]) { changed = true; delete odiJobs[k]; delete odiMem[k]; } });
+    if (!changed) return;
+    ytRevMap = out; store.set('ytrev2', out);
+    dlog('YOUTUBE: the list changed (' + Object.keys(d).length + ' shows); On Demand lists for its channels are built again');
+    odWarmed = false; setTimeout(odWarm, 15000);
+  }
+  /** After start-up, load the YouTube list quietly so a changed list is noticed and the channels it touches are rebuilt. */
+  function ytWarm() {
+    if (!ytOn || !ytAvailable()) return;
+    if (!quiet() || Date.now() - lastKeyAt < 4000 || cur && !v.paused) { setTimeout(ytWarm, 8000); return; }
+    ytLoad();
+  }
   function ytLoad() {
     if (!ytOn || !ytAvailable()) return Promise.resolve({});
     if (ytP) return ytP;
     var c = store.get('yt2');
     ytP = (c && c.d && Date.now() - c.t < 6 * 3600000 ? Promise.resolve(c.d)
       : getJSON(DATA_BASE + 'yt.json?' + Math.floor(Date.now() / 3600000)).then(function (d) { store.set('yt2', { t: Date.now(), d: d }); return d; }))
-      .then(function (d) { return d && typeof d === 'object' ? d : {}; }, function () { return (c && c.d) || {}; });
+      .then(function (d) { d = d && typeof d === 'object' ? d : {}; try { ytRevSet(d); } catch (e) { /* stamp not updated */ } return d; }, function () { return (c && c.d) || {}; });
     return ytP;
   }
   var YT_JUNK = /\b(best of|compilation|highlights?|reaction|reacts?|review|live ?stream|live:|music video|official video|trailer|behind the scenes|interview|bloopers?|billionaire|ceo)\b/i;      // the last two: short-drama channels that turn up under show names like Blind Date
@@ -7331,7 +7355,7 @@
   var odiJobs = {}, odiMem = {}, odRaw = {}, odRawOrder = [];
   function odRevOf(id) { return (libRevs && libRevs[id]) || (dataRevs && dataRevs[id]) || ''; }
   function odiSig() { return E.hash(['3', depgActive() ? 'm' : '', adCut ? 'c' : '', ukOn ? ukRev : '', removedRev, filmdbRev, artRev, BAD_SALT, E.hash(Object.keys(hid).sort().join(','))].join('.')).toString(36); }
-  function odiKey(id) { var r = odRevOf(id); return r ? 'odi1:' + id + ':' + r + ':' + odiSig() : ''; }
+  function odiKey(id) { var r = odRevOf(id); return r ? 'odi1:' + id + ':' + r + ':' + odiSig() + ytRevOf(id) : ''; }
   /** Whether a channel's rows are saved for this library revision (without reading them). */
   function odiHas(id) { var key = odiKey(id), m = odiMem[id]; return !!((m && m.key === key) || (key && KV_NATIVE && kvNative()[key])); }
   /** The saved rows of a channel for this library revision, or null when they have not been built yet. */
@@ -9317,6 +9341,7 @@
         if (finished === channels.length) setTimeout(veFill, 30000);
         if (finished === channels.length) setTimeout(artScanStart, 60000);
         if (finished === channels.length) setTimeout(odWarm, 4000);
+        if (finished === channels.length) setTimeout(ytWarm, 20000);
         if (finished === channels.length && libCatchUp) setTimeout(function () { var f = libCatchUp; libCatchUp = null; f(); }, 45000);   // a new library: sorted once the guide is up, ready for the next start
         begin();
         if (guideOpen) renderGuide();

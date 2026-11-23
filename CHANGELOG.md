@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.71 — 2026-11-23
+- **The big YouTube scrape shows up in On Demand.** On Demand's saved lists did not know the YouTube list had changed, so the new shows (1366 shows, 29,246 videos, 5.4 MB, up from 19 shows) would only have appeared when a list happened to be built again. Each channel's saved list now carries a stamp of its YouTube shows, the YouTube list is loaded quietly 20 s after start-up, and a channel whose YouTube shows changed is built again in the background. The log says `YOUTUBE: the list changed`. Expect a few slow minutes of background building the first time.
+
 ## Alpha 0.53.70 — 2026-11-23
 - **Background work stays out of the way of the remote.** The artwork scan and the episode-name checks now wait 5 to 6 s after any button press before their next step, and run slower while something is playing. They were causing freezes of 1 to 4 s seen on the playing screen and when pressing Back out of On Demand.
 

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.70",
-  "version": "0.53.70",
-  "code": 5370,
+  "name": "Alpha 0.53.71",
+  "version": "0.53.71",
+  "code": 5371,
   "date": "2026-11-23",
   "notes": [
-    "**Background work stays out of the way of the remote.** The artwork scan and the episode-name checks now wait 5 to 6 s after any button press before their next step, and run slower while something is playing. They were causing freezes of 1 to 4 s seen on the playing screen and when pressing Back out of On Demand."
+    "**The big YouTube scrape shows up in On Demand.** On Demand's saved lists did not know the YouTube list had changed, so the new shows (1366 shows, 29,246 videos, 5.4 MB, up from 19 shows) would only have appeared when a list happened to be built again. Each channel's saved list now carries a stamp of its YouTube shows, the YouTube list is loaded quietly 20 s after start-up, and a channel whose YouTube shows changed is built again in the background. The log says `YOUTUBE: the list changed`. Expect a few slow minutes of background building the first time."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.70",
+      "date": "2026-11-23",
+      "notes": [
+        "**Background work stays out of the way of the remote.** The artwork scan and the episode-name checks now wait 5 to 6 s after any button press before their next step, and run slower while something is playing. They were causing freezes of 1 to 4 s seen on the playing screen and when pressing Back out of On Demand."
+      ]
+    },
     {
       "name": "Alpha 0.53.69",
       "date": "2026-11-23",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**Starting in On Demand opens after two channels, not eight.** In 0.53.62 the loading screen was gone after 7.6 s (it was about 16 s), but eight channels were still waited for. On Demand now opens as soon as two are ready, and the rest of the channels join the rows as they finish."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.62",
-      "date": "2026-11-23",
-      "notes": [
-        "**Starting in On Demand no longer waits for the TV guide's channels.** With Start up in set to On Demand, the loading screen held until the channel that was on last and the top ten guide rows were ready (about 15 s). It now opens On Demand as soon as eight channels are ready, and the rest join the rows as they finish: On now, the genre rows and Continue watching redraw a moment after each lands (never while a button is pressed). Starting in the EPG is unchanged."
       ]
     }
   ]

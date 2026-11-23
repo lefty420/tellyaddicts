@@ -8,7 +8,7 @@ Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes
 hurry gets a third number, `Alpha 0.1.1`.
 
 ## Alpha 0.53.54 — 2026-11-23
-- **Start-up log shows which screen it opened.** With Start up in set to On Demand, the app still opened in the TV guide on one start. The debug log now says at start whether the setting was On Demand or EPG, whether Experimental is on, and how many On Demand channels were ready, so the cause shows up in the log.
+- **Start-up log shows which screen it opened.** With Start up in set to On Demand, the app still opened in the TV guide on one start. The debug log now says at start whether the setting was On Demand or EPG, whether Experimental is on, and how many On Demand channels were ready, and logs each time the setting is changed with what was saved, so the cause shows up in the log.
 
 ## Alpha 0.53.53 — 2026-11-23
 - **Experimental: start up in On Demand.** Options > Experimental has a new row, **Start up in**: EPG (the TV guide, as before) or On Demand. With On Demand chosen the app opens on On Demand's home screen instead of the guide. Back from On Demand goes to the guide as usual. It needs Experimental on, and takes effect from the next start.

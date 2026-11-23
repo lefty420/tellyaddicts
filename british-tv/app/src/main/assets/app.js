@@ -8927,6 +8927,7 @@
   function changeStartup() {
     startOdOn = !startOdOn;
     store.set('startup1', startOdOn ? 'od' : 'epg');
+    dlog('START-UP: set to ' + (startOdOn ? 'On Demand' : 'EPG') + ', saved as ' + JSON.stringify(store.get('startup1')));
     renderOpts();
     toast(startOdOn ? 'Starts in On Demand next time' : 'Starts in the TV guide next time', 2600);
   }

@@ -8165,6 +8165,22 @@
     odEnsureRow(rows.filter(function (r) { return r.ch; })[0]);
     if (jump) odJump(cur.ch, cur.prog);
     else if (gjC) { odBusy = true; odJump(gjC, gjP); }
+    odCwFirst();
+  }
+  /** Continue watching needs the lists of the channels its shows are on: load those before the genre rows, so the row is there at once. */
+  function odCwFirst() {
+    var t0 = performance.now(), seen = {}, todo = [];
+    cwGet().forEach(function (e) { var c = odChannels().filter(function (x) { return x.id === e.ch; })[0]; if (c && !seen[c.id]) { seen[c.id] = 1; if (!odData[c.id]) todo.push(c); } });
+    if (!todo.length) return;
+    (function next() {
+      var c = todo.shift();
+      if (!c || !odOpen) { if (odOpen) dlog('ONDEMAND: Continue watching ready ' + Math.round(performance.now() - t0) + ' ms after opening'); return; }
+      odLoadChannel(c).then(null, function () { /* skipped */ }).then(function () {
+        odRowsMemo = null;
+        if (odOpen && odView === 'home') odRender();
+        setTimeout(next, 0);
+      });
+    })();
   }
   /** Opened while something is playing: go straight to that show's page, on the season and episode that is on. */
   function rwSame(a, b) { return a.virtual || b.virtual ? a.id === b.id : a.url === b.url; }      // virtual episodes have no url: they are told apart by id

@@ -733,7 +733,7 @@
     var film = { title: d.n || '', plot: d.ov || '', poster: poster.indexOf(TMDB_IMG) === 0 ? poster : '',
                  logo: logo.indexOf(TMDB_IMG) === 0 ? logo : '',          // a clear (transparent title) image, when the scraper found one
                  genres: Array.isArray(d.g) ? d.g.join(', ') : (d.g || ''),
-                 mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '', cert: d.cert || '',
+                 mins: +d.rt || 0, released: d.a || '', tmdb: d.tm || '', cert: d.cert || '', col: d.col || '', cn: d.cn || '',
                  cast: Array.isArray(d.cast) ? d.cast.slice(0, 10).map(function (m) {
                    if (typeof m === 'string') return { n: m, c: '', p: '' };
                    var ph = String(m.p || m.photo || m.profile || m.image || m.img || '');    // tolerate a spelled-out key
@@ -7870,8 +7870,8 @@
     img.onerror = function () { img.className = 'hidden'; h1.style.display = ''; };
     img.src = url;
   }
-  function odInfoLine(g, noNet) {
-    if (g.film) { var f = filmFor(g.eps[0].p) || {}; return [f.released ? String(f.released).slice(0, 4) : '', f.genres || '', f.mins ? f.mins + ' min' : '', g.eps[0].p.cert || ''].filter(Boolean).join('  \u00b7  '); }
+  function odInfoLine(g, noNet, noCert) {
+    if (g.film) { var f = filmFor(g.eps[0].p) || {}; return [f.released ? String(f.released).slice(0, 4) : '', f.genres || '', f.mins ? (f.mins >= 60 ? Math.floor(f.mins / 60) + 'h ' + (f.mins % 60) + 'm' : f.mins + ' min') : '', noCert ? '' : g.eps[0].p.cert || ''].filter(Boolean).join('  \u00b7  '); }
     var x = g.art;
     return x ? [noNet ? '' : x.n || '', x.y ? x.y + (x.e && x.e !== x.y ? '–' + x.e : '') : '', x.g || ''].filter(Boolean).join('  ·  ') : '';
   }
@@ -8116,6 +8116,119 @@
     }
     return lab;
   }
+  // ---- the film page: a row of the other films in its series, or films like it
+  var odPool = null, odPoolSig = '', odRelI = 0, odBack = [];
+  function odFilmPool() {
+    var chs = odChannels(), n = 0;
+    chs.forEach(function (c) { var sh = odShowsOf(c); n += sh ? sh.length : 0; });
+    var sig = chs.length + ':' + n;
+    if (odPool && odPoolSig === sig) return odPool;
+    var seen = {}, out = [];
+    chs.forEach(function (c) {
+      (odShowsOf(c) || []).forEach(function (h) {
+        if (!h.film || h.shorts || !h.eps[0]) return;
+        var k = LIBROUTE.norm(h.name); if (seen[k]) return;
+        seen[k] = 1;
+        var f = filmFor(h.eps[0].p); if (!f) return;
+        out.push(odPoolItem(h, f, k));
+      });
+    });
+    odPool = out; odPoolSig = sig;
+    return out;
+  }
+  function odPoolItem(h, f, k) {
+    return { g: h, f: f, k: k, y: parseInt(String(f.released || '').slice(0, 4), 10) || h.yr || 0,
+             gs: String(f.genres || '').toLowerCase().split(/\s*,\s*/).filter(Boolean),
+             cs: (f.cast || []).slice(0, 5).map(function (m) { return String(m.n || '').toLowerCase(); }).filter(Boolean) };
+  }
+  /** What the film page's row holds: { head, items, cur } or null when there is nothing worth a row. */
+  function odRelFor(g) {
+    if (!g || !g.film || !g.eps[0]) return null;
+    var f = filmFor(g.eps[0].p); if (!f) return null;
+    var pool = odFilmPool(), key = LIBROUTE.norm(g.name), sk = key + '|' + odPoolSig + '|' + (f.col || '');
+    if (g._rel !== undefined && g._rk === sk) return g._rel;
+    var me = odPoolItem(g, f, key), res = null, i;
+    if (f.col) {
+      var ser = pool.filter(function (p) { return p.f.col === f.col && p.k !== key; });
+      if (ser.length) {
+        ser.push(me); ser.sort(function (a, b) { return String(a.f.released || '9').localeCompare(String(b.f.released || '9')); });
+        var at = ser.indexOf(me), st = Math.max(0, Math.min(at - 1, ser.length - 8)), win = ser.slice(st, st + 8);
+        var cn = String(f.cn || ''), head = /\s+Collection$/i.test(cn) ? cn.replace(/\s+Collection$/i, ' films') : cn;
+        res = { head: head || 'More in this series', items: win, cur: win.indexOf(me) };
+      }
+    }
+    if (!res) {
+      var sc = [];
+      pool.forEach(function (p) {
+        if (p.k === key) return;
+        var s0 = 0, sg = 0, j;
+        p.cs.forEach(function (n) { if (me.cs.indexOf(n) >= 0) s0 += 3; });
+        p.gs.forEach(function (x) { if (me.gs.indexOf(x) >= 0) { s0 += 2; sg++; } });
+        if (me.y && p.y && Math.abs(me.y - p.y) <= 5) s0 += 1;
+        if (sg >= 1 && s0 >= 3) sc.push({ p: p, s: s0 });
+      });
+      sc.sort(function (a, b) { return b.s - a.s || String(a.p.f.released || '').localeCompare(String(b.p.f.released || '')); });
+      if (sc.length >= 2) res = { head: 'More like this', items: sc.slice(0, 8).map(function (x) { return x.p; }), cur: -1 };
+    }
+    g._rel = res; g._rk = sk;
+    return res;
+  }
+  var odRelSig = '', odCrSig = '';
+  function odRenderFilm(g) {
+    var sh = $('odshow'), rel = null, f = null;
+    if (g.film && g.eps[0]) { f = filmFor(g.eps[0].p); rel = odRelFor(g); }
+    var cast = f && f.cast ? f.cast.filter(function (m) { return m.n; }) : [];
+    var mode = !g.film ? '' : rel ? 'fr' : cast.length ? 'fc' : 'fb';
+    if (sh.getAttribute('data-fm') !== mode) { if (mode) sh.setAttribute('data-fm', mode); else sh.removeAttribute('data-fm'); }
+    var cl = $('odcast');
+    cl.textContent = mode === 'fr' && cast.length ? 'Starring ' + cast.slice(0, 4).map(function (m) { return m.n; }).join(', ') : '';
+    if (mode === 'fr') {
+      var sig = LIBROUTE.norm(g.name) + '|' + odKGen + '|' + odPoolSig + '|' + rel.items.length, box = $('odrelc'), seen = odSeenSet();
+      odRelI = Math.max(0, Math.min(odRelI, rel.items.length - 1));
+      if (sig !== odRelSig) {
+        odRelSig = sig; box.textContent = '';
+        rel.items.forEach(function (it, i) {
+          var d = odEl('div', 'odrc' + (i === rel.cur ? ' cur' : '')), k = odKnown(it.g), pu = k && k.poster;
+          d.style.backgroundImage = pu ? 'url("' + pu + '")' : odTone(it.g.name);
+          if (!pu) d.appendChild(odEl('b', '', it.g.name));
+          if (it.y) d.appendChild(odEl('span', 'odry', String(it.y)));
+          if (i === rel.cur) d.appendChild(odEl('span', 'odrt', 'This film'));
+          if (seen[it.k]) d.appendChild(odEl('i', 'odrw'));
+          box.appendChild(d);
+        });
+      }
+      for (var i = 0; i < box.children.length; i++) box.children[i].classList.toggle('sel', odZone === 2 && i === odRelI);
+      $('odrelh').firstChild.textContent = rel.head;
+      $('odrelh').lastChild.textContent = odZone === 2 && rel.items[odRelI] ? rel.items[odRelI].g.name : '';
+    } else if (mode === 'fc') {
+      var cs = LIBROUTE.norm(g.name) + '|' + cast.length;
+      if (cs !== odCrSig) {
+        odCrSig = cs; var cb = $('odcrc'); cb.textContent = '';
+        cast.slice(0, 8).forEach(function (m) {
+          var it = odEl('div', 'odcm'), ph = odEl('div', 'odcp');
+          if (m.p) ph.style.backgroundImage = 'url("' + m.p + '")'; else ph.textContent = m.n.split(/\s+/).map(function (w) { return w.charAt(0); }).slice(0, 2).join('').toUpperCase();
+          it.appendChild(ph); it.appendChild(odEl('b', '', m.n)); if (m.c) it.appendChild(odEl('small', '', m.c));
+          cb.appendChild(it);
+        });
+      }
+    }
+  }
+  /** Go to another film's page without touching where Back leads out of the film pages. */
+  function odJumpHere(g) {
+    var sh = (g.chan && odShowsOf(g.chan)) || [g], i = Math.max(0, sh.indexOf(g));
+    odData._jp = { shows: sh }; odJumpRow = { id: '_jp', name: g.chan ? g.chan.name : '' }; odPos._jp = i;
+    odRowsMemo = null; odRc = odJumpRow; odRi = 0;
+  }
+  function odRelOpen(it) {
+    var cg = odSel().g, h = it.g, back = { g: cg, i: odRelI };
+    odHydrate(h).then(function () {
+      if (!odOpen || odView !== 'show') return;
+      odBack.push(back); if (odBack.length > 5) odBack.shift();
+      odJumpHere(h); odZone = 0; odSea = 0; odEi = 0; odBi = 0; odRelI = 0;
+      if (!h.metaP) odMeta(h).then(function () { if (odOpen && odView === 'show' && odSel().g === h) odRender(); });
+      odRender();
+    }, function () { toast('Could not open that film', 2500); });
+  }
   function odRenderShow() {
     var s = odSel(), g = s.g;
     if (!g) { odShowView(false); odRenderHome(); return; }
@@ -8131,11 +8244,13 @@
     odLogo($('odlogo2'), $('odst'), g);
     var seasons = g.sea.filter(function (x) { return /^Season/.test(x.name); }).length;
     var sm = $('odsm'); sm.textContent = ''; if (!g.film && g.art && g.art.n) sm.appendChild(odEl('span', 'odbug', g.art.n));
-    sm.appendChild(document.createTextNode(g.film ? odInfoLine(g) : [odInfoLine(g, true), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : '', g.eps.length + (g.eps.length === 1 ? ' video' : ' videos')].filter(Boolean).join('  ·  ')));
+    if (g.film && odCertOf(g)) sm.appendChild(odEl('span', 'odcc', odCertOf(g)));
+    sm.appendChild(document.createTextNode(g.film ? odInfoLine(g, false, true) : [odInfoLine(g, true), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : '', g.eps.length + (g.eps.length === 1 ? ' video' : ' videos')].filter(Boolean).join('  ·  ')));
     $('odsp').textContent = odDesc(g);
     var btns = odBtns(g), btn = $('odbtn'); btn.textContent = '';
     odBi = Math.max(0, Math.min(odBi, btns.length - 1));
     btns.forEach(function (b, i) { btn.appendChild(odEl('div', 'odb' + (odZone === 0 && i === odBi ? ' sel' : ''), b.t)); });
+    odRenderFilm(g);
     var rail = $('odrail');
     var multi = g.sea.length > 1;
     $('odeps').className = multi ? '' : 'wide';
@@ -8207,15 +8322,14 @@
   /** Going onto a show's page remembers where it came from (hero, Browse); Back there puts it all back. */
   function odShowView(on) {
     if (on) { odSetView('show'); return; }
+    odBack = [];
     var r = odRet; odRet = null;
     if (r) { odJumpRow = null; odRowsMemo = null; odRc = r.rc; odRi = r.ri; odZn = r.zn; odSetView(r.view); }
     else odSetView('home');
   }
   function odJumpTo(g) {
     odRet = { rc: odRc, ri: odRi, zn: odZn, view: odView === 'grid' || odView === 'fav' ? odView : 'home' };
-    var sh = (g.chan && odShowsOf(g.chan)) || [g], i = Math.max(0, sh.indexOf(g));
-    odData._jp = { shows: sh }; odJumpRow = { id: '_jp', name: g.chan ? g.chan.name : '' }; odPos._jp = i;
-    odRowsMemo = null; odRc = odJumpRow; odRi = 0;
+    odJumpHere(g);
   }
   function odOpenHero() {
     var g = odHero[Math.min(odHeroI, odHero.length - 1)];
@@ -8230,7 +8344,7 @@
       return;
     }
     // a film opens its own page like a show (picture, details, Play film, Favourite); holding OK on it opens the menu
-    odZone = 0; odSea = 0; odEi = 0; odBi = 0;
+    odZone = 0; odSea = 0; odEi = 0; odBi = 0; odRelI = 0; odBack = [];
     odShowView(true);
     if (!g.metaP) odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });
     odRender();
@@ -8444,7 +8558,7 @@
     if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') {      // a held OK arrives as Info (see MainActivity)
       if (odView === 'home' && odZn === 'hero') { odOpenHero(); return true; }
       if (odView === 'home' && odZn === 'rows' && !odNone) { var q = odSel().g; if (q && q.onnow) odmOnNow(q); else if (q) odmOpen(); }
-      else if (odView === 'show') odmOpen();
+      else if (odView === 'show') { var rl = odZone === 2 ? odRelFor(odSel().g) : null; if (rl && rl.items[odRelI] && odRelI !== rl.cur) odmOpen(rl.items[odRelI].g); else odmOpen(); }
       else if (odView === 'fav') {
         if (odFz === 'cards') { var fc = odFavList()[odFi]; if (fc) odmFavCard(fc); }
         else if (odFz === 'mine') { var fg = odFavShows()[odFm]; if (fg) odFavTitleMenu(fg); }
@@ -8510,28 +8624,35 @@
     var g = odSel().g;
     if (!g) { odShowView(false); odRender(); return true; }
     var multi = g.sea.length > 1, list = (g.sea[odSea] || { eps: [] }).eps, nb = odBtns(g).length;
+    var rel = g.film ? odRelFor(g) : null;
     if (k === 'ArrowUp') {
       if (odZone === 2) odZone = multi ? 1 : 0;
       else if (odZone === 1) odZone = 0;
     } else if (k === 'ArrowDown') {
-      if (g.film) { /* nothing below the buttons */ }
+      if (g.film) { if (rel && odZone === 0) { odZone = 2; odRelI = rel.cur >= 0 && rel.cur + 1 < rel.items.length ? rel.cur + 1 : 0; } }
       else if (odZone === 0) odZone = multi ? 1 : 2;
       else if (odZone === 1) odZone = 2;
     } else if (k === 'ArrowLeft') {
       if (odZone === 0) { if (odBi > 0) odBi--; else { odShowView(false); } }
       else if (odZone === 1) { if (odSea > 0) { odSea--; odEi = 0; } }
+      else if (g.film) { if (odRelI > 0) odRelI--; }
       else if (odEi > 0) odEi--;
     } else if (k === 'ArrowRight') {
       if (odZone === 0) odBi = Math.min(nb - 1, odBi + 1);
       else if (odZone === 1) { if (odSea < g.sea.length - 1) { odSea++; odEi = 0; } }
+      else if (g.film) { if (rel) odRelI = Math.min(rel.items.length - 1, odRelI + 1); }
       else odEi = Math.min(list.length - 1, odEi + 1);
     } else if (k === 'ChannelUp' || k === 'ChannelDown') {
       if (odZone === 2) odEi = Math.max(0, Math.min(list.length - 1, odEi + (k === 'ChannelUp' ? -OD_EPN + 1 : OD_EPN - 1)));
     } else if (k === 'Enter' || k === ' ') {
       if (odZone === 0) { var b = odBtns(g)[odBi]; if (b) b.f(); return true; }
+      if (g.film && odZone === 2) { if (rel && rel.items[odRelI] && odRelI !== rel.cur) odRelOpen(rel.items[odRelI]); return true; }
       if (odZone === 1) { odZone = 2; }
       else if (list[odEi]) { odPlay(list[odEi]); return true; }
-    } else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { odShowView(false); }
+    } else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {
+      if (odBack.length) { var pv = odBack.pop(); odJumpHere(pv.g); odZone = 2; odRelI = pv.i; odBi = 0; }
+      else odShowView(false);
+    }
     odRender();
     return true;
   }
@@ -8818,10 +8939,10 @@
     if (odView === 'show') odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });
     odRender();
   }
-  function odmOpen() {
-    var g = odSel().g;
+  function odmOpen(g0) {
+    var g = g0 || odSel().g;
     if (!g) return;
-    if (g.stub) { odHydrate(g).then(function () { if (odOpen && odSel().g === g && !odm) odmOpen(); }, function () { /* no menu for a show that will not open */ }); return; }
+    if (g.stub) { odHydrate(g).then(function () { if (odOpen && !odm) odmOpen(g); }, function () { /* no menu for a show that will not open */ }); return; }
     var optsItem = { t: 'Options', sub: 'Settings, help and debug', f: function () { odmClose(); openOpts(); } };
     var searchItem = { t: 'Search', sub: odQuery ? 'Find a show or film by name (now: ' + odQuery + ')' : 'Find a show or film by name', f: function () { odmClose(); odSearchAsk(); } };
     var infoItem = { t: 'Info', sub: 'Details, cast and the file it plays', f: function () { odmClose(); var e0 = (g.flat && g.flat[0]) || (g.eps && g.eps[0]); if (e0) openInfo({ prog: e0.p, ch: g.chan }); } };

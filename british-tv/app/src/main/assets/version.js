@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.75",
-  "version": "0.53.75",
-  "code": 5375,
+  "name": "Alpha 0.53.76",
+  "version": "0.53.76",
+  "code": 5376,
   "date": "2026-11-23",
   "notes": [
-    "**On Demand has a top bar instead of the left rail on the TV.** Home, Shows, Films, Kids, Channels and Favourites on the left; Search, Guide and Options on the right. Up from the hero, the first row, the channel list or the favourites cards reaches it; Down goes back into the page. Left and Right stop at the ends. OK on a tab opens it; the current tab sits on the colour bars. Left at the first card no longer opens anything.",
-    "The hero has two sizes: large with the bar or hero in focus, smaller (one-line title, no buttons) when you are in the rows. The phone keeps its rail."
+    "**The film page has a row of other films.** A film in a series (when the scraper supplies `col`) shows the series, oldest first, with \"This film\" marked; any other film shows \"More like this\", scored on shared cast, genres and year. OK opens that film's page, and Back returns to the previous film with the same card focused (up to 5 deep); hold OK opens the film menu. The poster is bigger, with a certificate chip, runtime as `1h 39m` and a \"Starring\" line. With no row the cast is listed under the poster, and with no cast the poster and text are centred."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.75",
+      "date": "2026-11-23",
+      "notes": [
+        "**On Demand has a top bar instead of the left rail on the TV.** Home, Shows, Films, Kids, Channels and Favourites on the left; Search, Guide and Options on the right. Up from the hero, the first row, the channel list or the favourites cards reaches it; Down goes back into the page. Left and Right stop at the ends. OK on a tab opens it; the current tab sits on the colour bars. Left at the first card no longer opens anything.",
+        "The hero has two sizes: large with the bar or hero in focus, smaller (one-line title, no buttons) when you are in the rows. The phone keeps its rail."
+      ]
+    },
     {
       "name": "Alpha 0.53.74",
       "date": "2026-11-23",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**More on the On Demand home screen.** Four new rows: **A bit of everything** (60 shows and films picked from across the library, shuffled once a day), **Throwback telly** (70s, 80s and 90s TV, cartoons and sitcoms mixed), **Sci-fi and fantasy** and **Thrillers and horror** (each mixing TV and films). Drama stays first so the first genre row still appears quickly. The TV, Films and Kids chips show the rows that fit them."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.67",
-      "date": "2026-11-23",
-      "notes": [
-        "**Hold OK works on On now.** Holding OK on a programme in the On now row did nothing. It now opens a menu: Watch live, Add (or Remove) channel from favourites, and Options. Favourite channels come first in On now."
       ]
     }
   ]

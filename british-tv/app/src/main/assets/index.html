@@ -1198,6 +1198,43 @@
   .ogli.sel { background: #1e2742; color: #f2f0ea; font-weight: 700; box-shadow: inset 0 0 0 calc(.4 * var(--u)) #ffc83d; }
   .ogli.sel small { color: #ffc83d; }
   #odfav .ofh span, #odfav .ofe .ofhow { color: #ffc83d; }
+  /* 0.53.76 the film page: a poster, the details, and a row of the series or films like it */
+  #odrel, #odcr, #odcast { display: none; }
+  .odcc { display: inline-block; margin-right: calc(.8 * var(--uw)); padding: 0 calc(.6 * var(--uw)); border-radius: calc(.5 * var(--u)); background: #f2f0ea; color: #0b0f1a; font-weight: 800; font-size: calc(2.2 * var(--u)); }
+  #odshow[data-fm] #odsh { left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+  #odshow[data-fm] #odpost { position: absolute; }
+  #odshow[data-fm] #odsh > div:last-child { position: absolute; padding: 0; }
+  #odshow[data-fm] #odst { font-size: calc(10 * var(--u)); -webkit-line-clamp: 2; }
+  #odshow[data-fm] #odsp { font-size: calc(2.5 * var(--u)); -webkit-line-clamp: 3; }
+  #odcast { font-size: calc(2.5 * var(--u)); color: #a3acc0; margin-top: calc(1 * var(--u)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #odshow[data-fm="fr"] #odpost { left: calc(5 * var(--uw)); top: calc(10.2 * var(--u)); width: calc(30.5 * var(--u)); height: calc(45.8 * var(--u)); }
+  #odshow[data-fm="fr"] #odsh > div:last-child { left: calc(25.5 * var(--uw)); top: calc(10.2 * var(--u)); width: calc(64 * var(--uw)); }
+  #odshow[data-fm="fr"] #odcast { display: block; }
+  #odshow[data-fm="fr"] #odrel { display: block; position: absolute; left: calc(5 * var(--uw)); right: calc(4 * var(--uw)); top: calc(60 * var(--u)); }
+  #odrelh { display: flex; justify-content: space-between; align-items: baseline; height: calc(5 * var(--u)); }
+  #odrelh b { font-size: calc(3.1 * var(--u)); font-weight: 800; font-stretch: 78%; }
+  #odrelh span { font-size: calc(2.6 * var(--u)); color: #ffc83d; }
+  #odrelc { display: flex; gap: calc(1.25 * var(--uw)); margin-top: calc(1 * var(--u)); }
+  .odrc { position: relative; flex: none; width: calc(16.7 * var(--u)); height: calc(25 * var(--u)); border-radius: calc(.8 * var(--u)); background: #151c2e center / cover no-repeat; overflow: hidden; outline: calc(.42 * var(--u)) solid transparent; outline-offset: calc(.42 * var(--u)); }
+  .odrc.sel { outline-color: #ffc83d; }
+  .odrc.cur { opacity: .5; }
+  .odrc b { position: absolute; left: calc(.9 * var(--u)); right: calc(.9 * var(--u)); bottom: calc(.9 * var(--u)); font-size: calc(2.8 * var(--u)); font-weight: 800; font-stretch: 78%; line-height: 1.05; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .odry, .odrt { position: absolute; left: calc(.8 * var(--u)); padding: 0 calc(.8 * var(--u)); border-radius: calc(.5 * var(--u)); font-size: calc(2 * var(--u)); font-weight: 800; }
+  .odry { top: calc(.8 * var(--u)); background: rgba(11,15,26,.8); color: #f2f0ea; }
+  .odrt { bottom: calc(.8 * var(--u)); background: #ffc83d; color: #0b0f1a; }
+  .odrw { position: absolute; left: 0; right: 0; bottom: 0; height: calc(.75 * var(--u)); background: #ffc83d; }
+  #odshow[data-fm="fc"] #odpost { left: calc(5 * var(--uw)); top: calc(10.2 * var(--u)); width: calc(37 * var(--u)); height: calc(55.6 * var(--u)); }
+  #odshow[data-fm="fc"] #odsh > div:last-child { left: calc(30.4 * var(--uw)); top: calc(10.2 * var(--u)); width: calc(64 * var(--uw)); }
+  #odshow[data-fm="fc"] #odcr { display: block; position: absolute; left: calc(5 * var(--uw)); right: calc(4 * var(--uw)); top: calc(70 * var(--u)); }
+  #odcrh { font-size: calc(3.1 * var(--u)); font-weight: 800; font-stretch: 78%; height: calc(4.5 * var(--u)); }
+  #odcrc { display: flex; gap: calc(1.4 * var(--uw)); }
+  .odcm { width: calc(14 * var(--u)); min-width: 0; }
+  .odcp { width: calc(12.2 * var(--u)); height: calc(12.2 * var(--u)); border-radius: 50%; background: #1e2742 center / cover no-repeat; display: flex; align-items: center; justify-content: center; font-size: calc(3.4 * var(--u)); font-weight: 800; color: #a3acc0; }
+  .odcm b, .odcm small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .odcm b { font-size: calc(2.4 * var(--u)); margin-top: calc(.6 * var(--u)); }
+  .odcm small { font-size: calc(2.2 * var(--u)); color: #a3acc0; }
+  #odshow[data-fm="fb"] #odpost { left: calc(5 * var(--uw)); top: calc(14.8 * var(--u)); width: calc(40.7 * var(--u)); height: calc(61.1 * var(--u)); }
+  #odshow[data-fm="fb"] #odsh > div:last-child { left: calc(32.5 * var(--uw)); top: calc(21.3 * var(--u)); width: calc(60 * var(--uw)); }
   /* 0.53.75 the top bar: nine stops across the top replace the left rail on TV */
   #odtools { display: flex; }
   html:not(.phone) #odside { display: none; }
@@ -1264,7 +1301,9 @@
   </div>
   <div id="odfav" class="hidden"></div>
   <div id="odshow" class="hidden">
-    <div id="odsh"><div id="odpost"></div><div><div id="odsm"></div><h1 id="odst"></h1><img id="odlogo2" class="hidden" alt=""><div id="odsp"></div><div id="odbtn"></div></div></div>
+    <div id="odsh"><div id="odpost"></div><div><div id="odsm"></div><h1 id="odst"></h1><img id="odlogo2" class="hidden" alt=""><div id="odsp"></div><div id="odcast"></div><div id="odbtn"></div></div></div>
+    <div id="odrel"><div id="odrelh"><b></b><span></span></div><div id="odrelc"></div></div>
+    <div id="odcr"><div id="odcrh">Cast</div><div id="odcrc"></div></div>
     <div id="odrail"></div><div id="odrmore"></div>
     <div id="odeh"></div>
     <div id="odeps"></div><div id="odemore"></div>

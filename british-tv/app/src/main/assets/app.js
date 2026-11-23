@@ -8078,6 +8078,7 @@
     var s = odSel(), g = s.g;
     if (!g) { odShowView(false); odRenderHome(); return; }
     odSetBg(g);
+    ['odrail', 'odrmore', 'odeh', 'odeps', 'odemore'].forEach(function (id) { $(id).style.display = g.film ? 'none' : ''; });      // a film is one video: no seasons or episode list
     odLookups(g);                                  // the show's details and clear logo, also when you go straight onto its page
     if (g.name !== odLastS) { odLastS = g.name; ['odpost', 'odst', 'odsm', 'odsp'].forEach(function (id) { odFade($(id)); }); }
     var k = odKnown(g), post = $('odpost');
@@ -8185,7 +8186,7 @@
       odHydrate(g).then(function () { if (odOpen && odSel().g === g) odOpenShow(); }, function (e) { dlog('ONDEMAND: could not open ' + g.name + ': ' + e.message); toast('Could not open that show', 2500); });
       return;
     }
-    if (g.film && g.flat && g.flat.length === 1) { odClose(false); odStart(g.chan || s0.c, g.flat, 0); return; }     // a film is one video: OK plays it
+    // a film opens its own page like a show (picture, details, Play film, Favourite); holding OK on it opens the menu
     odZone = 0; odSea = 0; odEi = 0; odBi = 0;
     odShowView(true);
     if (!g.metaP) odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });
@@ -8451,7 +8452,8 @@
       if (odZone === 2) odZone = multi ? 1 : 0;
       else if (odZone === 1) odZone = 0;
     } else if (k === 'ArrowDown') {
-      if (odZone === 0) odZone = multi ? 1 : 2;
+      if (g.film) { /* nothing below the buttons */ }
+      else if (odZone === 0) odZone = multi ? 1 : 2;
       else if (odZone === 1) odZone = 2;
     } else if (k === 'ArrowLeft') {
       if (odZone === 0) { if (odBi > 0) odBi--; else { odShowView(false); } }

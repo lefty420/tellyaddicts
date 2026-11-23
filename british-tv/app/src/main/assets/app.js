@@ -5333,6 +5333,14 @@
   /** A virtual episode no addon had: remember that, and go to the next programme (a real one after a few misses in a row). */
   function vMiss(ch, index, prog, announce) {
     var me = cur, skip = function () {
+      if (cur === me && me && me.od) {                  // picked in On Demand: say so, do not play a different show
+        amNoteOff('');
+        dlog('MAGIC EPG: no source for ' + prog.title + ' (picked in On Demand, staying put)');
+        try { v.pause(); } catch (e) { /* nothing playing */ }
+        toast('No source found for ' + prog.title, 4000);
+        odOpenUi(true);
+        return;
+      }
       amNoteOff('Moving on to the next programme\u2026');
       markSlow(prog.id); vSkips++;
       dlog('MAGIC EPG: no source for ' + prog.title);
@@ -7177,11 +7185,17 @@
     return a;
   }
   /** The stored videos as programmes, for one channel (or for every channel when chId is null). */
-  function ytProgs(data, chId) {
+  /** names: shows (normalised) the channel already lists, whose YouTube copies come too wherever yt.json files them. */
+  function ytNames(progs) {
+    var m = {};
+    (progs || []).forEach(function (p) { var n = LIBROUTE.norm(p.show || p.group || (parseTitle(p.title || '').show) || ''); if (n) m[n] = 1; });
+    return m;
+  }
+  function ytProgs(data, chId, names) {
     var out = [];
     Object.keys(data || {}).forEach(function (name) {
       var sh = data[name];
-      if (!sh || !sh.videos || (chId && (sh.channel || 'gameshows') !== chId)) return;
+      if (!sh || !sh.videos || (chId && (sh.channel || 'gameshows') !== chId && !(names && names[LIBROUTE.norm(name)]))) return;
       var show = name === name.toLowerCase() ? name.replace(/\b[a-z]/g, function (m) { return m.toUpperCase(); }) : name;
       sh.videos.forEach(function (x) {
         if (!x || !x.id || !(x.dur > 120) || ytDead[x.id] || YT_JUNK.test(x.title || '') || ytLate(x)) return;
@@ -7303,7 +7317,7 @@
   // heavy steps (virtualFill, odGroup) run for one show when its page is opened (odHydrate), never for a whole channel.
   var odiJobs = {}, odiMem = {}, odRaw = {}, odRawOrder = [];
   function odRevOf(id) { return (libRevs && libRevs[id]) || (dataRevs && dataRevs[id]) || ''; }
-  function odiSig() { return E.hash(['2', depgActive() ? 'm' : '', adCut ? 'c' : '', ukOn ? ukRev : '', removedRev, filmdbRev, artRev, BAD_SALT, E.hash(Object.keys(hid).sort().join(','))].join('.')).toString(36); }
+  function odiSig() { return E.hash(['3', depgActive() ? 'm' : '', adCut ? 'c' : '', ukOn ? ukRev : '', removedRev, filmdbRev, artRev, BAD_SALT, E.hash(Object.keys(hid).sort().join(','))].join('.')).toString(36); }
   function odiKey(id) { var r = odRevOf(id); return r ? 'odi1:' + id + ':' + r + ':' + odiSig() : ''; }
   /** Whether a channel's rows are saved for this library revision (without reading them). */
   function odiHas(id) { var key = odiKey(id), m = odiMem[id]; return !!((m && m.key === key) || (key && KV_NATIVE && kvNative()[key])); }
@@ -7355,7 +7369,7 @@
     return (odiJobs[ch.id] = odiItems(ch).then(function (items) {
       return odiConvert(items || [], ch.id);
     }).then(function (all) {
-      return ytLoad().then(function (yt) { var y = ytProgs(yt, ch.id); y.forEach(function (p) { p._ix = -1; }); return y.length ? all.concat(y) : all; });
+      return ytLoad().then(function (yt) { var y = ytProgs(yt, ch.id, ytNames(all)); y.forEach(function (p) { p._ix = -1; }); return y.length ? all.concat(y) : all; });
     }).then(function (all) {
       return Promise.all([loadFilmdb(), loadUk(), loadArt()]).then(function () { return all; });
     }).then(function (all) {
@@ -7410,7 +7424,7 @@
     return (g._hp = Promise.all([g.ix ? odiItems(ch) : null, ytLoad(), loadEpdb(), loadFilmdb(), loadUk()]).then(function (r) {
       var items = r[0] || [], rows = (g.ix || []).map(function (i) { return items[i]; }).filter(Boolean);
       var all = rows.length ? progsFromData(rows, ch.id, true) : [];
-      if (g.yt) all = all.concat(ytProgs(r[1], ch.id));
+      if (g.yt) all = all.concat(ytProgs(r[1], ch.id, ytNames(all)));
       all = all.filter(function (p) { return (films || !p.filmKey) && !blocked(p); });
       if (films) { if (g.virt) all = virtualFilms(ch, [], true).filter(function (p) { return p.filmKey === g.k; }); }
       else all = virtualFill(ch, odRenameProgs(all), true);

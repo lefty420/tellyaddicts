@@ -1401,6 +1401,7 @@
         var tq = performance.now();
         return tvmEpisodes(byShow[k].show).then(function (map) {
           var tr = performance.now();
+          jm('episode names ' + byShow[k].show);
           if (!map) return;
           byShow[k].items.forEach(function (it) {
             var hit = it.disc ? map['a:' + it.e] : map[it.s + ':' + it.e];
@@ -1964,6 +1965,7 @@
     }, function () { artScan.running = false; });
   }
   function artScanOne(name) {
+    jm('artwork ' + name);
     var nk = normShow(name), words = name.split(/\s+/), tries = [name];
     if (words.length > 3) tries.push(words.slice(0, 3).join(' '));
     if (words.length > 2) tries.push(words.slice(0, 2).join(' '));
@@ -6438,12 +6440,21 @@
   var liveAddr = '', liveTimer = null;
   // While Live view is on: how long the screen takes to answer a button (press to the next painted frame) and every
   // stall over 50 ms, so how smooth the guide feels can be read off without being in the room.
-  var perfKeys = [], perfStalls = [], perfObs = null;
+  var perfKeys = [], perfStalls = [], perfObs = null, perfMarks = [];
+  /** Notes what is about to run, so a long stall can be traced to the job that caused it (see STALL lines in the log). */
+  function jm(name) { perfMarks.push([performance.now(), name]); if (perfMarks.length > 80) perfMarks.splice(0, 40); }
   function perfStart() {
     if (perfObs || !window.PerformanceObserver) return;
     try {
       perfObs = new PerformanceObserver(function (l) {
-        l.getEntries().forEach(function (e) { perfStalls.push([Date.now(), Math.round(e.duration)]); });
+        l.getEntries().forEach(function (e) {
+          perfStalls.push([Date.now(), Math.round(e.duration)]);
+          if (e.duration >= 250) {
+            var a = e.startTime - 1500, b = e.startTime + e.duration, names = [];
+            perfMarks.forEach(function (m) { if (m[0] >= a && m[0] <= b && names.indexOf(m[1]) < 0) names.push(m[1]); });
+            dlog('STALL ' + Math.round(e.duration) + ' ms on ' + (optsOpen ? 'options' : odOpen ? 'ondemand' : guideOpen ? 'guide' : 'play') + ', jobs just before: ' + (names.join(', ') || 'none noted'));
+          }
+        });
         if (perfStalls.length > 200) perfStalls.splice(0, perfStalls.length - 200);
       });
       perfObs.observe({ entryTypes: ['longtask'] });
@@ -7326,6 +7337,7 @@
     var key = odiKey(id), m = odiMem[id];
     if (m && m.key === key) return m.rows;
     if (!key || !KV_NATIVE) return null;
+    jm('read saved index ' + id);
     try { var t = kv.getItem(key), j = t && JSON.parse(t); if (j && j.rows) { odiMem[id] = { key: key, rows: j.rows }; return j.rows; } } catch (e) { /* built again */ }
     return null;
   }
@@ -7373,6 +7385,7 @@
     }).then(function (all) {
       return Promise.all([loadFilmdb(), loadUk(), loadArt()]).then(function () { return all; });
     }).then(function (all) {
+      jm('group index ' + ch.id);
       var progs = ukFilter(all.filter(function (p) { return (films || !p.filmKey) && !blocked(p); }));
       progs = films ? virtualFilms(ch, progs, true) : odRenameProgs(progs).filter(function (p) { return ch.id === 'disney' || inEra(p); });
       var by = {}, rows = [];
@@ -7403,6 +7416,7 @@
   function odiItems(ch) {
     if (odRaw[ch.id]) return odRaw[ch.id];
     var rev = odRevOf(ch.id);
+    jm('load library ' + ch.id);
     var p = odRaw[ch.id] = loadDataIndex().then(function (idx) { return loadChannelData(ch.id, rev || idx[ch.id] || ''); });
     odRawOrder = odRawOrder.filter(function (x) { return x !== ch.id; }); odRawOrder.push(ch.id);
     while (odRawOrder.length > 3) delete odRaw[odRawOrder.shift()];
@@ -7422,6 +7436,7 @@
     if (g._hp) return g._hp;
     var ch = g.chan, films = !!OD_FILMS[ch.id], key = LIBROUTE.norm(g.name);
     return (g._hp = Promise.all([g.ix ? odiItems(ch) : null, ytLoad(), loadEpdb(), loadFilmdb(), loadUk()]).then(function (r) {
+      jm('open show ' + g.name);
       var items = r[0] || [], rows = (g.ix || []).map(function (i) { return items[i]; }).filter(Boolean);
       var all = rows.length ? progsFromData(rows, ch.id, true) : [];
       if (g.yt) all = all.concat(ytProgs(r[1], ch.id, ytNames(all)));
@@ -7820,6 +7835,7 @@
   var odBusy = false;     // opening straight onto the show that is playing: nothing to show until it is found
   var odT1 = 0, odT0 = 0, odT0Warm = false;      // when On Demand was pressed, and whether its rows were already saved (for the debug line)
   function odRender() {
+    jm('draw On Demand');
     $('odload').className = odOpen && odBusy ? '' : 'hidden';      // never for the home page: it draws at once and the rows fill in
     $('od').classList.toggle('railfocus', odZn === 'rail' && (odView === 'home' || odView === 'fav' || odView === 'grid'));
     odRenderBar();

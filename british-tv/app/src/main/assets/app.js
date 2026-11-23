@@ -52,8 +52,10 @@
     mirrored: function (k) { return KV_NATIVE && k !== 'dbglog1' && !/^(ls:|tvdbtok)/.test(k); },
     setItem: function (k, v) {                        // throws when it will not fit, like localStorage
       if (kv.big(k)) { var ok = false; try { ok = NativeHttp.kvSet(k, v); } catch (e) { ok = false; } if (!ok) throw new Error('not saved'); if (kvNames) kvNames[k] = 1; return; }
-      localStorage.setItem(k, v);
-      if (kv.mirrored(k) && v.length < 60000) { try { NativeHttp.kvSet('ls:' + k, v); } catch (e) { /* the page's storage still has it */ } }
+      // the file first: the page's storage can be full (it throws), and a setting must still be kept
+      var filed = false;
+      if (kv.mirrored(k) && v.length < 60000) { try { filed = !!NativeHttp.kvSet('ls:' + k, v); } catch (e) { /* the page's storage still has it */ } }
+      try { localStorage.setItem(k, v); } catch (e5) { if (!filed) throw e5; }
     },
     removeItem: function (k) {
       if (kv.big(k)) { try { NativeHttp.kvRemove(k); } catch (e) { /* nothing to remove */ } if (kvNames) delete kvNames[k]; return; }

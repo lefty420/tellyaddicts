@@ -8190,6 +8190,20 @@
     odCwFirst();
     odRowsAhead();
   }
+  /** On Demand opened before every channel was ready: as each lands, redraw (a moment after the last one, and not while a button is pressed). */
+  var odLandTimer = null;
+  function odChannelLanded(all) {
+    if (!odOpen || !started) return;
+    clearTimeout(odLandTimer);
+    function tryDraw() {
+      if (!odOpen) return;
+      if (Date.now() - lastKeyAt < 1200) { odLandTimer = setTimeout(tryDraw, 800); return; }
+      odRowsMemo = null;
+      if (odView === 'home') odRender();
+      if (all) { odCwFirst(); odRowsAhead(); }
+    }
+    odLandTimer = setTimeout(tryDraw, all ? 300 : 700);
+  }
   /** Fill in the other genre rows one by one while On Demand sits open, a row at a time and only when no button was pressed
    *  for a moment, so scrolling down finds each row ready instead of waiting for it. */
   var odAheadTok = 0;
@@ -9007,6 +9021,7 @@
     toast(startOdOn ? 'Starts in On Demand next time' : 'Starts in the TV guide next time', 2600);
   }
   var FIRST_WAIT = 60000;     // the loading screen stays until every channel has answered, so the guide opens complete and never stalls while channels fill in; this is only the safety limit for a connection that never answers (the guide then opens on what is ready and tunes to the last channel once it is, see lateTune)
+  var OD_START_MIN = 8;       // starting in On Demand: channels that must be ready before it opens
   var OPEN_ROWS = 10;         // channels at the top of the guide that must be ready before it opens (the last-watched one is waited for above)
   var ALL_WAIT = 60000;       // ... the same limit for all the others
 
@@ -9052,15 +9067,19 @@
     var want = store.get('last');
     var prefer = channels.filter(function (c) { return c.id === want; })[0] ||
                  channels.slice().sort(function (a, b) { return a.n - b.n; })[0];
-    if (prefer && prefer.status === 'loading' && Date.now() - bootedAt < FIRST_WAIT) return;
+    // Starting in On Demand needs no guide: open as soon as a handful of channels are ready (the rest join the rows as they land),
+    // without waiting for the channel that was on last or the top of the guide.
+    var odStart = expOn && startOdOn;
+    if (odStart && list.length < OD_START_MIN && Date.now() - bootedAt < ALL_WAIT && !quiet()) return;
+    if (!odStart && prefer && prefer.status === 'loading' && Date.now() - bootedAt < FIRST_WAIT) return;
     // Open once the channel that was on last and the first screenful of the guide are ready; the other channels finish behind it
     // (the guide redraws as each one lands). Waiting for all of them made every start take as long as the slowest channel.
     var top = channels.slice().sort(function (a, b) { return a.n - b.n; }).slice(0, OPEN_ROWS);
-    if (Date.now() - bootedAt < ALL_WAIT && top.some(function (c) { return c.status === 'loading'; })) return;
+    if (!odStart && Date.now() - bootedAt < ALL_WAIT && top.some(function (c) { return c.status === 'loading'; })) return;
     started = true;
     dlog('START: guide opening ' + Math.round(performance.now() / 100) / 10 + ' s after launch, ' + list.length + ' of ' + channels.length + ' channels ready');
     var pick = (prefer && prefer.status === 'ready' ? prefer : null) || list[0];
-    if (prefer && pick !== prefer && prefer.status === 'loading') lateWant = prefer;
+    if (!odStart && prefer && pick !== prefer && prefer.status === 'loading') lateWant = prefer;
     var land = function () {
       landedAt = Date.now();
       $('splash').className = 'hidden';
@@ -9230,6 +9249,7 @@
         if (finished === channels.length) dlog('START: wall clock (ms after the loading began at ' + Math.round(tmAt) + '): channel lists in from ' + Math.round(tm.listFirst) + ' to ' + Math.round(tm.listLast) + ', Magic EPG and Content data in from ' + Math.round(tm.dataFirst) + ' to ' + Math.round(tm.dataLast));
         if (finished === channels.length) dlog('START: time spent (ms, added up over the channels): prepare lists ' + Math.round(tm.prep) + ', schedules ' + Math.round(tm.sched) + ', real-world order ' + Math.round(tm.real) + ', names ' + Math.round(tm.names) + ', of ' + Math.round(performance.now() - tmAt) + ' in all'); if (finished === channels.length) dlog('START: schedules ' + schedStat.hit + ' read from storage, ' + schedStat.miss + ' laid out'); if (finished === channels.length) dlog('START: all ' + channels.length + ' channels done after ' + Math.round(performance.now() / 100) / 10 + ' s: ' + listStats.saved + ' lists read from storage, ' + listStats.none + ' built (no saved list), ' + listStats.old + ' built (saved list too old), ' + Math.round(listStats.ms / 100) / 10 + ' s spent building' + (listStats.names.length ? ' (' + listStats.names.join(', ') + ')' : ''));
         renderStatus();
+        odChannelLanded(finished === channels.length);
         if (finished === channels.length) setTimeout(seedLinks, 4000);
         if (finished === channels.length) setTimeout(veFill, 30000);
         if (finished === channels.length) setTimeout(artScanStart, 60000);

@@ -1,14 +1,17 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "5f71c048cd",
+ "rev": "40189eecb9",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "childrens": {
    "name": "Children's World: live action, youth TV and imported cartoons",
    "shows": [
     "Back Home",
+    "Billy Webb's Amazing Story",
+    "Earthfasts",
     "Get Set",
+    "Goggle-Eyes",
     "Hey Hey It's Saturday",
     "Knight School",
     "Mighty Morphin Power Rangers",
@@ -16,8 +19,12 @@
     "On the Waterfront",
     "Playdays",
     "Round the Bend",
+    "Saiyuki",
+    "Secret Life of Toys",
+    "The Girl from Tomorrow",
     "The Muppet Show",
-    "Time Riders"
+    "Time Riders",
+    "Watt on Earth"
    ]
   },
   "citv": {
@@ -27,12 +34,21 @@
     "Attack of the Killer Tomatoes",
     "Avenger Penguins",
     "Babar",
+    "Bob the Builder",
     "C.O.P.S.",
     "Camberwick Green",
+    "Cow and Chicken",
+    "Delta Wave",
+    "Dexter's Laboratory",
     "Dog City",
+    "Eek! The Cat",
+    "Fingerbobs",
     "galaxy high",
+    "Gravedale High",
     "Heathcliff",
     "Huxley Pig",
+    "It's a Mystery",
+    "Johnny Bravo",
     "Joshua Jones",
     "King Arthur and the Knights of Justice",
     "La Linea",
@@ -42,24 +58,31 @@
     "Pat and Mat",
     "Pigeon Street",
     "Pippi Longstocking",
+    "Robinson Crusoe",
+    "Roger and the Rottentrolls",
     "Saber Rider and the Star Sheriffs",
     "Sali Mali",
+    "Santo Bugito",
     "Shakespeare The Animated Tales",
     "Simon in the Land of Chalk Drawings",
     "Sonic SatAM",
     "super gran",
+    "The Adventures of Dawdle the Donkey",
     "The Bluffers",
     "The Busy World of Richard Scarry",
     "The Charlie Brown and Snoopy Show",
     "The Kwicky Koala Show",
     "The Magic School Bus",
+    "The Monkees",
     "The Riddlers",
+    "The Secret World of Alex Mack",
     "The Smoggies",
     "The Treacle People",
     "Trumpton",
     "Wallace and Gromit",
     "William's Wish Wellingtons",
-    "Windfalls"
+    "Windfalls",
+    "Zzzap!"
    ]
   },
   "comedy": {
@@ -70,6 +93,7 @@
     "Allo Allo",
     "Chelmsford 123",
     "Chewin the Fat",
+    "Doctor in the House",
     "Duty Free",
     "Fairly Secret Army",
     "Filthy Rich and Catflap",
@@ -77,12 +101,15 @@
     "Gimme Gimme Gimme",
     "Hi-de-Hi",
     "How Do You Want Me",
+    "I, Lovett",
     "In Sickness and in Health",
     "Jeeves and Wooster",
+    "Joking Apart",
     "Kiss Me Kate",
     "Knowing Me Knowing You with Alan Partridge",
     "kyTV",
     "Last of the Summer Wine",
+    "Married for Life",
     "Metal Mickey",
     "Mr Bean",
     "Naked Video",
@@ -93,6 +120,7 @@
     "People Like Us",
     "Second Thoughts",
     "So Haunt Me",
+    "Solo",
     "Sorry",
     "The Detectives",
     "The Mistress",
@@ -108,7 +136,56 @@
   "drama": {
    "name": "Drama",
    "shows": [
-    "Poirot"
+    "A Very British Coup",
+    "Adam Adamant Lives!",
+    "American Gothic",
+    "Ashenden",
+    "Band of Gold",
+    "Barlow at Large",
+    "Bliss",
+    "Buck Rogers in the 25th Century",
+    "Cardiac Arrest",
+    "Cold Lazarus",
+    "Danger Man",
+    "Dawson's Creek",
+    "Eerie, Indiana",
+    "Gideon's Way",
+    "House of Cards",
+    "Lord Peter Wimsey",
+    "Malice Aforethought",
+    "Man in a Suitcase",
+    "Mr Wroe's Virgins",
+    "New Scotland Yard",
+    "Oranges Are Not the Only Fruit",
+    "Out of the Blue",
+    "Poirot",
+    "Pride and Prejudice",
+    "Queer as Folk",
+    "Secret Agent",
+    "Smuggler",
+    "Softly, Softly: Task Force",
+    "Star Trek: Deep Space Nine",
+    "Star Trek: Voyager",
+    "The Baron",
+    "The Chinese Detective",
+    "The Day of the Triffids",
+    "The Final Cut",
+    "The Fortunes and Misfortunes of Moll Flanders",
+    "The Governor",
+    "The Grid",
+    "The Hitchhiker's Guide to the Galaxy",
+    "The Lakes",
+    "The Monocled Mutineer",
+    "The Moonstone",
+    "The Ruth Rendell Mysteries",
+    "The Saint",
+    "The Sandbaggers",
+    "The Singing Detective",
+    "The Tenant of Wildfell Hall",
+    "The Tripods",
+    "The Woman in White",
+    "The Young Indiana Jones Chronicles",
+    "This Life"
    ]
   },
   "games": {
@@ -122,6 +199,12 @@
     "Tekken",
     "Virtua Fighter",
     "Zillion"
+   ]
+  },
+  "gameshows": {
+   "name": "Light Entertainment & Game Shows",
+   "shows": [
+    "Split Second"
    ]
   },
   "mtv": {
@@ -138,6 +221,16 @@
     "Total Request Live"
    ]
   },
+  "offschool": {
+   "name": "Daytime & Off-School TV",
+   "shows": [
+    "Animal Hospital",
+    "Burke's Backyard",
+    "Take Two",
+    "The Great Antiques Hunt",
+    "Walking with Dinosaurs"
+   ]
+  },
   "saturday": {
    "name": "Saturday Night TV",
    "shows": [
@@ -147,6 +240,13 @@
     "Saturday Live",
     "Sunday Night at the London Palladium",
     "The Kenny Everett Television Show"
+   ]
+  },
+  "soaps": {
+   "name": "Soaps: BBC, ITV and Channel 4 serials",
+   "shows": [
+    "Chances",
+    "London Bridge"
    ]
   },
   "tvarchive": {

@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.74",
-  "version": "0.53.74",
-  "code": 5374,
+  "name": "Alpha 0.53.75",
+  "version": "0.53.75",
+  "code": 5375,
   "date": "2026-11-23",
   "notes": [
-    "**The saved On Demand screen keeps the new look's channel bug.** The screen shown at start-up kept only the hero's text, so the white network bug (and the certificate badge) were missing until the real screen took over. It now keeps them."
+    "**On Demand has a top bar instead of the left rail on the TV.** Home, Shows, Films, Kids, Channels and Favourites on the left; Search, Guide and Options on the right. Up from the hero, the first row, the channel list or the favourites cards reaches it; Down goes back into the page. Left and Right stop at the ends. OK on a tab opens it; the current tab sits on the colour bars. Left at the first card no longer opens anything.",
+    "The hero has two sizes: large with the bar or hero in focus, smaller (one-line title, no buttons) when you are in the rows. The phone keeps its rail."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.74",
+      "date": "2026-11-23",
+      "notes": [
+        "**The saved On Demand screen keeps the new look's channel bug.** The screen shown at start-up kept only the hero's text, so the white network bug (and the certificate badge) were missing until the real screen took over. It now keeps them."
+      ]
+    },
     {
       "name": "Alpha 0.53.73",
       "date": "2026-11-23",
@@ -57,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**Hold OK works on On now.** Holding OK on a programme in the On now row did nothing. It now opens a menu: Watch live, Add (or Remove) channel from favourites, and Options. Favourite channels come first in On now."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.66",
-      "date": "2026-11-23",
-      "notes": [
-        "**A film in On Demand opens its info page, like a show.** OK on a film used to start it playing at once, which also meant holding OK never got to open the menu. It now opens the film's page (poster, year, summary, rating, Play film and Favourite), with no seasons or episode list. Hold OK on a film, on the page or on a card, for the same menu as a show: Play, Add to favourites, Info, and More (search, fix artwork, options, hide)."
       ]
     }
   ]

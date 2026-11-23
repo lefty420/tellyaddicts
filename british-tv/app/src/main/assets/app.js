@@ -7625,7 +7625,13 @@
   // ---- On Demand home: filter chips, a rotating hero, then "On now", Continue watching, My list and rows by genre.
   // The rows are built from the channel lists (a genre row joins a few channels), and only the rows near the highlight
   // are loaded, one channel at a time, so opening On Demand never builds everything at once.
-  var OD_CHIPS = ['All', 'TV', 'Films', 'Kids'];
+  var OD_CHIPS = ['Home', 'Shows', 'Films', 'Kids', 'Channels', 'Favourites'], OD_TOOLS = ['Search', 'Guide', 'Options'];
+  /** The stops on the top bar that exist here: all nine on TV; on a phone the rail has the rest. */
+  function odBarVis() { return window.PHONE ? [0, 1, 2, 3, 6] : [0, 1, 2, 3, 4, 5, 6, 7, 8]; }
+  /** The bar has focus: on the home page, in Browse, or in Favourites. */
+  function odBarOn() { return odView === 'home' ? odZn === 'chips' : odView === 'grid' ? odGz === 'bar' : odView === 'fav' ? odFz === 'bar' : false; }
+  /** Which tab is the current one. */
+  function odBarCur() { return odView === 'grid' ? 4 : odView === 'fav' ? 5 : odChip; }
   var OD_GENRES = [
     { id: '_g_drama', name: 'Drama', k: 'tv', ch: ['drama', 'usdrama', 'mc_crime', 'mc_period', 'mc_action_tv', 'mc_scifi'] },
     { id: '_g_mix', name: 'A bit of everything', k: 'tv film kids', mix: 60, ch: ['drama', 'sitcoms', 'gameshows', 'comedy', 'usdrama', 'soaps', 'music', 'cooking', 'entertainment', 'tv70s', 'tv80s', 'tv90s', 'mc_scifi', 'mc_crime', 'mc_period', 'mc_sketch', 'mc_toons_classic', 'mc_xmas_comedy', 'videoshop', 'mc_horror', 'mc_comedy_movies', 'mc_thriller', 'kidsmovies', 'mc_rock'] },
@@ -7876,7 +7882,7 @@
     $('odload').className = odOpen && odBusy ? '' : 'hidden';      // never for the home page: it draws at once and the rows fill in
     $('od').classList.toggle('railfocus', odZn === 'rail' && (odView === 'home' || odView === 'fav' || odView === 'grid'));
     odRenderBar();
-    $('odbar').style.display = odView === 'home' ? '' : 'none'; $('odside').style.display = odView === 'home' || odView === 'fav' || odView === 'grid' ? '' : 'none';
+    $('odbar').style.display = odView === 'home' || (!window.PHONE && (odView === 'grid' || odView === 'fav')) ? '' : 'none'; $('odside').style.display = odView === 'home' || odView === 'fav' || odView === 'grid' ? '' : 'none';
     if (odView === 'show') odRenderShow(); else if (odView === 'grid') odRenderGrid(); else if (odView === 'fav') odRenderFav(); else odRenderHome();
     var nm = odView === 'home' && odNone;
     $('odnomatch').className = nm ? '' : 'hidden'; $('odrows').style.visibility = $('odhero').style.visibility = nm ? 'hidden' : '';
@@ -7942,8 +7948,9 @@
   var odDom = [];       // what the home rows on screen were built from: a key press that stays inside them only moves the highlight
   function odRenderBar() {
     var ch = $('odchips'); ch.textContent = '';
-    OD_CHIPS.forEach(function (t, i) { ch.appendChild(odEl('div', 'odchip' + (i === odChip ? ' on' : '') + (odZn === 'chips' && odCi === i ? ' sel' : ''), t)); });
-    $('odsrch').className = odZn === 'chips' && odCi === 4 ? 'sel' : '';
+    var bo = odBarOn(), cur = odBarCur(), ph = !!window.PHONE;
+    OD_CHIPS.forEach(function (t, i) { ch.appendChild(odEl('div', 'odchip' + (i === cur ? ' on' : '') + (bo && odCi === i ? ' sel' : '') + (ph && i > 3 ? ' odx' : ''), t)); });
+    ['odsrch', 'odguide', 'odopts'].forEach(function (id, j) { $(id).className = 'odchip' + (bo && odCi === 6 + j ? ' sel' : '') + (ph && j ? ' odx' : ''); });
     var sd = $('odside'); sd.textContent = '';
     OD_RAIL.forEach(function (t, i) { var d = odEl('div', 'odsd' + (odZn === 'rail' && odRailI === i ? ' sel' : '')); d.innerHTML = t[0]; d.setAttribute('data-l', t[1]); sd.appendChild(d); });
   }
@@ -8409,6 +8416,29 @@
     odChip = i; odCi = i; odRowsMemo = null; odRi = 0; odRc = null;
     odEnter();
   }
+  /** A key while the bar has focus (home, Browse or Favourites). Returns true when it handled it. */
+  function odBarKey(k) {
+    var vis = odBarVis(), at = vis.indexOf(odCi), ok = k === 'Enter' || k === ' ';
+    if (at < 0) { odCi = odBarCur(); at = vis.indexOf(odCi); if (at < 0) { odCi = 0; at = 0; } }
+    if (k === 'ArrowLeft') {
+      if (at > 0) odCi = vis[at - 1];
+      else if (window.PHONE && odView === 'home') { odRailBack = 'chips'; odZn = 'rail'; }
+    } else if (k === 'ArrowRight') { if (at < vis.length - 1) odCi = vis[at + 1]; }
+    else if (k === 'ArrowDown') {
+      if (odView === 'grid') odGz = 'list';
+      else if (odView === 'fav') odFz = 'cards';
+      else { odZn = odHero.length ? 'hero' : 'rows'; if (odZn === 'rows') odEnter(); }
+    } else if (ok) {
+      var i = odCi;
+      if (i < 4) { if (odView !== 'home') { odSetView('home'); odGz = 'list'; odFz = 'cards'; odHeroI = 0; } odZn = 'chips'; odSetChip(i); return true; }
+      if (i === 4) { if (odView === 'grid') { odGz = 'list'; odRender(); return true; } odZn = 'rows'; odFz = 'cards'; odGridOpen(); odGz = 'bar'; odRender(); return true; }
+      if (i === 5) { if (odView === 'fav') { odFz = 'cards'; odRender(); return true; } odZn = 'rows'; odFavOpen(); odFz = 'bar'; odRender(); return true; }
+      if (i === 6) { odSearchAsk(); return true; }
+      odClose(false); if (i === 7) openGuide(); else openOpts();
+      return true;
+    }
+    odRender(); return true;
+  }
   function odKey(k) {
     if (odm) return k === 'Info' ? true : odmKey(k);
     if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') {      // a held OK arrives as Info (see MainActivity)
@@ -8442,17 +8472,13 @@
       odRender(); return true;
     }
     if (odZn === 'chips') {
-      if (k === 'ArrowLeft') { if (odCi > 0) odCi--; else { odRailBack = 'chips'; odZn = 'rail'; } }
-      else if (k === 'ArrowRight') odCi = Math.min(4, odCi + 1);
-      else if (k === 'ArrowDown') { odZn = odHero.length ? 'hero' : 'rows'; if (odZn === 'rows') odEnter(); }
-      else if (ok) { if (odCi === 4) { odSearchAsk(); return true; } odSetChip(odCi); return true; }
-      else if (back) { if (odHomeMode()) { odBackHome(); return true; } odClose(true); return true; }
-      odRender(); return true;
+      if (back) { if (odHomeMode()) { odBackHome(); return true; } odClose(true); return true; }
+      return odBarKey(k);
     }
     if (odZn === 'hero') {
       if (k === 'ArrowLeft') odHeroI = (odHeroI + odHero.length - 1) % odHero.length;
       else if (k === 'ArrowRight') odHeroI = (odHeroI + 1) % odHero.length;
-      else if (k === 'ArrowUp') odZn = 'chips';
+      else if (k === 'ArrowUp') { odZn = 'chips'; odCi = odChip; }
       else if (k === 'ArrowDown') { odZn = 'rows'; odEnter(); return true; }
       else if (ok) { odPlayHero(); return true; }
       else if (back) { if (odHomeMode()) { odBackHome(); return true; } odClose(true); return true; }
@@ -8462,9 +8488,9 @@
     if (k === 'ArrowUp' || k === 'ArrowDown') {
       var ni = odRi + (k === 'ArrowUp' ? -1 : 1);
       if (ni >= 0 && ni < s.rows.length) { odRi = ni; odRc = s.rows[ni]; odEnter(); return true; }
-      if (k === 'ArrowUp') odZn = odHero.length ? 'hero' : 'chips';
+      if (k === 'ArrowUp') { odZn = odHero.length ? 'hero' : 'chips'; odCi = odChip; }
     } else if (k === 'ArrowLeft' || k === 'ArrowRight') {
-      if (k === 'ArrowLeft' && pos === 0) { odRailBack = 'rows'; odZn = 'rail'; }
+      if (k === 'ArrowLeft' && pos === 0) { if (window.PHONE) { odRailBack = 'rows'; odZn = 'rail'; } }
       else if (sh && sh.length) odPos[c.id] = Math.max(0, Math.min(sh.length - 1, pos + (k === 'ArrowLeft' ? -1 : 1)));
     } else if (k === 'ChannelUp' || k === 'ChannelDown') {
       if (sh && sh.length) odPos[c.id] = Math.max(0, Math.min(sh.length - 1, pos + (k === 'ChannelUp' ? -vis + 1 : vis - 1)));
@@ -8473,7 +8499,7 @@
       odOpenShow(); return true;
     } else if (back) {
       if (odRi > 0 || pos > 0) { odRi = 0; odRc = null; }       // Back goes up to the top of the page first, then out
-      odZn = odHero.length ? 'hero' : 'chips';
+      odZn = odHero.length ? 'hero' : 'chips'; odCi = odChip;
     }
     odRender();
     return true;
@@ -8590,14 +8616,16 @@
       odRender(); return true;
     }
     if (back) { odSetView('home'); odZn = 'rows'; odRender(); return true; }
+    if (odGz === 'bar') return odBarKey(k);
     if (odGz === 'list') {
-      if (k === 'ArrowLeft') { odGz = 'rail'; odZn = 'rail'; odRailI = 1; odRender(); return true; }
-      if (k === 'ArrowUp') { if (odGl > 0) { odGl--; odGp = 0; odGridLoad(); } else odGz = 'chips'; }
+      if (k === 'ArrowLeft') { if (window.PHONE) { odGz = 'rail'; odZn = 'rail'; odRailI = 1; odRender(); } return true; }
+      if (k === 'ArrowUp') { if (odGl > 0) { odGl--; odGp = 0; odGridLoad(); } else { odGz = window.PHONE ? 'chips' : 'bar'; odCi = 4; } }
       else if (k === 'ArrowDown') { if (odGl < cs.length - 1) { odGl++; odGp = 0; odGridLoad(); } }
       else if (k === 'ArrowRight' || ok) odGz = 'grid';
     } else if (odGz === 'chips') {
       if (k === 'ArrowLeft') odGci = Math.max(0, odGci - 1);
       else if (k === 'ArrowRight') odGci = Math.min(3, odGci + 1);
+      else if (k === 'ArrowUp' && !window.PHONE) { odGz = 'bar'; odCi = 4; }
       else if (k === 'ArrowDown') odGz = 'grid';
       else if (ok) { if (odGci === 0) odGs = (odGs + 1) % OD_SORTS.length; else if (odGci === 1) odGd = (odGd + 1) % OD_DECS.length; else if (odGci === 2) odGh = !odGh; else { if (!odGFav && !favs.length) { toast('No favourite channels yet: hold OK on a channel', 3500); return true; } odGFav = !odGFav; odGl = 0; odGKey = ''; odGridLoad(); } odGp = 0; }
     } else {
@@ -8700,23 +8728,26 @@
       else if (ok) { odZn = 'rows'; odFz = odFzBack; odRailGo(odRailI); return true; }
       odRender(); return true;
     }
-    if (back) { odSetView('home'); odZn = 'rail'; odRailI = 2; odRender(); return true; }
+    if (back) { odSetView('home'); if (window.PHONE) { odZn = 'rail'; odRailI = 2; } else odZn = 'rows'; odRender(); return true; }
+    if (odFz === 'bar') return odBarKey(k);
     if (empty) {
-      if (k === 'ArrowLeft') { if (odFb === 0) odFavRail(true); else odFb = 0; }
+      if (k === 'ArrowLeft') { if (odFb === 0) { if (window.PHONE) odFavRail(true); } else odFb = 0; }
       else if (k === 'ArrowRight') odFb = 1;
+      else if (k === 'ArrowUp' && !window.PHONE && odFb === 0) { odFz = 'bar'; odCi = 5; }
       else if (k === 'ArrowUp' || k === 'ArrowDown') odFb = 1 - odFb;
       else if (ok) { if (odFb === 0) odGridOpen(); else { odClose(false); openGuide(); } return true; }
       odRender(); return true;
     }
     if (odFz === 'cards') {
-      if (k === 'ArrowLeft') { if (odFi === 0) odFavRail(true); else odFi--; }
+      if (k === 'ArrowLeft') { if (odFi > 0) odFi--; else if (window.PHONE) odFavRail(true); }
       else if (k === 'ArrowRight') odFi = Math.min(l.length - 1, odFi + 1);
+      else if (k === 'ArrowUp' && !window.PHONE) { odFz = 'bar'; odCi = 5; }
       else if (k === 'ArrowDown') { if (fs.length) odFz = 'mine'; }
       else if (ok) { odWatchLive(l[odFi]); return true; }
     } else {
-      if (k === 'ArrowLeft') { if (odFm === 0) odFavRail(true); else odFm--; }
+      if (k === 'ArrowLeft') { if (odFm > 0) odFm--; else if (window.PHONE) odFavRail(true); }
       else if (k === 'ArrowRight') odFm = Math.min(fs.length - 1, odFm + 1);
-      else if (k === 'ArrowUp') { if (l.length) odFz = 'cards'; }
+      else if (k === 'ArrowUp') { if (l.length) odFz = 'cards'; else if (!window.PHONE) { odFz = 'bar'; odCi = 5; } }
       else if (ok && fs[odFm]) { odJumpTo(fs[odFm]); odOpenShow(); return true; }
     }
     odRender(); return true;

@@ -8227,8 +8227,8 @@
   }
   function odRailGo(i) {
     if (i === 0) { if (odView !== 'home') odSetView('home'); odChip = 0; odCi = 0; odRowsMemo = null; odRi = 0; odRc = null; odZn = 'chips'; odHeroI = 0; }
-    else if (i === 1) { odGridOpen(); return; }
-    else if (i === 2) { odFavOpen(); return; }
+    else if (i === 1) { odZn = odRailBack; odGridOpen(); return; }          // the rail gives the focus up when an item is chosen, or the new page looks as if it were still in it
+    else if (i === 2) { odZn = odRailBack; odFavOpen(); return; }
     else if (i === 3) { odClose(false); openGuide(); return; }
     else if (i === 4) { odZn = odRailBack; odSearchAsk(); return; }
     else { odClose(false); openOpts(); return; }

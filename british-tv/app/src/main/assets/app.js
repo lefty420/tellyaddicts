@@ -8989,6 +8989,7 @@
       landedAt = Date.now();
       $('splash').className = 'hidden';
       clearInterval(spNoiseTimer); spNoiseTimer = null; clearInterval(bootTimer); clearInterval(spSurfTimer);   // nothing needs waking up 9 times a second now
+      dlog('START: start-up setting ' + (startOdOn ? 'On Demand' : 'EPG') + ', Experimental ' + (expOn ? 'on' : 'off') + ', ' + odChannels().length + ' On Demand channels ready');
       if (expOn && startOdOn && odChannels().length) {
         odOpenUi(true);          // Experimental start-up in On Demand: its home screen, not a programme from the top
       } else {

@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "bf8aa66c9e",
+ "rev": "e2f7f5e505",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "childrens": {
@@ -238,6 +238,7 @@
     "Live from the Palladium",
     "Saturday Live",
     "Sunday Night at the London Palladium",
+    "The Cook Report",
     "The Kenny Everett Television Show"
    ]
   },

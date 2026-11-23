@@ -7929,6 +7929,7 @@
     return d;
   }
   function odRenderHome() {
+    var tH0 = performance.now(), tH1 = 0, tH2 = 0, tH3 = 0;
     var s = odSel(), rows = s.rows, box = $('odrows'), inRows = odZn === 'rows';
     odTop = odRi;                                  // the highlighted row is always the first on screen; the next one peeks below it
     var want = [];
@@ -7981,9 +7982,11 @@
       });
     }
     var top = odZn === 'chips' || odZn === 'hero';
+    tH1 = performance.now();
     $('od').classList.toggle('odtop', top);
     var g = top && odHero.length ? odHero[Math.min(odHeroI, odHero.length - 1)] : s.g;
     odSetBg(g);
+    tH2 = performance.now();
     if ((g && g.name) !== odLastG) { odLastG = g && g.name; ['odh1', 'odlogo', 'odm', 'odp'].forEach(function (id) { odFade($(id)); }); }
     $('odh1').textContent = g ? g.name : (s.c ? s.c.name : '');
     odLogo($('odlogo'), $('odh1'), g);
@@ -7997,8 +8000,11 @@
       if (dots.children.length !== odHero.length) { dots.textContent = ''; odHero.forEach(function () { dots.appendChild(odEl('i')); }); }
       for (var di = 0; di < dots.children.length; di++) dots.children[di].className = di === odHeroI ? 'on' : '';
     } else dots.textContent = '';
+    tH3 = performance.now();
     odLookups(g);
     odHeroTick();
+    var tH4 = performance.now();
+    if (tH4 - tH0 > 150) dlog('DRAW slow ' + Math.round(tH4 - tH0) + ' ms: rows ' + Math.round(tH1 - tH0) + ', background ' + Math.round(tH2 - tH1) + ', text and logo ' + Math.round(tH3 - tH2) + ', lookups ' + Math.round(tH4 - tH3));
   }
   /** The hero turns by itself every seven seconds while the highlight is up at the chips or the hero; a key restarts the wait. */
   function odHeroTick() {

@@ -6141,7 +6141,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'ldscr', 'uisize', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
+    { id: 'exp', rows: ['exp', 'startup', 'ldscr', 'uisize', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -6153,6 +6153,7 @@
     if (id === 'exp') return expOn ? 'On' : 'Off  \u00b7  turn on to use the dimmed rows';
     if (id === 'uisize') return expOn ? UI[uiIdx].label + (uiIdx === 1 ? '  \u00b7  as designed' : '') : 'Turn Experimental on first';
     if (id === 'ldscr') return expOn ? LD[ldIdx].label : 'Turn Experimental on first';
+    if (id === 'startup') return !expOn ? 'Turn Experimental on first' : startOdOn ? 'On Demand' : 'EPG  \u00b7  the TV guide';
     if (id === 'addons') return addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'ammain') return amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
     if (id === 'depg') return depgOn ? 'On  \u00b7  ' + (veStat.virtual ? veStat.virtual + ' extra episodes in the guides' : 'building episode lists') : 'Off';
@@ -6264,7 +6265,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var NEEDS_EXP = { ldscr: 1, uisize: 1, addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
+  var NEEDS_EXP = { startup: 1, ldscr: 1, uisize: 1, addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
   var ACTION = { scan: 1, tvdb: 1, tmdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1, addons: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
@@ -6276,6 +6277,7 @@
     uk: 'Everything shows the whole library. British hides shows the scraper has marked as never shown on UK TV (mostly US drama), and keeps UK-made shows and the US ones that did air here, such as cartoons. Shows it is unsure about stay.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
     uisize: 'Makes the whole app a little smaller (room round the edges if your TV cuts them off) or a little bigger (easier to read from the sofa). Normal is how it was designed. It changes at once.',
+    startup: 'Experimental. Off, the app opens on the TV guide (EPG), as it always has. On, it opens in On Demand instead, on its home screen. Back from On Demand goes to the guide. Takes effect from the next start.',
     ldscr: 'The TV you see while the app starts. Classic is the little set on a blue screen. Set in the room puts a bigger set in front of blurred artwork. Whole screen makes the picture the TV. Surprise me picks one of those two each start.',
     join: 'For programmes played from your addons (Magic EPG episodes, and everything when Use addons as a main source is on). Off starts them from the beginning. On starts them where the guide says the programme has got to, like a real channel. A slow or unseekable source may take longer to start.',
     adlang: 'Addon results say which language they are in (flags such as the French one, or words like FRENCH, ITA, VOSTFR). English only greys out links that name another language and no English, so they are never auto-played. Links that say nothing about language, and Multi or Dual Audio ones, are kept. Any takes everything.',
@@ -6516,6 +6518,7 @@
     else if (id === 'exp') changeExp();
     else if (id === 'ammain') { if (!expOn) toast('Turn Experimental on first', 3000); else { amOn = !amOn; store.set('am1', amOn ? 'on' : 'off'); if (amOn && !adLive().length) toast('Now add an addon (Options > Experimental > Addons)', 4000); renderOpts(); } }
     else if (id === 'ldscr') changeLd(d);
+    else if (id === 'startup') { if (!expOn) toast('Turn Experimental on first', 3000); else changeStartup(); }
     else if (id === 'uisize') changeUi(d);
     else if (id === 'uk') changeUk();
     else if (id === 'mc') changeMc();
@@ -8919,6 +8922,14 @@
   // ------------------------------------------------------------------ start up
 
   var bootedAt = Date.now();
+  // Experimental: start up in On Demand instead of the TV guide. Off (EPG) is the default. Takes effect from the next start.
+  var startOdOn = store.get('startup1') === 'od';
+  function changeStartup() {
+    startOdOn = !startOdOn;
+    store.set('startup1', startOdOn ? 'od' : 'epg');
+    renderOpts();
+    toast(startOdOn ? 'Starts in On Demand next time' : 'Starts in the TV guide next time', 2600);
+  }
   var FIRST_WAIT = 60000;     // the loading screen stays until every channel has answered, so the guide opens complete and never stalls while channels fill in; this is only the safety limit for a connection that never answers (the guide then opens on what is ready and tunes to the last channel once it is, see lateTune)
   var OPEN_ROWS = 10;         // channels at the top of the guide that must be ready before it opens (the last-watched one is waited for above)
   var ALL_WAIT = 60000;       // ... the same limit for all the others
@@ -8978,8 +8989,12 @@
       landedAt = Date.now();
       $('splash').className = 'hidden';
       clearInterval(spNoiseTimer); spNoiseTimer = null; clearInterval(bootTimer); clearInterval(spSurfTimer);   // nothing needs waking up 9 times a second now
-      tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
-      openGuide();               // ... but land in the TV guide
+      if (expOn && startOdOn && odChannels().length) {
+        odOpenUi(true);          // Experimental start-up in On Demand: its home screen, not a programme from the top
+      } else {
+        tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
+        openGuide();               // ... but land in the TV guide
+      }
       greetRelease();            // and say once if this is a version they have not run before
     };
     // Use addons as a main source: look the first programme up while the loading screen is still up

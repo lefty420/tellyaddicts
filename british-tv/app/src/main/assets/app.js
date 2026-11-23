@@ -1397,7 +1397,7 @@
     var keys = Object.keys(byShow);
     var changed = false;
     return keys.reduce(function (chain, k) {
-      return chain.then(function () { return new Promise(function (r) { setTimeout(r, odOpen ? Math.max(1200, nameLast * 8) : userBusy() ? 300 : Math.max(40, nameLast * 4)); }); }).then(function () {      // a breath between shows (four times as long as the last one took, so the picture and the snow keep drawing), longer while a button is pressed
+      return chain.then(function () { return new Promise(function (r) { setTimeout(r, odOpen ? Math.max(1200, nameLast * 8) : Date.now() - lastKeyAt < 5000 ? 1500 : cur && !v.paused ? Math.max(250, nameLast * 8) : Math.max(40, nameLast * 4)); }); }).then(function () {      // a breath between shows (four times as long as the last one took, so the picture and the snow keep drawing), longer while a button is pressed
         var tq = performance.now();
         return tvmEpisodes(byShow[k].show).then(function (map) {
           var tr = performance.now();
@@ -1954,12 +1954,12 @@
       }
       (function step() {
         if (!queue.length) { finish(true); return; }
-        if (odOpen || odm || !gartOn) { setTimeout(step, 8000); return; }     // never compete with On Demand
+        if (odOpen || odm || !gartOn || Date.now() - lastKeyAt < 6000) { setTimeout(step, 8000); return; }     // never compete with On Demand, or with a button that was just pressed
         var name = queue.shift();
         artScanOne(name).then(function (r) {
           if (r === 'found') found++; else if (r === 'miss') missed++;
           if (r === 'fail') { if (++artScan.fails >= 5) { queue.unshift(name); finish(false); return; } } else artScan.fails = 0;
-          setTimeout(step, 1500);
+          setTimeout(step, cur && !v.paused ? 4000 : 1500);       // slower while something plays
         });
       })();
     }, function () { artScan.running = false; });

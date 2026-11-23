@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.63",
-  "version": "0.53.63",
-  "code": 5363,
+  "name": "Alpha 0.53.64",
+  "version": "0.53.64",
+  "code": 5364,
   "date": "2026-11-23",
   "notes": [
-    "**Starting in On Demand opens after two channels, not eight.** In 0.53.62 the loading screen was gone after 7.6 s (it was about 16 s), but eight channels were still waited for. On Demand now opens as soon as two are ready, and the rest of the channels join the rows as they finish."
+    "**Starting in On Demand shows the last On Demand screen at once.** The home screen (rows, hero and background) is saved as you use On Demand, about every 20 s while it is open. With Start up in set to On Demand, the app shows that saved screen straight after it starts, in place of the loading screen, while the channels load behind it. Buttons do nothing until the real On Demand takes over (about 8 s); then the rows redraw with the live On now. The first start after an update has no saved screen and shows the loading screen as before. The log says `START: showing the saved On Demand screen`."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.63",
+      "date": "2026-11-23",
+      "notes": [
+        "**Starting in On Demand opens after two channels, not eight.** In 0.53.62 the loading screen was gone after 7.6 s (it was about 16 s), but eight channels were still waited for. On Demand now opens as soon as two are ready, and the rest of the channels join the rows as they finish."
+      ]
+    },
     {
       "name": "Alpha 0.53.62",
       "date": "2026-11-23",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**Settings are saved even when the page's storage is full.** The page's storage on this TV is full, so saving a setting failed before its file copy was written and the setting went back at the next start (Start up in was the one noticed). Settings are now written to the file first, and a full page storage no longer stops them."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.55",
-      "date": "2026-11-23",
-      "notes": [
-        "**Settings changed just before closing the app are kept.** Settings were written to the app's file at once but to the page's storage a few seconds later, and the app read the page's copy first. A setting changed and then closed quickly (such as Experimental's Start up in) came back to its old value on the next start. The app now reads the file's copy first, which is always the newer one."
       ]
     }
   ]

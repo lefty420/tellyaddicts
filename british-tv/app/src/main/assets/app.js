@@ -8004,7 +8004,38 @@
     odLookups(g);
     odHeroTick();
     var tH4 = performance.now();
+    odSnapMaybe();
     if (tH4 - tH0 > 150) dlog('DRAW slow ' + Math.round(tH4 - tH0) + ' ms: rows ' + Math.round(tH1 - tH0) + ', background ' + Math.round(tH2 - tH1) + ', text and logo ' + Math.round(tH3 - tH2) + ', lookups ' + Math.round(tH4 - tH3));
+  }
+  // The home screen is kept as it was last drawn, so starting in On Demand can show it at once while the channels load behind it.
+  var odSnapAt = 0, odSnapOn = false;
+  function odSnapMaybe() {
+    if (!odOpen || odView !== 'home' || Date.now() - odSnapAt < 20000) return;
+    odSnapAt = Date.now();
+    setTimeout(odSnapSave, 1200);
+  }
+  function odSnapSave() {
+    try {
+      if (!odOpen || odView !== 'home') return;
+      var clean = function (h) { return h.replace(/class="([^"]*)"/g, function (m, c) { return 'class="' + c.replace(/\bsel\b/g, '').replace(/\s+/g, ' ').trim() + '"'; }); };
+      var snap = { v: relName(), rows: clean($('odrows').innerHTML), chips: clean($('odchips').innerHTML), h1: $('odh1').textContent, m: $('odm').textContent, p: $('odp').textContent, bg: $('odbg').style.backgroundImage || '' };
+      if (!snap.rows || snap.rows.length > 200000) return;
+      store.set('odsnap1', snap);
+    } catch (e) { /* not kept this time */ }
+  }
+  /** Starting in On Demand: show the last home screen straight away, before any channel is ready. It cannot be used until the real one replaces it. */
+  function odSnapShow() {
+    try {
+      var sn = store.get('odsnap1');
+      if (!sn || sn.v !== relName() || !sn.rows) return;
+      $('odrows').innerHTML = sn.rows; $('odchips').innerHTML = sn.chips || '';
+      $('odh1').textContent = sn.h1 || ''; $('odm').textContent = sn.m || ''; $('odp').textContent = sn.p || '';
+      if (sn.bg) $('odbg').style.backgroundImage = sn.bg;
+      $('odhome').className = ''; $('od').className = '';
+      $('splash').className = 'hidden';
+      odSnapOn = true;
+      dlog('START: showing the saved On Demand screen while the channels load');
+    } catch (e) { odSnapOn = false; }
   }
   /** The hero turns by itself every seven seconds while the highlight is up at the chips or the hero; a key restarts the wait. */
   function odHeroTick() {
@@ -9088,6 +9119,7 @@
       if (expOn && startOdOn && odChannels().length) {
         odOpenUi(true);          // Experimental start-up in On Demand: its home screen, not a programme from the top
       } else {
+        if (odSnapOn) { odSnapOn = false; $('od').className = 'hidden'; }
         tune(pick, false, true);   // start on the last channel (its picture shows in the guide's window) ...
         openGuide();               // ... but land in the TV guide
       }
@@ -9272,5 +9304,6 @@
   }
 
   var bootTimer = setInterval(function () { if (!started) { renderStatus(); begin(); } else clearInterval(bootTimer); }, 400);   // also lets the wait above time out
+  if (expOn && startOdOn) odSnapShow();
   startLoading();
 })();

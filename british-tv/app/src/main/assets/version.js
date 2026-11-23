@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.62",
-  "version": "0.53.62",
-  "code": 5362,
+  "name": "Alpha 0.53.63",
+  "version": "0.53.63",
+  "code": 5363,
   "date": "2026-11-23",
   "notes": [
-    "**Starting in On Demand no longer waits for the TV guide's channels.** With Start up in set to On Demand, the loading screen held until the channel that was on last and the top ten guide rows were ready (about 15 s). It now opens On Demand as soon as eight channels are ready, and the rest join the rows as they finish: On now, the genre rows and Continue watching redraw a moment after each lands (never while a button is pressed). Starting in the EPG is unchanged."
+    "**Starting in On Demand opens after two channels, not eight.** In 0.53.62 the loading screen was gone after 7.6 s (it was about 16 s), but eight channels were still waited for. On Demand now opens as soon as two are ready, and the rest of the channels join the rows as they finish."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.62",
+      "date": "2026-11-23",
+      "notes": [
+        "**Starting in On Demand no longer waits for the TV guide's channels.** With Start up in set to On Demand, the loading screen held until the channel that was on last and the top ten guide rows were ready (about 15 s). It now opens On Demand as soon as eight channels are ready, and the rest join the rows as they finish: On now, the genre rows and Continue watching redraw a moment after each lands (never while a button is pressed). Starting in the EPG is unchanged."
+      ]
+    },
     {
       "name": "Alpha 0.53.61",
       "date": "2026-11-23",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**Settings changed just before closing the app are kept.** Settings were written to the app's file at once but to the page's storage a few seconds later, and the app read the page's copy first. A setting changed and then closed quickly (such as Experimental's Start up in) came back to its old value on the next start. The app now reads the file's copy first, which is always the newer one."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.54",
-      "date": "2026-11-23",
-      "notes": [
-        "**Start-up log shows which screen it opened.** With Start up in set to On Demand, the app still opened in the TV guide on one start. The debug log now says at start whether the setting was On Demand or EPG, whether Experimental is on, and how many On Demand channels were ready, and logs each time the setting is changed with what was saved, so the cause shows up in the log."
       ]
     }
   ]

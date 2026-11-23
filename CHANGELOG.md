@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.63 — 2026-11-23
+- **Starting in On Demand opens after two channels, not eight.** In 0.53.62 the loading screen was gone after 7.6 s (it was about 16 s), but eight channels were still waited for. On Demand now opens as soon as two are ready, and the rest of the channels join the rows as they finish.
+
 ## Alpha 0.53.62 — 2026-11-23
 - **Starting in On Demand no longer waits for the TV guide's channels.** With Start up in set to On Demand, the loading screen held until the channel that was on last and the top ten guide rows were ready (about 15 s). It now opens On Demand as soon as eight channels are ready, and the rest join the rows as they finish: On now, the genre rows and Continue watching redraw a moment after each lands (never while a button is pressed). Starting in the EPG is unchanged.
 

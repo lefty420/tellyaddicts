@@ -9021,7 +9021,7 @@
     toast(startOdOn ? 'Starts in On Demand next time' : 'Starts in the TV guide next time', 2600);
   }
   var FIRST_WAIT = 60000;     // the loading screen stays until every channel has answered, so the guide opens complete and never stalls while channels fill in; this is only the safety limit for a connection that never answers (the guide then opens on what is ready and tunes to the last channel once it is, see lateTune)
-  var OD_START_MIN = 8;       // starting in On Demand: channels that must be ready before it opens
+  var OD_START_MIN = 2;       // starting in On Demand: channels that must be ready before it opens
   var OPEN_ROWS = 10;         // channels at the top of the guide that must be ready before it opens (the last-watched one is waited for above)
   var ALL_WAIT = 60000;       // ... the same limit for all the others
 

@@ -1397,7 +1397,7 @@
     var keys = Object.keys(byShow);
     var changed = false;
     return keys.reduce(function (chain, k) {
-      return chain.then(function () { return new Promise(function (r) { setTimeout(r, userBusy() ? 300 : Math.max(40, nameLast * 4)); }); }).then(function () {      // a breath between shows (four times as long as the last one took, so the picture and the snow keep drawing), longer while a button is pressed
+      return chain.then(function () { return new Promise(function (r) { setTimeout(r, odOpen ? Math.max(1200, nameLast * 8) : userBusy() ? 300 : Math.max(40, nameLast * 4)); }); }).then(function () {      // a breath between shows (four times as long as the last one took, so the picture and the snow keep drawing), longer while a button is pressed
         var tq = performance.now();
         return tvmEpisodes(byShow[k].show).then(function (map) {
           var tr = performance.now();
@@ -8188,6 +8188,24 @@
     if (jump) odJump(cur.ch, cur.prog);
     else if (gjC) { odBusy = true; odJump(gjC, gjP); }
     odCwFirst();
+    odRowsAhead();
+  }
+  /** Fill in the other genre rows one by one while On Demand sits open, a row at a time and only when no button was pressed
+   *  for a moment, so scrolling down finds each row ready instead of waiting for it. */
+  var odAheadTok = 0;
+  function odRowsAhead() {
+    var tok = ++odAheadTok, list = odRowList().filter(function (r) { return r.ch && !r.fixed; }), i = 0;
+    (function next() {
+      if (tok !== odAheadTok || !odOpen || i >= list.length) return;
+      if (Date.now() - lastKeyAt < 1500 || odBusy) { setTimeout(next, 600); return; }
+      var row = list[i++];
+      odEnsureRow(row);
+      (function waitRow() {
+        if (tok !== odAheadTok || !odOpen) return;
+        if (row._busy) { setTimeout(waitRow, 250); return; }
+        setTimeout(next, 300);
+      })();
+    })();
   }
   /** Continue watching needs the lists of the channels its shows are on: load those before the genre rows, so the row is there at once. */
   function odCwFirst() {

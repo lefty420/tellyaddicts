@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.60",
-  "version": "0.53.60",
-  "code": 5360,
+  "name": "Alpha 0.53.61",
+  "version": "0.53.61",
+  "code": 5361,
   "date": "2026-11-23",
   "notes": [
-    "**The log times the parts of an On Demand draw that take over 150 ms.** The long freezes in On Demand were all tagged \"draw On Demand\". Any draw over 150 ms now logs `DRAW slow … ms: rows …, background …, text and logo …, lookups …`, so the slow part can be found and fixed. Nothing else changes."
+    "**On Demand fills the rows below while you look at the top.** The genre rows were only loaded as you scrolled onto them. With On Demand open the app now loads them in the background, one row at a time, and only when no button has been pressed for a moment, so scrolling down finds each row ready.",
+    "**Episode-name checks slow right down while On Demand is open.** They were running between button presses and caused the 400 ms freezes seen at the start; they now take a long breath between shows while On Demand is on screen."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.60",
+      "date": "2026-11-23",
+      "notes": [
+        "**The log times the parts of an On Demand draw that take over 150 ms.** The long freezes in On Demand were all tagged \"draw On Demand\". Any draw over 150 ms now logs `DRAW slow … ms: rows …, background …, text and logo …, lookups …`, so the slow part can be found and fixed. Nothing else changes."
+      ]
+    },
     {
       "name": "Alpha 0.53.59",
       "date": "2026-11-23",
@@ -57,13 +65,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**Experimental: start up in On Demand.** Options > Experimental has a new row, **Start up in**: EPG (the TV guide, as before) or On Demand. With On Demand chosen the app opens on On Demand's home screen instead of the guide. Back from On Demand goes to the guide as usual. It needs Experimental on, and takes effect from the next start."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.52",
-      "date": "2026-11-23",
-      "notes": [
-        "**YouTube streams try up to five servers before giving up.** A YouTube video was given to one public server, and when that server's stream never started the player gave up after about 25 seconds, so the library's YouTube items kept failing. Each server whose stream has not started within 12 seconds (or refuses it outright) is now skipped and the next one is tried, up to five servers in all; the number of tries is set by one constant in the player, so it can be raised if five is not enough. Each try is written to the debug log as `YOUTUBE stream:` or as a note naming the server that did not start, so it shows which servers are failing. The on-screen give-up timers for YouTube items are longer so all five tries can finish."
       ]
     }
   ]

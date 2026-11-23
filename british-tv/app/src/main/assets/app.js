@@ -7864,10 +7864,10 @@
     img.onerror = function () { img.className = 'hidden'; h1.style.display = ''; };
     img.src = url;
   }
-  function odInfoLine(g) {
+  function odInfoLine(g, noNet) {
     if (g.film) { var f = filmFor(g.eps[0].p) || {}; return [f.released ? String(f.released).slice(0, 4) : '', f.genres || '', f.mins ? f.mins + ' min' : '', g.eps[0].p.cert || ''].filter(Boolean).join('  \u00b7  '); }
     var x = g.art;
-    return x ? [x.n || '', x.y ? x.y + (x.e && x.e !== x.y ? '–' + x.e : '') : '', x.g || ''].filter(Boolean).join('  ·  ') : '';
+    return x ? [noNet ? '' : x.n || '', x.y ? x.y + (x.e && x.e !== x.y ? '–' + x.e : '') : '', x.g || ''].filter(Boolean).join('  ·  ') : '';
   }
   var odBusy = false;     // opening straight onto the show that is playing: nothing to show until it is found
   var odT1 = 0, odT0 = 0, odT0Warm = false;      // when On Demand was pressed, and whether its rows were already saved (for the debug line)
@@ -8029,7 +8029,7 @@
     odLogo($('odlogo'), $('odh1'), g);
     var hb = $('odhb'); hb.textContent = '';
     if (top && g && !g.onnow) { hb.appendChild(odEl('div', 'odb' + (odZn === 'hero' ? ' sel' : ''), '\u25b6  Play')); hb.appendChild(odEl('div', 'odb', '\u24d8  More info   (hold OK)')); }
-    if (top && g && !g.onnow) { var cert = odCertOf(g), mm = $('odm'); mm.textContent = ''; if (cert) mm.appendChild(odEl('span', 'odcert', cert)); mm.appendChild(document.createTextNode(odHeroMeta(g))); }
+    if (top && g && !g.onnow) { var cert = odCertOf(g), mm = $('odm'); mm.textContent = ''; if (g.art && g.art.n && !g.film) mm.appendChild(odEl('span', 'odbug', g.art.n)); if (cert) mm.appendChild(odEl('span', 'odcert', cert)); mm.appendChild(document.createTextNode(odHeroMeta(g))); }
     else $('odm').textContent = g ? (g.onnow ? 'Live now on ' + g.chan.name : (odInfoLine(g) || (g.chan ? g.chan.name : (s.c && s.c.name) || ''))) : '';
     $('odp').textContent = g ? (odDesc(g) || (g.film || g.onnow ? '' : (g.stub ? g.nEps : g.eps.length) + ((g.stub ? g.nEps : g.eps.length) === 1 ? ' video' : ' videos'))) : '';
     var dots = $('oddots');
@@ -8087,7 +8087,7 @@
   /** The line under the hero: year, seasons, genre. */
   function odHeroMeta(g) {
     var seasons = g.stub ? g.nSea : g.sea ? g.sea.filter(function (x) { return /^Season/.test(x.name); }).length : 0;
-    return [odInfoLine(g), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : ''].filter(Boolean).join('  \u00b7  ') || (g.chan ? g.chan.name : '');
+    return [odInfoLine(g, true), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : ''].filter(Boolean).join('  \u00b7  ') || (g.chan ? g.chan.name : '');
   }
   function odPlayHero() {
     var g = odHero[Math.min(odHeroI, odHero.length - 1)];
@@ -8123,7 +8123,8 @@
     $('odst').textContent = g.name;
     odLogo($('odlogo2'), $('odst'), g);
     var seasons = g.sea.filter(function (x) { return /^Season/.test(x.name); }).length;
-    $('odsm').textContent = g.film ? odInfoLine(g) : [odInfoLine(g), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : '', g.eps.length + (g.eps.length === 1 ? ' video' : ' videos')].filter(Boolean).join('  ·  ');
+    var sm = $('odsm'); sm.textContent = ''; if (!g.film && g.art && g.art.n) sm.appendChild(odEl('span', 'odbug', g.art.n));
+    sm.appendChild(document.createTextNode(g.film ? odInfoLine(g) : [odInfoLine(g, true), seasons ? seasons + (seasons === 1 ? ' season' : ' seasons') : '', g.eps.length + (g.eps.length === 1 ? ' video' : ' videos')].filter(Boolean).join('  ·  ')));
     $('odsp').textContent = odDesc(g);
     var btns = odBtns(g), btn = $('odbtn'); btn.textContent = '';
     odBi = Math.max(0, Math.min(odBi, btns.length - 1));

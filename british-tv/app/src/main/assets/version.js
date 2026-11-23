@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.72",
-  "version": "0.53.72",
-  "code": 5372,
+  "name": "Alpha 0.53.73",
+  "version": "0.53.73",
+  "code": 5373,
   "date": "2026-11-23",
   "notes": [
-    "**Order of play is now fixed: addon, then archive, then YouTube.** With Magic EPG on, the addon is asked first, then the archive copy, then YouTube. With it off, the archive copy then YouTube. An archive copy that was the wrong length or an .mkv could previously score below a long, well-titled YouTube copy; now any archive copy is always tried before YouTube, which stays as the fall-back if the archive file will not play."
+    "**On Demand has a new look (\"Continuity\").** Colour and type only; nothing moves and no key does anything different. Titles are in a condensed, heavy face (Archivo, now bundled in `fonts/`, so it works offline). The network shows as a white channel bug in front of the years on the home hero and the show page. The hero pager is five test-card colour bars, and the tab you are on (All, TV, Films, Kids, the seasons, the Browse sort chips) sits on the seven colour bars; the one with focus is amber. Play is amber, the other buttons are outlined glass. On now cards show their progress in live red. Browse keeps the amber ring on the channel you are on, with its count beside it. The hold-OK menu, the guide, Options and the OSD are unchanged. Design: the \"On Demand redesign (Continuity)\" canvas in the UI design project.",
+    "**The home hero's text is two lines, not three,** so the bars never touch the \"On now\" heading."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.72",
+      "date": "2026-11-23",
+      "notes": [
+        "**Order of play is now fixed: addon, then archive, then YouTube.** With Magic EPG on, the addon is asked first, then the archive copy, then YouTube. With it off, the archive copy then YouTube. An archive copy that was the wrong length or an .mkv could previously score below a long, well-titled YouTube copy; now any archive copy is always tried before YouTube, which stays as the fall-back if the archive file will not play."
+      ]
+    },
     {
       "name": "Alpha 0.53.71",
       "date": "2026-11-23",
@@ -56,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**With Start up in set to On Demand, On Demand is home.** Back while watching something you started from On Demand now returns to On Demand (on that show's page), not the TV guide. Something you started from the guide still goes back to the guide. Back at the top of On Demand no longer drops into the TV guide: it says \"Press Back twice quickly to quit\", and a second quick Back asks to quit, like the guide does when EPG is home. The guide is still one press away on the Guide button or in On Demand's menu. With Start up in set to EPG nothing changes."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.64",
-      "date": "2026-11-23",
-      "notes": [
-        "**Starting in On Demand shows the last On Demand screen at once.** The home screen (rows, hero and background) is saved as you use On Demand, about every 20 s while it is open. With Start up in set to On Demand, the app shows that saved screen straight after it starts, in place of the loading screen, while the channels load behind it. Buttons do nothing until the real On Demand takes over (about 8 s); then the rows redraw with the live On now. The first start after an update has no saved screen and shows the loading screen as before. The log says `START: showing the saved On Demand screen`."
       ]
     }
   ]

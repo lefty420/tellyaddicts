@@ -1141,7 +1141,64 @@
     font-size: calc(2 * var(--u)); color: #8a98d8; }
   #rmore { opacity: 0; transition: opacity .2s; }
   #rmore.on { opacity: 1; }
-</style>
+
+  /* On Demand, "Continuity" look: station-graphics type, a channel bug, and the seven test-card bars as the only multi-colour mark.
+     Colour and type only, scoped to On Demand. The guide, Options and the hold-OK menus keep their blue broadcast look. */
+  @font-face { font-family: "Archivo"; src: url("fonts/archivo-wdth.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+  #od, #odnx, #odsw { --bars: linear-gradient(90deg, #f2f0ea 0 14.285%, #ffe000 0 28.57%, #00d5e8 0 42.855%, #19c85a 0 57.14%, #e6329b 0 71.425%, #e8402f 0 85.71%, #2f4be0 0 100%);
+    font-family: "Archivo", Frutiger, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  #od, #odload { background: #0b0f1a; }
+  #odbg::after { background: linear-gradient(0deg, #0b0f1a 3%, rgba(11,15,26,0) 62%), linear-gradient(90deg, #0b0f1a 24%, rgba(11,15,26,.55) 55%, rgba(11,15,26,.15) 90%); }
+  #od.odtop #odbg::after { background: linear-gradient(0deg, #0b0f1a 1%, rgba(11,15,26,0) 42%), linear-gradient(90deg, rgba(11,15,26,.92) 0%, rgba(11,15,26,.5) 34%, rgba(11,15,26,0) 68%); }
+  #odside { background: rgba(11,15,26,.6); }
+  /* titles: condensed and heavy, like channel graphics */
+  #odh1, #odst, #odfav h2 { font-stretch: 68%; font-weight: 800; letter-spacing: -.01em; line-height: 1.02; }
+  #od.odtop #odh1 { font-size: calc(9.5 * var(--u)); -webkit-line-clamp: 2; }
+  #odst { font-size: calc(8 * var(--u)); }
+  .odrow h3 { font-stretch: 78%; font-weight: 800; font-size: calc(3.2 * var(--u)); letter-spacing: .005em; }
+  .odrow h3 span { font-stretch: 100%; font-weight: 500; color: #a3acc0; }
+  #odm, #odsm { display: flex; align-items: center; flex-wrap: wrap; gap: calc(.6 * var(--uw)); font-size: calc(2.4 * var(--u)); font-weight: 600; color: #d3d8e4; margin-bottom: calc(1 * var(--u)); }
+  #odp, #odsp { color: #d3d8e4; }
+  /* the channel bug: the network, in a solid white tag */
+  .odbug { display: inline-block; padding: calc(.1 * var(--u)) calc(.8 * var(--uw)); border-radius: calc(.5 * var(--u)); background: #f2f0ea; color: #0b0f1a; font-weight: 800; font-size: calc(2.2 * var(--u)); margin-right: calc(.4 * var(--uw)); }
+  .odcert { margin-right: calc(.4 * var(--uw)); border-color: #f2f0ea; color: #f2f0ea; }
+  /* the hero pager: five bars, the current one long */
+  #oddots { gap: calc(.5 * var(--uw)); margin-top: calc(1.4 * var(--u)); }
+  #od.odtop #odp { -webkit-line-clamp: 2; }
+  #oddots i { width: calc(2.8 * var(--uw)); height: calc(.9 * var(--u)); border-radius: 0; background: #ffe000; opacity: .32; }
+  #oddots i:nth-child(2) { background: #00d5e8; } #oddots i:nth-child(3) { background: #19c85a; } #oddots i:nth-child(4) { background: #e6329b; } #oddots i:nth-child(n+5) { background: #e8402f; }
+  #oddots i.on { width: calc(7.8 * var(--uw)); opacity: 1; }
+  /* tabs: the filter chips, Search, the season chips and the Browse sort chips are plain text; the current one sits on the bars; the one with focus is amber */
+  .odchip, #odsrch, .odsn { background: none; color: #a3acc0; border-radius: 0; font-size: calc(2.7 * var(--u)); font-weight: 500; padding: calc(.6 * var(--u)) calc(.4 * var(--uw)) calc(1.3 * var(--u)); margin-right: calc(1.2 * var(--uw)); }
+  .odsn { height: auto; padding: calc(.6 * var(--u)) calc(.4 * var(--uw)) calc(1.3 * var(--u)); }
+  .odchip.on, .odsn.on { background: var(--bars) left bottom / 100% calc(.55 * var(--u)) no-repeat; color: #f2f0ea; font-weight: 700; }
+  .odchip.sel, #odsrch.sel, .odsn.sel, .odchip.on.sel, .odsn.on.sel { background: #ffc83d; color: #0b0f1a; font-weight: 700; border-radius: calc(1 * var(--u)); outline: none; padding-bottom: calc(.6 * var(--u)); box-shadow: 0 0 0 calc(.3 * var(--uw)) #ffc83d; }
+  /* cards */
+  .odc { border-radius: calc(.8 * var(--u)); background-color: #151c2e; }
+  .odc b { font-stretch: 72%; font-weight: 800; font-size: calc(2.7 * var(--u)); line-height: 1; }
+  .odon b { font-size: calc(2.9 * var(--u)); }
+  .odc.sel, .ode.sel { outline-color: #ffc83d; }
+  .odon .odlive { background: #e8402f; }
+  .odon .odpg i { background: #e8402f; }
+  .odpg i { background: #ffc83d; }
+  .odtag { background: rgba(11,15,26,.8); }
+  /* buttons: Play is amber, the rest are glass; the one with focus gets a white ring */
+  .odb { background: rgba(11,15,26,.5); box-shadow: inset 0 0 0 calc(.25 * var(--u)) rgba(242,240,234,.38); font-weight: 600; }
+  #odbtn .odb:first-child, #odhb .odb:first-child { background: #ffc83d; color: #0b0f1a; font-weight: 700; box-shadow: none; }
+  .odb.sel { background: #f2f0ea; color: #0b0f1a; box-shadow: none; outline: calc(.4 * var(--u)) solid #f2f0ea; outline-offset: calc(.5 * var(--u)); }
+  #odbtn .odb:first-child.sel, #odhb .odb:first-child.sel { background: #ffc83d; }
+  /* show page and Browse */
+  #odeh { color: #a3acc0; }
+  .ode b { font-size: calc(2.4 * var(--u)); }
+  .ode small, .ode em { color: #a3acc0; }
+  .ode.sel em.rs { color: #ffc83d; }
+  .ogli { color: #a3acc0; border-radius: calc(1 * var(--u)); font-weight: 500; font-size: calc(2.5 * var(--u)); }
+  .ogli small { opacity: 1; color: #a3acc0; font-weight: 600; }
+  .ogli.on { background: #1e2742; color: #f2f0ea; }
+  .ogli.sel { background: #1e2742; color: #f2f0ea; font-weight: 700; box-shadow: inset 0 0 0 calc(.4 * var(--u)) #ffc83d; }
+  .ogli.sel small { color: #ffc83d; }
+  #odfav .ofh span, #odfav .ofe .ofhow { color: #ffc83d; }
+  </style>
 </head>
 <body>
 <canvas id="amb" width="48" height="27"></canvas>

@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.50 — 2026-11-23
+- **On Demand opened from a movie (or show) in the guide now goes to it.** From the guide, the On Demand button (and Menu) opened On Demand at the top, wherever the cursor was. It now goes straight to the programme under the cursor, the same as when On Demand is opened from what is playing: a film lands on its poster and details, a series on its show page. Adverts do not count, and the hold-OK menu's own Episodes and artwork entries are unchanged.
+- **On Demand is less laggy while it loads.** The live view showed On Demand's buttons taking up to 2.8 seconds to answer: after a new library, every channel's list has to be rebuilt, and On Demand did that for all of them one after another (up to 2.9 seconds each) while you were pressing buttons. Channels that need building are now only built while no button has been pressed for two and a half seconds, with a pause after each. The channels you move to are still built when you get there.
+
 ## Alpha 0.53.49 — 2026-11-22
 - **The Disney cartoons share one poster and backdrop.** Donald Duck, Goofy, Pluto, Mickey Mouse, Minnie Mouse, Daisy Duck, Humphrey the Bear, Scrooge McDuck, Silly Symphonies, Disney Classic, Disney Short and Walt Disney Cartoon had no series of their own on TheTVDB ("no match for Donald Duck" and so on in the log), so they had no picture. They are all part of TheTVDB's "Disney Animated Shorts" series, so for pictures only they now borrow its poster and backdrop. Their names stay as they are, and episode names, numbers and summaries are not taken from it (its numbering is not theirs). The next picture scan asks for these again.
 

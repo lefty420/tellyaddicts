@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.49",
-  "version": "0.53.49",
-  "code": 5349,
-  "date": "2026-11-22",
+  "name": "Alpha 0.53.50",
+  "version": "0.53.50",
+  "code": 5350,
+  "date": "2026-11-23",
   "notes": [
-    "**The Disney cartoons share one poster and backdrop.** Donald Duck, Goofy, Pluto, Mickey Mouse, Minnie Mouse, Daisy Duck, Humphrey the Bear, Scrooge McDuck, Silly Symphonies, Disney Classic, Disney Short and Walt Disney Cartoon had no series of their own on TheTVDB (\"no match for Donald Duck\" and so on in the log), so they had no picture. They are all part of TheTVDB's \"Disney Animated Shorts\" series, so for pictures only they now borrow its poster and backdrop. Their names stay as they are, and episode names, numbers and summaries are not taken from it (its numbering is not theirs). The next picture scan asks for these again."
+    "**On Demand opened from a movie (or show) in the guide now goes to it.** From the guide, the On Demand button (and Menu) opened On Demand at the top, wherever the cursor was. It now goes straight to the programme under the cursor, the same as when On Demand is opened from what is playing: a film lands on its poster and details, a series on its show page. Adverts do not count, and the hold-OK menu's own Episodes and artwork entries are unchanged.",
+    "**On Demand is less laggy while it loads.** The live view showed On Demand's buttons taking up to 2.8 seconds to answer: after a new library, every channel's list has to be rebuilt, and On Demand did that for all of them one after another (up to 2.9 seconds each) while you were pressing buttons. Channels that need building are now only built while no button has been pressed for two and a half seconds, with a pause after each. The channels you move to are still built when you get there."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.49",
+      "date": "2026-11-22",
+      "notes": [
+        "**The Disney cartoons share one poster and backdrop.** Donald Duck, Goofy, Pluto, Mickey Mouse, Minnie Mouse, Daisy Duck, Humphrey the Bear, Scrooge McDuck, Silly Symphonies, Disney Classic, Disney Short and Walt Disney Cartoon had no series of their own on TheTVDB (\"no match for Donald Duck\" and so on in the log), so they had no picture. They are all part of TheTVDB's \"Disney Animated Shorts\" series, so for pictures only they now borrow its poster and backdrop. Their names stay as they are, and episode names, numbers and summaries are not taken from it (its numbering is not theirs). The next picture scan asks for these again."
+      ]
+    },
     {
       "name": "Alpha 0.53.48",
       "date": "2026-11-22",
@@ -63,13 +71,6 @@ window.RELEASE = {
       "date": "2026-11-22",
       "notes": [
         "**One show no longer takes over a channel's timetable.** With Real time EPG on, slots are filled by programme length, so a show whose episodes are all one length can own a whole kind of slot: Santa Barbara's files run about 40 minutes, so every half-hour slot on Dallas, Dynasty & Co was Santa Barbara (71% of the week). When one show is more than a third of the programmes that fit a kind of slot, the nearest-length programmes of the channel's other shows are added until it is about a quarter. On a test channel built like that one, Santa Barbara drops from 63% to 30% of the week. Channels with an even mix are unchanged."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.41",
-      "date": "2026-11-22",
-      "notes": [
-        "**The Neighbours numbering now applies to saved lists too.** 0.53.40 only worked when a channel's list was built fresh, but at a normal start the list is read back from storage with the old names (\"Neighbours 1215\"), so nothing changed on the guide. The lookup now also runs on a list read from storage, before the schedule is laid out."
       ]
     }
   ]

@@ -4545,7 +4545,7 @@
     items.push({ t: 'Episodes', sub: 'Open ' + name + ' in On Demand', f: function () {
       gmClose();
       if (odChannels().indexOf(c) < 0) { toast('Nothing on demand for ' + c.name, 3000); return; }
-      odOpenUi(); odJump(c, p);
+      odOpenUi(true); odJump(c, p);
     } });
     items.push({ t: 'Channel schedule', sub: 'Everything on ' + c.name + ', with times', f: function () { gmClose(); csOpen(c, 'guide'); } });
     items.push({ t: 'Watch from the start', sub: 'Begin this programme at the beginning', f: function () { gmClose(); watchFromGuide(true); } });
@@ -4651,7 +4651,7 @@
     if (film) {                                            // a film: open its artwork menu in On Demand (Scrape artwork, Choose the right film)
       gmClose();
       if (odChannels().indexOf(c) < 0) { toast('Nothing on demand for ' + c.name, 3000); return; }
-      odOpenUi(); odJump(c, p, odmOpen);
+      odOpenUi(true); odJump(c, p, odmOpen);
       return;
     }
     toast('Looking for ' + name + '\u2026', 15000);
@@ -8112,9 +8112,15 @@
     if (!g.metaP) odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });
     odRender();
   }
-  function odOpenUi() {
+  function odOpenUi(noJump) {
     var chs = odChannels();
     if (!chs.length) { toast('On Demand is not ready yet', 2500); return; }
+    // opened from the guide with a programme under the cursor: go to that show (or film), as when it is opened from what is playing
+    var gjC = null, gjP = null;
+    if (guideOpen && !noJump && gChan && gChan.status === 'ready' && gChan.id !== 'adbreak' && gChan.sched) {
+      var gjB = E.blockAt(gChan.sched, gFocus);
+      if (gjB && gjB.prog && !gjB.prog.ad) { gjC = gChan; gjP = gjB.prog; }
+    }
     odFrom = guideOpen ? 'guide' : (cur ? 'watch' : '');
     odGuide = guideOpen ? { chan: gChan, win: gWin, focus: gFocus } : null;     // so leaving On Demand lands back on the same programme
     closeOsd(); closeOpts();
@@ -8134,6 +8140,7 @@
     // only the first genre row is built up front (for the hero); the others as the highlight comes near them
     odEnsureRow(rows.filter(function (r) { return r.ch; })[0]);
     if (jump) odJump(cur.ch, cur.prog);
+    else if (gjC) { odBusy = true; odJump(gjC, gjP); }
   }
   /** Opened while something is playing: go straight to that show's page, on the season and episode that is on. */
   function rwSame(a, b) { return a.virtual || b.virtual ? a.id === b.id : a.url === b.url; }      // virtual episodes have no url: they are told apart by id
@@ -8187,8 +8194,10 @@
     if (first) chs = chs.slice().sort(function (a, b) { return Math.abs(chs.indexOf(a) - chs.indexOf(first)) - Math.abs(chs.indexOf(b) - chs.indexOf(first)); });
     (function next() {
       if (tok !== odPre || !odOpen || i >= chs.length) return;
-      var c = chs[i++];
-      odLoadChannel(c).then(function () { if (odOpen && odView === 'home') odRender(); setTimeout(next, 30); });
+      // a channel with no saved index has to be built, which holds the TV for a second or two: not while buttons are being pressed
+      if (!odiHas(chs[i].id) && Date.now() - lastKeyAt < 2500) { setTimeout(next, 700); return; }
+      var c = chs[i++], built = !odiHas(c.id);
+      odLoadChannel(c).then(function () { if (odOpen && odView === 'home') odRender(); setTimeout(next, built ? 600 : 30); });
     })();
   }
   /** Build every channel's On Demand list in the background after start-up, one at a time and only while nothing else

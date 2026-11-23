@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.67 — 2026-11-23
+- **Hold OK works on On now.** Holding OK on a programme in the On now row did nothing. It now opens a menu: Watch live, Add (or Remove) channel from favourites, and Options. Favourite channels come first in On now.
+
 ## Alpha 0.53.66 — 2026-11-23
 - **A film in On Demand opens its info page, like a show.** OK on a film used to start it playing at once, which also meant holding OK never got to open the menu. It now opens the film's page (poster, year, summary, rating, Play film and Favourite), with no seasons or episode list. Hold OK on a film, on the page or on a card, for the same menu as a show: Play, Add to favourites, Info, and More (search, fix artwork, options, hide).
 

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.66",
-  "version": "0.53.66",
-  "code": 5366,
+  "name": "Alpha 0.53.67",
+  "version": "0.53.67",
+  "code": 5367,
   "date": "2026-11-23",
   "notes": [
-    "**A film in On Demand opens its info page, like a show.** OK on a film used to start it playing at once, which also meant holding OK never got to open the menu. It now opens the film's page (poster, year, summary, rating, Play film and Favourite), with no seasons or episode list. Hold OK on a film, on the page or on a card, for the same menu as a show: Play, Add to favourites, Info, and More (search, fix artwork, options, hide)."
+    "**Hold OK works on On now.** Holding OK on a programme in the On now row did nothing. It now opens a menu: Watch live, Add (or Remove) channel from favourites, and Options. Favourite channels come first in On now."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.66",
+      "date": "2026-11-23",
+      "notes": [
+        "**A film in On Demand opens its info page, like a show.** OK on a film used to start it playing at once, which also meant holding OK never got to open the menu. It now opens the film's page (poster, year, summary, rating, Play film and Favourite), with no seasons or episode list. Hold OK on a film, on the page or on a card, for the same menu as a show: Play, Add to favourites, Info, and More (search, fix artwork, options, hide)."
+      ]
+    },
     {
       "name": "Alpha 0.53.65",
       "date": "2026-11-23",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**The log now names what caused each long freeze.** On Demand still froze for up to 4 s at times. Every stall over 250 ms is now logged as `STALL … ms on <screen>, jobs just before: …` with the jobs that had just started (reading a saved list, grouping a channel, drawing On Demand, episode-name checks, artwork look-ups, opening a show), so the next fix can aim at the real cause. Nothing else changes."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.58",
-      "date": "2026-11-23",
-      "notes": [
-        "**On Demand's Continue watching fills first.** Continue watching waited for its channel's list to be built behind the genre rows, so it appeared late. On Demand now loads the channels your Continue watching shows are on first, redraws as each is ready, and logs `ONDEMAND: Continue watching ready … ms after opening` so the time can be checked."
       ]
     }
   ]

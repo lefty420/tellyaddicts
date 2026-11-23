@@ -8377,7 +8377,7 @@
     if (odm) return k === 'Info' ? true : odmKey(k);
     if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') {      // a held OK arrives as Info (see MainActivity)
       if (odView === 'home' && odZn === 'hero') { odOpenHero(); return true; }
-      if (odView === 'home' && odZn === 'rows' && !odNone) { var q = odSel().g; if (q && !q.onnow) odmOpen(); }
+      if (odView === 'home' && odZn === 'rows' && !odNone) { var q = odSel().g; if (q && q.onnow) odmOnNow(q); else if (q) odmOpen(); }
       else if (odView === 'show') odmOpen();
       else if (odView === 'fav') {
         if (odFz === 'cards') { var fc = odFavList()[odFi]; if (fc) odmFavCard(fc); }
@@ -8801,6 +8801,16 @@
     odmRender();
   }
   /** Hold OK on a channel in Browse: add or remove it from the favourite channels. */
+  /** Hold OK on a programme in On now: watch that channel live, or add or remove the channel from the favourites. */
+  function odmOnNow(g) {
+    var c = g.chan; if (!c) return;
+    var items = [
+      { t: 'Watch live', sub: c.n + '  ' + c.name, f: function () { odmClose(); odWatchLive(c); } },
+      { t: isFav(c) ? 'Remove channel from favourites' : 'Add channel to favourites', sub: c.n + '  ' + c.name, f: function () { odmClose(); favToggle(c); odRowsMemo = null; odRender(); } },
+      { t: 'Options', sub: 'Settings, help and debug', f: function () { odmClose(); openOpts(); } }];
+    odm = { mode: 'menu', g: null, i: 0, items: items, title: g.name };
+    odmRender();
+  }
   function odmChan(c) {
     var it = { t: isFav(c) ? 'Remove from favourites' : 'Add to favourites', sub: c.n + '  ' + c.name, f: function () {
       odmClose(); favToggle(c); odGKey = ''; var at = odGridChans().indexOf(c); if (at >= 0) odGl = at; odGp = 0; odRender(); } };

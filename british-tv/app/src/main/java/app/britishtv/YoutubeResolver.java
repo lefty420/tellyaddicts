@@ -9,6 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -47,6 +48,7 @@ final class YoutubeResolver {
         String audio;      // sound-only stream to join with the picture, or null
         String label;      // what was chosen and where from, for the log
         String error;      // set when nothing could be found
+        String server;     // the server that answered, as "P<address>" or "I<address>", so a stream that never starts can be skipped
     }
 
     private YoutubeResolver() {
@@ -54,12 +56,32 @@ final class YoutubeResolver {
 
     /** Blocking: call from a background thread. */
     static Result resolve(final String id) {
+        return resolve(id, null);
+    }
+
+    /** A server whose stream never started: it is not asked first next time. */
+    static void markBad(String server) {
+        if (server != null && server.equals(lastGood)) {
+            lastGood = "";
+        }
+    }
+
+    /** Blocking: call from a background thread. The servers in skip (ones whose stream already failed this time) are not asked. */
+    static Result resolve(final String id, Set<String> skip) {
         List<String> servers = new ArrayList<String>();
         for (String s : PIPED) {
             servers.add("P" + s);
         }
         for (String s : INVIDIOUS) {
             servers.add("I" + s);
+        }
+        if (skip != null) {
+            servers.removeAll(skip);
+        }
+        if (servers.isEmpty()) {
+            Result none = new Result();
+            none.error = "every server has been tried";
+            return none;
         }
         if (lastGood.length() > 0 && servers.remove(lastGood)) {
             servers.add(0, lastGood);
@@ -72,6 +94,7 @@ final class YoutubeResolver {
                 @Override
                 public Result call() {
                     Result r = s.charAt(0) == 'P' ? askPiped(s.substring(1), id) : askInvidious(s.substring(1), id);
+                    r.server = s;
                     if (r.error == null) {
                         lastGood = s;
                     }

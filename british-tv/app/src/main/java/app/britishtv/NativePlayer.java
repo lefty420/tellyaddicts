@@ -48,6 +48,10 @@ final class NativePlayer {
     }
 
     private static final int TICK_MS = 250;
+    /** A YouTube stream that has not started by then is given up on and the next server is tried. */
+    private static final long YT_START_MS = 12000;
+    /** How many servers are tried for one YouTube video before giving up. Raise this if too many fail. */
+    private static final int YT_TRIES = 5;
 
     private final Context ctx;
     private final SurfaceView surface;
@@ -58,6 +62,32 @@ final class NativePlayer {
     private boolean readySent;
     private boolean muted;
     private int width, height;
+    // YouTube: the video being looked up, the attempts so far, the servers whose stream never started, and the server in use
+    private String ytId;
+    private long ytStartMs;
+    private int ytTry;
+    private String ytServer;
+    private final java.util.HashSet<String> ytFailed = new java.util.HashSet<String>();
+    private final Runnable ytWatch = new Runnable() {
+        @Override
+        public void run() {
+            // the stream did not start in time: this server is skipped, and the next one is tried
+            if (ytServer == null || readySent || player == null) {
+                return;
+            }
+            final String bad = ytServer;
+            ytServer = null;
+            YoutubeResolver.markBad(bad);
+            ytFailed.add(bad);
+            release();
+            if (ytTry >= YT_TRIES) {
+                send("error", "YouTube " + ytId + ": none of " + YT_TRIES + " servers started it (" + ytFailed + ")");
+                return;
+            }
+            send("note", "YouTube " + ytId + ": " + bad + " did not start in " + (YT_START_MS / 1000) + " s, trying another server");
+            ytAttempt(gen);
+        }
+    };
     // the viewer's choices, kept from programme to programme: a sound language (null = the file's own choice) and a
     // subtitle language ("" = only the file's forced/default ones, "off" = none, "any" = whichever there is)
     // English unless the viewer has picked another sound language: a file that lists Turkish or Portuguese first otherwise plays that
@@ -195,32 +225,53 @@ final class NativePlayer {
         readySent = false;
         width = 0;
         height = 0;
+        ytId = null;
+        ytServer = null;
         if (url.startsWith("yt:")) {
             // a YouTube video: look the stream up first (off the main thread), then play it
-            final String id = url.substring(3);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    final YoutubeResolver.Result r = YoutubeResolver.resolve(id);
-                    main.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (generation != gen) {
-                                return;      // another programme was chosen while this was being looked up
-                            }
-                            if (r.error != null) {
-                                send("error", "YouTube " + id + ": " + r.error);
-                            } else {
-                                send("note", r.label);
-                                begin(r.video, r.audio, YoutubeResolver.UA, startMs, generation);
-                            }
-                        }
-                    });
-                }
-            }, "yt-resolve").start();
+            ytId = url.substring(3);
+            ytStartMs = startMs;
+            ytTry = 0;
+            ytServer = null;
+            ytFailed.clear();
+            ytAttempt(generation);
             return;
         }
         begin(url, null, "TellyAddicts", startMs, generation);
+    }
+
+    /** One try at a YouTube video: ask the servers that have not failed yet, then play the first stream that answers. */
+    private void ytAttempt(final int generation) {
+        ytTry++;
+        final String id = ytId;
+        final long startMs = ytStartMs;
+        final java.util.HashSet<String> skip = new java.util.HashSet<String>(ytFailed);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final YoutubeResolver.Result r = YoutubeResolver.resolve(id, skip);
+                main.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (generation != gen) {
+                            return;      // another programme was chosen while this was being looked up
+                        }
+                        if (r.error != null) {
+                            send("error", "YouTube " + id + ": " + r.error + " (try " + ytTry + " of " + YT_TRIES + ")");
+                            return;
+                        }
+                        ytServer = r.server;
+                        readySent = false;
+                        width = 0;
+                        height = 0;
+                        send("note", r.label + " (try " + ytTry + " of " + YT_TRIES + ")");
+                        begin(r.video, r.audio, YoutubeResolver.UA, startMs, generation);
+                        main.removeCallbacks(ytWatch);
+                        main.postDelayed(ytWatch, YT_START_MS);
+                    }
+                });
+            }
+        }, "yt-resolve").start();
     }
 
     /** Opens a stream: one address, or a picture file and a sound file joined together (audioUrl may be null). */
@@ -269,6 +320,7 @@ final class NativePlayer {
 
     private void release() {
         main.removeCallbacks(tick);
+        main.removeCallbacks(ytWatch);
         if (player != null) {
             try {
                 player.release();
@@ -419,6 +471,12 @@ final class NativePlayer {
         @Override
         public void onPlayerError(PlaybackException error) {
             if (mine != gen) {
+                return;
+            }
+            if (ytServer != null && !readySent) {
+                // a YouTube server refused the stream before it started: try the next one, as for a stall
+                main.removeCallbacks(ytWatch);
+                main.post(ytWatch);
                 return;
             }
             send("error", error.getErrorCodeName() + (error.getMessage() != null ? ": " + error.getMessage() : ""));

@@ -3312,19 +3312,21 @@
     pbStart(prog.url, offset);
     if (prog.adBlock) { playAdBlock(ch, index, offset, announce, tuning); return; }
     var meOne = cur;
+    // a YouTube video may need up to 5 servers tried (12 s each) before one starts, so it gets longer before giving up
+    var isYt = /^yt:/.test(prog.url || '');
     setTimeout(function () {
       if (cur === meOne && v.readyState < 1 && !meOne.ad) {       // never even got the file header: move on
-        dlog('GAVE UP after 30s: nothing arrived at all (' + playState() + ')');
+        dlog('GAVE UP after ' + (isYt ? 120 : 30) + 's: nothing arrived at all (' + playState() + ')');
         diagnose(prog.url); markSlow(prog.id); nextInChannel();
       }
-    }, 30000);
+    }, isYt ? 120000 : 30000);
     setTimeout(function () {
       // header arrived but it still can't play 25 s in (slow index/seek on a mid-programme join): move on, and remember it
       if (cur === meOne && !meOne.ad && !meOne.played && v.readyState < 3) {    // not one that did start and then paused to buffer
-        dlog('GAVE UP after 25s: it never got going (' + playState() + ')');
+        dlog('GAVE UP after ' + (isYt ? 110 : 25) + 's: it never got going (' + playState() + ')');
         diagnose(prog.url); markSlow(prog.id); nextInChannel();
       }
-    }, 25000);
+    }, isYt ? 110000 : 25000);
     v.src = playUrl(prog.url);      // buffered through this device when Options > Buffer is on
     dlog('PLAY ' + ch.n + ' ' + ch.name + ' | ' + (prog.title || '?') + ' | from ' + Math.round(offset || 0) + 's of ' + Math.round(prog.dur || 0) + 's | ' +
       (v.src.indexOf('http://127.0.0.1') === 0 ? 'buffered' : 'direct') + ' | ' + prog.url);

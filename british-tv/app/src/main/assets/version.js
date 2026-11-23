@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.51",
-  "version": "0.53.51",
-  "code": 5351,
+  "name": "Alpha 0.53.52",
+  "version": "0.53.52",
+  "code": 5352,
   "date": "2026-11-23",
   "notes": [
-    "**On Demand's side menu lets go of the focus.** Choosing Browse or Favourites from the icon strip left the strip highlighted as if it still had the focus while the new page was on screen. It now hands the focus to the page when an item is chosen (Back from Favourites still returns to the strip)."
+    "**YouTube streams try up to five servers before giving up.** A YouTube video was given to one public server, and when that server's stream never started the player gave up after about 25 seconds, so the library's YouTube items kept failing. Each server whose stream has not started within 12 seconds (or refuses it outright) is now skipped and the next one is tried, up to five servers in all; the number of tries is set by one constant in the player, so it can be raised if five is not enough. Each try is written to the debug log as `YOUTUBE stream:` or as a note naming the server that did not start, so it shows which servers are failing. The on-screen give-up timers for YouTube items are longer so all five tries can finish."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.51",
+      "date": "2026-11-23",
+      "notes": [
+        "**On Demand's side menu lets go of the focus.** Choosing Browse or Favourites from the icon strip left the strip highlighted as if it still had the focus while the new page was on screen. It now hands the focus to the page when an item is chosen (Back from Favourites still returns to the strip)."
+      ]
+    },
     {
       "name": "Alpha 0.53.50",
       "date": "2026-11-23",
@@ -63,14 +70,6 @@ window.RELEASE = {
         "**The snow looks after its own speed.** Once the guide has been up for 15 seconds the app counts frames for eight seconds. If it is under 87% of what the screen can show (60, or 30 on a screen that only does 30), it moves to a lighter tier and measures again, up to tier 3, and remembers the tier for next time. Tier 1 removes the mask round the words (a mask makes the TV draw all the snow into a spare full-screen picture every frame; the words get a dark halo instead so a flake behind a letter does not hurt reading). Tier 2 uses two depths of flakes, not four. Tier 3 has fewer flakes and no side-to-side sway. The log shows each measurement and each step (\"SNOW: tier 0: 41 fps ...\").",
         "**Smaller snow layers for every tier.** The drifts, their build-up layers and Santa's lane were each a full-screen layer that is empty except for the bottom strip. They are now only as tall as the strip, which is five or six full-screen layers fewer for the TV to blend every frame.",
         "**EPG debug shows what the timetable is given.** Each channel now lists how many programmes were fed in, how many were filled in from the episode lists, how many fall in each length (bite, half, hour, long, film) and the biggest shows. That is what is needed to see why one show takes over a channel such as US Drama."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.43",
-      "date": "2026-11-22",
-      "notes": [
-        "**The balance fix no longer adds one show's whole run.** In 0.53.42 the programmes added to a one-show slot came from whichever show was first in the list (The Colbys ran five in a row on Dallas, Dynasty & Co). They are now taken from the other shows in turn.",
-        "**EPG debug reports airtime, not just programme counts.** \"Fills 49% of the schedule\" counted programmes, and Santa Barbara's many short files made it look bigger than it is. The \"fills\" warning and the most-common list now go by hours (for example \"Santa Barbara: 118 (49 h)\")."
       ]
     }
   ]

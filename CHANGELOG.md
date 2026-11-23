@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.74 — 2026-11-23
+- **The saved On Demand screen keeps the new look's channel bug.** The screen shown at start-up kept only the hero's text, so the white network bug (and the certificate badge) were missing until the real screen took over. It now keeps them.
+
 ## Alpha 0.53.73 — 2026-11-23
 - **On Demand has a new look ("Continuity").** Colour and type only; nothing moves and no key does anything different. Titles are in a condensed, heavy face (Archivo, now bundled in `fonts/`, so it works offline). The network shows as a white channel bug in front of the years on the home hero and the show page. The hero pager is five test-card colour bars, and the tab you are on (All, TV, Films, Kids, the seasons, the Browse sort chips) sits on the seven colour bars; the one with focus is amber. Play is amber, the other buttons are outlined glass. On now cards show their progress in live red. Browse keeps the amber ring on the channel you are on, with its count beside it. The hold-OK menu, the guide, Options and the OSD are unchanged. Design: the "On Demand redesign (Continuity)" canvas in the UI design project.
 - **The home hero's text is two lines, not three,** so the bars never touch the "On now" heading.

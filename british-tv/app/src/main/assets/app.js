@@ -8055,7 +8055,7 @@
     try {
       if (!odOpen || odView !== 'home') return;
       var clean = function (h) { return h.replace(/class="([^"]*)"/g, function (m, c) { return 'class="' + c.replace(/\bsel\b/g, '').replace(/\s+/g, ' ').trim() + '"'; }); };
-      var snap = { v: relName(), rows: clean($('odrows').innerHTML), chips: clean($('odchips').innerHTML), h1: $('odh1').textContent, m: $('odm').textContent, p: $('odp').textContent, bg: $('odbg').style.backgroundImage || '' };
+      var snap = { v: relName(), rows: clean($('odrows').innerHTML), chips: clean($('odchips').innerHTML), h1: $('odh1').textContent, m: $('odm').innerHTML, p: $('odp').textContent, bg: $('odbg').style.backgroundImage || '' };
       if (!snap.rows || snap.rows.length > 200000) return;
       store.set('odsnap1', snap);
     } catch (e) { /* not kept this time */ }
@@ -8066,7 +8066,7 @@
       var sn = store.get('odsnap1');
       if (!sn || sn.v !== relName() || !sn.rows) return;
       $('odrows').innerHTML = sn.rows; $('odchips').innerHTML = sn.chips || '';
-      $('odh1').textContent = sn.h1 || ''; $('odm').textContent = sn.m || ''; $('odp').textContent = sn.p || '';
+      $('odh1').textContent = sn.h1 || ''; $('odm').innerHTML = sn.m || ''; $('odp').textContent = sn.p || '';
       if (sn.bg) $('odbg').style.backgroundImage = sn.bg;
       $('odhome').className = ''; $('od').className = '';
       $('splash').className = 'hidden';

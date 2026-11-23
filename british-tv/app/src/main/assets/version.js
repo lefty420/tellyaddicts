@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.73",
-  "version": "0.53.73",
-  "code": 5373,
+  "name": "Alpha 0.53.74",
+  "version": "0.53.74",
+  "code": 5374,
   "date": "2026-11-23",
   "notes": [
-    "**On Demand has a new look (\"Continuity\").** Colour and type only; nothing moves and no key does anything different. Titles are in a condensed, heavy face (Archivo, now bundled in `fonts/`, so it works offline). The network shows as a white channel bug in front of the years on the home hero and the show page. The hero pager is five test-card colour bars, and the tab you are on (All, TV, Films, Kids, the seasons, the Browse sort chips) sits on the seven colour bars; the one with focus is amber. Play is amber, the other buttons are outlined glass. On now cards show their progress in live red. Browse keeps the amber ring on the channel you are on, with its count beside it. The hold-OK menu, the guide, Options and the OSD are unchanged. Design: the \"On Demand redesign (Continuity)\" canvas in the UI design project.",
-    "**The home hero's text is two lines, not three,** so the bars never touch the \"On now\" heading."
+    "**The saved On Demand screen keeps the new look's channel bug.** The screen shown at start-up kept only the hero's text, so the white network bug (and the certificate badge) were missing until the real screen took over. It now keeps them."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.73",
+      "date": "2026-11-23",
+      "notes": [
+        "**On Demand has a new look (\"Continuity\").** Colour and type only; nothing moves and no key does anything different. Titles are in a condensed, heavy face (Archivo, now bundled in `fonts/`, so it works offline). The network shows as a white channel bug in front of the years on the home hero and the show page. The hero pager is five test-card colour bars, and the tab you are on (All, TV, Films, Kids, the seasons, the Browse sort chips) sits on the seven colour bars; the one with focus is amber. Play is amber, the other buttons are outlined glass. On now cards show their progress in live red. Browse keeps the amber ring on the channel you are on, with its count beside it. The hold-OK menu, the guide, Options and the OSD are unchanged. Design: the \"On Demand redesign (Continuity)\" canvas in the UI design project.",
+        "**The home hero's text is two lines, not three,** so the bars never touch the \"On now\" heading."
+      ]
+    },
     {
       "name": "Alpha 0.53.72",
       "date": "2026-11-23",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**A film in On Demand opens its info page, like a show.** OK on a film used to start it playing at once, which also meant holding OK never got to open the menu. It now opens the film's page (poster, year, summary, rating, Play film and Favourite), with no seasons or episode list. Hold OK on a film, on the page or on a card, for the same menu as a show: Play, Add to favourites, Info, and More (search, fix artwork, options, hide)."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.65",
-      "date": "2026-11-23",
-      "notes": [
-        "**With Start up in set to On Demand, On Demand is home.** Back while watching something you started from On Demand now returns to On Demand (on that show's page), not the TV guide. Something you started from the guide still goes back to the guide. Back at the top of On Demand no longer drops into the TV guide: it says \"Press Back twice quickly to quit\", and a second quick Back asks to quit, like the guide does when EPG is home. The guide is still one press away on the Guide button or in On Demand's menu. With Start up in set to EPG nothing changes."
       ]
     }
   ]

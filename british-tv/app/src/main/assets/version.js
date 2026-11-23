@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.68",
-  "version": "0.53.68",
-  "code": 5368,
+  "name": "Alpha 0.53.69",
+  "version": "0.53.69",
+  "code": 5369,
   "date": "2026-11-23",
   "notes": [
-    "**More on the On Demand home screen.** Four new rows: **A bit of everything** (60 shows and films picked from across the library, shuffled once a day), **Throwback telly** (70s, 80s and 90s TV, cartoons and sitcoms mixed), **Sci-fi and fantasy** and **Thrillers and horror** (each mixing TV and films). Drama stays first so the first genre row still appears quickly. The TV, Films and Kids chips show the rows that fit them."
+    "**YouTube prefers the sharper stream when there is one.** The servers were all asked at once and the first answer won, which could be a soft 288p file (Telly Addicts S06E04). An answer of 720p or better is still used at once. A softer one now waits up to 3 s for the other servers, and a sharper answer from any of them is used; if none comes, the soft one plays as before, so nothing that plays today stops playing. The server picked this way is the one asked first next time."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.68",
+      "date": "2026-11-23",
+      "notes": [
+        "**More on the On Demand home screen.** Four new rows: **A bit of everything** (60 shows and films picked from across the library, shuffled once a day), **Throwback telly** (70s, 80s and 90s TV, cartoons and sitcoms mixed), **Sci-fi and fantasy** and **Thrillers and horror** (each mixing TV and films). Drama stays first so the first genre row still appears quickly. The TV, Films and Kids chips show the rows that fit them."
+      ]
+    },
     {
       "name": "Alpha 0.53.67",
       "date": "2026-11-23",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "notes": [
         "**On Demand fills the rows below while you look at the top.** The genre rows were only loaded as you scrolled onto them. With On Demand open the app now loads them in the background, one row at a time, and only when no button has been pressed for a moment, so scrolling down finds each row ready.",
         "**Episode-name checks slow right down while On Demand is open.** They were running between button presses and caused the 400 ms freezes seen at the start; they now take a long breath between shows while On Demand is on screen."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.60",
-      "date": "2026-11-23",
-      "notes": [
-        "**The log times the parts of an On Demand draw that take over 150 ms.** The long freezes in On Demand were all tagged \"draw On Demand\". Any draw over 150 ms now logs `DRAW slow … ms: rows …, background …, text and logo …, lookups …`, so the slow part can be found and fixed. Nothing else changes."
       ]
     }
   ]

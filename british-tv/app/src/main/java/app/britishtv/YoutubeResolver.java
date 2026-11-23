@@ -42,6 +42,9 @@ final class YoutubeResolver {
     };
 
     private static volatile String lastGood = "";
+    /** An answer at least this sharp is used at once; a softer one waits GRACE_MS for a better one (and is used if none comes). */
+    private static final int GOOD_HEIGHT = 720;
+    private static final long GRACE_MS = 3000;
 
     static final class Result {
         String video;      // picture (and sound too when audio is null)
@@ -49,6 +52,7 @@ final class YoutubeResolver {
         String label;      // what was chosen and where from, for the log
         String error;      // set when nothing could be found
         String server;     // the server that answered, as "P<address>" or "I<address>", so a stream that never starts can be skipped
+        int height;        // picture height of what was chosen (0 when unknown), so a better answer can be preferred
     }
 
     private YoutubeResolver() {
@@ -104,6 +108,7 @@ final class YoutubeResolver {
         }
         StringBuilder why = new StringBuilder();
         long end = System.currentTimeMillis() + 20000;
+        Result best = null;
         try {
             for (int i = 0; i < servers.size(); i++) {
                 long left = end - System.currentTimeMillis();
@@ -116,13 +121,33 @@ final class YoutubeResolver {
                 }
                 Result r = f.get();
                 if (r.error == null) {
-                    return r;
+                    if (best == null || r.height > best.height) {
+                        best = r;
+                    }
+                    if (best.height >= GOOD_HEIGHT) {
+                        lastGood = best.server;
+                        return best;                       // good enough: no need to wait for the others
+                    }
+                    // a low-quality answer came first: give the other servers a few seconds to offer a sharper one, and use it if none does
+                    long grace = System.currentTimeMillis() + GRACE_MS;
+                    if (grace < end) {
+                        end = grace;
+                    }
+                    continue;
                 }
                 if (why.length() < 600) {
                     why.append(why.length() > 0 ? "; " : "").append(r.error);
                 }
             }
+            if (best != null) {
+                lastGood = best.server;
+                return best;
+            }
         } catch (Throwable t) {
+            if (best != null) {
+                lastGood = best.server;
+                return best;
+            }
             why.append("; ").append(t);
         } finally {
             for (Future<Result> f : all) {
@@ -277,9 +302,11 @@ final class YoutubeResolver {
         if (vid != null && aud != null && (mux == null || vid.optInt("height", 0) > mux.optInt("height", 0))) {
             r.video = vid.getString("url");
             r.audio = aud.getString("url");
+            r.height = vid.optInt("height", 0);
             r.label = from + " " + vid.optInt("height", 0) + "p picture + sound";
         } else if (mux != null) {
             r.video = mux.getString("url");
+            r.height = mux.optInt("height", 0);
             r.label = from + " " + mux.optInt("height", 0) + "p single file";
         } else {
             r.error = from + ": no mp4 stream";

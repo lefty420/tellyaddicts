@@ -6234,7 +6234,7 @@
     { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
-    { id: 'exp', rows: ['exp', 'startup', 'ldscr', 'uisize', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
+    { id: 'exp', rows: ['exp', 'startup', 'ldscr', 'uisize', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'odseason', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
     { id: 'debug', rows: ['live', 'log', 'epg', 'gaps'] }
   ];
   var OPTS = [];
@@ -6246,6 +6246,7 @@
     if (id === 'exp') return expOn ? 'On' : 'Off  \u00b7  turn on to use the dimmed rows';
     if (id === 'uisize') return expOn ? UI[uiIdx].label + (uiIdx === 1 ? '  \u00b7  as designed' : '') : 'Turn Experimental on first';
     if (id === 'ldscr') return expOn ? LD[ldIdx].label : 'Turn Experimental on first';
+    if (id === 'odseason') return !expOn ? 'Turn Experimental on first' : odSeasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
     if (id === 'startup') return !expOn ? 'Turn Experimental on first' : startOdOn ? 'On Demand' : 'EPG  \u00b7  the TV guide';
     if (id === 'addons') return addons.length ? addons.length + ' installed  \u00b7  OK to manage' : 'None  \u00b7  OK to add';
     if (id === 'ammain') return amOn ? 'On  \u00b7  library links are the fallback' : 'Off';
@@ -6358,7 +6359,7 @@
     toast('Listings kept for ' + KEEP[keepIdx].label + ', then built again', 2600);
   }
 
-  var NEEDS_EXP = { startup: 1, ldscr: 1, uisize: 1, addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
+  var NEEDS_EXP = { odseason: 1, startup: 1, ldscr: 1, uisize: 1, addons: 1, ammain: 1, depg: 1, join: 1 };           // greyed out while Experimental is off
   var ACTION = { scan: 1, tvdb: 1, tmdb: 1, unhide: 1, epg: 1, mclear: 1, od: 1, refresh: 1, rel: 1, log: 1, about: 1, gaps: 1, addons: 1 };   // rows that do something on OK, so they show no left/right arrows
   // one line under the list saying what the highlighted row is for
   var OPT_HELP = {
@@ -6369,6 +6370,7 @@
     rw: 'Treats the guide like live television. A show\'s episodes come in order and each day carries on where the last one stopped (Monday S01E01, Tuesday S01E02 ...). A channel plays only what is on now: pick anything else in the guide and it opens in On Demand, asking "Play it now?". Specials, one-offs and music are left as they are. Guide times do not change. (Broadcast schedule, in Guide, sets the times; this sets which episode airs.)',
     uk: 'Everything shows the whole library. British hides shows the scraper has marked as never shown on UK TV (mostly US drama), and keeps UK-made shows and the US ones that did air here, such as cartoons. Shows it is unsure about stay.',
     depg: 'Fills the channel guides with every episode of each show, from the episode source in Options > Artwork, even where the library has no file. Every programme is looked up with your addons first (the library link is only the fallback), and On Demand lists every episode too. An episode no addon has is skipped. Needs an addon.',
+    odseason: 'The same seasonal decoration the TV guide has, over On Demand: the pixel-art snow, the drifts and Santa\'s plough from 1 November to 6 January. Auto uses the date; Off never draws it. It stays off while a video plays behind the home page.',
     uisize: 'Makes the whole app a little smaller (room round the edges if your TV cuts them off) or a little bigger (easier to read from the sofa). Normal is how it was designed. It changes at once.',
     startup: 'Experimental. Off, the app opens on the TV guide (EPG), as it always has. On, it opens in On Demand instead, on its home screen. Back from On Demand goes to the guide. Takes effect from the next start.',
     ldscr: 'The TV you see while the app starts. Classic is the little set on a blue screen. Set in the room puts a bigger set in front of blurred artwork. Whole screen makes the picture the TV. Surprise me picks one of those two each start.',
@@ -6412,6 +6414,7 @@
     if (id === 'player') return { l: PLAYERS.map(function (x) { return x.label; }), i: playerIdx };
     if (id === 'theme') return { l: THEMES.map(function (x) { return x.label; }), i: themeIdx };
     if (id === 'season') return { l: ['Auto', 'Off'], i: seasonOn ? 0 : 1 };
+    if (id === 'odseason') return expOn ? { l: ['Auto', 'Off'], i: odSeasonOn ? 0 : 1 } : null;
     if (id === 'span') return { l: SPANS.map(function (x) { return x.label; }), i: spanIdx };
     if (id === 'keep') return { l: KEEP.map(function (x) { return x.label; }), i: keepIdx };
     if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };
@@ -6625,6 +6628,7 @@
     else if (id === 'uk') changeUk();
     else if (id === 'mc') changeMc();
     else if (id === 'rw') changeRw();
+    else if (id === 'odseason') { if (expOn) { odSeasonOn = !odSeasonOn; store.set('odseason', odSeasonOn ? 'auto' : 'off'); odSeasonUpdate(); renderOpts(); } }
     else if (id === 'depg') changeDepg();
     else if (id === 'join') { if (!expOn) toast('Turn Experimental on first', 3000); else { joinOn = !joinOn; store.set('join1', joinOn ? 'on' : 'off'); renderOpts(); } }
     else if (id === 'adlang') changeLang();
@@ -8492,6 +8496,18 @@
     if (!g.metaP) odMeta(g).then(function () { if (odOpen && odView === 'show' && odSel().g === g) odRender(); });
     odRender();
   }
+  // ---- On Demand seasonal theme (Experimental): the same snow, drifts and plough as the guide, over the On Demand screens
+  var odSeasonOn = store.get('odseason') !== 'off', odSeasonOv = null;
+  function odSeasonUpdate() {
+    if (!window.SEASONS || !$('odsnow')) return;
+    var want = expOn && odSeasonOn && odOpen && !odPip && !!SEASONS.current();
+    if (want && !odSeasonOv) odSeasonOv = SEASONS.snow($('odsnow'), function () {
+      var r = $('odrows'), b = r ? r.getBoundingClientRect().bottom : window.innerHeight - 40;
+      return Math.max(20, window.innerHeight - b);
+    }, dlog);
+    SEASONS.cfg.TIER = snowTier;
+    if (want) odSeasonOv.start(); else if (odSeasonOv) odSeasonOv.stop();
+  }
   function odOpenUi(noJump) {
     var chs = odChannels();
     if (!chs.length) { toast('On Demand is not ready yet', 2500); return; }
@@ -8512,6 +8528,7 @@
     var rows = odRowList();
     odRi = 0; odRc = rows[0] || null;
     $('od').className = '';
+    odSeasonUpdate();
     v.muted = true;
     var jump = !noJump && odFrom === 'watch' && cur && cur.prog && !cur.ad;       // Back from playing (noJump) lands on the home page at once; finding and opening the show first made it hang
     odBusy = !!jump;
@@ -8610,6 +8627,7 @@
     odOpen = false;
     clearTimeout(odMetaTimer);
     $('od').className = 'hidden';
+    odSeasonUpdate();
     v.muted = false;
     if (restore) {                                    // Back from On Demand always lands on the TV guide, wherever On Demand was opened from
       openGuide();
@@ -9390,6 +9408,7 @@
   function odPipOn() {
     odPip = true;
     document.body.classList.add('odpip');
+    odSeasonUpdate();
     odPipLayout();
   }
   function odPipLayout() {
@@ -9412,6 +9431,7 @@
     if (!odPip) return;
     odPip = false; odPipSig = '';
     document.body.classList.remove('odpip');
+    odSeasonUpdate();
     $('od').style.removeProperty('--pipb');
     var e = $('v'); e.style.left = e.style.top = e.style.width = e.style.height = '';
     if (document.body.classList.contains('np')) { try { NativeHttp.npRect(0, 0, 0, 0); } catch (x) { /* older app */ } }

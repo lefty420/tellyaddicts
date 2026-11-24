@@ -42,6 +42,82 @@ final class YoutubeResolver {
     };
 
     private static volatile String lastGood = "";
+
+    /** Servers taken from the projects' own live lists ("P<address>" or "I<address>"), and when they were fetched. Public servers come and go,
+     *  so the built-in lists above are only the fall-back for when these cannot be fetched. */
+    private static volatile List<String> live = null;
+    private static volatile long liveAt = 0;
+    private static final long LIVE_TTL_MS = 6L * 3600000L;
+    private static final int LIVE_EACH = 8;
+    private static final Object LIVE_LOCK = new Object();
+
+    private static String getText(String url, int ms) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        c.setConnectTimeout(ms);
+        c.setReadTimeout(ms);
+        c.setRequestProperty("User-Agent", UA);
+        c.setRequestProperty("Accept", "application/json");
+        int code = c.getResponseCode();
+        if (code != 200) {
+            throw new Exception("HTTP " + code);
+        }
+        InputStream in = c.getInputStream();
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        byte[] chunk = new byte[16384];
+        int n;
+        while ((n = in.read(chunk)) > 0) {
+            buf.write(chunk, 0, n);
+        }
+        in.close();
+        return buf.toString("UTF-8");
+    }
+
+    /** Fetch the current Piped and Invidious server lists (at most every few hours). Never throws; on any failure the old list, or none, stays. */
+    private static void refreshLive() {
+        synchronized (LIVE_LOCK) {
+            if (live != null && System.currentTimeMillis() - liveAt < LIVE_TTL_MS) {
+                return;
+            }
+            liveAt = System.currentTimeMillis();            // also when it fails: not tried again for a while at every play
+            List<String> found = new ArrayList<String>();
+            try {
+                JSONArray pa = new JSONArray(getText("https://piped-instances.kavin.rocks/", 5000));
+                int k = 0;
+                for (int i = 0; i < pa.length() && k < LIVE_EACH; i++) {
+                    JSONObject o = pa.optJSONObject(i);
+                    String u = o == null ? "" : o.optString("api_url", "");
+                    if (u.startsWith("https://")) {
+                        found.add("P" + u.replaceAll("/+$", ""));
+                        k++;
+                    }
+                }
+            } catch (Throwable t) {
+                // the list could not be fetched: the built-in servers are used
+            }
+            try {
+                JSONArray ia = new JSONArray(getText("https://api.invidious.io/instances.json?sort_by=health", 5000));
+                int k = 0;
+                for (int i = 0; i < ia.length() && k < LIVE_EACH; i++) {
+                    JSONArray row = ia.optJSONArray(i);
+                    JSONObject o = row == null ? null : row.optJSONObject(1);
+                    if (o != null && o.optBoolean("api", false) && "https".equals(o.optString("type", ""))) {
+                        String u = o.optString("uri", "");
+                        if (u.startsWith("https://")) {
+                            found.add("I" + u.replaceAll("/+$", ""));
+                            k++;
+                        }
+                    }
+                }
+            } catch (Throwable t) {
+                // as above
+            }
+            if (!found.isEmpty()) {
+                live = found;
+            } else if (live == null) {
+                live = new ArrayList<String>();
+            }
+        }
+    }
     /** An answer at least this sharp is used at once; a softer one waits GRACE_MS for a better one (and is used if none comes). */
     private static final int GOOD_HEIGHT = 720;
     private static final long GRACE_MS = 3000;
@@ -72,12 +148,21 @@ final class YoutubeResolver {
 
     /** Blocking: call from a background thread. The servers in skip (ones whose stream already failed this time) are not asked. */
     static Result resolve(final String id, Set<String> skip) {
+        refreshLive();
         List<String> servers = new ArrayList<String>();
+        List<String> fresh = live;
+        if (fresh != null) {
+            servers.addAll(fresh);
+        }
         for (String s : PIPED) {
-            servers.add("P" + s);
+            if (!servers.contains("P" + s)) {
+                servers.add("P" + s);
+            }
         }
         for (String s : INVIDIOUS) {
-            servers.add("I" + s);
+            if (!servers.contains("I" + s)) {
+                servers.add("I" + s);
+            }
         }
         if (skip != null) {
             servers.removeAll(skip);

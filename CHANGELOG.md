@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.13 — 2026-11-24
+- **YouTube asks the current list of servers.** Playing a YouTube video failed because every server in the app's fixed list was down or refusing. The app now fetches the Piped and Invidious projects' live lists (at most every six hours) and tries the healthiest ones first, keeping the built-in list as a fall-back. If those lists cannot be fetched, nothing changes. Needs a new build of the app (Java change).
+
 ## Alpha 0.54.12 — 2026-11-24
 - **On Demand no longer freezes when the YouTube list changes.** A channel's On Demand list was rebuilt whenever the scraper added or removed a single YouTube video, which took up to two minutes and stalled the screen for up to 16 s. It is now rebuilt only when the channel gains or loses a YouTube show. A show's page still reads the newest videos when you open it. The change rebuilds the lists once more on the first start after updating.
 

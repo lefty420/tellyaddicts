@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.98",
-  "version": "0.53.98",
-  "code": 5398,
+  "name": "Alpha 0.53.99",
+  "version": "0.53.99",
+  "code": 5399,
   "date": "2026-11-24",
   "notes": [
-    "**Bigger posters: six to a row on the TV.** The On Demand home rows now show six large posters (they were ten small ones), with a little more space between them. The title area and the first row have moved up a touch to make room. Live now cards, the grid, Favourites and the phone layout are unchanged."
+    "**Guide now sits next to Home on the top menu.** The bar reads Home, Guide, Shows, Films, Kids, Channels, Favourites, with Search and Options on the right. Left and Right follow that order. The phone layout is unchanged."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.98",
+      "date": "2026-11-24",
+      "notes": [
+        "**Bigger posters: six to a row on the TV.** The On Demand home rows now show six large posters (they were ten small ones), with a little more space between them. The title area and the first row have moved up a touch to make room. Live now cards, the grid, Favourites and the phone layout are unchanged."
+      ]
+    },
     {
       "name": "Alpha 0.53.97",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Back while playing no longer restarts the app.** The app had restarted after Back with the picture in the hero. The player's window was being told its size again on every redraw of the page, many times a second; it is now moved only when the size actually changes."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.90",
-      "date": "2026-11-24",
-      "notes": [
-        "**Continue watching appears all at once.** It used to add a poster or two each time another channel's list finished loading (6, then 8, then 12). It now waits until every channel it needs is ready and is drawn once, complete."
       ]
     }
   ]

@@ -7725,7 +7725,7 @@
   // are loaded, one channel at a time, so opening On Demand never builds everything at once.
   var OD_CHIPS = ['Home', 'Shows', 'Films', 'Kids', 'Channels', 'Favourites'], OD_TOOLS = ['Search', 'Guide', 'Options'];
   /** The stops on the top bar that exist here: all nine on TV; on a phone the rail has the rest. */
-  function odBarVis() { return window.PHONE ? [0, 1, 2, 3, 6] : [0, 1, 2, 3, 4, 5, 6, 7, 8]; }
+  function odBarVis() { return window.PHONE ? [0, 1, 2, 3, 6] : [0, 7, 1, 2, 3, 4, 5, 6, 8]; }      // on the TV the bar reads Home, Guide, Shows, Films, Kids, Channels, Favourites, then Search and Options
   /** The bar has focus: on the home page, in Browse, or in Favourites. */
   function odBarOn() { return odView === 'home' ? odZn === 'chips' : odView === 'grid' ? odGz === 'bar' : odView === 'fav' ? odFz === 'bar' : false; }
   /** Which tab is the current one. */
@@ -8061,11 +8061,16 @@
   /** What sits after a row's name: where you are in it on the highlighted row, how many it holds on the others. */
   function odCount(x) { return x.ri === odRi ? (x.pos + 1) + ' of ' + x.n : x.n + (x.n === 1 ? ' show' : ' shows'); }
   var odDom = [];       // what the home rows on screen were built from: a key press that stays inside them only moves the highlight
+  var odGuideEl = null;
   function odRenderBar() {
-    var ch = $('odchips'); ch.textContent = '';
+    var ch = $('odchips');
+    if (!odGuideEl) odGuideEl = $('odguide');
+    if (odGuideEl.parentNode === ch) $('odtools').insertBefore(odGuideEl, $('odopts'));       // back in its place before the tabs are drawn again
+    ch.textContent = '';
     var bo = odBarOn(), cur = odBarCur(), ph = !!window.PHONE;
     OD_CHIPS.forEach(function (t, i) { ch.appendChild(odEl('div', 'odchip' + (i === cur ? ' on' : '') + (bo && odCi === i ? ' sel' : '') + (ph && i > 3 ? ' odx' : ''), t)); });
-    ['odsrch', 'odguide', 'odopts'].forEach(function (id, j) { $(id).className = 'odchip' + (bo && odCi === 6 + j ? ' sel' : '') + (ph && j ? ' odx' : ''); });
+    if (!ph) ch.insertBefore(odGuideEl, ch.children[1] || null);                             // on the TV Guide sits next to Home
+    [$('odsrch'), odGuideEl, $('odopts')].forEach(function (el, j) { el.className = 'odchip' + (bo && odCi === 6 + j ? ' sel' : '') + (ph && j ? ' odx' : ''); });
     var sd = $('odside'); sd.textContent = '';
     OD_RAIL.forEach(function (t, i) { var d = odEl('div', 'odsd' + (odZn === 'rail' && odRailI === i ? ' sel' : '')); d.innerHTML = t[0]; d.setAttribute('data-l', t[1]); sd.appendChild(d); });
   }

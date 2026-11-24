@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.99",
-  "version": "0.53.99",
-  "code": 5399,
+  "name": "Alpha 0.54.0",
+  "version": "0.54.0",
+  "code": 5400,
   "date": "2026-11-24",
   "notes": [
-    "**Guide now sits next to Home on the top menu.** The bar reads Home, Guide, Shows, Films, Kids, Channels, Favourites, with Search and Options on the right. Left and Right follow that order. The phone layout is unchanged."
+    "**Seven posters per row, a little smaller, and the 5 second zoom is off.** Poster rows on the TV show 7 across (was 6). The highlighted poster no longer grows after a pause."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.99",
+      "date": "2026-11-24",
+      "notes": [
+        "**Guide now sits next to Home on the top menu.** The bar reads Home, Guide, Shows, Films, Kids, Channels, Favourites, with Search and Options on the right. Left and Right follow that order. The phone layout is unchanged."
+      ]
+    },
     {
       "name": "Alpha 0.53.98",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Menus wrap round.** Up from the first line goes to the last and Down from the last goes to the first in the hold-OK menus, the picture's pop-up lists (audio, subtitles and so on) and the channel list on the OSD. In that channel list, Left or Right now takes you back to the bar."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.91",
-      "date": "2026-11-24",
-      "notes": [
-        "**Back while playing no longer restarts the app.** The app had restarted after Back with the picture in the hero. The player's window was being told its size again on every redraw of the page, many times a second; it is now moved only when the size actually changes."
       ]
     }
   ]

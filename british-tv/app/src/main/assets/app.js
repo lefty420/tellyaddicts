@@ -7740,6 +7740,7 @@
     row.ch.forEach(function (id) { var c = odCh[id]; if (!c) return; total++; var r = odData[id]; if (r && r.shows) { loaded++; lists.push(r.shows); } });
     var sig = loaded + '/' + total, cur = odData[row.id];
     if (cur && cur.sig === sig) return cur;
+    if (loaded < total) return (odData[row.id] = { shows: null, sig: sig });       // a row is drawn once, when every channel in it is in: blocks stand in until then, so nothing moves along it as channels land
     var seen = {}, out = [], i = 0, more = true;
     while (more && out.length < (row.mix ? 600 : 150)) {
       more = false;
@@ -7787,6 +7788,21 @@
     while (odHero.length < 5 && pool.length) odHero.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
   }
   var odRowsMemo = null;
+  /** The genre rows, then a row for each channel that none of them covers, so every channel's shows are on the home page. */
+  var odAllMemo = null, odAllKey = '', odChanRows = {};
+  function odAllRows() {
+    var chs = odChannels(), key = chs.map(function (c) { return c.id; }).join(',');
+    if (odAllMemo && key === odAllKey) return odAllMemo;
+    var covered = {};
+    OD_GENRES.forEach(function (r) { r.ch.forEach(function (id) { covered[id] = 1; }); });
+    var out = OD_GENRES.slice();
+    chs.forEach(function (c) {
+      if (covered[c.id] || OD_SKIP[c.id]) return;
+      var row = odChanRows[c.id] || (odChanRows[c.id] = { id: '_c_' + c.id, name: c.name, k: OD_FILMS[c.id] ? 'film' : 'tv', ch: [c.id] });
+      out.push(row);
+    });
+    odAllKey = key; return (odAllMemo = out);
+  }
   function odRowList() {
     if (odRowsMemo) return odRowsMemo;
     setTimeout(function () { odRowsMemo = null; }, 0);
@@ -7797,7 +7813,7 @@
     if (odData._sr && odData._sr.shows.length) out.push(srPseudo);
     var on = !kind || kind === 'tv' ? odOnRow() : null; if (on) out.push(on);
     var cw = odCwRow(); if (cw) out.push(cw);
-    OD_GENRES.forEach(function (row) {
+    odAllRows().forEach(function (row) {
       if (kind && (' ' + row.k + ' ').indexOf(' ' + kind + ' ') < 0) return;
       if (!row.ch.some(function (id) { return odCh[id]; })) return;
       var r = odGenreSync(row);

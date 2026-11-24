@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.82 — 2026-11-24
+- **On Demand rows no longer shuffle as channels land.** A genre row used to be built from whichever of its channels had loaded and rebuilt each time another arrived, so posters slid and swapped while it loaded. A row now shows blocks until every channel in it is in, and is then drawn once in its final order.
+- **More on the home page.** Every channel that no genre row covers gets a row of its own, after the genre rows, so all channels have shows on the home page.
+
 ## Alpha 0.53.81 — 2026-11-24
 - **Stopping a show with On Demand as home goes to On Demand,** not the TV guide. Back while watching also goes to On Demand, so Back from the guide is never the first of two quick presses that asks to quit.
 - **The big hero on the On Demand home no longer runs into the first row** (On now). It now sits just above the row and grows upward.

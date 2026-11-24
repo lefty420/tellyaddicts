@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.13",
-  "version": "0.54.13",
-  "code": 5413,
+  "name": "Alpha 0.54.14",
+  "version": "0.54.14",
+  "code": 5414,
   "date": "2026-11-24",
   "notes": [
-    "**YouTube asks the current list of servers.** Playing a YouTube video failed because every server in the app's fixed list was down or refusing. The app now fetches the Piped and Invidious projects' live lists (at most every six hours) and tries the healthiest ones first, keeping the built-in list as a fall-back. If those lists cannot be fetched, nothing changes. Needs a new build of the app (Java change)."
+    "**The YouTube error in the debug log now says what the live server lists gave** (how many servers, or why they could not be fetched). In 0.54.13 the failed play listed only the built-in servers, so the live lists added nothing and I could not tell why. No change to how YouTube plays. Needs a new build (Java)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.13",
+      "date": "2026-11-24",
+      "notes": [
+        "**YouTube asks the current list of servers.** Playing a YouTube video failed because every server in the app's fixed list was down or refusing. The app now fetches the Piped and Invidious projects' live lists (at most every six hours) and tries the healthiest ones first, keeping the built-in list as a fall-back. If those lists cannot be fetched, nothing changes. Needs a new build of the app (Java change)."
+      ]
+    },
     {
       "name": "Alpha 0.54.12",
       "date": "2026-11-24",
@@ -57,16 +64,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**More YouTube titles are numbered.** Titles like \"Season One - Episode Two\" and \"2x05\" now give a season and episode, as well as \"S2 Ep5\"."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.6",
-      "date": "2026-11-24",
-      "notes": [
-        "**No snow on On Demand.** (Put back in 0.54.7.)",
-        "**The hint line at the foot of On Demand sits on its own dark band.** The bottom row of posters fades out into it, so \"Browse, Rows, OK Open, Hold OK More, Back Top\" no longer runs over the picture of a poster.",
-        "**A show's title picture is the size of its title.** On the home screen a small logo picture used to show as a tiny speck where the title should be. It is now scaled to the title's height, both on the big hero and when the hero shrinks as you move down to a row.",
-        "**The \"Next 18:17 ...\" line on the On now cards is bigger** and clear of the progress bar."
       ]
     }
   ]

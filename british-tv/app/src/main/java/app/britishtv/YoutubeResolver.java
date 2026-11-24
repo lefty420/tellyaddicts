@@ -50,6 +50,7 @@ final class YoutubeResolver {
     private static final long LIVE_TTL_MS = 6L * 3600000L;
     private static final int LIVE_EACH = 8;
     private static final Object LIVE_LOCK = new Object();
+    private static volatile String liveNote = "";        // what the live lists gave, for the error text in the debug log
 
     private static String getText(String url, int ms) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
@@ -79,6 +80,7 @@ final class YoutubeResolver {
                 return;
             }
             liveAt = System.currentTimeMillis();            // also when it fails: not tried again for a while at every play
+            liveNote = "";
             List<String> found = new ArrayList<String>();
             try {
                 JSONArray pa = new JSONArray(getText("https://piped-instances.kavin.rocks/", 5000));
@@ -92,8 +94,9 @@ final class YoutubeResolver {
                     }
                 }
             } catch (Throwable t) {
-                // the list could not be fetched: the built-in servers are used
+                liveNote = "Piped list: " + t.getMessage();       // the built-in servers are used
             }
+            int nPiped = found.size();
             try {
                 JSONArray ia = new JSONArray(getText("https://api.invidious.io/instances.json?sort_by=health", 5000));
                 int k = 0;
@@ -109,7 +112,10 @@ final class YoutubeResolver {
                     }
                 }
             } catch (Throwable t) {
-                // as above
+                liveNote += (liveNote.length() > 0 ? "; " : "") + "Invidious list: " + t.getMessage();
+            }
+            if (liveNote.length() == 0) {
+                liveNote = "live lists gave " + nPiped + " Piped and " + (found.size() - nPiped) + " Invidious servers";
             }
             if (!found.isEmpty()) {
                 live = found;
@@ -241,7 +247,7 @@ final class YoutubeResolver {
             pool.shutdownNow();
         }
         Result none = new Result();
-        none.error = "no server gave a stream (" + why + ")";
+        none.error = "no server gave a stream (" + why + (liveNote.length() > 0 ? "; " + liveNote : "") + ")";
         return none;
     }
 

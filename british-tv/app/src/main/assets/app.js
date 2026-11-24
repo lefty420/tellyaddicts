@@ -1234,11 +1234,12 @@
     if (bgb) { var tw = document.createElement('div'); tw.className = 'spbgslot now'; bgb.appendChild(tw); el._tw = tw; }
     spSurf();
     spSurfTimer = setInterval(spSurf, SP_SURF_MS);
+    [3000, 8000].forEach(function (ms) { setTimeout(function () { dlog('SPLASH: ' + Math.round(performance.now()) + ' ms after launch, ' + spPics.length + ' backdrops and ' + spPosters.length + ' posters loaded, ' + Object.keys(spSeen).length + ' shown, ' + spCand.length + ' still to fetch'); }, ms); });
   }
   var spRecent = [], spChi = 0, spDone = -1, spEver = false;
   function spSurf() {
     var el = spSlots[0]; if (!el) return;
-    var pool = spPics.length ? spPics : spPosters;                   // backdrops only; posters just until a backdrop has loaded
+    var pool = spPics.length >= 10 ? spPics : spPics.concat(spPosters);     // backdrops; with fewer than ten loaded the posters join in, so early on there is more than a couple to flick through
     var list = channels.slice().sort(function (a, b) { return a.n - b.n; }), k = list.length ? spStep++ % list.length : 0, c = list[k];
     var u = '';
     if (pool.length) {

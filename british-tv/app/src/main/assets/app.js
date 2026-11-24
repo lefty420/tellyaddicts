@@ -1134,7 +1134,7 @@
   /** Resolves once no button has been pressed for ms: heavy background steps wait here so they never land between two presses. */
   function idleFor(ms) { return new Promise(function (r) { (function chk() { if (Date.now() - lastKeyAt >= ms && !playingOd()) r(); else setTimeout(chk, 400); })(); }); }
   /** An On Demand show is playing, or On Demand is home and anything is: the TV is busy decoding, so background jobs wait rather than land between a press and its picture. */
-  function playingOd() { return !!(cur && !v.paused && !odOpen && (cur.od || (expOn && startOdOn))); }
+  function playingOd() { return !!(cur && !v.paused && (!odOpen || odPip) && (cur.od || (expOn && startOdOn))); }
   /** progsFromData for a long list, in small slices with a breath between them (and a longer wait while a button is
    *  being pressed), so building a big channel in the background cannot freeze the screen for a second. */
   function progsFromDataSliced(items, channelId, everything) {
@@ -6947,7 +6947,7 @@
     closeOsd();
     scrubT = null;
     try { v.pause(); } catch (e) { /* nothing playing */ }
-    if (odHomeMode()) { osdStopped = false; odBackFromPlay(); toast('Stopped', 1500); return; }      // On Demand is home: stopping lands there, not in the guide
+    if (odHomeMode()) { osdStopped = false; odBackFromPlay(true); toast('Stopped', 1500); return; }      // On Demand is home: stopping lands there, not in the guide
     openGuide();
     osdStopped = guideOpen;
     toast('Stopped', 1500);
@@ -8528,6 +8528,7 @@
     lastBack = n; pressBackToExit();
   }
   function odClose(restore) {
+    odPipOff();
     odOpen = false;
     clearTimeout(odMetaTimer);
     $('od').className = 'hidden';
@@ -8619,6 +8620,7 @@
     odRender(); return true;
   }
   function odKey(k) {
+    if (odPip && (k === 'GoBack' || k === 'Escape' || k === 'Backspace')) { odMark(); odClose(false); return true; }     // second Back: the video goes full screen
     if (odm) return k === 'Info' ? true : odmKey(k);
     if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') {      // a held OK arrives as Info (see MainActivity)
       if (odView === 'home' && odZn === 'hero') { odOpenHero(); return true; }
@@ -9283,14 +9285,42 @@
     odmRender();
     return true;
   }
-  var odPlaced = null;
+  var odPlaced = null, odPip = false;
+  /** Back while a video plays: the video carries on in a small window at the top right of On Demand; Back again takes it full screen. */
+  function odPipOn() {
+    odPip = true;
+    document.body.classList.add('odpip');
+    odPipLayout();
+  }
+  function odPipLayout() {
+    if (!odPip) return;
+    var W = window.innerWidth, H = window.innerHeight, d = window.devicePixelRatio || 1;
+    var w = Math.round(W * 0.32), h = Math.round(w * 9 / 16), l = W - w - Math.round(W * 0.04), t = Math.round(H * 0.13), r = l + w, b = t + h;
+    if (document.body.classList.contains('np')) {         // the app's own player draws behind the page: move it there and cut a hole to see it through
+      try { NativeHttp.npRect(Math.round(l * d), Math.round(t * d), Math.round(w * d), Math.round(h * d)); } catch (e) { /* older app */ }
+      $('od').style.clipPath = 'polygon(evenodd, 0 0, ' + W + 'px 0, ' + W + 'px ' + H + 'px, 0 ' + H + 'px, 0 0, ' +
+        l + 'px ' + t + 'px, ' + l + 'px ' + b + 'px, ' + r + 'px ' + b + 'px, ' + r + 'px ' + t + 'px, ' + l + 'px ' + t + 'px)';
+    } else {
+      var e = $('v'); e.style.left = l + 'px'; e.style.top = t + 'px'; e.style.width = w + 'px'; e.style.height = h + 'px';
+    }
+  }
+  function odPipOff() {
+    if (!odPip) return;
+    odPip = false;
+    document.body.classList.remove('odpip');
+    $('od').style.clipPath = '';
+    var e = $('v'); e.style.left = e.style.top = e.style.width = e.style.height = '';
+    if (document.body.classList.contains('np')) { try { NativeHttp.npRect(0, 0, 0, 0); } catch (x) { /* older app */ } }
+  }
   /** Leave playback for On Demand. The page is put up at once as it was last drawn, the picture is paused, and only then is the page worked out:
    *  while the player is still decoding, every read from storage waits behind it (the log showed 5 to 14 seconds). */
-  function odBackFromPlay() {
+  function odBackFromPlay(noPip) {
     closeOsd();
-    $('od').className = ''; v.muted = true;
-    try { v.pause(); } catch (e) { /* nothing playing */ }
-    if (odPlaced && !odOpen) {          // On Demand was only hidden when the picture started: show it exactly as it was, build nothing
+    var pip = !noPip && !!(cur && !v.paused && odPlaced && !odOpen);
+    $('od').className = '';
+    if (!pip) { v.muted = true; try { v.pause(); } catch (e) { /* nothing playing */ } }
+    if (odPlaced && !odOpen) {
+      if (pip) odPipOn();          // On Demand was only hidden when the picture started: show it exactly as it was, build nothing
       odPlaced = null; odOpen = true; odBusy = false; odFrom = 'watch';
       setTimeout(function () { if (!odOpen) return; idleFor(4000).then(function () { if (odOpen && odView === 'home') { odRowsMemo = null; odRender(); } }); }, 3000);   // pick up Continue watching a little later
       return;

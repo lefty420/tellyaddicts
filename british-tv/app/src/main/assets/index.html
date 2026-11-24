@@ -115,6 +115,9 @@
     border: calc(.5 * var(--u)) solid #d7e6ff; box-shadow: 0 calc(.8 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.6);
   }
   body.guide-open #spinner, body.guide-open #banner { display: none; }
+  /* the video carrying on in a small window over On Demand (the position is set from app.js) */
+  body.odpip:not(.np) #v { inset: auto; z-index: 60; opacity: 1; border: calc(.5 * var(--u)) solid #d7e6ff; box-shadow: 0 calc(.8 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.6); }
+  body.odpip #banner, body.odpip #spinner { display: none; }
 
   #nosignal { position: fixed; inset: 0; background: #151b3d; display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center; z-index: 50; }

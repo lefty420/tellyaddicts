@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.90",
-  "version": "0.53.90",
-  "code": 5390,
+  "name": "Alpha 0.53.91",
+  "version": "0.53.91",
+  "code": 5391,
   "date": "2026-11-24",
   "notes": [
-    "**Continue watching appears all at once.** It used to add a poster or two each time another channel's list finished loading (6, then 8, then 12). It now waits until every channel it needs is ready and is drawn once, complete."
+    "**Back while playing no longer restarts the app.** The app had restarted after Back with the picture in the hero. The player's window was being told its size again on every redraw of the page, many times a second; it is now moved only when the size actually changes."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.90",
+      "date": "2026-11-24",
+      "notes": [
+        "**Continue watching appears all at once.** It used to add a poster or two each time another channel's list finished loading (6, then 8, then 12). It now waits until every channel it needs is ready and is drawn once, complete."
+      ]
+    },
     {
       "name": "Alpha 0.53.89",
       "date": "2026-11-24",
@@ -59,14 +66,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Back while playing no longer hangs.** With On Demand as home, Back from a show or channel now lands on the On Demand home page at once. It used to look up the playing show and open its page first, which showed a loading screen for several seconds. (The On Demand button on the remote still opens the playing show's page.)"
-      ]
-    },
-    {
-      "name": "Alpha 0.53.82",
-      "date": "2026-11-24",
-      "notes": [
-        "**On Demand rows no longer shuffle as channels land.** A genre row used to be built from whichever of its channels had loaded and rebuilt each time another arrived, so posters slid and swapped while it loaded. A row now shows blocks until every channel in it is in, and is then drawn once in its final order.",
-        "**More on the home page.** Every channel that no genre row covers gets a row of its own, after the genre rows, so all channels have shows on the home page."
       ]
     }
   ]

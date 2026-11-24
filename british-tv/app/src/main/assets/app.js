@@ -9332,7 +9332,7 @@
     odmRender();
     return true;
   }
-  var odPlaced = null, odPip = false;
+  var odPlaced = null, odPip = false, odPipSig = '';
   try { new MutationObserver(function () { odPipLayout(); }).observe($('od'), { attributes: true, attributeFilter: ['class'] }); } catch (e) { /* no observer */ }
   /** Back while a video plays: the video carries on in a small window at the top right of On Demand; Back again takes it full screen. */
   function odPipOn() {
@@ -9346,7 +9346,9 @@
     var bh = Math.round($('odbg').getBoundingClientRect().height) || Math.round(H * 0.66);      // the video takes the hero's picture: the same height, 16:9, against the right edge
     var h = bh, w = Math.round(h * 16 / 9);
     if (w > W) { w = W; h = Math.round(w * 9 / 16); }
-    var l = W - w, t = 0;
+    var l = W - w, t = 0, sig = l + ',' + t + ',' + w + ',' + h;
+    if (sig === odPipSig) return;                         // nothing moved: the native surface is not touched again (every redraw of the page comes through here)
+    odPipSig = sig;
     $('od').style.setProperty('--pipb', bh + 'px');
     if (document.body.classList.contains('np')) {         // the app's own player draws behind the page: move it there
       try { NativeHttp.npRect(Math.round(l * d), t, Math.round(w * d), Math.round(h * d)); } catch (e) { /* older app */ }
@@ -9356,7 +9358,7 @@
   }
   function odPipOff() {
     if (!odPip) return;
-    odPip = false;
+    odPip = false; odPipSig = '';
     document.body.classList.remove('odpip');
     $('od').style.removeProperty('--pipb');
     var e = $('v'); e.style.left = e.style.top = e.style.width = e.style.height = '';

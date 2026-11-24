@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.98 — 2026-11-24
+- **Bigger posters: six to a row on the TV.** The On Demand home rows now show six large posters (they were ten small ones), with a little more space between them. The title area and the first row have moved up a touch to make room. Live now cards, the grid, Favourites and the phone layout are unchanged.
+
 ## Alpha 0.53.97 — 2026-11-24
 - **Rows with fewer than ten posters (Films 7, Sci-fi 8) fixed.** A film or show that sits in two of the rows on screen at once (a film in both Films and Sci-fi, say) had one poster tile shared between them, so the second row took it from the first and left a gap at the end. Every row now has its own tile for each poster.
 

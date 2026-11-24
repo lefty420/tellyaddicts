@@ -10,8 +10,8 @@ android {
         applicationId = "app.britishtv"
         minSdk = 22
         targetSdk = 34
-        versionCode = 5397
-        versionName = "0.53.97"
+        versionCode = 5398
+        versionName = "0.53.98"
     }
 
     // Two builds from the one codebase: "tv" (the TV app, exactly as before) and "mobile" (for phones). They have different

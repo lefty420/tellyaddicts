@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.97",
-  "version": "0.53.97",
-  "code": 5397,
+  "name": "Alpha 0.53.98",
+  "version": "0.53.98",
+  "code": 5398,
   "date": "2026-11-24",
   "notes": [
-    "**Rows with fewer than ten posters (Films 7, Sci-fi 8) fixed.** A film or show that sits in two of the rows on screen at once (a film in both Films and Sci-fi, say) had one poster tile shared between them, so the second row took it from the first and left a gap at the end. Every row now has its own tile for each poster."
+    "**Bigger posters: six to a row on the TV.** The On Demand home rows now show six large posters (they were ten small ones), with a little more space between them. The title area and the first row have moved up a touch to make room. Live now cards, the grid, Favourites and the phone layout are unchanged."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.97",
+      "date": "2026-11-24",
+      "notes": [
+        "**Rows with fewer than ten posters (Films 7, Sci-fi 8) fixed.** A film or show that sits in two of the rows on screen at once (a film in both Films and Sci-fi, say) had one poster tile shared between them, so the second row took it from the first and left a gap at the end. Every row now has its own tile for each poster."
+      ]
+    },
     {
       "name": "Alpha 0.53.96",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Continue watching appears all at once.** It used to add a poster or two each time another channel's list finished loading (6, then 8, then 12). It now waits until every channel it needs is ready and is drawn once, complete."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.89",
-      "date": "2026-11-24",
-      "notes": [
-        "**The video now plays in the hero.** After Back, the picture fills the hero's backdrop (right side, behind the title and the rows, fading into the page) instead of a small box over the rows. Back again takes it full screen."
       ]
     }
   ]

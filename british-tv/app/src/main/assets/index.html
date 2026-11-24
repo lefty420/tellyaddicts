@@ -942,7 +942,7 @@
   #od.odtop #odh1 { font-size: calc(7 * var(--u)); -webkit-line-clamp: 2; }
   #od.odtop #odlogo { max-height: calc(15 * var(--u)); max-width: calc(36 * var(--uw)); }
   #od.odtop #odp { -webkit-line-clamp: 3; }
-  #od.odtop #odrows { top: calc(57 * var(--u)); }
+  #od.odtop #odrows { top: calc(52 * var(--u)); }
   #odm, #odsm { font-size: calc(2.1 * var(--u)); color: #c3cadb; margin-bottom: calc(.6 * var(--u)); }
   #odh1, #odst { font-size: calc(5.2 * var(--u)); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; font-weight: 800; line-height: 1.05; margin: 0; }
   #odp, #odsp { font-size: calc(2.2 * var(--u)); line-height: 1.35; color: #c3cadb; margin-top: calc(.8 * var(--u)); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -953,7 +953,7 @@
   .odrow { padding: 0 calc(4 * var(--uw)) 0 calc(5 * var(--uw)); margin-bottom: calc(.4 * var(--u)); contain: layout paint; }
   .odrow h3 { margin: 0 0 calc(.2 * var(--u)); font-size: calc(2.5 * var(--u)); font-weight: 700; }
   .odrow h3 span { font-weight: 400; color: #8f98b0; margin-left: calc(1 * var(--uw)); font-size: calc(2.1 * var(--u)); }
-  .odcards { display: flex; gap: calc(.9 * var(--uw)); overflow: hidden; padding: calc(4.6 * var(--u)) calc(2.2 * var(--uw)) calc(4.8 * var(--u)); margin: calc(-3.6 * var(--u)) calc(-2.2 * var(--uw)) calc(-3.6 * var(--u)); }   /* room for the focus ring and the enlarged card, with the row's own height unchanged */
+  .odcards { display: flex; gap: calc(.9 * var(--uw)); overflow: hidden; padding: calc(6.4 * var(--u)) calc(2.2 * var(--uw)) calc(6.6 * var(--u)); margin: calc(-5.4 * var(--u)) calc(-2.2 * var(--uw)) calc(-5.4 * var(--u)); }   /* room for the focus ring and the enlarged card, with the row's own height unchanged */
   .odc { position: relative; flex: none; width: calc(8.25 * var(--uw)); height: calc(12.375 * var(--uw)); border-radius: calc(1 * var(--u)); overflow: hidden; background: #1d2433 center / cover no-repeat; }
   #odnx { position: fixed; right: calc(3 * var(--uw)); bottom: calc(9 * var(--u)); z-index: 60; max-width: calc(34 * var(--uw)); padding: calc(1.6 * var(--u)) calc(2 * var(--u)); border-radius: calc(1.2 * var(--u)); background: rgba(8,10,16,.88); color: #e8eefc; border: calc(.2 * var(--u)) solid rgba(255,255,255,.35); display: flex; flex-direction: column; gap: calc(.5 * var(--u)); }
   #odnx b { font-size: calc(3.2 * var(--u)); } #odnx span { font-size: calc(2.2 * var(--u)); color: #b9d1ff; }
@@ -983,6 +983,10 @@
   .odc.odsk { background: #151a26; }
   /* On now: a wide card with the channel, what is on, how far through it is and what comes next */
   .odc.odon { width: calc(17.4 * var(--uw)); height: calc(10.1 * var(--uw)); }
+  /* the home rows: six big posters across (the grid, favourites and the show page keep their own sizes) */
+  html:not(.phone) #odrows .odcards { gap: calc(1.2 * var(--uw)); }
+  html:not(.phone) #odrows .odc { width: calc(13.6 * var(--uw)); height: calc(20.4 * var(--uw)); }
+  html:not(.phone) #odrows .odc.odon { width: calc(17.2 * var(--uw)); height: calc(10 * var(--uw)); }
   .odon .odlive { position: absolute; left: calc(.8 * var(--u)); top: calc(.8 * var(--u)); z-index: 1; font-size: calc(1.7 * var(--u)); font-weight: 800; padding: calc(.2 * var(--u)) calc(.6 * var(--uw)); border-radius: calc(.5 * var(--u)); background: #e5384c; }
   .odon .odch { position: absolute; right: calc(.8 * var(--u)); top: calc(.8 * var(--u)); z-index: 1; font-size: calc(1.8 * var(--u)); font-weight: 700; color: #e9edf7; text-shadow: 0 0 calc(.6 * var(--u)) #000; }
   .odon b { bottom: calc(3.4 * var(--u)); font-size: calc(2.2 * var(--u)); }
@@ -1250,7 +1254,7 @@
   html:not(.phone) #odside { display: none; }
   html:not(.phone) #odbar { top: calc(3.6 * var(--u)); justify-content: space-between; }
   html:not(.phone) #od:not(.odtop) #odhero { top: calc(11 * var(--u)); }
-  html:not(.phone) #od.odtop #odhero { top: auto; bottom: calc(45 * var(--u)); }       /* the big hero grows upward from just above the first row, so a long title can never run into it */
+  html:not(.phone) #od.odtop #odhero { top: auto; bottom: calc(50 * var(--u)); }       /* the big hero grows upward from just above the first row, so a long title can never run into it */
   html:not(.phone) #od:not(.odtop) #odbg { height: calc(56 * var(--u)); }
   html:not(.phone) #od:not(.odtop) #odrows { top: calc(33 * var(--u)); }
   html:not(.phone) #od:not(.odtop) #odh1 { font-size: calc(6.5 * var(--u)); -webkit-line-clamp: 1; }

@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.4",
-  "version": "0.54.4",
-  "code": 5404,
+  "name": "Alpha 0.54.5",
+  "version": "0.54.5",
+  "code": 5405,
   "date": "2026-11-24",
   "notes": [
-    "**The On Demand loading screen tunes in properly.** The green bar now moves along with the time and fills when everything is ready (before, it jumped because On Demand opens after two channels). The screen stays up for at least five seconds, and a new picture tunes in about every 0.9 s (was 1.7 s), each after a burst of static."
+    "**A highlighted poster is no longer cut off at the bottom.** Each row now keeps room under its posters for the highlight outline and the slight enlargement."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.4",
+      "date": "2026-11-24",
+      "notes": [
+        "**The On Demand loading screen tunes in properly.** The green bar now moves along with the time and fills when everything is ready (before, it jumped because On Demand opens after two channels). The screen stays up for at least five seconds, and a new picture tunes in about every 0.9 s (was 1.7 s), each after a burst of static."
+      ]
+    },
     {
       "name": "Alpha 0.54.3",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Rows with fewer than ten posters (Films 7, Sci-fi 8) fixed.** A film or show that sits in two of the rows on screen at once (a film in both Films and Sci-fi, say) had one poster tile shared between them, so the second row took it from the first and left a gap at the end. Every row now has its own tile for each poster."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.96",
-      "date": "2026-11-24",
-      "notes": [
-        "**A poster left highlighted for 5 seconds grows by 30%.** In the On Demand rows, the highlighted poster zooms in after five seconds without a button press and goes back as soon as you press anything. The Live now cards grow a little less because they are already wide."
       ]
     }
   ]

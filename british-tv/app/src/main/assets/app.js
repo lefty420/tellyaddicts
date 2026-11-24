@@ -79,6 +79,16 @@
       }
     } catch (e) { /* the page's storage still has them */ }
   }, 4000);
+  // What is saved of the choices made with "Choose the right show" and the artwork menu, written to the log at each start so a pick that
+  // did not survive a restart can be told from one that was never saved: in the page's storage, in the files, or both.
+  setTimeout(function () {
+    try {
+      var pg = [], fl = [], i;
+      for (i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf('artfix:') === 0) pg.push(k.slice(7)); }
+      if (KV_NATIVE) Object.keys(kvNative()).forEach(function (kn) { if (kn.indexOf('ls:artfix:') === 0) fl.push(kn.slice(10)); });
+      dlog('SAVED PICKS: ' + pg.length + ' in the page storage, ' + fl.length + ' in files' + (fl.length ? ' (' + fl.slice(0, 6).join(', ') + (fl.length > 6 ? ', \u2026' : '') + ')' : ''));
+    } catch (e) { /* storage blocked */ }
+  }, 9000);
   var getStat = {};      // saved things read this run, by kind: how many, how big, time reading them from storage and time parsing them
   var store = {
     get: function (k) {

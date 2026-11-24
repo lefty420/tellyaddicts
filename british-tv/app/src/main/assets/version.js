@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.93",
-  "version": "0.53.93",
-  "code": 5393,
+  "name": "Alpha 0.53.94",
+  "version": "0.53.94",
+  "code": 5394,
   "date": "2026-11-24",
   "notes": [
-    "**A debrid \"Something went wrong\" clip now moves on to the next link.** When a link has gone bad, the service plays a short video saying so instead of giving an error, so the app thought it had worked. An addon source under 45 seconds long is now treated as failed and the next link in the addon's list is tried, then the library."
+    "**The log now says what is saved of your show picks.** Each start writes a SAVED PICKS line (how many \"Choose the right show\" and artwork choices are in storage, and which). It is there to find out why a pick, such as Mighty Morphin Power Rangers renamed to Power Rangers, would not survive a restart."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.93",
+      "date": "2026-11-24",
+      "notes": [
+        "**A debrid \"Something went wrong\" clip now moves on to the next link.** When a link has gone bad, the service plays a short video saying so instead of giving an error, so the app thought it had worked. An addon source under 45 seconds long is now treated as failed and the next link in the addon's list is tried, then the library."
+      ]
+    },
     {
       "name": "Alpha 0.53.92",
       "date": "2026-11-24",
@@ -58,13 +65,6 @@ window.RELEASE = {
       "notes": [
         "**Back while playing no longer rebuilds On Demand.** The log showed the page taking 6 to 25 seconds to draw after Back. On Demand is now only hidden while something plays, so Back just shows it again exactly as you left it (same row, same show) and refreshes Continue watching a few seconds later when you are idle.",
         "**The old blue bar stays away in On Demand.** It no longer pops up when an On Demand video loads; the On Demand bar is the only one."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.85",
-      "date": "2026-11-24",
-      "notes": [
-        "**Back while playing: the freeze should be gone.** The log showed no background job in front of it, so the time was spent reading On Demand's saved lists while the player was still decoding. Back now puts up On Demand as it was last drawn at once, pauses the picture, and works out the page a quarter of a second later."
       ]
     }
   ]

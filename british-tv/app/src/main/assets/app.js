@@ -6944,6 +6944,7 @@
     closeOsd();
     scrubT = null;
     try { v.pause(); } catch (e) { /* nothing playing */ }
+    if (odHomeMode()) { osdStopped = false; odOpenUi(true); toast('Stopped', 1500); return; }      // On Demand is home: stopping lands there, not in the guide
     openGuide();
     osdStopped = guideOpen;
     toast('Stopped', 1500);
@@ -7154,7 +7155,7 @@
     else if (k === 'MediaPlay') { v.play(); }
     else if (k === 'MediaPause') { v.pause(); toast('Paused', 1500); }
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {          // watching: Back goes to the TV guide, or to On Demand when On Demand is home and this was picked there
-      if (odHomeMode() && cur && cur.od) odOpenUi(); else openGuide();
+      if (odHomeMode()) odOpenUi(!(cur && cur.od)); else openGuide();
     }
     else handled = false;
 

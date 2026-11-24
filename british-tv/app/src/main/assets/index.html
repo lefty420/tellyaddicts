@@ -1240,6 +1240,7 @@
   html:not(.phone) #odside { display: none; }
   html:not(.phone) #odbar { top: calc(3.6 * var(--u)); justify-content: space-between; }
   html:not(.phone) #od:not(.odtop) #odhero { top: calc(11 * var(--u)); }
+  html:not(.phone) #od.odtop #odhero { top: auto; bottom: calc(45 * var(--u)); }       /* the big hero grows upward from just above the first row, so a long title can never run into it */
   html:not(.phone) #od:not(.odtop) #odbg { height: calc(56 * var(--u)); }
   html:not(.phone) #od:not(.odtop) #odrows { top: calc(33 * var(--u)); }
   html:not(.phone) #od:not(.odtop) #odh1 { font-size: calc(6.5 * var(--u)); -webkit-line-clamp: 1; }

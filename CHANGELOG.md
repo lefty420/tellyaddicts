@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.81 — 2026-11-24
+- **Stopping a show with On Demand as home goes to On Demand,** not the TV guide. Back while watching also goes to On Demand, so Back from the guide is never the first of two quick presses that asks to quit.
+- **The big hero on the On Demand home no longer runs into the first row** (On now). It now sits just above the row and grows upward.
+
 ## Alpha 0.53.80 — 2026-11-24
 - **No loading screen at launch when On Demand is home.** The channels still load in the background, but the screen with the animated TV and static is not shown, and its pictures are not fetched. If you open the TV guide before every channel is in, that loading screen appears over the guide until they are.
 

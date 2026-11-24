@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.2",
-  "version": "0.54.2",
-  "code": 5402,
+  "name": "Alpha 0.54.3",
+  "version": "0.54.3",
+  "code": 5403,
   "date": "2026-11-24",
   "notes": [
-    "**New Experimental option: On Demand seasonal themes.** Options > Experimental > On Demand seasonal themes (Auto or Off) draws the guide's Christmas snow, drifts and Santa's plough over On Demand, from 1 November to 6 January. It is off while a video plays behind the home page."
+    "**Poster rows fill the row exactly.** The seven posters are sized to the row's width (12.1 wide) so none is cut off at the edge, and the sliding step matches."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.2",
+      "date": "2026-11-24",
+      "notes": [
+        "**New Experimental option: On Demand seasonal themes.** Options > Experimental > On Demand seasonal themes (Auto or Off) draws the guide's Christmas snow, drifts and Santa's plough over On Demand, from 1 November to 6 January. It is off while a video plays behind the home page."
+      ]
+    },
     {
       "name": "Alpha 0.54.1",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The last poster in a row is no longer cut off.** Ten posters (and five Live now cards) were slightly wider than the space the row has, so the one at the right edge was cropped, on the Kids and Films rows and the rest. The posters are a little narrower so every row fits."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.94",
-      "date": "2026-11-24",
-      "notes": [
-        "**The log now says what is saved of your show picks.** Each start writes a SAVED PICKS line (how many \"Choose the right show\" and artwork choices are in storage, and which). It is there to find out why a pick, such as Mighty Morphin Power Rangers renamed to Power Rangers, would not survive a restart."
       ]
     }
   ]

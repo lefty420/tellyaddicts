@@ -8121,7 +8121,7 @@
           else { for (i2 = 0; i2 < -dd; i2++) cont.removeChild(cont.lastChild); for (i2 = odDom[wi].start - 1; i2 >= x.start; i2--) cont.insertBefore(mk(i2), cont.firstChild); }
           rowIsCw = false; odDecOn = false; odCardRid = '';
           odDom[wi].start = x.start; odDom[wi].sel = -1; old = -1;
-          odSlide(cont.children, dd * (x.c.id === '_on' ? 18.4 : 12.6), 'vw');
+          odSlide(cont.children, dd * (x.c.id === '_on' ? 18.4 : 13.1), 'vw');
         }
         if (old !== now) {
           if (cards[old]) cards[old].classList.remove('sel');
@@ -8167,7 +8167,7 @@
       // moving along a row slides the posters across by the distance moved instead of jumping
       want.forEach(function (x, wi) {
         var o = prevDom[wi], d = o && o.c === x.c && o.sh === x.sh && o.gen === odKGen ? x.start - o.start : 0;
-        if (d) odSlide(box.children[wi].lastChild.children, d * (x.c.id === '_on' ? 18.4 : 12.6), 'vw');
+        if (d) odSlide(box.children[wi].lastChild.children, d * (x.c.id === '_on' ? 18.4 : 13.1), 'vw');
       });
     }
     odZoomArm();

@@ -270,17 +270,22 @@ final class YoutubeResolver {
             return "";
         }
         StringBuilder b = new StringBuilder();
+        int failed = 0;
         synchronized (m) {
-            if (!m.containsKey("NewPipe")) {
-                b.append("NewPipe: had not answered yet");
-            }
+            String np = m.get("NewPipe");
+            b.append("NewPipe: ").append(np == null ? "had not answered yet" : np);
             for (Map.Entry<String, String> e : m.entrySet()) {
-                if (b.length() > 0) {
-                    b.append("; ");
+                if (e.getKey().equals("NewPipe")) {
+                    continue;
                 }
-                b.append(e.getKey()).append(": ").append(e.getValue());
+                if (e.getValue().startsWith("failed")) {
+                    failed++;
+                } else {
+                    b.append("; ").append(e.getKey()).append(": ").append(e.getValue());
+                }
             }
         }
+        b.append("; ").append(failed).append(" other servers failed");
         return b.toString();
     }
 

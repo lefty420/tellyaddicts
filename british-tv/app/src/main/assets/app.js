@@ -2228,6 +2228,7 @@
     return out;
   }
   /** One show at a time, a moment apart: look up every show in the guides that has no kept episode list yet. */
+  var veWaiting = false;
   function veFill() {
     if (veRun || !depgActive()) return;
     var seen = {}, todo = [];
@@ -4264,6 +4265,7 @@
     SEASONS.hat(want ? SEASONS.current() : null);
   }
   function openGuide() {
+    if (veWaiting) { veWaiting = false; setTimeout(veFill, 8000); }
     closeOsd();
     gOdSet(false);
     var list = guideList();
@@ -7113,7 +7115,7 @@
       else if (k === 'Enter' || k === ' ') watchFromGuide();
       else if (k === 'Blue') watchFromGuide();
       // in the guide: Back goes back to what is playing; with nothing playing, Back twice leaves the app
-      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { if (cur) guideBack(); else pressBackToExit(); }
+      else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { if (odHomeMode()) odOpenUi(true); else if (cur) guideBack(); else pressBackToExit(); }
       else if (k === 'Guide') guideBack();
       else if (k === 'Info') gmOpen();
       else handled = false;
@@ -9519,7 +9521,7 @@
         renderStatus();
         odChannelLanded(finished === channels.length);
         if (finished === channels.length) setTimeout(seedLinks, 4000);
-        if (finished === channels.length) setTimeout(veFill, 30000);
+        if (finished === channels.length) { if (expOn && startOdOn) veWaiting = true; else setTimeout(veFill, 30000); }       // On Demand is home: the guide's episode look-ups wait until the guide is opened
         if (finished === channels.length) setTimeout(artScanStart, 60000);
         if (finished === channels.length) setTimeout(odWarm, 4000);
         if (finished === channels.length) setTimeout(ytWarm, 20000);

@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.79 — 2026-11-24
+- **Back from the TV guide returns to On Demand home** when On Demand is the start-up setting, instead of dropping to the picture or asking to quit.
+- **The guide's episode look-ups wait until the guide is opened** when On Demand is home. They used to start 30 seconds after launch whatever was on screen.
+
 ## Alpha 0.53.78 — 2026-11-24
 - **The artwork look-up no longer freezes On Demand.** Working out which shows still need artwork took a 3.6 second freeze on the Shield. It now waits until On Demand is closed and no button has been pressed for 6 seconds, and does the work a few dozen names at a time.
 

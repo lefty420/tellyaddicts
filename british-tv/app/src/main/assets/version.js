@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.10",
-  "version": "0.54.10",
-  "code": 5410,
+  "name": "Alpha 0.54.11",
+  "version": "0.54.11",
+  "code": 5411,
   "date": "2026-11-24",
   "notes": [
-    "**Snow builds up at the foot of On Demand again, and Santa's plough has something to clear.** The dark strip behind the hint line (added in 0.54.6) was covering the drifts and the plough. While the snow is on, the strip is gone and the posters just fade out above the hint line."
+    "**No key-hint line along the bottom of On Demand** (\"Next show, OK Play, Hold OK More info…\"). It is gone, so the foot of the screen is clear for the snow drifts too."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.10",
+      "date": "2026-11-24",
+      "notes": [
+        "**Snow builds up at the foot of On Demand again, and Santa's plough has something to clear.** The dark strip behind the hint line (added in 0.54.6) was covering the drifts and the plough. While the snow is on, the strip is gone and the posters just fade out above the hint line."
+      ]
+    },
     {
       "name": "Alpha 0.54.9",
       "date": "2026-11-24",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Poster rows fill the row exactly.** The seven posters are sized to the row's width (12.1 wide) so none is cut off at the edge, and the sliding step matches."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.2",
-      "date": "2026-11-24",
-      "notes": [
-        "**New Experimental option: On Demand seasonal themes.** Options > Experimental > On Demand seasonal themes (Auto or Off) draws the guide's Christmas snow, drifts and Santa's plough over On Demand, from 1 November to 6 January. It is off while a video plays behind the home page."
       ]
     }
   ]

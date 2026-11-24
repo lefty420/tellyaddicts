@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.11 — 2026-11-24
+- **No key-hint line along the bottom of On Demand** ("Next show, OK Play, Hold OK More info…"). It is gone, so the foot of the screen is clear for the snow drifts too.
+
 ## Alpha 0.54.10 — 2026-11-24
 - **Snow builds up at the foot of On Demand again, and Santa's plough has something to clear.** The dark strip behind the hint line (added in 0.54.6) was covering the drifts and the plough. While the snow is on, the strip is gone and the posters just fade out above the hint line.
 

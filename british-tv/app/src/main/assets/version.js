@@ -1,14 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.76",
-  "version": "0.53.76",
-  "code": 5376,
-  "date": "2026-11-23",
+  "name": "Alpha 0.53.77",
+  "version": "0.53.77",
+  "code": 5377,
+  "date": "2026-11-24",
   "notes": [
-    "**The film page has a row of other films.** A film in a series (when the scraper supplies `col`) shows the series, oldest first, with \"This film\" marked; any other film shows \"More like this\", scored on shared cast, genres and year. OK opens that film's page, and Back returns to the previous film with the same card focused (up to 5 deep); hold OK opens the film menu. The poster is bigger, with a certificate chip, runtime as `1h 39m` and a \"Starring\" line. With no row the cast is listed under the poster, and with no cast the poster and text are centred."
+    "**On Demand moves lighter.** Moving along a row now swaps only the card that left and the card that came in instead of rebuilding the row, and moving Up or Down keeps the row that stays on screen and builds only the new one. The press costs a few cards, not sixteen.",
+    "**Episode names wait for a quiet moment.** The background name check starts a show only after 2.5 seconds with no button pressed, and saves its result only after 1.5 seconds of quiet, so it no longer lands between two presses.",
+    "The ad-break channel is left out of On Demand, so its (empty) list is no longer built."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.76",
+      "date": "2026-11-23",
+      "notes": [
+        "**The film page has a row of other films.** A film in a series (when the scraper supplies `col`) shows the series, oldest first, with \"This film\" marked; any other film shows \"More like this\", scored on shared cast, genres and year. OK opens that film's page, and Back returns to the previous film with the same card focused (up to 5 deep); hold OK opens the film menu. The poster is bigger, with a certificate chip, runtime as `1h 39m` and a \"Starring\" line. With no row the cast is listed under the poster, and with no cast the poster and text are centred."
+      ]
+    },
     {
       "name": "Alpha 0.53.75",
       "date": "2026-11-23",
@@ -58,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**YouTube prefers the sharper stream when there is one.** The servers were all asked at once and the first answer won, which could be a soft 288p file (Telly Addicts S06E04). An answer of 720p or better is still used at once. A softer one now waits up to 3 s for the other servers, and a sharper answer from any of them is used; if none comes, the soft one plays as before, so nothing that plays today stops playing. The server picked this way is the one asked first next time."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.68",
-      "date": "2026-11-23",
-      "notes": [
-        "**More on the On Demand home screen.** Four new rows: **A bit of everything** (60 shows and films picked from across the library, shuffled once a day), **Throwback telly** (70s, 80s and 90s TV, cartoons and sitcoms mixed), **Sci-fi and fantasy** and **Thrillers and horror** (each mixing TV and films). Drama stays first so the first genre row still appears quickly. The TV, Films and Kids chips show the rows that fit them."
       ]
     }
   ]

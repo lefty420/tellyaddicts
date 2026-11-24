@@ -1131,6 +1131,8 @@
   function quiet() { return channels.every(function (c) { return c.status !== 'loading'; }); }
   /** Someone is pressing buttons right now: background work waits so it never makes the screen stutter. */
   function userBusy() { return Date.now() - lastKeyAt < 900; }
+  /** Resolves once no button has been pressed for ms: heavy background steps wait here so they never land between two presses. */
+  function idleFor(ms) { return new Promise(function (r) { (function chk() { if (Date.now() - lastKeyAt >= ms) r(); else setTimeout(chk, 400); })(); }); }
   /** progsFromData for a long list, in small slices with a breath between them (and a longer wait while a button is
    *  being pressed), so building a big channel in the background cannot freeze the screen for a second. */
   function progsFromDataSliced(items, channelId, everything) {
@@ -1361,7 +1363,7 @@
           });
           return map;
         });
-      }).then(function (map) { store.set(key, { t: Date.now(), eps: map }); return map; },
+      }).then(function (map) { return idleFor(1500).then(function () { store.set(key, { t: Date.now(), eps: map }); return map; }); },
               function () { return undefined; });   // network trouble: try again next time, cache nothing
     });
     tvmChain = job.then(function () { return wait(500); }, function () { return wait(500); });
@@ -1377,7 +1379,7 @@
     if (enrichRun) return;
     enrichRun = true;
     (function next() {
-      if (!started || userBusy()) { setTimeout(next, 1000); return; }
+      if (!started || Date.now() - lastKeyAt < 2500) { setTimeout(next, 1000); return; }
       var j = enrichQ.shift();
       if (!j) { enrichRun = false; return; }
       enrichNames(j[0], j[1]).then(function () { setTimeout(next, 50); }, function () { setTimeout(next, 50); });
@@ -1397,7 +1399,7 @@
     var keys = Object.keys(byShow);
     var changed = false;
     return keys.reduce(function (chain, k) {
-      return chain.then(function () { return new Promise(function (r) { setTimeout(r, odOpen ? Math.max(1200, nameLast * 8) : Date.now() - lastKeyAt < 5000 ? 1500 : cur && !v.paused ? Math.max(250, nameLast * 8) : Math.max(40, nameLast * 4)); }); }).then(function () {      // a breath between shows (four times as long as the last one took, so the picture and the snow keep drawing), longer while a button is pressed
+      return chain.then(function () { return idleFor(2500); }).then(function () { return new Promise(function (r) { setTimeout(r, odOpen ? Math.max(1200, nameLast * 8) : Date.now() - lastKeyAt < 5000 ? 1500 : cur && !v.paused ? Math.max(250, nameLast * 8) : Math.max(40, nameLast * 4)); }); }).then(function () {      // a breath between shows (four times as long as the last one took, so the picture and the snow keep drawing), longer while a button is pressed
         var tq = performance.now();
         return tvmEpisodes(byShow[k].show).then(function (map) {
           var tr = performance.now();
@@ -7148,7 +7150,7 @@
   var OD_EPS = 6;
   var OD_SEA = 6;           // seasons listed down the left at once
   var odSb = false;         // the Search pill in the header has the highlight           // episodes on screen at once
-  var OD_SKIP = { xmasmusic: 1, tvarchive: 1 };         // songs and dated clips are not shows
+  var OD_SKIP = { xmasmusic: 1, tvarchive: 1, adbreak: 1 };         // songs and dated clips are not shows
   var OD_FILMS = { kidsmovies: 1, videoshop: 1, xmasmovies: 1, mc_action: 1, mc_horror: 1, mc_scifi_movies: 1, mc_comedy_movies: 1, mc_thriller: 1, mc_drama_movies: 1 };       // the film channels: each film is its own one-video title
   function odChannels() {
     return guideList().filter(function (c) { return c.status === 'ready' && !OD_SKIP[c.id]; });
@@ -7983,11 +7985,22 @@
       want.push({ ri: ri, c: c, sh: sh, pos: pos, start: start, n: n, vis: vis });
     }
     var same = odDom.length === want.length && box.children.length === want.length;
-    for (var w = 0; same && w < want.length; w++) same = odDom[w].c === want[w].c && odDom[w].sh === want[w].sh && odDom[w].start === want[w].start && odDom[w].n === want[w].n && odDom[w].gen === odKGen;
-    if (same) {                                   // cheap path: move the highlight, touch nothing else
+    for (var w = 0; same && w < want.length; w++) same = odDom[w].c === want[w].c && odDom[w].sh === want[w].sh && odDom[w].n === want[w].n && odDom[w].gen === odKGen && Math.abs(odDom[w].start - want[w].start) < want[w].vis;
+    if (same) {                                   // cheap path: move the highlight; moving along a row changes only the card that left and the one that came in
       want.forEach(function (x, wi) {
-        var cards = box.children[wi].lastChild.children, old = odDom[wi].sel, now = x.ri === odRi && inRows && x.n ? x.pos - x.start : -1;
+        var cont = box.children[wi].lastChild, cards = cont.children, old = odDom[wi].sel, now = x.ri === odRi && inRows && x.n ? x.pos - x.start : -1;
         var sp = box.children[wi].firstChild.lastChild; if (x.sh && sp && sp.tagName === 'SPAN') sp.textContent = odCount(x);
+        var dd = x.start - odDom[wi].start;
+        if (dd && x.sh) {
+          rowIsCw = x.c === cwPseudo; odDecOn = x.c === srPseudo;
+          var mk = function (i) { return x.c.id === '_on' ? odOnCard(x.sh[i], false) : odCard(x.sh[i], false); }, i2;
+          for (var q0 = 0; q0 < cards.length; q0++) cards[q0].classList.remove('sel');
+          if (dd > 0) { for (i2 = 0; i2 < dd; i2++) cont.removeChild(cont.firstChild); for (i2 = odDom[wi].start + x.vis; i2 < x.start + x.vis && i2 < x.n; i2++) cont.appendChild(mk(i2)); }
+          else { for (i2 = 0; i2 < -dd; i2++) cont.removeChild(cont.lastChild); for (i2 = odDom[wi].start - 1; i2 >= x.start; i2--) cont.insertBefore(mk(i2), cont.firstChild); }
+          rowIsCw = false; odDecOn = false;
+          odDom[wi].start = x.start; odDom[wi].sel = -1; old = -1;
+          odSlide(cont.children, dd * (x.c.id === '_on' ? 18.6 : 9.3), 'vw');
+        }
         if (old !== now) {
           if (cards[old]) cards[old].classList.remove('sel');
           if (cards[now]) cards[now].classList.add('sel');
@@ -7995,11 +8008,21 @@
         }
       });
     } else {
-      var prevDom = odDom;
+      var prevDom = odDom, oldNodes = Array.prototype.slice.call(box.children);
       box.textContent = '';
       odDom = [];
       var frag = document.createDocumentFragment();
       want.forEach(function (x) {
+        var reuse = null;                                   // a row that was already on screen keeps its cards: Up and Down build only the row that comes in
+        if (x.sh) for (var pr = 0; pr < prevDom.length && !reuse; pr++) { var o0 = prevDom[pr]; if (o0.c === x.c && o0.sh === x.sh && o0.start === x.start && o0.n === x.n && o0.gen === odKGen && oldNodes[pr]) reuse = oldNodes[pr]; }
+        if (reuse) {
+          var rc = reuse.lastChild.children, rn = x.ri === odRi && inRows && x.n ? x.pos - x.start : -1;
+          for (var q1 = 0; q1 < rc.length; q1++) rc[q1].classList.toggle('sel', q1 === rn);
+          var rsp = reuse.firstChild.lastChild; if (rsp && rsp.tagName === 'SPAN') rsp.textContent = odCount(x);
+          frag.appendChild(reuse);
+          odDom.push({ c: x.c, sh: x.sh, start: x.start, n: x.n, gen: odKGen, sel: rn });
+          return;
+        }
         var row = odEl('div', 'odrow'), h = odEl('h3', '', x.c.name);
         if (x.sh) h.appendChild(odEl('span', '', odCount(x)));
         row.appendChild(h);

@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.77 — 2026-11-24
+- **On Demand moves lighter.** Moving along a row now swaps only the card that left and the card that came in instead of rebuilding the row, and moving Up or Down keeps the row that stays on screen and builds only the new one. The press costs a few cards, not sixteen.
+- **Episode names wait for a quiet moment.** The background name check starts a show only after 2.5 seconds with no button pressed, and saves its result only after 1.5 seconds of quiet, so it no longer lands between two presses.
+- The ad-break channel is left out of On Demand, so its (empty) list is no longer built.
+
 ## Alpha 0.53.76 — 2026-11-23
 - **The film page has a row of other films.** A film in a series (when the scraper supplies `col`) shows the series, oldest first, with "This film" marked; any other film shows "More like this", scored on shared cast, genres and year. OK opens that film's page, and Back returns to the previous film with the same card focused (up to 5 deep); hold OK opens the film menu. The poster is bigger, with a certificate chip, runtime as `1h 39m` and a "Starring" line. With no row the cast is listed under the poster, and with no cast the poster and text are centred.
 

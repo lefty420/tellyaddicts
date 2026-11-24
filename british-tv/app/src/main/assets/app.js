@@ -5410,6 +5410,7 @@
         try { v.pause(); } catch (e) { /* nothing playing */ }
         toast('No source found for ' + prog.title, 4000);
         odOpenUi(true);
+        try { if (ch && odChannels().indexOf(ch) >= 0) odJump(ch, prog); } catch (e) { /* stays on the On Demand home */ }
         return;
       }
       amNoteOff('Moving on to the next programme\u2026');

@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.17 — 2026-11-24
+- **NewPipe now sends YouTube's consent cookie.** The first test of 0.54.15 reached YouTube but failed with "Could not get ytInitialData", which is what the consent page looks like to the extractor in the UK. Needs a new build (Java). Also includes the 0.54.16 change below.
+
+## Alpha 0.54.16 — 2026-11-24
+- **An episode with no source now stays on its show page.** Pressing an episode that no addon, archive.org or YouTube copy could play showed "No source found" and then dropped you back to the top of On Demand. It now returns to the same show with the same episode highlighted. (S06E04 of Telly Addicts has no copy anywhere yet; that is a library gap for the scraper.)
+
 ## Alpha 0.54.15 — 2026-11-24
 - **YouTube is now asked directly, from the device, with the NewPipe extractor.** It is tried first; the public Piped and Invidious servers stay as the fall-back. This is a Java and build change: the first build needs to download the library (JitPack) and turns on core library desugaring. If the build fails on the new dependency, or YouTube stops working after a YouTube change, raise the version in app/build.gradle.kts to the newest NewPipeExtractor release. The debug log says "NewPipe" in the YouTube line when it was used.
 

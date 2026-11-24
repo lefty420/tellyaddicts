@@ -7,6 +7,7 @@ import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.downloader.Request;
 import org.schabi.newpipe.extractor.downloader.Response;
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
+import org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper;
 import org.schabi.newpipe.extractor.stream.AudioStream;
 import org.schabi.newpipe.extractor.stream.DeliveryMethod;
 import org.schabi.newpipe.extractor.stream.StreamInfo;
@@ -91,6 +92,7 @@ final class NewPipeSource {
     private static synchronized void init() {
         if (!started) {
             NewPipe.init(new Dl());
+            YoutubeParsingHelper.setConsentAccepted(true);      // UK and EU: without the consent cookie YouTube answers with a consent page ("Could not get ytInitialData")
             started = true;
         }
     }

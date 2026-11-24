@@ -1251,8 +1251,22 @@
   }
   /** A picture has loaded: if the screen is still on static, give it one. */
   function spFill() { if (!spEver && spSlots[0] && (spPics.length || spPosters.length)) spSurf(); }
+  /** On Demand is home: the loading screen with its animation is not shown at launch. It is shown when the guide is opened before every channel is in. */
+  var spGuide = false, spGuideT = null;
+  function guideSplashCheck() {
+    if (!(expOn && startOdOn) || spGuide) return;
+    var left = function () { return channels.filter(function (c) { return c.status === 'loading'; }).length; };
+    if (!left()) return;
+    spGuide = true; $('splash').className = ''; statusSig = ''; renderStatus();
+    if (spInited && !spSurfTimer) spSurfTimer = setInterval(spSurf, 1700);
+    clearInterval(spGuideT);
+    spGuideT = setInterval(function () {
+      renderStatus();
+      if (!left() || !guideOpen) { clearInterval(spGuideT); spGuide = false; $('splash').className = 'hidden'; clearInterval(spSurfTimer); spSurfTimer = null; }
+    }, 400);
+  }
   function renderStatus() {
-    if (started) return;           // the loading screen is gone: nothing to draw while the rest of the channels finish
+    if (started ? !spGuide : (expOn && startOdOn)) return;           // the loading screen is gone (and with On Demand as home it is only for the guide): nothing to draw while the rest of the channels finish
     var lines = channels.map(function (c) {
       var mark = c.status === 'ready' ? '✓' : c.status === 'empty' ? '–' : '…';
       return mark + '  ' + c.n + '  ' + c.name +
@@ -4295,6 +4309,7 @@
     $('banner').className = 'off';
     renderGuide();
     seasonUpdate();
+    guideSplashCheck();
     clearInterval(guideTimer);
     guideTimer = setInterval(function () {
       var t = Date.now();
@@ -9543,6 +9558,6 @@
   }
 
   var bootTimer = setInterval(function () { if (!started) { renderStatus(); begin(); } else clearInterval(bootTimer); }, 400);   // also lets the wait above time out
-  if (expOn && startOdOn) odSnapShow();
+  if (expOn && startOdOn) { odSnapShow(); $('splash').className = 'hidden'; }       // On Demand is home: no loading screen at launch
   startLoading();
 })();

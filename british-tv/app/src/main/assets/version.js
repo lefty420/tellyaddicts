@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.79",
-  "version": "0.53.79",
-  "code": 5379,
+  "name": "Alpha 0.53.80",
+  "version": "0.53.80",
+  "code": 5380,
   "date": "2026-11-24",
   "notes": [
-    "**Back from the TV guide returns to On Demand home** when On Demand is the start-up setting, instead of dropping to the picture or asking to quit.",
-    "**The guide's episode look-ups wait until the guide is opened** when On Demand is home. They used to start 30 seconds after launch whatever was on screen."
+    "**No loading screen at launch when On Demand is home.** The channels still load in the background, but the screen with the animated TV and static is not shown, and its pictures are not fetched. If you open the TV guide before every channel is in, that loading screen appears over the guide until they are."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.79",
+      "date": "2026-11-24",
+      "notes": [
+        "**Back from the TV guide returns to On Demand home** when On Demand is the start-up setting, instead of dropping to the picture or asking to quit.",
+        "**The guide's episode look-ups wait until the guide is opened** when On Demand is home. They used to start 30 seconds after launch whatever was on screen."
+      ]
+    },
     {
       "name": "Alpha 0.53.78",
       "date": "2026-11-24",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**Order of play is now fixed: addon, then archive, then YouTube.** With Magic EPG on, the addon is asked first, then the archive copy, then YouTube. With it off, the archive copy then YouTube. An archive copy that was the wrong length or an .mkv could previously score below a long, well-titled YouTube copy; now any archive copy is always tried before YouTube, which stays as the fall-back if the archive file will not play."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.71",
-      "date": "2026-11-23",
-      "notes": [
-        "**The big YouTube scrape shows up in On Demand.** On Demand's saved lists did not know the YouTube list had changed, so the new shows (1366 shows, 29,246 videos, 5.4 MB, up from 19 shows) would only have appeared when a list happened to be built again. Each channel's saved list now carries a stamp of its YouTube shows, the YouTube list is loaded quietly 20 s after start-up, and a channel whose YouTube shows changed is built again in the background. The log says `YOUTUBE: the list changed`. Expect a few slow minutes of background building the first time."
       ]
     }
   ]

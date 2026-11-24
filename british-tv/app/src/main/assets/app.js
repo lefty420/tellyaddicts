@@ -3091,6 +3091,7 @@
 
   function showBanner() {
     if (!cur) return;
+    if (cur.od || odHomeMode()) { $('banner').className = 'off'; return; }   // On Demand has its own bar; the old blue one stays away
     var sched = cur.ch.sched;
     var next = cur.od ? odPeek() : sched.order[(cur.index + 1) % sched.order.length];
     $('bnum').textContent = cur.ch.n;
@@ -9289,6 +9290,11 @@
     closeOsd();
     $('od').className = ''; v.muted = true;
     try { v.pause(); } catch (e) { /* nothing playing */ }
+    if (odPlaced && !odOpen) {          // On Demand was only hidden when the picture started: show it exactly as it was, build nothing
+      odPlaced = null; odOpen = true; odBusy = false; odFrom = 'watch';
+      setTimeout(function () { if (!odOpen) return; idleFor(4000).then(function () { if (odOpen && odView === 'home') { odRowsMemo = null; odRender(); } }); }, 3000);   // pick up Continue watching a little later
+      return;
+    }
     setTimeout(function () { if (odOpen) return; odOpenUi(true); odRestore(); }, 250);
   }
   /** Remember where On Demand was left when something starts playing, so Back puts it all back. */

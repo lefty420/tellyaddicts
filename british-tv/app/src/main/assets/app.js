@@ -8029,7 +8029,7 @@
       : nm ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Select'], ['Back', 'Browse']]
       : odZn === 'rail' ? [['\u25b2 \u25bc', 'Choose'], ['OK', 'Open'], ['Back', 'Close']]
       : odZn === 'chips' ? [['\u25c0 \u25b6', 'Choose'], ['OK', 'Select'], ['\u25bc', 'Down'], ['Back', 'Exit']]
-      : odZn === 'hero' ? [['\u25c0 \u25b6', 'Next show'], ['OK', 'Play'], ['Hold OK', 'More info'], ['\u25bc', 'Rows'], ['Back', 'Exit']]
+      : odZn === 'hero' ? [['\u25c0 \u25b6', 'Next show'], ['OK', odPip ? 'Video full screen' : 'Play'], ['Hold OK', 'More info'], ['\u25bc', 'Rows'], ['Back', 'Exit']]
       : [['\u25c0 \u25b6', 'Browse'], ['\u25b2 \u25bc', 'Rows'], ['OK', 'Open'], ['Hold OK', 'More'], ['Back', 'Top']];
     var ft = $('odfoot'); ft.textContent = '';
     hint.forEach(function (x) { var sp = odEl('span'); sp.appendChild(odEl('b', '', x[0])); sp.appendChild(document.createTextNode(' ' + x[1])); ft.appendChild(sp); });
@@ -8194,7 +8194,7 @@
     $('odh1').textContent = g ? g.name : (s.c ? s.c.name : '');
     odLogo($('odlogo'), $('odh1'), g);
     var hb = $('odhb'); hb.textContent = '';
-    if (top && g && !g.onnow) { hb.appendChild(odEl('div', 'odb' + (odZn === 'hero' ? ' sel' : ''), '\u25b6  Play')); hb.appendChild(odEl('div', 'odb', '\u24d8  More info   (hold OK)')); }
+    if (top && g && !g.onnow) { hb.appendChild(odEl('div', 'odb' + (odZn === 'hero' ? ' sel' : ''), odPip ? '\u25b6  Back to the video (full screen)' : '\u25b6  Play')); hb.appendChild(odEl('div', 'odb', '\u24d8  More info   (hold OK)')); }
     if (top && g && !g.onnow) { var cert = odCertOf(g), mm = $('odm'); mm.textContent = ''; if (g.art && g.art.n && !g.film) mm.appendChild(odEl('span', 'odbug', g.art.n)); if (cert) mm.appendChild(odEl('span', 'odcert', cert)); mm.appendChild(document.createTextNode(odHeroMeta(g))); }
     else $('odm').textContent = g ? (g.onnow ? 'Live now on ' + g.chan.name : (odInfoLine(g) || (g.chan ? g.chan.name : (s.c && s.c.name) || ''))) : '';
     $('odp').textContent = g ? (odDesc(g) || (g.film || g.onnow ? '' : (g.stub ? g.nEps : g.eps.length) + ((g.stub ? g.nEps : g.eps.length) === 1 ? ' video' : ' videos'))) : '';

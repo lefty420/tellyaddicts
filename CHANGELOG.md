@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.22 — 2026-11-24
+- **The way back to the small video is now on screen.** While a video plays small, the big button at the top reads "Back to the video (full screen)" and OK on it takes the video full screen. The hint line says the same. JavaScript only.
+
 ## Alpha 0.54.21 — 2026-11-24
 - **More pictures on the loading screen.** Early on only a couple of backdrops had finished loading, and the screen flicked between those. Until ten backdrops are in, the posters now join the pool, so there is more to tune through. The debug log gets a "SPLASH:" line at 3 s and 8 s after launch saying how many pictures had loaded, so if it is still only two we can see whether the pictures or the loading is the problem. JavaScript only.
 

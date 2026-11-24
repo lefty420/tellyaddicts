@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.21",
-  "version": "0.54.21",
-  "code": 5421,
+  "name": "Alpha 0.54.22",
+  "version": "0.54.22",
+  "code": 5422,
   "date": "2026-11-24",
   "notes": [
-    "**More pictures on the loading screen.** Early on only a couple of backdrops had finished loading, and the screen flicked between those. Until ten backdrops are in, the posters now join the pool, so there is more to tune through. The debug log gets a \"SPLASH:\" line at 3 s and 8 s after launch saying how many pictures had loaded, so if it is still only two we can see whether the pictures or the loading is the problem. JavaScript only."
+    "**The way back to the small video is now on screen.** While a video plays small, the big button at the top reads \"Back to the video (full screen)\" and OK on it takes the video full screen. The hint line says the same. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.21",
+      "date": "2026-11-24",
+      "notes": [
+        "**More pictures on the loading screen.** Early on only a couple of backdrops had finished loading, and the screen flicked between those. Until ten backdrops are in, the posters now join the pool, so there is more to tune through. The debug log gets a \"SPLASH:\" line at 3 s and 8 s after launch saying how many pictures had loaded, so if it is still only two we can see whether the pictures or the loading is the problem. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.20",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The YouTube error in the debug log now says what the live server lists gave** (how many servers, or why they could not be fetched). In 0.54.13 the failed play listed only the built-in servers, so the live lists added nothing and I could not tell why. No change to how YouTube plays. Needs a new build (Java)."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.13",
-      "date": "2026-11-24",
-      "notes": [
-        "**YouTube asks the current list of servers.** Playing a YouTube video failed because every server in the app's fixed list was down or refusing. The app now fetches the Piped and Invidious projects' live lists (at most every six hours) and tries the healthiest ones first, keeping the built-in list as a fall-back. If those lists cannot be fetched, nothing changes. Needs a new build of the app (Java change)."
       ]
     }
   ]

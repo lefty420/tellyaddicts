@@ -7328,11 +7328,12 @@
       if (!sh || !sh.videos || (chId && (sh.channel || 'gameshows') !== chId && !(names && names[LIBROUTE.norm(name)]))) return;
       var show = name === name.toLowerCase() ? name.replace(/\b[a-z]/g, function (m) { return m.toUpperCase(); }) : name;
       sh.videos.forEach(function (x) {
-        if (!x || !x.id || !(x.dur > 120) || ytDead[x.id] || YT_JUNK.test(x.title || '') || ytLate(x)) return;
-        var se = ytSE(x), sn = se.s, ep = se.e, coded = sn > 0 && ep > 0;
-        var et = x.epTitle && !/^(?:episode|show|series \d+,? show)\s*\d*$/i.test(x.epTitle) ? ' ' + x.epTitle : '';
+        if (!x || !x.id || !(x.dur > 120) || x.skip || ytDead[x.id] || YT_JUNK.test(x.title || '') || ytLate(x)) return;      // skip: the scraper says it is a loop, a radio play or a clip, not an episode
+        var sure = x.conf === 'high' || x.conf === 'medium';           // the scraper's match to an episode; a low or missing score is not trusted
+        var se = ytSE(sure ? x : { title: x.title }), sn = se.s, ep = se.e, coded = sn > 0 && ep > 0;
+        var et = sure && x.epTitle && !/^(?:episode|show|series \d+,? show)\s*\d*$/i.test(x.epTitle) ? ' ' + x.epTitle : '';
         out.push({ id: 'yt/' + x.id, item: 'yt', url: 'yt:' + x.id, title: coded ? show + ' S' + pad2(sn) + 'E' + pad2(ep) + et : (x.title || show),
-          sub: '', dur: x.dur, lenKnown: 1, show: show, group: show, aired: ytAired(x), yt: 1, by: x.by || '', ytTitle: x.title || '' });
+          sub: '', dur: x.dur, lenKnown: 1, show: show, group: show, aired: sure ? ytAired(x) : '', yt: 1, ytLong: x.kind === 'long' ? 1 : 0, by: x.by || '', ytTitle: x.title || '' });
       });
     });
     return out;
@@ -7366,7 +7367,7 @@
       if (ep.s > 0) { (by[ep.s] = by[ep.s] || []).push(ep); return; }
       if (ep.p.yt) {                          // an upload with no season number but a year: it sits in that year with the rest of the show, not in a list of its own
         var yr = /^(?:19|20)\d\d/.exec(String(ep.p.aired || '')) || /\b(19[5-9]\d|200\d)\b/.exec(ep.p.ytTitle || '');
-        if (yr && +yr[0] <= ERA_END) { (by[+yr[0]] = by[+yr[0]] || []).push(ep); return; }
+        if (yr && +yr[0] <= ERA_END && !ep.p.ytLong) { (by[+yr[0]] = by[+yr[0]] || []).push(ep); return; }       // a two-hour special or a volume is not an episode of that year
         otherYt.push(ep);
       } else other.push(ep);
     });

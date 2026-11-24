@@ -49,6 +49,13 @@ window.RELEASE = {
       ]
     },
     {
+      "name": "Alpha 0.54.6",
+      "date": "2026-11-24",
+      "notes": [
+        "**YouTube videos use the scraper's new match scores.** Videos the scraper marks as loops, radio plays or clips are hidden. An episode number is trusted only when the match is high or medium; otherwise the video is placed from its own title, or goes under More from YouTube. Two-hour specials and volumes always go under More from YouTube."
+      ]
+    },
+    {
       "name": "Alpha 0.54.5",
       "date": "2026-11-24",
       "notes": [
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The On Demand loading screen tunes in properly.** The green bar now moves along with the time and fills when everything is ready (before, it jumped because On Demand opens after two channels). The screen stays up for at least five seconds, and a new picture tunes in about every 0.9 s (was 1.7 s), each after a burst of static."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.3",
-      "date": "2026-11-24",
-      "notes": [
-        "**Poster rows fill the row exactly.** The seven posters are sized to the row's width (12.1 wide) so none is cut off at the edge, and the sliding step matches."
       ]
     }
   ]

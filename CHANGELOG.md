@@ -29,6 +29,9 @@ hurry gets a third number, `Alpha 0.1.1`.
 - **A show's title picture is the size of its title.** On the home screen a small logo picture used to show as a tiny speck where the title should be. It is now scaled to the title's height, both on the big hero and when the hero shrinks as you move down to a row.
 - **The "Next 18:17 ..." line on the On now cards is bigger** and clear of the progress bar.
 
+## Alpha 0.54.6 — 2026-11-24
+- **YouTube videos use the scraper's new match scores.** Videos the scraper marks as loops, radio plays or clips are hidden. An episode number is trusted only when the match is high or medium; otherwise the video is placed from its own title, or goes under More from YouTube. Two-hour specials and volumes always go under More from YouTube.
+
 ## Alpha 0.54.5 — 2026-11-24
 - **A highlighted poster is no longer cut off at the bottom.** Each row now keeps room under its posters for the highlight outline and the slight enlargement.
 

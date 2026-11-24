@@ -7650,7 +7650,11 @@
   /** The Continue watching row, or null when there is nothing in it. It reuses the shows of the channel lists
    *  (so posters and details come for free); a show whose channel list is not built yet simply is not in it yet. */
   function odCwRow() {
-    var shows = [], sig = '';
+    var shows = [], sig = '', chs = null, wait = false;
+    cwGet().forEach(function (e) {
+      if (!odData[e.ch]) { chs = chs || odChannels(); if (chs.some(function (x) { return x.id === e.ch; })) wait = true; }
+    });
+    if (wait) return odData._cw && odData._cw.shows.length ? cwPseudo : null;      // some of its channels are still loading: the row is drawn once, complete, not a few posters at a time
     cwGet().forEach(function (e) {
       var rec = odData[e.ch], g = null;
       if (rec && rec.shows) for (var i = 0; i < rec.shows.length; i++) if (rec.shows[i].name === e.n) { g = rec.shows[i]; break; }

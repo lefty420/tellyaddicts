@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.0",
-  "version": "0.54.0",
-  "code": 5400,
+  "name": "Alpha 0.54.1",
+  "version": "0.54.1",
+  "code": 5401,
   "date": "2026-11-24",
   "notes": [
-    "**Seven posters per row, a little smaller, and the 5 second zoom is off.** Poster rows on the TV show 7 across (was 6). The highlighted poster no longer grows after a pause."
+    "**The TV loading screen is the splash when the app starts in On Demand.** It stays up while the channels load, then On Demand opens. The saved On Demand picture is no longer shown first."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.0",
+      "date": "2026-11-24",
+      "notes": [
+        "**Seven posters per row, a little smaller, and the 5 second zoom is off.** Poster rows on the TV show 7 across (was 6). The highlighted poster no longer grows after a pause."
+      ]
+    },
     {
       "name": "Alpha 0.53.99",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**A debrid \"Something went wrong\" clip now moves on to the next link.** When a link has gone bad, the service plays a short video saying so instead of giving an error, so the app thought it had worked. An addon source under 45 seconds long is now treated as failed and the next link in the addon's list is tried, then the library."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.92",
-      "date": "2026-11-24",
-      "notes": [
-        "**Menus wrap round.** Up from the first line goes to the last and Down from the last goes to the first in the hold-OK menus, the picture's pop-up lists (audio, subtitles and so on) and the channel list on the OSD. In that channel list, Left or Right now takes you back to the bar."
       ]
     }
   ]

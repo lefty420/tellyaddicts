@@ -1263,7 +1263,7 @@
   }
   /** A picture has loaded: if the screen is still on static, give it one. */
   function spFill() { if (!spEver && spSlots[0] && (spPics.length || spPosters.length)) spSurf(); }
-  /** On Demand is home: the loading screen with its animation is not shown at launch. It is shown when the guide is opened before every channel is in. */
+  /** The loading screen is the splash at launch, On Demand as home or not; it is shown again when the guide is opened before every channel is in. */
   var spGuide = false, spGuideT = null;
   function guideSplashCheck() {
     if (!(expOn && startOdOn) || spGuide) return;
@@ -1278,7 +1278,7 @@
     }, 400);
   }
   function renderStatus() {
-    if (started ? !spGuide : (expOn && startOdOn)) return;           // the loading screen is gone (and with On Demand as home it is only for the guide): nothing to draw while the rest of the channels finish
+    if (started && !spGuide) return;           // the loading screen is gone: nothing to draw while the rest of the channels finish (it is up at launch, and again if the guide is opened before every channel is in)
     var lines = channels.map(function (c) {
       var mark = c.status === 'ready' ? '✓' : c.status === 'empty' ? '–' : '…';
       return mark + '  ' + c.n + '  ' + c.name +
@@ -9748,6 +9748,5 @@
   }
 
   var bootTimer = setInterval(function () { if (!started) { renderStatus(); begin(); } else clearInterval(bootTimer); }, 400);   // also lets the wait above time out
-  if (expOn && startOdOn) { odSnapShow(); $('splash').className = 'hidden'; }       // On Demand is home: no loading screen at launch
   startLoading();
 })();

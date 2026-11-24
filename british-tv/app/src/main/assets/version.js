@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.87",
-  "version": "0.53.87",
-  "code": 5387,
+  "name": "Alpha 0.53.88",
+  "version": "0.53.88",
+  "code": 5388,
   "date": "2026-11-24",
   "notes": [
-    "**The video keeps playing when you press Back.** Back from a playing video now shrinks it into a small window at the top right of On Demand, with the sound still on, so you can carry on browsing. Press Back again and it goes full screen. Stop still stops it."
+    "**YouTube copies are part of the show now, not a separate list.** The season and episode are read from the video's title when the scraper left them out (\"S2 Ep1\", \"Series 3 Episode 4\"), so those videos land in their season and sit behind the archive.org copy of the same episode. A YouTube upload with no numbers but a year goes into that year instead of \"More from YouTube\". Because of this, On Demand's saved lists are built again once.",
+    "**Playing an episode now tries YouTube last.** The order for an episode with no file of its own is the addon, then archive.org, then the YouTube copy of that same season and episode."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.87",
+      "date": "2026-11-24",
+      "notes": [
+        "**The video keeps playing when you press Back.** Back from a playing video now shrinks it into a small window at the top right of On Demand, with the sound still on, so you can carry on browsing. Press Back again and it goes full screen. Stop still stops it."
+      ]
+    },
     {
       "name": "Alpha 0.53.86",
       "date": "2026-11-24",
@@ -60,14 +68,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**No loading screen at launch when On Demand is home.** The channels still load in the background, but the screen with the animated TV and static is not shown, and its pictures are not fetched. If you open the TV guide before every channel is in, that loading screen appears over the guide until they are."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.79",
-      "date": "2026-11-24",
-      "notes": [
-        "**Back from the TV guide returns to On Demand home** when On Demand is the start-up setting, instead of dropping to the picture or asking to quit.",
-        "**The guide's episode look-ups wait until the guide is opened** when On Demand is home. They used to start 30 seconds after launch whatever was on screen."
       ]
     }
   ]

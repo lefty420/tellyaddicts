@@ -5358,6 +5358,20 @@
   }
   var joinOn = store.get('join1') === 'on';
   var vSkips = 0;
+  /** The stored YouTube copy of one episode (show, season, episode), the likeliest good one first; null when there is none. */
+  function ytFind(ref) {
+    return ytLoad().then(function (data) {
+      var want = LIBROUTE.norm(ref.show || ''), best = null, bs = -1e9;
+      ytProgs(data, null).forEach(function (p) {
+        if (LIBROUTE.norm(p.show || '') !== want) return;
+        var r = window.LINKS && LINKS.parseEp(p.title);
+        if (!r || r.s !== ref.s || r.e !== ref.e) return;
+        var sc = copyScore(p, 0);
+        if (sc > bs) { bs = sc; best = p; }
+      });
+      return best;
+    });
+  }
   /** A virtual episode no addon had: remember that, and go to the next programme (a real one after a few misses in a row). */
   function vMiss(ch, index, prog, announce) {
     var me = cur, skip = function () {
@@ -5380,6 +5394,21 @@
     // no addon had it: archive.org may (the same lookup Play Next uses, for this exact episode)
     var ref = window.LINKS && LINKS.parseEp(prog.title);
     if (!ref) { skip(); return; }
+    var skipAr = skip;
+    skip = function () {                                         // addon, then archive.org, then YouTube
+      if (cur !== me) return;
+      if (!ytAvailable() || !ytOn) { skipAr(); return; }
+      amNote('Not on archive.org, trying YouTube\u2026');
+      ytFind(ref).then(function (yp) {
+        if (cur !== me) return;
+        if (!yp) { skipAr(); return; }
+        amNoteOff('Found it on YouTube, starting\u2026'); vSkips = 0;
+        dlog('MAGIC EPG: YouTube copy for ' + prog.title + ' | ' + yp.url);
+        amSkip = true;
+        try { playSlot(ch, index, 0, announce, false, Object.assign({}, yp, { title: prog.title, show: prog.show, group: prog.group })); }
+        finally { amSkip = false; }
+      }, skipAr);
+    };
     amNote('No addon had it, trying archive.org\u2026');
     var k = LINKS.key(ref.show, ref.s, ref.e);
     var look = LINKS.get(k).then(function (hit) { return hit || searchAndSave(ref, '', k).then(function () { return LINKS.get(k); }); });
@@ -7255,6 +7284,13 @@
     (progs || []).forEach(function (p) { var n = LIBROUTE.norm(p.show || p.group || (parseTitle(p.title || '').show) || ''); if (n) m[n] = 1; });
     return m;
   }
+  /** Season and episode of a stored video: the scraper's numbers, else read from the title ("S2 Ep1", "Series 3 Episode 4", "S4 || Episode 33"). */
+  function ytSE(x) {
+    var sn = +x.season || 0, ep = +x.ep || 0, t = String(x.title || '');
+    if (!sn) { var a = /\b(?:S|Series|Season)\.?\s*0*(\d{1,2})\b/i.exec(t); if (a) sn = +a[1]; }
+    if (!ep) { var b = /\b(?:E|Ep|Episode|Show)\.?\s*0*(\d{1,3})\b/i.exec(t); if (b) ep = +b[1]; }
+    return { s: sn, e: ep };
+  }
   function ytProgs(data, chId, names) {
     var out = [];
     Object.keys(data || {}).forEach(function (name) {
@@ -7263,7 +7299,7 @@
       var show = name === name.toLowerCase() ? name.replace(/\b[a-z]/g, function (m) { return m.toUpperCase(); }) : name;
       sh.videos.forEach(function (x) {
         if (!x || !x.id || !(x.dur > 120) || ytDead[x.id] || YT_JUNK.test(x.title || '') || ytLate(x)) return;
-        var sn = +x.season || 0, ep = +x.ep || 0, coded = sn > 0 && ep > 0;
+        var se = ytSE(x), sn = se.s, ep = se.e, coded = sn > 0 && ep > 0;
         var et = x.epTitle && !/^(?:episode|show|series \d+,? show)\s*\d*$/i.test(x.epTitle) ? ' ' + x.epTitle : '';
         out.push({ id: 'yt/' + x.id, item: 'yt', url: 'yt:' + x.id, title: coded ? show + ' S' + pad2(sn) + 'E' + pad2(ep) + et : (x.title || show),
           sub: '', dur: x.dur, lenKnown: 1, show: show, group: show, aired: ytAired(x), yt: 1, by: x.by || '', ytTitle: x.title || '' });
@@ -7296,7 +7332,14 @@
   function odSeasons(g) {
     var by = {}, other = [], list = [];
     var otherYt = [];
-    g.eps.forEach(function (ep) { if (ep.s > 0) (by[ep.s] = by[ep.s] || []).push(ep); else if (ep.p.yt) otherYt.push(ep); else other.push(ep); });
+    g.eps.forEach(function (ep) {
+      if (ep.s > 0) { (by[ep.s] = by[ep.s] || []).push(ep); return; }
+      if (ep.p.yt) {                          // an upload with no season number but a year: it sits in that year with the rest of the show, not in a list of its own
+        var yr = /^(?:19|20)\d\d/.exec(String(ep.p.aired || '')) || /\b(19[5-9]\d|200\d)\b/.exec(ep.p.ytTitle || '');
+        if (yr && +yr[0] <= ERA_END) { (by[+yr[0]] = by[+yr[0]] || []).push(ep); return; }
+        otherYt.push(ep);
+      } else other.push(ep);
+    });
     Object.keys(by).map(Number).sort(function (x, y) { return x - y; }).forEach(function (n) { list.push({ name: n >= 1900 ? String(n) : 'Season ' + n, eps: by[n] }); });
     if (other.length) list.push({ name: list.length ? 'Other videos' : g.shorts ? 'Shorts' : 'Videos', eps: other });
     if (otherYt.length) list.push({ name: 'More from YouTube', eps: otherYt });
@@ -7382,7 +7425,7 @@
   // heavy steps (virtualFill, odGroup) run for one show when its page is opened (odHydrate), never for a whole channel.
   var odiJobs = {}, odiMem = {}, odRaw = {}, odRawOrder = [];
   function odRevOf(id) { return (libRevs && libRevs[id]) || (dataRevs && dataRevs[id]) || ''; }
-  function odiSig() { return E.hash(['3', depgActive() ? 'm' : '', adCut ? 'c' : '', ukOn ? ukRev : '', removedRev, filmdbRev, artRev, BAD_SALT, E.hash(Object.keys(hid).sort().join(','))].join('.')).toString(36); }
+  function odiSig() { return E.hash(['4', depgActive() ? 'm' : '', adCut ? 'c' : '', ukOn ? ukRev : '', removedRev, filmdbRev, artRev, BAD_SALT, E.hash(Object.keys(hid).sort().join(','))].join('.')).toString(36); }
   function odiKey(id) { var r = odRevOf(id); return r ? 'odi1:' + id + ':' + r + ':' + odiSig() + ytRevOf(id) : ''; }
   /** Whether a channel's rows are saved for this library revision (without reading them). */
   function odiHas(id) { var key = odiKey(id), m = odiMem[id]; return !!((m && m.key === key) || (key && KV_NATIVE && kvNative()[key])); }

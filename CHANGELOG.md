@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.53.88 — 2026-11-24
+- **YouTube copies are part of the show now, not a separate list.** The season and episode are read from the video's title when the scraper left them out ("S2 Ep1", "Series 3 Episode 4"), so those videos land in their season and sit behind the archive.org copy of the same episode. A YouTube upload with no numbers but a year goes into that year instead of "More from YouTube". Because of this, On Demand's saved lists are built again once.
+- **Playing an episode now tries YouTube last.** The order for an episode with no file of its own is the addon, then archive.org, then the YouTube copy of that same season and episode.
+
 ## Alpha 0.53.87 — 2026-11-24
 - **The video keeps playing when you press Back.** Back from a playing video now shrinks it into a small window at the top right of On Demand, with the sound still on, so you can carry on browsing. Press Back again and it goes full screen. Stop still stops it.
 

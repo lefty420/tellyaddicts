@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.17",
-  "version": "0.54.17",
-  "code": 5417,
+  "name": "Alpha 0.54.18",
+  "version": "0.54.18",
+  "code": 5418,
   "date": "2026-11-24",
   "notes": [
-    "**NewPipe now sends YouTube's consent cookie.** The first test of 0.54.15 reached YouTube but failed with \"Could not get ytInitialData\", which is what the consent page looks like to the extractor in the UK. Needs a new build (Java). Also includes the 0.54.16 change below."
+    "**The debug log now says how each YouTube route did.** The \"YOUTUBE stream\" line lists NewPipe and every server that had answered (picture quality and milliseconds, or why it failed), and says when NewPipe had not answered yet. It also logs a \"CONTINUE:\" line when a show is saved in Continue watching but cannot be shown (which channel, and what it was missing). Logging only; needs a new build (Java)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.17",
+      "date": "2026-11-24",
+      "notes": [
+        "**NewPipe now sends YouTube's consent cookie.** The first test of 0.54.15 reached YouTube but failed with \"Could not get ytInitialData\", which is what the consent page looks like to the extractor in the UK. Needs a new build (Java). Also includes the 0.54.16 change below."
+      ]
+    },
     {
       "name": "Alpha 0.54.16",
       "date": "2026-11-24",
@@ -56,14 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Snow builds up at the foot of On Demand again, and Santa's plough has something to clear.** The dark strip behind the hint line (added in 0.54.6) was covering the drifts and the plough. While the snow is on, the strip is gone and the posters just fade out above the hint line."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.9",
-      "date": "2026-11-24",
-      "notes": [
-        "**The snow on On Demand shows again.** In 0.54.7 and 0.54.8 its picture layer was put inside the TV guide, which is hidden while On Demand is on screen, so nothing appeared. It is back inside On Demand.",
-        "**Options > Seasonal effects now reads On or Off** (it said Auto or Off). On shows the snow, drifts and Santa's plough on both the TV guide and On Demand, from 1 November to 6 January."
       ]
     }
   ]

@@ -264,7 +264,7 @@ final class NativePlayer {
                         readySent = false;
                         width = 0;
                         height = 0;
-                        send("note", r.label + " (try " + ytTry + " of " + YT_TRIES + ")");
+                        send("note", r.label + " (try " + ytTry + " of " + YT_TRIES + ") | " + YoutubeResolver.traceNote());
                         begin(r.video, r.audio, YoutubeResolver.UA, startMs, generation);
                         main.removeCallbacks(ytWatch);
                         main.postDelayed(ytWatch, YT_START_MS);

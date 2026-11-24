@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -182,6 +185,9 @@ final class YoutubeResolver {
         if (lastGood.length() > 0 && servers.remove(lastGood)) {
             servers.add(0, lastGood);
         }
+        final long t0 = System.currentTimeMillis();
+        final Map<String, String> seen = Collections.synchronizedMap(new LinkedHashMap<String, String>());
+        lastSeen = seen;
         ExecutorService pool = Executors.newFixedThreadPool(servers.size());
         CompletionService<Result> done = new ExecutorCompletionService<Result>(pool);
         List<Future<Result>> all = new ArrayList<Future<Result>>();
@@ -194,6 +200,9 @@ final class YoutubeResolver {
                     if (r.error == null) {
                         lastGood = s;
                     }
+                    String who = s.charAt(0) == 'N' ? "NewPipe" : host(s.substring(1));
+                    String e = r.error == null ? "" : r.error;
+                    seen.put(who, (r.error == null ? r.height + "p" : "failed " + (e.length() > 160 ? e.substring(0, 160) : e)) + " after " + (System.currentTimeMillis() - t0) + " ms");
                     return r;
                 }
             }));
@@ -250,6 +259,29 @@ final class YoutubeResolver {
         Result none = new Result();
         none.error = "no server gave a stream (" + why + (liveNote.length() > 0 ? "; " + liveNote : "") + ")";
         return none;
+    }
+
+    private static volatile Map<String, String> lastSeen = null;
+
+    /** What each route had answered when the last lookup was settled, for the debug log; NewPipe is named even when it had not answered yet. */
+    static String traceNote() {
+        Map<String, String> m = lastSeen;
+        if (m == null) {
+            return "";
+        }
+        StringBuilder b = new StringBuilder();
+        synchronized (m) {
+            if (!m.containsKey("NewPipe")) {
+                b.append("NewPipe: had not answered yet");
+            }
+            for (Map.Entry<String, String> e : m.entrySet()) {
+                if (b.length() > 0) {
+                    b.append("; ");
+                }
+                b.append(e.getKey()).append(": ").append(e.getValue());
+            }
+        }
+        return b.toString();
     }
 
     private static String host(String base) {

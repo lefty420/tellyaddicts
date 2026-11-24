@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.18 — 2026-11-24
+- **The debug log now says how each YouTube route did.** The "YOUTUBE stream" line lists NewPipe and every server that had answered (picture quality and milliseconds, or why it failed), and says when NewPipe had not answered yet. It also logs a "CONTINUE:" line when a show is saved in Continue watching but cannot be shown (which channel, and what it was missing). Logging only; needs a new build (Java).
+
 ## Alpha 0.54.17 — 2026-11-24
 - **NewPipe now sends YouTube's consent cookie.** The first test of 0.54.15 reached YouTube but failed with "Could not get ytInitialData", which is what the consent page looks like to the extractor in the UK. Needs a new build (Java). Also includes the 0.54.16 change below.
 

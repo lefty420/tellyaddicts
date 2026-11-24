@@ -7685,7 +7685,7 @@
     cwLast = now;
     cwPut(o.name, cur.ch.id, cur.prog.url, v.currentTime, isFinite(v.duration) ? v.duration : 0);
   });
-  var cwPseudo = { id: '_cw', n: '', name: 'Continue watching' }, cwSig = '';
+  var cwPseudo = { id: '_cw', n: '', name: 'Continue watching' }, cwSig = '', cwMissed = {};
   /** The Continue watching row, or null when there is nothing in it. It reuses the shows of the channel lists
    *  (so posters and details come for free); a show whose channel list is not built yet simply is not in it yet. */
   function odCwRow() {
@@ -7698,6 +7698,7 @@
       var rec = odData[e.ch], g = null;
       if (rec && rec.shows) for (var i = 0; i < rec.shows.length; i++) if (rec.shows[i].name === e.n) { g = rec.shows[i]; break; }
       if (g) { g._cw = e; shows.push(g); sig += e.n + e.pos + ','; }
+      else { var mk = e.n + '|' + e.ch; if (!cwMissed[mk]) { cwMissed[mk] = 1; dlog('CONTINUE: ' + e.n + ' is saved but not shown: ' + (rec && rec.shows ? 'channel ' + e.ch + ' has no show of that name (' + rec.shows.length + ' shows)' : 'channel ' + e.ch + ' has no list')); } }
     });
     if (!shows.length) return null;
     if (sig !== cwSig || !odData._cw) { cwSig = sig; odData._cw = { shows: shows }; }

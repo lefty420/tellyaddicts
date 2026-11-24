@@ -7012,15 +7012,16 @@
     osdTouch();
     if (osdPop) {                       // a list is open above the bar: Up/Down pick, OK runs it, Left/Right go back to the bar
       var rows = popRows(osdPop.g);
-      if (k === 'ArrowUp') { osdPop.i = Math.max(0, osdPop.i - 1); renderPop(); return true; }
-      if (k === 'ArrowDown') { if (osdPop.i < rows.length - 1) { osdPop.i++; renderPop(); } else popClose(); return true; }
+      if (k === 'ArrowUp') { osdPop.i = (osdPop.i + rows.length - 1) % rows.length; renderPop(); return true; }
+      if (k === 'ArrowDown') { osdPop.i = (osdPop.i + 1) % rows.length; renderPop(); return true; }
       if (k === 'Enter') { var id = rows[osdPop.i].id; popClose(); osdAct(id); return true; }
       if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') { popClose(); return true; }
       if (k === 'ArrowLeft' || k === 'ArrowRight') popClose();
     }
     if (osdZone === 'mg' && (k === 'ArrowUp' || k === 'ArrowDown' || k === 'ArrowLeft' || k === 'ArrowRight' || k === 'Enter')) {
-      if (k === 'ArrowUp') omgI = Math.max(0, omgI - 1);
-      else if (k === 'ArrowDown') { if (omgI < omgRows.length - 1) omgI++; else osdZone = 'bar'; }
+      if (k === 'ArrowUp') omgI = (omgI + omgRows.length - 1) % omgRows.length;
+      else if (k === 'ArrowDown') omgI = (omgI + 1) % omgRows.length;
+      else if (k === 'ArrowLeft' || k === 'ArrowRight') osdZone = 'bar';        // sideways leaves the list for the bar (Down no longer does: it wraps)
       else if (k === 'Enter') { var mc = omgRows[omgI]; closeOsd(); if (mc && cur && mc !== cur.ch) tune(mc, true); return true; }
       renderOsd(); return true;
     }
@@ -8693,8 +8694,8 @@
       odRender(); return true;
     }
     if (odZn === 'rail') {
-      if (k === 'ArrowUp') odRailI = Math.max(0, odRailI - 1);
-      else if (k === 'ArrowDown') odRailI = Math.min(OD_RAIL.length - 1, odRailI + 1);
+      if (k === 'ArrowUp') odRailI = (odRailI + OD_RAIL.length - 1) % OD_RAIL.length;
+      else if (k === 'ArrowDown') odRailI = (odRailI + 1) % OD_RAIL.length;
       else if (k === 'ArrowRight' || back) odZn = odRailBack;
       else if (ok) { odRailGo(odRailI); return true; }
       odRender(); return true;
@@ -8844,8 +8845,8 @@
     var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ';
     var cs = odGridChans(), sh = odGShows(), n = sh ? sh.length : 0;
     if (odGz === 'rail') {
-      if (k === 'ArrowUp') odRailI = Math.max(0, odRailI - 1);
-      else if (k === 'ArrowDown') odRailI = Math.min(OD_RAIL.length - 1, odRailI + 1);
+      if (k === 'ArrowUp') odRailI = (odRailI + OD_RAIL.length - 1) % OD_RAIL.length;
+      else if (k === 'ArrowDown') odRailI = (odRailI + 1) % OD_RAIL.length;
       else if (k === 'ArrowRight' || back) { odGz = 'list'; odZn = 'rows'; }
       else if (ok) { odGz = 'list'; odZn = 'rows'; odRailGo(odRailI); return true; }
       odRender(); return true;
@@ -8957,8 +8958,8 @@
   function odKeyFav(k) {
     var back = k === 'GoBack' || k === 'Escape' || k === 'Backspace', ok = k === 'Enter' || k === ' ', l = odFavList(), fs = odFavShows(), empty = !l.length && !fs.length;
     if (odFz === 'rail') {
-      if (k === 'ArrowUp') odRailI = Math.max(0, odRailI - 1);
-      else if (k === 'ArrowDown') odRailI = Math.min(OD_RAIL.length - 1, odRailI + 1);
+      if (k === 'ArrowUp') odRailI = (odRailI + OD_RAIL.length - 1) % OD_RAIL.length;
+      else if (k === 'ArrowDown') odRailI = (odRailI + 1) % OD_RAIL.length;
       else if (k === 'ArrowRight' || back) odFavRail(false);
       else if (ok) { odZn = 'rows'; odFz = odFzBack; odRailGo(odRailI); return true; }
       odRender(); return true;
@@ -9326,8 +9327,9 @@
     if (m.mode === 'wait') return true;
     var strip = m.mode === 'posters' || m.mode === 'backs';
     var back = strip ? 'ArrowLeft' : 'ArrowUp', fwd = strip ? 'ArrowRight' : 'ArrowDown';
-    if (k === back) m.i = Math.max(0, m.i - 1);
-    else if (k === fwd) m.i = Math.min(m.items.length - 1, m.i + 1);
+    var mn = m.items.length;
+    if (k === back) { if (mn) m.i = (m.i + mn - 1) % mn; }              // past either end it wraps round
+    else if (k === fwd) { if (mn) m.i = (m.i + 1) % mn; }
     else if (k === 'Enter' || k === ' ') { var it = m.items[m.i]; if (it) it.f(); return true; }
     odmRender();
     return true;

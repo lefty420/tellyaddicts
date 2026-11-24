@@ -115,8 +115,11 @@
     border: calc(.5 * var(--u)) solid #d7e6ff; box-shadow: 0 calc(.8 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.6);
   }
   body.guide-open #spinner, body.guide-open #banner { display: none; }
-  /* the video carrying on in a small window over On Demand (the position is set from app.js) */
-  body.odpip:not(.np) #v { inset: auto; z-index: 60; opacity: 1; border: calc(.5 * var(--u)) solid #d7e6ff; box-shadow: 0 calc(.8 * var(--u)) calc(3 * var(--u)) rgba(0,0,0,.6); }
+  /* the video carrying on in the hero: On Demand goes see-through over the picture, which app.js sizes to the hero's backdrop */
+  body.odpip #od { background: transparent; }
+  body.odpip #od::before { content: ""; position: absolute; left: 0; right: 0; top: var(--pipb, 66vh); bottom: 0; background: #0b0d12; }
+  body.odpip #odbg { background-image: none !important; background-color: transparent !important; }
+  body.odpip:not(.np) #v { inset: auto; z-index: 54; opacity: 1; }
   body.odpip #banner, body.odpip #spinner { display: none; }
 
   #nosignal { position: fixed; inset: 0; background: #151b3d; display: flex; flex-direction: column;

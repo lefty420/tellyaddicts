@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.88",
-  "version": "0.53.88",
-  "code": 5388,
+  "name": "Alpha 0.53.89",
+  "version": "0.53.89",
+  "code": 5389,
   "date": "2026-11-24",
   "notes": [
-    "**YouTube copies are part of the show now, not a separate list.** The season and episode are read from the video's title when the scraper left them out (\"S2 Ep1\", \"Series 3 Episode 4\"), so those videos land in their season and sit behind the archive.org copy of the same episode. A YouTube upload with no numbers but a year goes into that year instead of \"More from YouTube\". Because of this, On Demand's saved lists are built again once.",
-    "**Playing an episode now tries YouTube last.** The order for an episode with no file of its own is the addon, then archive.org, then the YouTube copy of that same season and episode."
+    "**The video now plays in the hero.** After Back, the picture fills the hero's backdrop (right side, behind the title and the rows, fading into the page) instead of a small box over the rows. Back again takes it full screen."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.88",
+      "date": "2026-11-24",
+      "notes": [
+        "**YouTube copies are part of the show now, not a separate list.** The season and episode are read from the video's title when the scraper left them out (\"S2 Ep1\", \"Series 3 Episode 4\"), so those videos land in their season and sit behind the archive.org copy of the same episode. A YouTube upload with no numbers but a year goes into that year instead of \"More from YouTube\". Because of this, On Demand's saved lists are built again once.",
+        "**Playing an episode now tries YouTube last.** The order for an episode with no file of its own is the addon, then archive.org, then the YouTube copy of that same season and episode."
+      ]
+    },
     {
       "name": "Alpha 0.53.87",
       "date": "2026-11-24",
@@ -61,13 +68,6 @@ window.RELEASE = {
       "notes": [
         "**Stopping a show with On Demand as home goes to On Demand,** not the TV guide. Back while watching also goes to On Demand, so Back from the guide is never the first of two quick presses that asks to quit.",
         "**The big hero on the On Demand home no longer runs into the first row** (On now). It now sits just above the row and grows upward."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.80",
-      "date": "2026-11-24",
-      "notes": [
-        "**No loading screen at launch when On Demand is home.** The channels still load in the background, but the screen with the animated TV and static is not shown, and its pictures are not fetched. If you open the TV guide before every channel is in, that loading screen appears over the guide until they are."
       ]
     }
   ]

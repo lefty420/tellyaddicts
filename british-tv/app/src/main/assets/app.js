@@ -9329,6 +9329,7 @@
     return true;
   }
   var odPlaced = null, odPip = false;
+  try { new MutationObserver(function () { odPipLayout(); }).observe($('od'), { attributes: true, attributeFilter: ['class'] }); } catch (e) { /* no observer */ }
   /** Back while a video plays: the video carries on in a small window at the top right of On Demand; Back again takes it full screen. */
   function odPipOn() {
     odPip = true;
@@ -9338,11 +9339,13 @@
   function odPipLayout() {
     if (!odPip) return;
     var W = window.innerWidth, H = window.innerHeight, d = window.devicePixelRatio || 1;
-    var w = Math.round(W * 0.32), h = Math.round(w * 9 / 16), l = W - w - Math.round(W * 0.04), t = Math.round(H * 0.13), r = l + w, b = t + h;
-    if (document.body.classList.contains('np')) {         // the app's own player draws behind the page: move it there and cut a hole to see it through
-      try { NativeHttp.npRect(Math.round(l * d), Math.round(t * d), Math.round(w * d), Math.round(h * d)); } catch (e) { /* older app */ }
-      $('od').style.clipPath = 'polygon(evenodd, 0 0, ' + W + 'px 0, ' + W + 'px ' + H + 'px, 0 ' + H + 'px, 0 0, ' +
-        l + 'px ' + t + 'px, ' + l + 'px ' + b + 'px, ' + r + 'px ' + b + 'px, ' + r + 'px ' + t + 'px, ' + l + 'px ' + t + 'px)';
+    var bh = Math.round($('odbg').getBoundingClientRect().height) || Math.round(H * 0.66);      // the video takes the hero's picture: the same height, 16:9, against the right edge
+    var h = bh, w = Math.round(h * 16 / 9);
+    if (w > W) { w = W; h = Math.round(w * 9 / 16); }
+    var l = W - w, t = 0;
+    $('od').style.setProperty('--pipb', bh + 'px');
+    if (document.body.classList.contains('np')) {         // the app's own player draws behind the page: move it there
+      try { NativeHttp.npRect(Math.round(l * d), t, Math.round(w * d), Math.round(h * d)); } catch (e) { /* older app */ }
     } else {
       var e = $('v'); e.style.left = l + 'px'; e.style.top = t + 'px'; e.style.width = w + 'px'; e.style.height = h + 'px';
     }
@@ -9351,7 +9354,7 @@
     if (!odPip) return;
     odPip = false;
     document.body.classList.remove('odpip');
-    $('od').style.clipPath = '';
+    $('od').style.removeProperty('--pipb');
     var e = $('v'); e.style.left = e.style.top = e.style.width = e.style.height = '';
     if (document.body.classList.contains('np')) { try { NativeHttp.npRect(0, 0, 0, 0); } catch (x) { /* older app */ } }
   }

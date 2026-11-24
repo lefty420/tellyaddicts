@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.92",
-  "version": "0.53.92",
-  "code": 5392,
+  "name": "Alpha 0.53.93",
+  "version": "0.53.93",
+  "code": 5393,
   "date": "2026-11-24",
   "notes": [
-    "**Menus wrap round.** Up from the first line goes to the last and Down from the last goes to the first in the hold-OK menus, the picture's pop-up lists (audio, subtitles and so on) and the channel list on the OSD. In that channel list, Left or Right now takes you back to the bar."
+    "**A debrid \"Something went wrong\" clip now moves on to the next link.** When a link has gone bad, the service plays a short video saying so instead of giving an error, so the app thought it had worked. An addon source under 45 seconds long is now treated as failed and the next link in the addon's list is tried, then the library."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.92",
+      "date": "2026-11-24",
+      "notes": [
+        "**Menus wrap round.** Up from the first line goes to the last and Down from the last goes to the first in the hold-OK menus, the picture's pop-up lists (audio, subtitles and so on) and the channel list on the OSD. In that channel list, Left or Right now takes you back to the bar."
+      ]
+    },
     {
       "name": "Alpha 0.53.91",
       "date": "2026-11-24",
@@ -58,14 +65,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Back while playing: the freeze should be gone.** The log showed no background job in front of it, so the time was spent reading On Demand's saved lists while the player was still decoding. Back now puts up On Demand as it was last drawn at once, pauses the picture, and works out the page a quarter of a second later."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.84",
-      "date": "2026-11-24",
-      "notes": [
-        "**Back while playing returns to where you were, and no longer freezes.** The log showed an 11 to 14 second freeze at the moment of Back, with the background episode-name check running behind the picture. Background jobs (episode names, artwork look-up, index building) now wait while a show is playing, and Back pauses the picture before drawing On Demand.",
-        "**Back or Stop returns to the place you started from:** the same tab, row and card, or the show page with the same season and episode if you started from there."
       ]
     }
   ]

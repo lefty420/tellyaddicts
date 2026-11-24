@@ -3267,6 +3267,19 @@
     var err = v.error ? 'error ' + v.error.code + (v.error.message ? ' "' + v.error.message + '"' : '') + ', ' : '';
     return err + 'ready ' + v.readyState + ', network ' + v.networkState + ', at ' + Math.round(v.currentTime || 0) + 's, events: ' + (pb.ev.join(', ') || 'none');
   }
+  /** A debrid service whose link has gone bad often answers with a short clip that says "Something went wrong" instead of an error, which plays happily.
+   *  An addon source that is only a few seconds long is that clip: treat the link as failed and go on to the next one. */
+  function adBadClip() {
+    var c = cur;
+    if (!c || c.ad || !c.prog || !c.prog.addon || c.badClip === c.prog.url || !adFall) return;
+    var d = v.duration;
+    if (!(d > 0) || !isFinite(d) || d >= 45) return;
+    c.badClip = c.prog.url;
+    dlog('ADDON: ' + (c.prog.sub || 'the addon') + ' gave a ' + Math.round(d) + ' s clip for ' + (c.prog.title || '') + ', the "something went wrong" video; trying the next link');
+    nextInChannel();
+  }
+  v.addEventListener('loadedmetadata', adBadClip);
+  v.addEventListener('durationchange', adBadClip);
   v.addEventListener('loadedmetadata', function () {
     // a file much shorter than the listing says is usually not the programme it was filed as
     if (!cur || cur.ad || !cur.prog || !(cur.prog.dur > 0) || !(v.duration > 0) || cur.mism === cur.prog.url) return;

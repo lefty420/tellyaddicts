@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.9 — 2026-11-24
+- **The snow on On Demand shows again.** In 0.54.7 and 0.54.8 its picture layer was put inside the TV guide, which is hidden while On Demand is on screen, so nothing appeared. It is back inside On Demand.
+- **Options > Seasonal effects now reads On or Off** (it said Auto or Off). On shows the snow, drifts and Santa's plough on both the TV guide and On Demand, from 1 November to 6 January.
+
 ## Alpha 0.54.8 — 2026-11-24
 - **One seasonal setting for the TV guide and On Demand.** When Options > Seasonal effects is on (Auto), the snow, drifts and Santa's plough show on both. The separate Experimental option "On Demand seasonal themes" is gone, so On Demand no longer needs Experimental switched on.
 

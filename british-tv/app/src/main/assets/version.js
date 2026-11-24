@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.8",
-  "version": "0.54.8",
-  "code": 5408,
+  "name": "Alpha 0.54.9",
+  "version": "0.54.9",
+  "code": 5409,
   "date": "2026-11-24",
   "notes": [
-    "**One seasonal setting for the TV guide and On Demand.** When Options > Seasonal effects is on (Auto), the snow, drifts and Santa's plough show on both. The separate Experimental option \"On Demand seasonal themes\" is gone, so On Demand no longer needs Experimental switched on."
+    "**The snow on On Demand shows again.** In 0.54.7 and 0.54.8 its picture layer was put inside the TV guide, which is hidden while On Demand is on screen, so nothing appeared. It is back inside On Demand.",
+    "**Options > Seasonal effects now reads On or Off** (it said Auto or Off). On shows the snow, drifts and Santa's plough on both the TV guide and On Demand, from 1 November to 6 January."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.8",
+      "date": "2026-11-24",
+      "notes": [
+        "**One seasonal setting for the TV guide and On Demand.** When Options > Seasonal effects is on (Auto), the snow, drifts and Santa's plough show on both. The separate Experimental option \"On Demand seasonal themes\" is gone, so On Demand no longer needs Experimental switched on."
+      ]
+    },
     {
       "name": "Alpha 0.54.7",
       "date": "2026-11-24",
@@ -59,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The TV loading screen is the splash when the app starts in On Demand.** It stays up while the channels load, then On Demand opens. The saved On Demand picture is no longer shown first."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.0",
-      "date": "2026-11-24",
-      "notes": [
-        "**Seven posters per row, a little smaller, and the 5 second zoom is off.** Poster rows on the TV show 7 across (was 6). The highlighted poster no longer grows after a pause."
       ]
     }
   ]

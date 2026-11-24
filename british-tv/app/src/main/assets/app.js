@@ -6278,7 +6278,7 @@
     if (id === 'player') return PLAYERS[playerIdx].label + (v.canNative() ? '' : '  (needs the newest app)') + (Object.keys(npKnown).length && playerMode() === 'auto' ? '  \u00b7  rescued ' + Object.keys(npKnown).length + (Object.keys(npKnown).length === 1 ? ' video' : ' videos') + ' so far' : '');
     if (id === 'span') return SPANS[spanIdx].label;
     if (id === 'theme') return THEMES[themeIdx].label;
-    if (id === 'season') return seasonOn ? (SEASONS.current() ? 'Auto  (' + SEASONS.current().label + ' on now)' : 'Auto  (nothing on at the moment)') : 'Off';
+    if (id === 'season') return seasonOn ? (SEASONS.current() ? 'On  (' + SEASONS.current().label + ' on now)' : 'On  (nothing on at the moment)') : 'Off';
     if (id === 'keep') return KEEP[keepIdx].label;
     if (id === 'refresh') return refreshArmed ? 'Press OK again to confirm' : '';
     if (id === 'unhide') return unhideArmed ? 'Press OK again to confirm' : hidCount ? hidCount + ' hidden  \u00b7  OK to show all' : 'None';
@@ -6383,7 +6383,7 @@
     adrec: 'Every source that worked is kept here, so a title you watched before can start again straight away. If a saved link has stopped working, the app looks again by itself.',
     dbgopen: 'Experimental. On: the debug log and Live view addresses carry no code, so the same plain address works every time. Anyone on your home network can then open them, so leave it off unless you are the only one on it. Takes effect from the next time the address is shown.',
     adcut: 'Only look for sources for shows and films from before 2000, like the rest of the app.',
-    season: 'A light pixel-art decoration over the TV guide and On Demand that comes and goes with the calendar: snow from 1 November to 6 January. Auto uses the date; Off never draws it. It stays off while a video plays behind On Demand.',
+    season: 'A light pixel-art decoration over the TV guide and On Demand that comes and goes with the calendar: snow from 1 November to 6 January. On draws it on both screens in that time; Off never draws it. It stays off while a video plays behind On Demand.',
     theme: 'How the TV guide looks. It only changes when you change it here.',
     yt: 'Episodes that are not on archive.org but are on YouTube, shown in On Demand. They play without adverts or a sign-in, through the app\u2019s own player, and where an episode has more than one copy the best plays first. Turn this off if they cause trouble.',
     real: 'Lays each channel out like a real week of television: programmes on the hour and half hour, short ones in the morning and at lunchtime, half hours through the early evening, hour-long programmes and films in prime time and on weekend afternoons, and Saturday and Sunday different from the weekdays. A series plays in order, one episode after another. Channels with a plan of their own (News, Saturday Night, Soaps, Drama, Video Shop) keep it. Off is the endless shuffle.',
@@ -6417,7 +6417,7 @@
   function optChoices(id) {
     if (id === 'player') return { l: PLAYERS.map(function (x) { return x.label; }), i: playerIdx };
     if (id === 'theme') return { l: THEMES.map(function (x) { return x.label; }), i: themeIdx };
-    if (id === 'season') return { l: ['Auto', 'Off'], i: seasonOn ? 0 : 1 };
+    if (id === 'season') return { l: ['On', 'Off'], i: seasonOn ? 0 : 1 };
     if (id === 'span') return { l: SPANS.map(function (x) { return x.label; }), i: spanIdx };
     if (id === 'keep') return { l: KEEP.map(function (x) { return x.label; }), i: keepIdx };
     if (id === 'mkeep') return { l: META_KEEP.map(function (x) { return x.label; }), i: metaIdx };

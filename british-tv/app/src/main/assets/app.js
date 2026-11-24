@@ -8508,6 +8508,7 @@
       return Math.max(20, window.innerHeight - b);
     }, dlog);
     SEASONS.cfg.TIER = snowTier;
+    document.body.classList.toggle('odsnowing', !!want);        // the hint line's dark band steps aside so the drifts and the plough show
     if (want) odSeasonOv.start(); else if (odSeasonOv) odSeasonOv.stop();
   }
   function odOpenUi(noJump) {

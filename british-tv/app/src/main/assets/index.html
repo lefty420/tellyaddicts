@@ -1266,6 +1266,8 @@
   html:not(.phone) #od:not(.odtop) #odlogo { height: calc(6.5 * var(--u)); max-height: none; }       /* a small logo picture is scaled up to the title's height instead of sitting as a speck */
   .odon b { bottom: calc(4.6 * var(--u)); }
   .odon small { bottom: calc(1.8 * var(--u)); font-size: calc(2.2 * var(--u)); color: #d3d8e4; }
+  /* while the snow is on, no dark strip along the foot: the drifts build there and the plough drives through. The posters still fade out above it. */
+  html:not(.phone) body.odsnowing #odfoot { background: linear-gradient(180deg, rgba(11,15,26,0) 0, #0b0f1a 27%, rgba(11,15,26,0) 27.1%, rgba(11,15,26,0) 100%); text-shadow: 0 0 calc(.8 * var(--u)) #000, 0 0 calc(.3 * var(--u)) #000; }
   </style>
 </head>
 <body>

@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.12 — 2026-11-24
+- **On Demand no longer freezes when the YouTube list changes.** A channel's On Demand list was rebuilt whenever the scraper added or removed a single YouTube video, which took up to two minutes and stalled the screen for up to 16 s. It is now rebuilt only when the channel gains or loses a YouTube show. A show's page still reads the newest videos when you open it. The change rebuilds the lists once more on the first start after updating.
+
 ## Alpha 0.54.11 — 2026-11-24
 - **No key-hint line along the bottom of On Demand** ("Next show, OK Play, Hold OK More info…"). It is gone, so the foot of the screen is clear for the snow drifts too.
 

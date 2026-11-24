@@ -7264,14 +7264,17 @@
   var ytRevMap = store.get('ytrev2') || {};
   function ytRevOf(id) { return ytOn && ytRevMap[id] ? ':y' + ytRevMap[id] : ''; }
   function ytRevSet(d) {
-    var acc = {};
+    // The stamp follows which shows a channel has YouTube videos for, not how many videos each has: the index only needs the show names,
+    // and a show's page reads the YouTube list afresh when it is opened. (It used to count the videos, so every scraper run that added one
+    // rebuilt the channel's whole index, which froze On Demand for up to two minutes.)
+    var names = {};
     Object.keys(d || {}).forEach(function (name) {
-      var sh = d[name]; if (!sh || !sh.videos) return;
+      var sh = d[name]; if (!sh || !sh.videos || !sh.videos.length) return;
       var ch = sh.channel || 'gameshows';
-      acc[ch] = ((acc[ch] || 7) * 31 + sh.videos.length * 17 + name.length) % 1000000007;
+      (names[ch] = names[ch] || []).push(name);
     });
     var out = {}, changed = false;
-    Object.keys(acc).forEach(function (k) { out[k] = acc[k].toString(36); });
+    Object.keys(names).forEach(function (k) { out[k] = E.hash('n.' + names[k].sort().join('|')).toString(36); });
     Object.keys(out).forEach(function (k) { if (ytRevMap[k] !== out[k]) { changed = true; delete odiJobs[k]; delete odiMem[k]; } });
     if (!changed) return;
     ytRevMap = out; store.set('ytrev2', out);

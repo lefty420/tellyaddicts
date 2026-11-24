@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.11",
-  "version": "0.54.11",
-  "code": 5411,
+  "name": "Alpha 0.54.12",
+  "version": "0.54.12",
+  "code": 5412,
   "date": "2026-11-24",
   "notes": [
-    "**No key-hint line along the bottom of On Demand** (\"Next show, OK Play, Hold OK More info…\"). It is gone, so the foot of the screen is clear for the snow drifts too."
+    "**On Demand no longer freezes when the YouTube list changes.** A channel's On Demand list was rebuilt whenever the scraper added or removed a single YouTube video, which took up to two minutes and stalled the screen for up to 16 s. It is now rebuilt only when the channel gains or loses a YouTube show. A show's page still reads the newest videos when you open it. The change rebuilds the lists once more on the first start after updating."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.11",
+      "date": "2026-11-24",
+      "notes": [
+        "**No key-hint line along the bottom of On Demand** (\"Next show, OK Play, Hold OK More info…\"). It is gone, so the foot of the screen is clear for the snow drifts too."
+      ]
+    },
     {
       "name": "Alpha 0.54.10",
       "date": "2026-11-24",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**YouTube videos use the scraper's new match scores.** Videos the scraper marks as loops, radio plays or clips are hidden. An episode number is trusted only when the match is high or medium; otherwise the video is placed from its own title, or goes under More from YouTube. Two-hour specials and volumes always go under More from YouTube."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.5",
-      "date": "2026-11-24",
-      "notes": [
-        "**A highlighted poster is no longer cut off at the bottom.** Each row now keeps room under its posters for the highlight outline and the slight enlargement."
       ]
     }
   ]

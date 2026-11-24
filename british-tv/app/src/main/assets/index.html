@@ -582,13 +582,14 @@
   }
   #ginfo, #ggrid, #glegend { z-index: 2; }       /* the seasonal snow falls behind the words, never over them */
   #gsnow { clip-path: polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, calc(42 * var(--uw)) calc(4 * var(--u)), calc(96 * var(--uw)) calc(4 * var(--u)), calc(96 * var(--uw)) calc(38 * var(--u)), calc(42 * var(--uw)) calc(38 * var(--u)), calc(42 * var(--uw)) calc(4 * var(--u)), 0 0, calc(4 * var(--uw)) calc(41 * var(--u)), calc(96 * var(--uw)) calc(41 * var(--u)), calc(96 * var(--uw)) 94%, calc(4 * var(--uw)) 94%, calc(4 * var(--uw)) calc(41 * var(--u)), 0 0); }       /* snow only where there are no words: the margins, the little TV and the drifts at the foot */
-  #gsnow { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
-  #gsnow.hidden { display: none; }
+  #gsnow, #odsnow { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  #odsnow { z-index: 0; }       /* On Demand: over the backdrop, behind its words and posters */
+  #gsnow.hidden, #odsnow.hidden { display: none; }
   body.snow-lite #ginfo { text-shadow: 0 0 calc(.9 * var(--u)) rgba(0,0,0,.95), 0 0 calc(.35 * var(--u)) rgba(0,0,0,.95), 0 calc(.2 * var(--u)) calc(.8 * var(--u)) rgba(0,0,0,.7); }   /* with no mask round the words, a dark halo keeps them readable over a flake */
-  #gsnow canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }
-  #gsnow .sn-wrap { position: absolute; inset: 0; will-change: transform; }
-  #gsnow .sn-wrap canvas { will-change: transform; }
-  #gsnow .sn-drift, #gsnow .sn-sparkle { top: auto; bottom: 0; }
+  #gsnow canvas, #odsnow canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }
+  #gsnow .sn-wrap, #odsnow .sn-wrap { position: absolute; inset: 0; will-change: transform; }
+  #gsnow .sn-wrap canvas, #odsnow .sn-wrap canvas { will-change: transform; }
+  #gsnow .sn-drift, #gsnow .sn-sparkle, #odsnow .sn-drift, #odsnow .sn-sparkle { top: auto; bottom: 0; }
   #gart { position: absolute; top: 0; right: 0; width: calc(68 * var(--uw)); height: calc(42 * var(--u)); background-size: cover; background-position: center 25%; opacity: 0; transition: opacity .6s; pointer-events: none; }
   #gart.on { opacity: .5; }
   #gart::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--g1) 0%, rgba(0,0,0,0) 55%), linear-gradient(0deg, var(--g2) 0%, rgba(0,0,0,0) 45%); }
@@ -1486,6 +1487,7 @@
 
 <div id="guide" class="hidden">
   <div id="gsnow" class="hidden" aria-hidden="true"></div>
+  <div id="odsnow" class="hidden" aria-hidden="true"></div>
   <div id="gart"></div>
   <div id="ginfo">
     <div id="gtop"><span>TV Guide</span><span id="godbtn">On Demand &#9654;</span><span id="gclock"></span></div>

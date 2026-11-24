@@ -1,17 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.6",
-  "version": "0.54.6",
-  "code": 5406,
+  "name": "Alpha 0.54.7",
+  "version": "0.54.7",
+  "code": 5407,
   "date": "2026-11-24",
   "notes": [
-    "**No snow on On Demand.** The snow, drifts and Santa's plough are back to the TV guide only. The Experimental option \"On Demand seasonal themes\" is gone, and On Demand no longer draws a moving picture on top of the home screen.",
-    "**The hint line at the foot of On Demand sits on its own dark band.** The bottom row of posters fades out into it, so \"Browse, Rows, OK Open, Hold OK More, Back Top\" no longer runs over the picture of a poster.",
-    "**A show's title picture is the size of its title.** On the home screen a small logo picture used to show as a tiny speck where the title should be. It is now scaled to the title's height, both on the big hero and when the hero shrinks as you move down to a row.",
-    "**The \"Next 18:17 ...\" line on the On now cards is bigger** and clear of the progress bar."
+    "**The On Demand snow is back.** Options > Experimental > On Demand seasonal themes works again, as in 0.54.5. The other 0.54.6 changes stay: the hint line on its own band, the title picture sized like the title, and the bigger \"Next ...\" line on the On now cards."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.6",
+      "date": "2026-11-24",
+      "notes": [
+        "**No snow on On Demand.** (Put back in 0.54.7.)",
+        "**The hint line at the foot of On Demand sits on its own dark band.** The bottom row of posters fades out into it, so \"Browse, Rows, OK Open, Hold OK More, Back Top\" no longer runs over the picture of a poster.",
+        "**A show's title picture is the size of its title.** On the home screen a small logo picture used to show as a tiny speck where the title should be. It is now scaled to the title's height, both on the big hero and when the hero shrinks as you move down to a row.",
+        "**The \"Next 18:17 ...\" line on the On now cards is bigger** and clear of the progress bar."
+      ]
+    },
     {
       "name": "Alpha 0.54.5",
       "date": "2026-11-24",
@@ -59,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Guide now sits next to Home on the top menu.** The bar reads Home, Guide, Shows, Films, Kids, Channels, Favourites, with Search and Options on the right. Left and Right follow that order. The phone layout is unchanged."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.98",
-      "date": "2026-11-24",
-      "notes": [
-        "**Bigger posters: six to a row on the TV.** The On Demand home rows now show six large posters (they were ten small ones), with a little more space between them. The title area and the first row have moved up a touch to make room. Live now cards, the grid, Favourites and the phone layout are unchanged."
       ]
     }
   ]

@@ -7,8 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.7 — 2026-11-24
+- **The On Demand snow is back.** Options > Experimental > On Demand seasonal themes works again, as in 0.54.5. The other 0.54.6 changes stay: the hint line on its own band, the title picture sized like the title, and the bigger "Next ..." line on the On now cards.
+
 ## Alpha 0.54.6 — 2026-11-24
-- **No snow on On Demand.** The snow, drifts and Santa's plough are back to the TV guide only. The Experimental option "On Demand seasonal themes" is gone, and On Demand no longer draws a moving picture on top of the home screen.
+- **No snow on On Demand.** (Put back in 0.54.7.)
 - **The hint line at the foot of On Demand sits on its own dark band.** The bottom row of posters fades out into it, so "Browse, Rows, OK Open, Hold OK More, Back Top" no longer runs over the picture of a poster.
 - **A show's title picture is the size of its title.** On the home screen a small logo picture used to show as a tiny speck where the title should be. It is now scaled to the title's height, both on the big hero and when the hero shrinks as you move down to a row.
 - **The "Next 18:17 ..." line on the On now cards is bigger** and clear of the progress bar.

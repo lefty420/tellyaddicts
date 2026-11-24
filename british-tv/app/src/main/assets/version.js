@@ -39,6 +39,13 @@ window.RELEASE = {
       ]
     },
     {
+      "name": "Alpha 0.54.7",
+      "date": "2026-11-24",
+      "notes": [
+        "**More YouTube titles are numbered.** Titles like \"Season One - Episode Two\" and \"2x05\" now give a season and episode, as well as \"S2 Ep5\"."
+      ]
+    },
+    {
       "name": "Alpha 0.54.6",
       "date": "2026-11-24",
       "notes": [
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**A highlighted poster is no longer cut off at the bottom.** Each row now keeps room under its posters for the highlight outline and the slight enlargement."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.4",
-      "date": "2026-11-24",
-      "notes": [
-        "**The On Demand loading screen tunes in properly.** The green bar now moves along with the time and fills when everything is ready (before, it jumped because On Demand opens after two channels). The screen stays up for at least five seconds, and a new picture tunes in about every 0.9 s (was 1.7 s), each after a burst of static."
       ]
     }
   ]

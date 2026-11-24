@@ -23,6 +23,9 @@ hurry gets a third number, `Alpha 0.1.1`.
 ## Alpha 0.54.7 — 2026-11-24
 - **The On Demand snow is back.** Options > Experimental > On Demand seasonal themes works again, as in 0.54.5. The other 0.54.6 changes stay: the hint line on its own band, the title picture sized like the title, and the bigger "Next ..." line on the On now cards.
 
+## Alpha 0.54.7 — 2026-11-24
+- **More YouTube titles are numbered.** Titles like "Season One - Episode Two" and "2x05" now give a season and episode, as well as "S2 Ep5".
+
 ## Alpha 0.54.6 — 2026-11-24
 - **No snow on On Demand.** (Put back in 0.54.7.)
 - **The hint line at the foot of On Demand sits on its own dark band.** The bottom row of posters fades out into it, so "Browse, Rows, OK Open, Hold OK More, Back Top" no longer runs over the picture of a poster.

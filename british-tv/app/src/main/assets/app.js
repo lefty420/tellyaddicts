@@ -7315,10 +7315,14 @@
     return m;
   }
   /** Season and episode of a stored video: the scraper's numbers, else read from the title ("S2 Ep1", "Series 3 Episode 4", "S4 || Episode 33"). */
+  var YT_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20 };
   function ytSE(x) {
     var sn = +x.season || 0, ep = +x.ep || 0, t = String(x.title || '');
     if (!sn) { var a = /\b(?:S|Series|Season)\.?\s*0*(\d{1,2})\b/i.exec(t); if (a) sn = +a[1]; }
     if (!ep) { var b = /\b(?:E|Ep|Episode|Show)\.?\s*0*(\d{1,3})\b/i.exec(t); if (b) ep = +b[1]; }
+    if (!sn && !ep) { var x2 = /\b(\d{1,2})x(\d{1,3})\b/i.exec(t); if (x2) { sn = +x2[1]; ep = +x2[2]; } }          // 2x05
+    if (!sn) { var w1 = /\b(?:Series|Season)\s+(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/i.exec(t); if (w1) sn = YT_WORDS[w1[1].toLowerCase()]; }        // "SEASON ONE - EPISODE ONE"
+    if (!ep) { var w2 = /\bEpisode\s+(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b/i.exec(t); if (w2) ep = YT_WORDS[w2[1].toLowerCase()]; }
     return { s: sn, e: ep };
   }
   function ytProgs(data, chId, names) {

@@ -8160,6 +8160,7 @@
         if (d) odSlide(box.children[wi].lastChild.children, d * (x.c.id === '_on' ? 18.3 : 9.15), 'vw');
       });
     }
+    odZoomArm();
     var top = odZn === 'chips' || odZn === 'hero';
     tH1 = performance.now();
     $('od').classList.toggle('odtop', top);
@@ -8690,7 +8691,25 @@
     }
     odRender(); return true;
   }
+  /** A poster left highlighted for 5 seconds grows by 30%; any key, or the highlight moving, puts it back. */
+  var odZoomT = null;
+  function odZoomOff() {
+    clearTimeout(odZoomT);
+    var z = document.querySelectorAll('#odrows .odzoom, #odrows .odzrow');
+    for (var i = 0; i < z.length; i++) z[i].classList.remove('odzoom', 'odzrow');
+  }
+  function odZoomArm() {
+    odZoomOff();
+    if (!odOpen || odView !== 'home' || odZn !== 'rows' || odm) return;
+    odZoomT = setTimeout(function () {
+      if (!odOpen || odView !== 'home' || odZn !== 'rows' || odm || odPip) return;
+      var c = document.querySelector('#odrows .odc.sel');
+      if (!c || !c.parentNode || !c.parentNode.parentNode) return;
+      c.classList.add('odzoom'); c.parentNode.parentNode.classList.add('odzrow');
+    }, 5000);
+  }
   function odKey(k) {
+    odZoomOff();
     if (odPip && (k === 'GoBack' || k === 'Escape' || k === 'Backspace')) { odMark(); odClose(false); return true; }     // second Back: the video goes full screen
     if (odm) return k === 'Info' ? true : odmKey(k);
     if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') {      // a held OK arrives as Info (see MainActivity)

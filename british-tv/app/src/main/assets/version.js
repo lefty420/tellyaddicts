@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.95",
-  "version": "0.53.95",
-  "code": 5395,
+  "name": "Alpha 0.53.96",
+  "version": "0.53.96",
+  "code": 5396,
   "date": "2026-11-24",
   "notes": [
-    "**The last poster in a row is no longer cut off.** Ten posters (and five Live now cards) were slightly wider than the space the row has, so the one at the right edge was cropped, on the Kids and Films rows and the rest. The posters are a little narrower so every row fits."
+    "**A poster left highlighted for 5 seconds grows by 30%.** In the On Demand rows, the highlighted poster zooms in after five seconds without a button press and goes back as soon as you press anything. The Live now cards grow a little less because they are already wide."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.95",
+      "date": "2026-11-24",
+      "notes": [
+        "**The last poster in a row is no longer cut off.** Ten posters (and five Live now cards) were slightly wider than the space the row has, so the one at the right edge was cropped, on the Kids and Films rows and the rest. The posters are a little narrower so every row fits."
+      ]
+    },
     {
       "name": "Alpha 0.53.94",
       "date": "2026-11-24",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "notes": [
         "**YouTube copies are part of the show now, not a separate list.** The season and episode are read from the video's title when the scraper left them out (\"S2 Ep1\", \"Series 3 Episode 4\"), so those videos land in their season and sit behind the archive.org copy of the same episode. A YouTube upload with no numbers but a year goes into that year instead of \"More from YouTube\". Because of this, On Demand's saved lists are built again once.",
         "**Playing an episode now tries YouTube last.** The order for an episode with no file of its own is the addon, then archive.org, then the YouTube copy of that same season and episode."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.87",
-      "date": "2026-11-24",
-      "notes": [
-        "**The video keeps playing when you press Back.** Back from a playing video now shrinks it into a small window at the top right of On Demand, with the sound still on, so you can carry on browsing. Press Back again and it goes full screen. Stop still stops it."
       ]
     }
   ]

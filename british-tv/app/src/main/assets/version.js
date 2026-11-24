@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.83",
-  "version": "0.53.83",
-  "code": 5383,
+  "name": "Alpha 0.53.84",
+  "version": "0.53.84",
+  "code": 5384,
   "date": "2026-11-24",
   "notes": [
-    "**Back while playing no longer hangs.** With On Demand as home, Back from a show or channel now lands on the On Demand home page at once. It used to look up the playing show and open its page first, which showed a loading screen for several seconds. (The On Demand button on the remote still opens the playing show's page.)"
+    "**Back while playing returns to where you were, and no longer freezes.** The log showed an 11 to 14 second freeze at the moment of Back, with the background episode-name check running behind the picture. Background jobs (episode names, artwork look-up, index building) now wait while a show is playing, and Back pauses the picture before drawing On Demand.",
+    "**Back or Stop returns to the place you started from:** the same tab, row and card, or the show page with the same season and episode if you started from there."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.83",
+      "date": "2026-11-24",
+      "notes": [
+        "**Back while playing no longer hangs.** With On Demand as home, Back from a show or channel now lands on the On Demand home page at once. It used to look up the playing show and open its page first, which showed a loading screen for several seconds. (The On Demand button on the remote still opens the playing show's page.)"
+      ]
+    },
     {
       "name": "Alpha 0.53.82",
       "date": "2026-11-24",
@@ -61,14 +69,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**The film page has a row of other films.** A film in a series (when the scraper supplies `col`) shows the series, oldest first, with \"This film\" marked; any other film shows \"More like this\", scored on shared cast, genres and year. OK opens that film's page, and Back returns to the previous film with the same card focused (up to 5 deep); hold OK opens the film menu. The poster is bigger, with a certificate chip, runtime as `1h 39m` and a \"Starring\" line. With no row the cast is listed under the poster, and with no cast the poster and text are centred."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.75",
-      "date": "2026-11-23",
-      "notes": [
-        "**On Demand has a top bar instead of the left rail on the TV.** Home, Shows, Films, Kids, Channels and Favourites on the left; Search, Guide and Options on the right. Up from the hero, the first row, the channel list or the favourites cards reaches it; Down goes back into the page. Left and Right stop at the ends. OK on a tab opens it; the current tab sits on the colour bars. Left at the first card no longer opens anything.",
-        "The hero has two sizes: large with the bar or hero in focus, smaller (one-line title, no buttons) when you are in the rows. The phone keeps its rail."
       ]
     }
   ]

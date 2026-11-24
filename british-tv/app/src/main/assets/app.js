@@ -1132,7 +1132,9 @@
   /** Someone is pressing buttons right now: background work waits so it never makes the screen stutter. */
   function userBusy() { return Date.now() - lastKeyAt < 900; }
   /** Resolves once no button has been pressed for ms: heavy background steps wait here so they never land between two presses. */
-  function idleFor(ms) { return new Promise(function (r) { (function chk() { if (Date.now() - lastKeyAt >= ms) r(); else setTimeout(chk, 400); })(); }); }
+  function idleFor(ms) { return new Promise(function (r) { (function chk() { if (Date.now() - lastKeyAt >= ms && !playingOd()) r(); else setTimeout(chk, 400); })(); }); }
+  /** An On Demand show is playing, or On Demand is home and anything is: the TV is busy decoding, so background jobs wait rather than land between a press and its picture. */
+  function playingOd() { return !!(cur && !v.paused && !odOpen && (cur.od || (expOn && startOdOn))); }
   /** progsFromData for a long list, in small slices with a breath between them (and a longer wait while a button is
    *  being pressed), so building a big channel in the background cannot freeze the screen for a second. */
   function progsFromDataSliced(items, channelId, everything) {
@@ -1393,7 +1395,7 @@
     if (enrichRun) return;
     enrichRun = true;
     (function next() {
-      if (!started || Date.now() - lastKeyAt < 2500) { setTimeout(next, 1000); return; }
+      if (!started || Date.now() - lastKeyAt < 2500 || playingOd()) { setTimeout(next, 1000); return; }
       var j = enrichQ.shift();
       if (!j) { enrichRun = false; return; }
       enrichNames(j[0], j[1]).then(function () { setTimeout(next, 50); }, function () { setTimeout(next, 50); });
@@ -1945,7 +1947,7 @@
   function artScanKey() { return 'dsh1:' + epgGen + ':' + (artRev || '') + ':' + E.hash(JSON.stringify(libRevs || {})); }
   function artScanStart() {
     if (artScan.running || !gartOn) return;
-    if (odOpen || odm || Date.now() - lastKeyAt < 6000) { setTimeout(artScanStart, 15000); return; }       // working out what to look up is heavy: never while On Demand is open or a button is being pressed
+    if (odOpen || odm || playingOd() || Date.now() - lastKeyAt < 6000) { setTimeout(artScanStart, 15000); return; }       // working out what to look up is heavy: never while On Demand is open or a button is being pressed
     var key = artScanKey();
     if (store.get('artscan_run') === key) return;                       // already done for this library and EPG build
     artScan.running = true; artScan.fails = 0;
@@ -1974,7 +1976,7 @@
       }
       (function step() {
         if (!queue.length) { finish(true); return; }
-        if (odOpen || odm || !gartOn || Date.now() - lastKeyAt < 6000) { setTimeout(step, 8000); return; }     // never compete with On Demand, or with a button that was just pressed
+        if (odOpen || odm || !gartOn || playingOd() || Date.now() - lastKeyAt < 6000) { setTimeout(step, 8000); return; }     // never compete with On Demand, or with a button that was just pressed
         var name = queue.shift();
         artScanOne(name).then(function (r) {
           if (r === 'found') found++; else if (r === 'miss') missed++;
@@ -6944,7 +6946,7 @@
     closeOsd();
     scrubT = null;
     try { v.pause(); } catch (e) { /* nothing playing */ }
-    if (odHomeMode()) { osdStopped = false; odOpenUi(true); toast('Stopped', 1500); return; }      // On Demand is home: stopping lands there, not in the guide
+    if (odHomeMode()) { osdStopped = false; odOpenUi(true); odRestore(); toast('Stopped', 1500); return; }      // On Demand is home: stopping lands there, not in the guide
     openGuide();
     osdStopped = guideOpen;
     toast('Stopped', 1500);
@@ -7155,7 +7157,7 @@
     else if (k === 'MediaPlay') { v.play(); }
     else if (k === 'MediaPause') { v.pause(); toast('Paused', 1500); }
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {          // watching: Back goes to the TV guide, or to On Demand when On Demand is home and this was picked there
-      if (odHomeMode()) odOpenUi(true); else openGuide();
+      if (odHomeMode()) { try { v.pause(); } catch (e) { /* nothing playing */ } odOpenUi(true); odRestore(); } else openGuide();
     }
     else handled = false;
 
@@ -8165,6 +8167,7 @@
   }
   function odWatchLive(c) {
     if (!c) return;
+    odMark();
     odClose(false);
     if (cur && cur.ch === c) showBanner(); else tune(c, true);
   }
@@ -8567,7 +8570,7 @@
     dlog('ONDEMAND: building the index for ' + list.length + ' channels');
     (function next() {
       if (i >= list.length) { dlog('ONDEMAND: index built for ' + list.length + ' channels in ' + Math.round((Date.now() - t0) / 100) / 10 + ' s'); return; }
-      if (!quiet() || Date.now() - lastKeyAt < 4000) { setTimeout(next, 4000); return; }
+      if (!quiet() || playingOd() || Date.now() - lastKeyAt < 4000) { setTimeout(next, 4000); return; }
       var c = list[i++];
       odiBuild(c).then(function () { setTimeout(next, 800); }, function (e) { dlog('ONDEMAND: index for ' + c.id + ' failed: ' + (e && e.message)); setTimeout(next, 800); });
     })();
@@ -9279,9 +9282,31 @@
     odmRender();
     return true;
   }
+  var odPlaced = null;
+  /** Remember where On Demand was left when something starts playing, so Back puts it all back. */
+  function odMark() {
+    var g = odView === 'show' ? odSel().g : null;
+    odPlaced = { chip: odChip, view: odView, rcId: odRc && odRc.id, g: g, ret: odRet, zone: odZone, sea: odSea, ei: odEi, bi: odBi, rel: odRelI, pos: odRc && odPos[odRc.id] };
+  }
+  function odRestore() {
+    var r = odPlaced; odPlaced = null;
+    if (!r || !odOpen) return;
+    odChip = r.chip; odCi = r.chip; odRowsMemo = null;
+    if (r.view === 'show' && r.g && !r.g.stub) {
+      odJumpHere(r.g); odRet = r.ret; odZone = r.zone; odSea = r.sea; odEi = r.ei; odBi = r.bi; odRelI = r.rel; odBack = [];
+      odShowView(true); odRender(); return;
+    }
+    if (r.view !== 'home' || !r.rcId || r.rcId === '_jp') return;
+    var rows = odRowList(), at = -1;
+    rows.forEach(function (x, i) { if (at < 0 && x.id === r.rcId) at = i; });
+    if (at < 0) return;
+    odRi = at; odRc = rows[at]; odZn = 'rows';
+    odEnter();
+  }
   function odPlay(ep) {
     var s = odSel(), g = s.g;
     if (!s.c || !g || !ep || !ep.p) return;
+    odMark();
     var i = g.flat.indexOf(ep), c = g.chan || s.c;     // the Continue watching row is not a channel: the show knows its own
     var at = odResumeAt(g, ep);
     odClose(false);

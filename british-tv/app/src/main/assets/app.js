@@ -1931,20 +1931,24 @@
   function artScanKey() { return 'dsh1:' + epgGen + ':' + (artRev || '') + ':' + E.hash(JSON.stringify(libRevs || {})); }
   function artScanStart() {
     if (artScan.running || !gartOn) return;
+    if (odOpen || odm || Date.now() - lastKeyAt < 6000) { setTimeout(artScanStart, 15000); return; }       // working out what to look up is heavy: never while On Demand is open or a button is being pressed
     var key = artScanKey();
     if (store.get('artscan_run') === key) return;                       // already done for this library and EPG build
     artScan.running = true; artScan.fails = 0;
     artNames().then(function (list) {
-      return (function () {
-        var noPic = [], noBack = [];
-        list.forEach(function (n) {
-          var m = store.get('artscan1:' + normShow(n));
-          if (m && Date.now() - m.t < TVM_MISS && !disneyShort(n)) return;               // TVmaze had nothing a few days ago (the Disney shorts are asked again: they share a series now)
-          var k = knownArt({ title: n, show: n });
-          if (!k || !k.poster) noPic.push(n); else if (!k.back) noBack.push(n);
-        });
-        return noPic.concat(noBack);
-      })();
+      return new Promise(function (res) {
+        var noPic = [], noBack = [], at = 0;
+        (function slice() {                              // a few dozen names at a time, so the screen never freezes while this is worked out
+          var end = Math.min(list.length, at + 40);
+          for (; at < end; at++) {
+            var n = list[at], m = store.get('artscan1:' + normShow(n));
+            if (m && Date.now() - m.t < TVM_MISS && !disneyShort(n)) continue;               // TVmaze had nothing a few days ago (the Disney shorts are asked again: they share a series now)
+            var k = knownArt({ title: n, show: n });
+            if (!k || !k.poster) noPic.push(n); else if (!k.back) noBack.push(n);
+          }
+          if (at < list.length) setTimeout(slice, 40); else res(noPic.concat(noBack));
+        })();
+      });
     }).then(function (queue) {
       var found = 0, missed = 0, total = queue.length;
       dlog('ARTSCAN start: ' + total + ' shows to look up');

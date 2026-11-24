@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.77",
-  "version": "0.53.77",
-  "code": 5377,
+  "name": "Alpha 0.53.78",
+  "version": "0.53.78",
+  "code": 5378,
   "date": "2026-11-24",
   "notes": [
-    "**On Demand moves lighter.** Moving along a row now swaps only the card that left and the card that came in instead of rebuilding the row, and moving Up or Down keeps the row that stays on screen and builds only the new one. The press costs a few cards, not sixteen.",
-    "**Episode names wait for a quiet moment.** The background name check starts a show only after 2.5 seconds with no button pressed, and saves its result only after 1.5 seconds of quiet, so it no longer lands between two presses.",
-    "The ad-break channel is left out of On Demand, so its (empty) list is no longer built."
+    "**The artwork look-up no longer freezes On Demand.** Working out which shows still need artwork took a 3.6 second freeze on the Shield. It now waits until On Demand is closed and no button has been pressed for 6 seconds, and does the work a few dozen names at a time."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.77",
+      "date": "2026-11-24",
+      "notes": [
+        "**On Demand moves lighter.** Moving along a row now swaps only the card that left and the card that came in instead of rebuilding the row, and moving Up or Down keeps the row that stays on screen and builds only the new one. The press costs a few cards, not sixteen.",
+        "**Episode names wait for a quiet moment.** The background name check starts a show only after 2.5 seconds with no button pressed, and saves its result only after 1.5 seconds of quiet, so it no longer lands between two presses.",
+        "The ad-break channel is left out of On Demand, so its (empty) list is no longer built."
+      ]
+    },
     {
       "name": "Alpha 0.53.76",
       "date": "2026-11-23",
@@ -60,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-23",
       "notes": [
         "**Background work stays out of the way of the remote.** The artwork scan and the episode-name checks now wait 5 to 6 s after any button press before their next step, and run slower while something is playing. They were causing freezes of 1 to 4 s seen on the playing screen and when pressing Back out of On Demand."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.69",
-      "date": "2026-11-23",
-      "notes": [
-        "**YouTube prefers the sharper stream when there is one.** The servers were all asked at once and the first answer won, which could be a soft 288p file (Telly Addicts S06E04). An answer of 720p or better is still used at once. A softer one now waits up to 3 s for the other servers, and a sharper answer from any of them is used; if none comes, the soft one plays as before, so nothing that plays today stops playing. The server picked this way is the one asked first next time."
       ]
     }
   ]

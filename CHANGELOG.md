@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.23 — 2026-11-24
+- **The snow comes back after you watch something.** Backing out of a video put On Demand back without starting the snow again, so it stayed off until Seasonal effects was switched off and on in Options. JavaScript only.
+
 ## Alpha 0.54.22 — 2026-11-24
 - **The way back to the small video is now on screen.** While a video plays small, the big button at the top reads "Back to the video (full screen)" and OK on it takes the video full screen. The hint line says the same. JavaScript only.
 

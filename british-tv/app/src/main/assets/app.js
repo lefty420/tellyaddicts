@@ -9459,6 +9459,7 @@
     if (odPlaced && !odOpen) {
       if (pip) odPipOn();          // On Demand was only hidden when the picture started: show it exactly as it was, build nothing
       odPlaced = null; odOpen = true; odBusy = false; odFrom = 'watch';
+      odSeasonUpdate();            // On Demand is back without going through odOpenUi: the snow (stopped while the video played full screen) starts again
       setTimeout(function () { if (!odOpen) return; idleFor(4000).then(function () { if (odOpen && odView === 'home') { odRowsMemo = null; odRender(); } }); }, 3000);   // pick up Continue watching a little later
       return;
     }

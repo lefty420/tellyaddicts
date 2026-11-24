@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.96",
-  "version": "0.53.96",
-  "code": 5396,
+  "name": "Alpha 0.53.97",
+  "version": "0.53.97",
+  "code": 5397,
   "date": "2026-11-24",
   "notes": [
-    "**A poster left highlighted for 5 seconds grows by 30%.** In the On Demand rows, the highlighted poster zooms in after five seconds without a button press and goes back as soon as you press anything. The Live now cards grow a little less because they are already wide."
+    "**Rows with fewer than ten posters (Films 7, Sci-fi 8) fixed.** A film or show that sits in two of the rows on screen at once (a film in both Films and Sci-fi, say) had one poster tile shared between them, so the second row took it from the first and left a gap at the end. Every row now has its own tile for each poster."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.96",
+      "date": "2026-11-24",
+      "notes": [
+        "**A poster left highlighted for 5 seconds grows by 30%.** In the On Demand rows, the highlighted poster zooms in after five seconds without a button press and goes back as soon as you press anything. The Live now cards grow a little less because they are already wide."
+      ]
+    },
     {
       "name": "Alpha 0.53.95",
       "date": "2026-11-24",
@@ -56,14 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The video now plays in the hero.** After Back, the picture fills the hero's backdrop (right side, behind the title and the rows, fading into the page) instead of a small box over the rows. Back again takes it full screen."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.88",
-      "date": "2026-11-24",
-      "notes": [
-        "**YouTube copies are part of the show now, not a separate list.** The season and episode are read from the video's title when the scraper left them out (\"S2 Ep1\", \"Series 3 Episode 4\"), so those videos land in their season and sit behind the archive.org copy of the same episode. A YouTube upload with no numbers but a year goes into that year instead of \"More from YouTube\". Because of this, On Demand's saved lists are built again once.",
-        "**Playing an episode now tries YouTube last.** The order for an episode with no file of its own is the addon, then archive.org, then the YouTube copy of that same season and episode."
       ]
     }
   ]

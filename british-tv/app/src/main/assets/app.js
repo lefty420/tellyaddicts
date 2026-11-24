@@ -8017,11 +8017,12 @@
     var ft = $('odfoot'); ft.textContent = '';
     hint.forEach(function (x) { var sp = odEl('span'); sp.appendChild(odEl('b', '', x[0])); sp.appendChild(document.createTextNode(' ' + x[1])); ft.appendChild(sp); });
   }
+  var odCardRid = '';        // the row whose cards are being made: a poster in two rows on screen at once needs a tile in each, or the second row takes it from the first
   var rowIsCw = false, odDecOn = false;   // odDecOn: the decade badge shows only where decades are mixed (Browse, search)
   /** One poster element per show, kept and reused: moving along a row re-attaches the ones already built (and decoded)
    *  instead of making new ones, which is what made browsing stutter on the TV. */
   function odCard(g, sel) {
-    var key = rowIsCw ? '_elc' : '_el', dec = odDecOn && !window.PHONE, d = g[key], gen = odKGen + ':' + cwGen + (dec ? 'd' : '');
+    var key = (rowIsCw ? '_elc' : '_el') + odCardRid, dec = odDecOn && !window.PHONE, d = g[key], gen = odKGen + ':' + cwGen + (dec ? 'd' : '');
     if (!d) { d = g[key] = odEl('div', 'odc'); d._g = ''; }
     if (d._g !== gen) {
       d._g = gen; d.textContent = '';
@@ -8104,12 +8105,12 @@
         var sp = box.children[wi].firstChild.lastChild; if (x.sh && sp && sp.tagName === 'SPAN') sp.textContent = odCount(x);
         var dd = x.start - odDom[wi].start;
         if (dd && x.sh) {
-          rowIsCw = x.c === cwPseudo; odDecOn = x.c === srPseudo;
+          rowIsCw = x.c === cwPseudo; odDecOn = x.c === srPseudo; odCardRid = x.c.id;
           var mk = function (i) { return x.c.id === '_on' ? odOnCard(x.sh[i], false) : odCard(x.sh[i], false); }, i2;
           for (var q0 = 0; q0 < cards.length; q0++) cards[q0].classList.remove('sel');
           if (dd > 0) { for (i2 = 0; i2 < dd; i2++) cont.removeChild(cont.firstChild); for (i2 = odDom[wi].start + x.vis; i2 < x.start + x.vis && i2 < x.n; i2++) cont.appendChild(mk(i2)); }
           else { for (i2 = 0; i2 < -dd; i2++) cont.removeChild(cont.lastChild); for (i2 = odDom[wi].start - 1; i2 >= x.start; i2--) cont.insertBefore(mk(i2), cont.firstChild); }
-          rowIsCw = false; odDecOn = false;
+          rowIsCw = false; odDecOn = false; odCardRid = '';
           odDom[wi].start = x.start; odDom[wi].sel = -1; old = -1;
           odSlide(cont.children, dd * (x.c.id === '_on' ? 18.3 : 9.15), 'vw');
         }
@@ -8141,12 +8142,12 @@
         var cards = odEl('div', 'odcards');
         if (!x.sh) { for (var q = 0; q < x.vis; q++) cards.appendChild(odEl('div', 'odc odsk' + (x.c.id === '_on' ? ' odon' : ''))); }     // no list yet: plain blocks where the posters will be
         else {
-          rowIsCw = x.c === cwPseudo; odDecOn = x.c === srPseudo;
+          rowIsCw = x.c === cwPseudo; odDecOn = x.c === srPseudo; odCardRid = x.c.id;
           for (var i = x.start; i < Math.min(x.n, x.start + x.vis); i++) {
             var sel = x.ri === odRi && inRows && i === x.pos;
             cards.appendChild(x.c.id === '_on' ? odOnCard(x.sh[i], sel) : odCard(x.sh[i], sel));
           }
-          rowIsCw = false; odDecOn = false;
+          rowIsCw = false; odDecOn = false; odCardRid = '';
           if (odT1 && x.n && x.c.ch) { dlog('ONDEMAND: first genre row (' + x.c.name + ') drawn ' + Math.round(performance.now() - odT1) + ' ms after pressing On Demand'); odT1 = 0; }
           if (odT0 && x.n) { dlog('ONDEMAND: first row drawn ' + Math.round(performance.now() - odT0) + ' ms after pressing On Demand (' + (odT0Warm ? 'warm start, rows saved' : 'index being built') + ', ' + x.c.name + ', ' + x.n + ' shows)'); odT0 = 0; }
         }

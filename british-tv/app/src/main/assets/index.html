@@ -582,14 +582,13 @@
   }
   #ginfo, #ggrid, #glegend { z-index: 2; }       /* the seasonal snow falls behind the words, never over them */
   #gsnow { clip-path: polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, calc(42 * var(--uw)) calc(4 * var(--u)), calc(96 * var(--uw)) calc(4 * var(--u)), calc(96 * var(--uw)) calc(38 * var(--u)), calc(42 * var(--uw)) calc(38 * var(--u)), calc(42 * var(--uw)) calc(4 * var(--u)), 0 0, calc(4 * var(--uw)) calc(41 * var(--u)), calc(96 * var(--uw)) calc(41 * var(--u)), calc(96 * var(--uw)) 94%, calc(4 * var(--uw)) 94%, calc(4 * var(--uw)) calc(41 * var(--u)), 0 0); }       /* snow only where there are no words: the margins, the little TV and the drifts at the foot */
-  #gsnow, #odsnow { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
-  #odsnow { z-index: 0; }       /* On Demand: over the backdrop, behind its words and posters */
-  #gsnow.hidden, #odsnow.hidden { display: none; }
+  #gsnow { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  #gsnow.hidden { display: none; }
   body.snow-lite #ginfo { text-shadow: 0 0 calc(.9 * var(--u)) rgba(0,0,0,.95), 0 0 calc(.35 * var(--u)) rgba(0,0,0,.95), 0 calc(.2 * var(--u)) calc(.8 * var(--u)) rgba(0,0,0,.7); }   /* with no mask round the words, a dark halo keeps them readable over a flake */
-  #gsnow canvas, #odsnow canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }
-  #gsnow .sn-wrap, #odsnow .sn-wrap { position: absolute; inset: 0; will-change: transform; }
-  #gsnow .sn-wrap canvas, #odsnow .sn-wrap canvas { will-change: transform; }
-  #gsnow .sn-drift, #gsnow .sn-sparkle, #odsnow .sn-drift, #odsnow .sn-sparkle { top: auto; bottom: 0; }
+  #gsnow canvas { position: absolute; left: 0; top: 0; width: 100%; image-rendering: pixelated; image-rendering: crisp-edges; image-rendering: pixelated; }
+  #gsnow .sn-wrap { position: absolute; inset: 0; will-change: transform; }
+  #gsnow .sn-wrap canvas { will-change: transform; }
+  #gsnow .sn-drift, #gsnow .sn-sparkle { top: auto; bottom: 0; }
   #gart { position: absolute; top: 0; right: 0; width: calc(68 * var(--uw)); height: calc(42 * var(--u)); background-size: cover; background-position: center 25%; opacity: 0; transition: opacity .6s; pointer-events: none; }
   #gart.on { opacity: .5; }
   #gart::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--g1) 0%, rgba(0,0,0,0) 55%), linear-gradient(0deg, var(--g2) 0%, rgba(0,0,0,0) 45%); }
@@ -1260,6 +1259,12 @@
   html:not(.phone) #od:not(.odtop) #odrows { top: calc(33 * var(--u)); }
   html:not(.phone) #od:not(.odtop) #odh1 { font-size: calc(6.5 * var(--u)); -webkit-line-clamp: 1; }
   html.phone .odx { display: none; }
+  /* On Demand polish: the hint line sits on its own band, the title logo is sized like the title, the On now line is bigger */
+  html:not(.phone) #odfoot { left: 0; right: 0; bottom: 0; height: calc(11 * var(--u)); padding: 0 calc(4 * var(--uw)) calc(6.4 * var(--u)); box-sizing: border-box; align-items: flex-end; pointer-events: none; background: linear-gradient(0deg, #0b0f1a 0, #0b0f1a 78%, rgba(11,15,26,0) 100%); }       /* the poster row under the home screen fades out into it instead of running under the words */
+  html:not(.phone) #od.odtop #odlogo { height: calc(12 * var(--u)); max-height: none; }
+  html:not(.phone) #od:not(.odtop) #odlogo { height: calc(6.5 * var(--u)); max-height: none; }       /* a small logo picture is scaled up to the title's height instead of sitting as a speck */
+  .odon b { bottom: calc(4.6 * var(--u)); }
+  .odon small { bottom: calc(1.8 * var(--u)); font-size: calc(2.2 * var(--u)); color: #d3d8e4; }
   </style>
 </head>
 <body>
@@ -1304,7 +1309,6 @@
 </div>
 <div id="od" class="hidden">
   <div id="odbg"></div>
-  <div id="odsnow" class="hidden" aria-hidden="true"></div>
   <div id="odbar"><div id="odchips"></div><div id="odtools"><div id="odsrch" class="odchip">Search</div><div id="odguide" class="odchip">Guide</div><div id="odopts" class="odchip">Options</div></div></div>
   <div id="odside"></div>
   <div id="odload" class="hidden"><div class="odspin"></div><div>Getting your shows ready…</div></div>

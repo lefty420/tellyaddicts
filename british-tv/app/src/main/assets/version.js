@@ -1,14 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.5",
-  "version": "0.54.5",
-  "code": 5405,
+  "name": "Alpha 0.54.6",
+  "version": "0.54.6",
+  "code": 5406,
   "date": "2026-11-24",
   "notes": [
-    "**A highlighted poster is no longer cut off at the bottom.** Each row now keeps room under its posters for the highlight outline and the slight enlargement."
+    "**No snow on On Demand.** The snow, drifts and Santa's plough are back to the TV guide only. The Experimental option \"On Demand seasonal themes\" is gone, and On Demand no longer draws a moving picture on top of the home screen.",
+    "**The hint line at the foot of On Demand sits on its own dark band.** The bottom row of posters fades out into it, so \"Browse, Rows, OK Open, Hold OK More, Back Top\" no longer runs over the picture of a poster.",
+    "**A show's title picture is the size of its title.** On the home screen a small logo picture used to show as a tiny speck where the title should be. It is now scaled to the title's height, both on the big hero and when the hero shrinks as you move down to a row.",
+    "**The \"Next 18:17 ...\" line on the On now cards is bigger** and clear of the progress bar."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.5",
+      "date": "2026-11-24",
+      "notes": [
+        "**A highlighted poster is no longer cut off at the bottom.** Each row now keeps room under its posters for the highlight outline and the slight enlargement."
+      ]
+    },
     {
       "name": "Alpha 0.54.4",
       "date": "2026-11-24",
@@ -56,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Bigger posters: six to a row on the TV.** The On Demand home rows now show six large posters (they were ten small ones), with a little more space between them. The title area and the first row have moved up a touch to make room. Live now cards, the grid, Favourites and the phone layout are unchanged."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.97",
-      "date": "2026-11-24",
-      "notes": [
-        "**Rows with fewer than ten posters (Films 7, Sci-fi 8) fixed.** A film or show that sits in two of the rows on screen at once (a film in both Films and Sci-fi, say) had one poster tile shared between them, so the second row took it from the first and left a gap at the end. Every row now has its own tile for each poster."
       ]
     }
   ]

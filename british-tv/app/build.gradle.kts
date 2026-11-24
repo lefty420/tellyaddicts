@@ -10,8 +10,8 @@ android {
         applicationId = "app.britishtv"
         minSdk = 22
         targetSdk = 34
-        versionCode = 5414
-        versionName = "0.54.14"
+        versionCode = 5415
+        versionName = "0.54.15"
     }
 
     // Two builds from the one codebase: "tv" (the TV app, exactly as before) and "mobile" (for phones). They have different
@@ -48,6 +48,14 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // The NewPipe extractor uses newer Java library calls than Android 5 to 12 have: the build supplies them
+        isCoreLibraryDesugaringEnabled = true
+    }
+
+    packaging {
+        resources {
+            excludes += setOf("META-INF/DEPENDENCIES", "META-INF/LICENSE*", "META-INF/NOTICE*", "META-INF/INDEX.LIST")
+        }
     }
 }
 
@@ -57,6 +65,12 @@ dependencies {
     // in the README. Keep the two on matching Media3 versions.
     implementation("androidx.media3:media3-exoplayer:1.5.0")
     implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.5.0+1")
+
+    // YouTube: asks YouTube straight from the device (YoutubeResolver.java and NewPipeSource.java), the way the NewPipe app does.
+    // If this download fails or YouTube changes, raise the version to the newest release at
+    // https://github.com/TeamNewPipe/NewPipeExtractor/releases
+    implementation("com.github.teamnewpipe:NewPipeExtractor:v0.26.5")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.1.5")
 }
 
 // The Telly Addict Builder (in the scraper repo) builds with `assembleDebug` and picks the TV APK up from

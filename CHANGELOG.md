@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.15 — 2026-11-24
+- **YouTube is now asked directly, from the device, with the NewPipe extractor.** It is tried first; the public Piped and Invidious servers stay as the fall-back. This is a Java and build change: the first build needs to download the library (JitPack) and turns on core library desugaring. If the build fails on the new dependency, or YouTube stops working after a YouTube change, raise the version in app/build.gradle.kts to the newest NewPipeExtractor release. The debug log says "NewPipe" in the YouTube line when it was used.
+
 ## Alpha 0.54.14 — 2026-11-24
 - **The YouTube error in the debug log now says what the live server lists gave** (how many servers, or why they could not be fetched). In 0.54.13 the failed play listed only the built-in servers, so the live lists added nothing and I could not tell why. No change to how YouTube plays. Needs a new build (Java).
 

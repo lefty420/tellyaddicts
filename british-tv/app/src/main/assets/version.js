@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.14",
-  "version": "0.54.14",
-  "code": 5414,
+  "name": "Alpha 0.54.15",
+  "version": "0.54.15",
+  "code": 5415,
   "date": "2026-11-24",
   "notes": [
-    "**The YouTube error in the debug log now says what the live server lists gave** (how many servers, or why they could not be fetched). In 0.54.13 the failed play listed only the built-in servers, so the live lists added nothing and I could not tell why. No change to how YouTube plays. Needs a new build (Java)."
+    "**YouTube is now asked directly, from the device, with the NewPipe extractor.** It is tried first; the public Piped and Invidious servers stay as the fall-back. This is a Java and build change: the first build needs to download the library (JitPack) and turns on core library desugaring. If the build fails on the new dependency, or YouTube stops working after a YouTube change, raise the version in app/build.gradle.kts to the newest NewPipeExtractor release. The debug log says \"NewPipe\" in the YouTube line when it was used."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.14",
+      "date": "2026-11-24",
+      "notes": [
+        "**The YouTube error in the debug log now says what the live server lists gave** (how many servers, or why they could not be fetched). In 0.54.13 the failed play listed only the built-in servers, so the live lists added nothing and I could not tell why. No change to how YouTube plays. Needs a new build (Java)."
+      ]
+    },
     {
       "name": "Alpha 0.54.13",
       "date": "2026-11-24",
@@ -57,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The On Demand snow is back.** Options > Experimental > On Demand seasonal themes works again, as in 0.54.5. The other 0.54.6 changes stay: the hint line on its own band, the title picture sized like the title, and the bigger \"Next ...\" line on the On now cards."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.7",
-      "date": "2026-11-24",
-      "notes": [
-        "**More YouTube titles are numbered.** Titles like \"Season One - Episode Two\" and \"2x05\" now give a season and episode, as well as \"S2 Ep5\"."
       ]
     }
   ]

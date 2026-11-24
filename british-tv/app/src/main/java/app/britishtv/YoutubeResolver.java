@@ -156,6 +156,7 @@ final class YoutubeResolver {
     static Result resolve(final String id, Set<String> skip) {
         refreshLive();
         List<String> servers = new ArrayList<String>();
+        servers.add("N");                                  // NewPipe's extractor, straight from this device: asked first, the public servers are the fall-back
         List<String> fresh = live;
         if (fresh != null) {
             servers.addAll(fresh);
@@ -188,7 +189,7 @@ final class YoutubeResolver {
             all.add(done.submit(new Callable<Result>() {
                 @Override
                 public Result call() {
-                    Result r = s.charAt(0) == 'P' ? askPiped(s.substring(1), id) : askInvidious(s.substring(1), id);
+                    Result r = s.charAt(0) == 'N' ? askNewPipe(id) : s.charAt(0) == 'P' ? askPiped(s.substring(1), id) : askInvidious(s.substring(1), id);
                     r.server = s;
                     if (r.error == null) {
                         lastGood = s;
@@ -277,7 +278,7 @@ final class YoutubeResolver {
     }
 
     /** "1080p", "720p60" or "1080p (HD)" -> 1080 etc.; 0 when there is no number. */
-    private static int heightOf(String label) {
+    static int heightOf(String label) {
         if (label == null) {
             return 0;
         }
@@ -293,6 +294,16 @@ final class YoutubeResolver {
             }
         }
         return v;
+    }
+
+    private static Result askNewPipe(String id) {
+        try {
+            return NewPipeSource.resolve(id);
+        } catch (Throwable t) {                           // the library is missing or broke
+            Result r = new Result();
+            r.error = "NewPipe: " + t;
+            return r;
+        }
     }
 
     private static Result askPiped(String base, String id) {

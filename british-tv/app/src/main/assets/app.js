@@ -1216,6 +1216,8 @@
     }).then(null, function () { /* static only */ });
   }
   // Start-up TV, all moved by CSS animations (see index.html): this only makes the pieces and keeps the pictures topped up.
+  var SP_SURF_MS = 900;       // a new picture tunes in this often (it was 1.7 s)
+  var OD_SPLASH_MIN = 5000;   // starting in On Demand: the loading screen stays at least this long (ms since launch), so the tuning can be seen
   var spSlots = [], spInited = false, spSurfTimer = null, spStep = 0;
   function spInit() {
     if (spInited) return;
@@ -1231,7 +1233,7 @@
     var bgb = $('spbg');
     if (bgb) { var tw = document.createElement('div'); tw.className = 'spbgslot now'; bgb.appendChild(tw); el._tw = tw; }
     spSurf();
-    spSurfTimer = setInterval(spSurf, 1700);
+    spSurfTimer = setInterval(spSurf, SP_SURF_MS);
   }
   var spRecent = [], spChi = 0, spDone = -1, spEver = false;
   function spSurf() {
@@ -1270,7 +1272,7 @@
     var left = function () { return channels.filter(function (c) { return c.status === 'loading'; }).length; };
     if (!left()) return;
     spGuide = true; $('splash').className = ''; statusSig = ''; renderStatus();
-    if (spInited && !spSurfTimer) spSurfTimer = setInterval(spSurf, 1700);
+    if (spInited && !spSurfTimer) spSurfTimer = setInterval(spSurf, SP_SURF_MS);
     clearInterval(spGuideT);
     spGuideT = setInterval(function () {
       renderStatus();
@@ -1318,6 +1320,10 @@
       $('splash').classList.toggle('ready', allIn);
       if (allIn) $('spmsg').textContent = 'Opening the guide\u2026';
       var scr = $('spscreen');
+    }
+    if (!started && channels.length && expOn && startOdOn) {          // On Demand opens after a couple of channels: let the green bar creep along with the time so it visibly tunes, and finish when it is ready
+      var realP = 100 * settled / channels.length, creepP = Math.min(92, performance.now() / OD_SPLASH_MIN * 92);
+      $('sptrack').style.setProperty('--p', Math.round(settled >= channels.length ? 100 : Math.max(realP, creepP)) + '%');
     }
     var on = Math.min(7, 1 + Math.floor(Date.now() / 400) % 7);
     var bars = $('bars').children;
@@ -9565,6 +9571,7 @@
     // without waiting for the channel that was on last or the top of the guide.
     var odStart = expOn && startOdOn;
     if (odStart && list.length < OD_START_MIN && Date.now() - bootedAt < ALL_WAIT && !quiet()) return;
+    if (odStart && performance.now() < OD_SPLASH_MIN) { renderStatus(); return; }       // keep the loading screen up long enough to be seen
     if (!odStart && prefer && prefer.status === 'loading' && Date.now() - bootedAt < FIRST_WAIT) return;
     // Open once the channel that was on last and the first screenful of the guide are ready; the other channels finish behind it
     // (the guide redraws as each one lands). Waiting for all of them made every start take as long as the slowest channel.

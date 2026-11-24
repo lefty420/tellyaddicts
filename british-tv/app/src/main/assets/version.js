@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.3",
-  "version": "0.54.3",
-  "code": 5403,
+  "name": "Alpha 0.54.4",
+  "version": "0.54.4",
+  "code": 5404,
   "date": "2026-11-24",
   "notes": [
-    "**Poster rows fill the row exactly.** The seven posters are sized to the row's width (12.1 wide) so none is cut off at the edge, and the sliding step matches."
+    "**The On Demand loading screen tunes in properly.** The green bar now moves along with the time and fills when everything is ready (before, it jumped because On Demand opens after two channels). The screen stays up for at least five seconds, and a new picture tunes in about every 0.9 s (was 1.7 s), each after a burst of static."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.3",
+      "date": "2026-11-24",
+      "notes": [
+        "**Poster rows fill the row exactly.** The seven posters are sized to the row's width (12.1 wide) so none is cut off at the edge, and the sliding step matches."
+      ]
+    },
     {
       "name": "Alpha 0.54.2",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**A poster left highlighted for 5 seconds grows by 30%.** In the On Demand rows, the highlighted poster zooms in after five seconds without a button press and goes back as soon as you press anything. The Live now cards grow a little less because they are already wide."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.95",
-      "date": "2026-11-24",
-      "notes": [
-        "**The last poster in a row is no longer cut off.** Ten posters (and five Live now cards) were slightly wider than the space the row has, so the one at the right edge was cropped, on the Kids and Films rows and the rest. The posters are a little narrower so every row fits."
       ]
     }
   ]

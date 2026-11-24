@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.4 — 2026-11-24
+- **The On Demand loading screen tunes in properly.** The green bar now moves along with the time and fills when everything is ready (before, it jumped because On Demand opens after two channels). The screen stays up for at least five seconds, and a new picture tunes in about every 0.9 s (was 1.7 s), each after a burst of static.
+
 ## Alpha 0.54.3 — 2026-11-24
 - **Poster rows fill the row exactly.** The seven posters are sized to the row's width (12.1 wide) so none is cut off at the edge, and the sliding step matches.
 

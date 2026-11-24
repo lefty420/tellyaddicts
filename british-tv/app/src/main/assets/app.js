@@ -6946,7 +6946,7 @@
     closeOsd();
     scrubT = null;
     try { v.pause(); } catch (e) { /* nothing playing */ }
-    if (odHomeMode()) { osdStopped = false; odOpenUi(true); odRestore(); toast('Stopped', 1500); return; }      // On Demand is home: stopping lands there, not in the guide
+    if (odHomeMode()) { osdStopped = false; odBackFromPlay(); toast('Stopped', 1500); return; }      // On Demand is home: stopping lands there, not in the guide
     openGuide();
     osdStopped = guideOpen;
     toast('Stopped', 1500);
@@ -7157,7 +7157,7 @@
     else if (k === 'MediaPlay') { v.play(); }
     else if (k === 'MediaPause') { v.pause(); toast('Paused', 1500); }
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {          // watching: Back goes to the TV guide, or to On Demand when On Demand is home and this was picked there
-      if (odHomeMode()) { try { v.pause(); } catch (e) { /* nothing playing */ } odOpenUi(true); odRestore(); } else openGuide();
+      if (odHomeMode()) odBackFromPlay(); else openGuide();
     }
     else handled = false;
 
@@ -9283,6 +9283,14 @@
     return true;
   }
   var odPlaced = null;
+  /** Leave playback for On Demand. The page is put up at once as it was last drawn, the picture is paused, and only then is the page worked out:
+   *  while the player is still decoding, every read from storage waits behind it (the log showed 5 to 14 seconds). */
+  function odBackFromPlay() {
+    closeOsd();
+    $('od').className = ''; v.muted = true;
+    try { v.pause(); } catch (e) { /* nothing playing */ }
+    setTimeout(function () { if (odOpen) return; odOpenUi(true); odRestore(); }, 250);
+  }
   /** Remember where On Demand was left when something starts playing, so Back puts it all back. */
   function odMark() {
     var g = odView === 'show' ? odSel().g : null;

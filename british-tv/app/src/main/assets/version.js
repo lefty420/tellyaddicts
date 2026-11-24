@@ -1,15 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.53.84",
-  "version": "0.53.84",
-  "code": 5384,
+  "name": "Alpha 0.53.85",
+  "version": "0.53.85",
+  "code": 5385,
   "date": "2026-11-24",
   "notes": [
-    "**Back while playing returns to where you were, and no longer freezes.** The log showed an 11 to 14 second freeze at the moment of Back, with the background episode-name check running behind the picture. Background jobs (episode names, artwork look-up, index building) now wait while a show is playing, and Back pauses the picture before drawing On Demand.",
-    "**Back or Stop returns to the place you started from:** the same tab, row and card, or the show page with the same season and episode if you started from there."
+    "**Back while playing: the freeze should be gone.** The log showed no background job in front of it, so the time was spent reading On Demand's saved lists while the player was still decoding. Back now puts up On Demand as it was last drawn at once, pauses the picture, and works out the page a quarter of a second later."
   ],
   "history": [
+    {
+      "name": "Alpha 0.53.84",
+      "date": "2026-11-24",
+      "notes": [
+        "**Back while playing returns to where you were, and no longer freezes.** The log showed an 11 to 14 second freeze at the moment of Back, with the background episode-name check running behind the picture. Background jobs (episode names, artwork look-up, index building) now wait while a show is playing, and Back pauses the picture before drawing On Demand.",
+        "**Back or Stop returns to the place you started from:** the same tab, row and card, or the show page with the same season and episode if you started from there."
+      ]
+    },
     {
       "name": "Alpha 0.53.83",
       "date": "2026-11-24",
@@ -62,13 +69,6 @@ window.RELEASE = {
         "**On Demand moves lighter.** Moving along a row now swaps only the card that left and the card that came in instead of rebuilding the row, and moving Up or Down keeps the row that stays on screen and builds only the new one. The press costs a few cards, not sixteen.",
         "**Episode names wait for a quiet moment.** The background name check starts a show only after 2.5 seconds with no button pressed, and saves its result only after 1.5 seconds of quiet, so it no longer lands between two presses.",
         "The ad-break channel is left out of On Demand, so its (empty) list is no longer built."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.76",
-      "date": "2026-11-23",
-      "notes": [
-        "**The film page has a row of other films.** A film in a series (when the scraper supplies `col`) shows the series, oldest first, with \"This film\" marked; any other film shows \"More like this\", scored on shared cast, genres and year. OK opens that film's page, and Back returns to the previous film with the same card focused (up to 5 deep); hold OK opens the film menu. The poster is bigger, with a certificate chip, runtime as `1h 39m` and a \"Starring\" line. With no row the cast is listed under the poster, and with no cast the poster and text are centred."
       ]
     }
   ]

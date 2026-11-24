@@ -8749,7 +8749,6 @@
   }
   function odKey(k) {
     odZoomOff();
-    if (odPip && (k === 'GoBack' || k === 'Escape' || k === 'Backspace')) { odMark(); odClose(false); return true; }     // second Back: the video goes full screen
     if (odm) return k === 'Info' ? true : odmKey(k);
     if (k === 'Menu' || k === 'ContextMenu' || k === 'Info') {      // a held OK arrives as Info (see MainActivity)
       if (odView === 'home' && odZn === 'hero') { odOpenHero(); return true; }
@@ -8790,7 +8789,7 @@
       else if (k === 'ArrowRight') odHeroI = (odHeroI + 1) % odHero.length;
       else if (k === 'ArrowUp') { odZn = 'chips'; odCi = odChip; }
       else if (k === 'ArrowDown') { odZn = 'rows'; odEnter(); return true; }
-      else if (ok) { odPlayHero(); return true; }
+      else if (ok) { if (odPip) { odMark(); odClose(false); return true; } odPlayHero(); return true; }      // the small video sits where the hero was: OK on it takes it full screen
       else if (back) { if (odHomeMode()) { odBackHome(); return true; } odClose(true); return true; }
       odRender(); return true;
     }

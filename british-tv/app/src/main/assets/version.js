@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.19",
-  "version": "0.54.19",
-  "code": 5419,
+  "name": "Alpha 0.54.20",
+  "version": "0.54.20",
+  "code": 5420,
   "date": "2026-11-24",
   "notes": [
-    "**The YouTube log line is shorter and says what NewPipe did first.** In 0.54.18 the line was cut off before NewPipe's result. Now: NewPipe's answer, then the servers that worked, then how many others failed. Logging only; needs a new build (Java)."
+    "**Back now walks up instead of flipping between the small video and full screen.** Video, Back: the episodes with the video still playing small. Back: On Demand home. Back at the top: the quit prompt. To take the small video full screen, go up to it (the picture at the top) and press OK. JavaScript only (no new Java needed beyond 0.54.19)."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.19",
+      "date": "2026-11-24",
+      "notes": [
+        "**The YouTube log line is shorter and says what NewPipe did first.** In 0.54.18 the line was cut off before NewPipe's result. Now: NewPipe's answer, then the servers that worked, then how many others failed. Logging only; needs a new build (Java)."
+      ]
+    },
     {
       "name": "Alpha 0.54.18",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**On Demand no longer freezes when the YouTube list changes.** A channel's On Demand list was rebuilt whenever the scraper added or removed a single YouTube video, which took up to two minutes and stalled the screen for up to 16 s. It is now rebuilt only when the channel gains or loses a YouTube show. A show's page still reads the newest videos when you open it. The change rebuilds the lists once more on the first start after updating."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.11",
-      "date": "2026-11-24",
-      "notes": [
-        "**No key-hint line along the bottom of On Demand** (\"Next show, OK Play, Hold OK More info…\"). It is gone, so the foot of the screen is clear for the snow drifts too."
       ]
     }
   ]

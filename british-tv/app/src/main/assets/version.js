@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.7",
-  "version": "0.54.7",
-  "code": 5407,
+  "name": "Alpha 0.54.8",
+  "version": "0.54.8",
+  "code": 5408,
   "date": "2026-11-24",
   "notes": [
-    "**The On Demand snow is back.** Options > Experimental > On Demand seasonal themes works again, as in 0.54.5. The other 0.54.6 changes stay: the hint line on its own band, the title picture sized like the title, and the bigger \"Next ...\" line on the On now cards."
+    "**One seasonal setting for the TV guide and On Demand.** When Options > Seasonal effects is on (Auto), the snow, drifts and Santa's plough show on both. The separate Experimental option \"On Demand seasonal themes\" is gone, so On Demand no longer needs Experimental switched on."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.7",
+      "date": "2026-11-24",
+      "notes": [
+        "**The On Demand snow is back.** Options > Experimental > On Demand seasonal themes works again, as in 0.54.5. The other 0.54.6 changes stay: the hint line on its own band, the title picture sized like the title, and the bigger \"Next ...\" line on the On now cards."
+      ]
+    },
     {
       "name": "Alpha 0.54.6",
       "date": "2026-11-24",
@@ -59,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**Seven posters per row, a little smaller, and the 5 second zoom is off.** Poster rows on the TV show 7 across (was 6). The highlighted poster no longer grows after a pause."
-      ]
-    },
-    {
-      "name": "Alpha 0.53.99",
-      "date": "2026-11-24",
-      "notes": [
-        "**Guide now sits next to Home on the top menu.** The bar reads Home, Guide, Shows, Films, Kids, Channels, Favourites, with Search and Options on the right. Left and Right follow that order. The phone layout is unchanged."
       ]
     }
   ]

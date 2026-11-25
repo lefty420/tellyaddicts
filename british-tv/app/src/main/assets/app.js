@@ -8514,7 +8514,7 @@
   var odSeasonOv = null;
   function odSeasonUpdate() {
     if (!window.SEASONS || !$('odsnow')) return;
-    var want = seasonOn && odOpen && !odPip && !!SEASONS.current();
+    var want = seasonOn && odOpen && !!SEASONS.current();
     if (want && !odSeasonOv) odSeasonOv = SEASONS.snow($('odsnow'), function () {
       var r = $('odrows'), b = r ? r.getBoundingClientRect().bottom : window.innerHeight - 40;
       return Math.max(20, window.innerHeight - b);

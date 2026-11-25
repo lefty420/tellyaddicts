@@ -9453,18 +9453,32 @@
   /** Leave playback for On Demand. The page is put up at once as it was last drawn, the picture is paused, and only then is the page worked out:
    *  while the player is still decoding, every read from storage waits behind it (the log showed 5 to 14 seconds). */
   function odBackFromPlay(noPip) {
+    var bt0 = performance.now(), bt = function (step) { dlog('BACK from play: ' + step + ' at ' + Math.round(performance.now() - bt0) + ' ms'); };
     closeOsd();
     var pip = !noPip && !!(cur && !v.paused && odPlaced && !odOpen);
     $('od').className = '';
     if (!pip) { v.muted = true; try { v.pause(); } catch (e) { /* nothing playing */ } }
     if (odPlaced && !odOpen) {
+      bt('quick way' + (pip ? ' (small video)' : '') + ', picture paused');
       if (pip) odPipOn();          // On Demand was only hidden when the picture started: show it exactly as it was, build nothing
       odPlaced = null; odOpen = true; odBusy = false; odFrom = 'watch';
+      bt('page switched on');
       odSeasonUpdate();            // On Demand is back without going through odOpenUi: the snow (stopped while the video played full screen) starts again
+      bt('snow set');
+      requestAnimationFrame(function () { bt('first picture drawn'); });
       setTimeout(function () { if (!odOpen) return; idleFor(4000).then(function () { if (odOpen && odView === 'home') { odRowsMemo = null; odRender(); } }); }, 3000);   // pick up Continue watching a little later
       return;
     }
-    setTimeout(function () { if (odOpen) return; odOpenUi(true); odRestore(); }, 250);
+    bt('full way (On Demand was not marked), picture paused');
+    setTimeout(function () {
+      if (odOpen) return;
+      bt('opening On Demand');
+      odOpenUi(true);
+      bt('On Demand opened');
+      odRestore();
+      bt('place restored');
+      requestAnimationFrame(function () { bt('first picture drawn'); });
+    }, 250);
   }
   /** Remember where On Demand was left when something starts playing, so Back puts it all back. */
   function odMark() {

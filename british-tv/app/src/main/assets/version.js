@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.24",
-  "version": "0.54.24",
-  "code": 5424,
+  "name": "Alpha 0.54.25",
+  "version": "0.54.25",
+  "code": 5425,
   "date": "2026-11-25",
   "notes": [
-    "**The channels are in a real-TV order.** Numbers 1 to 9 are the main channels (Classic BBC, ITV, ITV Morning, Saturday Night TV, Game Shows, Entertainment, Drama, Soaps, Classic Sitcoms), then quiz and light entertainment, comedy, drama, decades, kids, movies, music and games, food and Christmas, with Adverts last. The Magic EPG channels are mixed in beside their closest relatives instead of sitting in a block at 41 to 75, and the numbers have no gaps whether Magic EPG is on or off. Saved favourites and picks are by channel, not number, so they are not affected. `tools/magic_channels.py` carries the same numbers, so regenerating the Magic channels does not undo it."
+    "**Logging for the freeze when you press Back from a video.** Going back to On Demand froze the screen for 9 to 16 seconds after a stream (9.5 s, 12 s and 16 s in today's and yesterday's logs). The log now has \"BACK from play:\" lines saying which step the time goes in (paused picture, page on, snow, first picture, or the long way round when On Demand was not marked). No change in behaviour. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.24",
+      "date": "2026-11-25",
+      "notes": [
+        "**The channels are in a real-TV order.** Numbers 1 to 9 are the main channels (Classic BBC, ITV, ITV Morning, Saturday Night TV, Game Shows, Entertainment, Drama, Soaps, Classic Sitcoms), then quiz and light entertainment, comedy, drama, decades, kids, movies, music and games, food and Christmas, with Adverts last. The Magic EPG channels are mixed in beside their closest relatives instead of sitting in a block at 41 to 75, and the numbers have no gaps whether Magic EPG is on or off. Saved favourites and picks are by channel, not number, so they are not affected. `tools/magic_channels.py` carries the same numbers, so regenerating the Magic channels does not undo it."
+      ]
+    },
     {
       "name": "Alpha 0.54.23",
       "date": "2026-11-24",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**NewPipe now sends YouTube's consent cookie.** The first test of 0.54.15 reached YouTube but failed with \"Could not get ytInitialData\", which is what the consent page looks like to the extractor in the UK. Needs a new build (Java). Also includes the 0.54.16 change below."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.16",
-      "date": "2026-11-24",
-      "notes": [
-        "**An episode with no source now stays on its show page.** Pressing an episode that no addon, archive.org or YouTube copy could play showed \"No source found\" and then dropped you back to the top of On Demand. It now returns to the same show with the same episode highlighted. (S06E04 of Telly Addicts has no copy anywhere yet; that is a library gap for the scraper.)"
       ]
     }
   ]

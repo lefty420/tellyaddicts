@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.26",
-  "version": "0.54.26",
-  "code": 5426,
+  "name": "Alpha 0.54.27",
+  "version": "0.54.27",
+  "code": 5427,
   "date": "2026-11-25",
   "notes": [
-    "**The snow stays on while the small video plays.** It used to switch itself off whenever a video played in the small window. JavaScript only."
+    "**Christmas Cartoons & Kids has 93 shows instead of 36.** Every children's show whose files or guide say Christmas is now on the channel: Rupert Bear, Playdays, Richard Scarry, Walt Disney Cartoon, Oswald, The Flintstones, Care Bears, Pingu, Pinky and the Brain, Tiny Toons, Rugrats and many more, about 207 Christmas episodes in all (it was about 125). The same Magic channels update also re-checked the other Magic channels against the current library: Frasier joins TGIF, and Hit List UK, Room 101, Willy Fog, Roswell Conspiracies and two Christmas Pop search words are gone because the library no longer has them. Data only (channel list), no code change."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.26",
+      "date": "2026-11-25",
+      "notes": [
+        "**The snow stays on while the small video plays.** It used to switch itself off whenever a video played in the small window. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.25",
       "date": "2026-11-25",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The YouTube log line is shorter and says what NewPipe did first.** In 0.54.18 the line was cut off before NewPipe's result. Now: NewPipe's answer, then the servers that worked, then how many others failed. Logging only; needs a new build (Java)."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.18",
-      "date": "2026-11-24",
-      "notes": [
-        "**The debug log now says how each YouTube route did.** The \"YOUTUBE stream\" line lists NewPipe and every server that had answered (picture quality and milliseconds, or why it failed), and says when NewPipe had not answered yet. It also logs a \"CONTINUE:\" line when a show is saved in Continue watching but cannot be shown (which channel, and what it was missing). Logging only; needs a new build (Java)."
       ]
     }
   ]

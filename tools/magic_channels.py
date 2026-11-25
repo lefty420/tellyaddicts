@@ -1033,6 +1033,62 @@ Donald Duck
 Goofy
 Disney Cartoon
 Disney Classic
+The Flintstones
+Oswald the Lucky Rabbit
+Walt Disney Cartoon
+Grange Hill
+Care Bears
+Boy Meets World
+X-Men
+The Adventure Game
+Saved by the Bell
+Round the Twist
+Pocket Dragon
+Pinky and the Brain
+Pingu
+Maid Marian and her Merry Men
+Hey Arnold
+Doug
+super gran
+Willo the Wisp
+Tiny Toon Adventures
+The Wind in the Willows
+The Tick
+The Raggy Dolls
+The Raccoons
+The Poddington Peas
+The Mr Men Show
+The Amazing Adventures of Morph
+Terrahawks
+SuperTed
+Super Mario World
+Starcom: The U.S. Space Force
+Sister Sister
+Samurai Pizza Cats
+Sabrina the Teenage Witch
+Rupert
+The Adventures of Rupert Bear
+Playdays
+The Busy World of Richard Scarry
+Rugrats
+Ren and Stimpy
+Pokemon
+Pluto
+Peter Pan and the Pirates
+Morph
+Men in Black The Series
+Goof Troop
+Earthworm Jim
+Dinosaucers
+Digimon
+Bodger and Badger
+Biker Mice from Mars
+Beavis and Butt-Head
+Battle of the Planets
+Batman The Animated Series
+Bananaman
+Bad Influence
+Art Attack
 ''')),
  dict(id='mc_xmas_pop', n=65, name='Christmas Pop', xmas=True, shows=S('''
 Top of the Pops

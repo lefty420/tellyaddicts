@@ -1,10 +1,10 @@
 {
- "updated": "2026-11-24T21:19:05Z",
+ "updated": "2026-11-25T14:25:57Z",
  "channels": {
   "bbc": "b351855064",
   "childrens": "4ed09b912d",
-  "christmas": "0309ede745",
-  "citv": "2ce4bef165",
+  "christmas": "ba7367c3e1",
+  "citv": "44e473a56b",
   "comedy": "f6784c02f8",
   "cooking": "599da552c1",
   "disney": "a3e2612121",
@@ -12,8 +12,8 @@
   "games": "aef65dbe73",
   "gameshows": "949d9a1eb3",
   "itv": "3d2c19802d",
-  "kidsmovies": "9e67d768d8",
-  "kidsxmas": "aadbcc5009",
+  "kidsmovies": "c777dd5c9e",
+  "kidsxmas": "3e5a53f975",
   "mtv": "ea19612cc0",
   "music": "9d1e1cf0cb",
   "noel": "166e1125f1",
@@ -24,7 +24,7 @@
   "tv70s": "3342e9da03",
   "tvarchive": "3d5cbb8c91",
   "usdrama": "2de7101714",
-  "ussitcoms": "48bf03f95c",
+  "ussitcoms": "b3d51bec19",
   "videoshop": "3ace36c9f9",
   "xmasmovies": "d0094c861b",
   "xmasmusic": "9b8ee7ce33"
@@ -32,8 +32,8 @@
  "counts": {
   "bbc": 1816,
   "childrens": 570,
-  "christmas": 466,
-  "citv": 2112,
+  "christmas": 518,
+  "citv": 2117,
   "comedy": 293,
   "cooking": 11,
   "disney": 574,
@@ -41,8 +41,8 @@
   "games": 499,
   "gameshows": 811,
   "itv": 1816,
-  "kidsmovies": 152,
-  "kidsxmas": 182,
+  "kidsmovies": 162,
+  "kidsxmas": 200,
   "mtv": 979,
   "music": 263,
   "noel": 3,
@@ -53,19 +53,19 @@
   "tv70s": 219,
   "tvarchive": 113,
   "usdrama": 207,
-  "ussitcoms": 423,
+  "ussitcoms": 424,
   "videoshop": 381,
   "xmasmovies": 69,
   "xmasmusic": 41
  },
- "library": "5bf6b882d2",
+ "library": "05f6a26ae3",
  "library_counts": {
-  "shows": 951,
-  "episodes": 63868,
-  "copies": 170100
+  "shows": 955,
+  "episodes": 63925,
+  "copies": 170208
  },
  "routes": "e2f7f5e505",
- "art": "19248fe4ce",
+ "art": "21aba45993",
  "eps": {
   "2-stupid-dogs": "647497cc5f",
   "2point4-children": "38cf7ce50e",
@@ -941,6 +941,5 @@
   "zillion": "bb965baf1a",
   "zzzap": "274f90d5e8"
  },
- "adverts": "be61407605",
- "epdb": "416ea2c2c3"
+ "adverts": "be61407605"
 }

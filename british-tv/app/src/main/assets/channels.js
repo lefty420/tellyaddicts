@@ -151,7 +151,7 @@ var DISNEY = [
 
 window.CHANNELS = [
   {
-    n: 1,
+    n: 51,
     id: 'music',
     name: 'Music',
     maxItems: 220,   // many separate episode items: let them all through
@@ -181,7 +181,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 2,
+    n: 52,
     id: 'mtv',
     name: 'MTV',
     perItem: 40,
@@ -192,7 +192,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 4,
+    n: 1,
     id: 'bbc',
     name: 'Classic BBC',
     sources: [
@@ -201,7 +201,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 6,
+    n: 3,
     id: 'itvam',
     name: 'ITV Morning',
     sources: [
@@ -210,7 +210,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 10,
+    n: 9,
     id: 'sitcoms',
     name: 'Classic Sitcoms',
     sources: [
@@ -218,7 +218,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 14,
+    n: 5,
     id: 'gameshows',
     name: 'Game Shows',
     perItem: 40,   // keep one show from crowding out the others
@@ -231,7 +231,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 15,
+    n: 7,
     id: 'drama',
     name: 'Drama',
     sources: [
@@ -239,7 +239,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 30,
+    n: 58,
     id: 'christmas',
     name: 'Christmas TV',
     sources: [
@@ -248,7 +248,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 7,
+    n: 29,
     id: 'tv70s',
     name: "70's TV",
     decade: 1970,       // only programmes from this decade, from the whole library
@@ -256,7 +256,7 @@ window.CHANNELS = [
     sources: [{ data: 'tv70s' }]
   },
   {
-    n: 5,
+    n: 2,
     id: 'itv',
     name: 'ITV',
     sources: [
@@ -264,7 +264,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 18,
+    n: 99,
     id: 'noel',
     off: true,                       // switched off for now; remove this line to bring it back
     name: "Noel's House Party",
@@ -273,7 +273,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 23,
+    n: 33,
     id: 'citv',
     name: 'CITV',
     perItem: 30,   // cap per item so Art Attack / Ghostbusters can't crowd out the rest
@@ -281,7 +281,7 @@ window.CHANNELS = [
     sources: CITV_SOURCES
   },
   {
-    n: 3,
+    n: 55,
     id: 'games',
     name: 'Video Games',
     sources: [
@@ -291,7 +291,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 12,
+    n: 15,
     id: 'comedy',
     name: 'Comedy',
     perItem: 40,
@@ -308,7 +308,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 24,
+    n: 34,
     id: 'childrens',
     name: "Children's World",
     sources: [
@@ -316,7 +316,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 21,
+    n: 44,
     id: 'kidsmovies',
     name: 'Kids Movies',
     sources: [
@@ -324,7 +324,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 27,
+    n: 59,
     id: 'kidsxmas',
     name: "Children's Christmas",
     perItem: 25,
@@ -334,7 +334,7 @@ window.CHANNELS = [
     ])
   },
   {
-    n: 22,
+    n: 60,
     id: 'xmasmovies',
     name: 'Christmas Movies',
     // Christmas films and specials, 1970 to 1999, from the scraper's library (the list is in tools/christmas-movies.json).
@@ -342,14 +342,14 @@ window.CHANNELS = [
     sources: [{ data: 'xmasmovies' }]
   },
   {
-    n: 31,
+    n: 61,
     id: 'xmasmusic',
     name: 'Christmas Music',
     maxItems: 150,
     sources: XMAS_VIDEOS
   },
   {
-    n: 25,
+    n: 35,
     id: 'offschool',
     name: "I'm Off School",
     // What was actually on in the morning and afternoon when you were off school: soaps, talk shows and morning TV.
@@ -372,14 +372,14 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 26,
+    n: 36,
     id: 'disney',
     name: 'Disney',
     maxItems: 100,
     sources: DISNEY
   },
   {
-    n: 29,
+    n: 32,
     id: 'tvarchive',
     name: 'TV Archive',
     // Television from today's date, whatever the year: programmes whose air date falls on today's day and month
@@ -393,7 +393,7 @@ window.CHANNELS = [
     ]
   },
   {
-    n: 19,
+    n: 4,
     id: 'saturday',
     name: 'Saturday Night TV',
     // The Saturday evening line-up, kept to Saturday's shape every day: lighter shows at teatime, the shows the
@@ -402,7 +402,7 @@ window.CHANNELS = [
     sources: [{ data: 'saturday' }]
   },
   {
-    n: 20,
+    n: 43,
     id: 'videoshop',
     name: 'The Video Shop',
     // What you came home with on a Friday night: the rental shelf, mostly 15s and 18s. The certificate decides
@@ -411,7 +411,7 @@ window.CHANNELS = [
     sources: [{ data: 'videoshop' }]
   },
   {
-    n: 17,
+    n: 8,
     id: 'soaps',
     name: 'Soaps',
     // EastEnders, Coronation Street, Crossroads, Neighbours and the rest, from the scraper's library
@@ -419,7 +419,7 @@ window.CHANNELS = [
     sources: [{ data: 'soaps' }]
   },
   {
-    n: 28,
+    n: 56,
     id: 'cooking',
     name: 'Food & Cooking',
     // Delia, Floyd, Rick Stein, Ready Steady Cook and the rest, from the scraper's library (1970 to 1999)
@@ -427,7 +427,7 @@ window.CHANNELS = [
     sources: [{ data: 'cooking' }]
   },
   {
-    n: 13,
+    n: 6,
     id: 'entertainment',
     name: 'Entertainment',
     // a mix of the best of everything: light entertainment, sketch and panel shows, cult drama and sitcoms
@@ -435,7 +435,7 @@ window.CHANNELS = [
     sources: [{ data: 'entertainment' }]
   },
   {
-    n: 11,
+    n: 20,
     id: 'ussitcoms',
     name: 'US Sitcoms',
     // American sitcoms up to 1999 (Friends, Frasier, Cheers). Stays hidden until the scraper has found some.
@@ -443,7 +443,7 @@ window.CHANNELS = [
     sources: [{ data: 'ussitcoms' }]
   },
   {
-    n: 8,
+    n: 30,
     id: 'tv80s',
     name: "80's TV",
     decade: 1980,
@@ -451,7 +451,7 @@ window.CHANNELS = [
     sources: [{ data: 'tv80s' }]
   },
   {
-    n: 9,
+    n: 31,
     id: 'tv90s',
     name: "90's TV",
     decade: 1990,
@@ -459,7 +459,7 @@ window.CHANNELS = [
     sources: [{ data: 'tv90s' }]
   },
   {
-    n: 16,
+    n: 21,
     id: 'usdrama',
     name: 'US Drama',
     // American drama up to 1999 (Columbo, Magnum, Miami Vice, The X-Files). Stays hidden until the scraper has found some.
@@ -467,7 +467,7 @@ window.CHANNELS = [
     sources: [{ data: 'usdrama' }]
   },
   {
-    n: 32,
+    n: 66,
     id: 'adbreak',
     name: 'Adverts',
     // built in the app from the checked advert catalogue (see loadPrograms), not searched for
@@ -477,40 +477,40 @@ window.CHANNELS = [
 
 // MAGIC-CHANNELS-BEGIN (generated by tools/magic_channels.py: edit the lineup there)
 window.CHANNELS = window.CHANNELS.concat([
-  { n: 41, id: 'mc_action', name: 'Action Movies', magic: true, maxItems: 120, sources: [{ data: 'mc_action' }] },
-  { n: 42, id: 'mc_horror', name: 'Horror Night', magic: true, maxItems: 120, sources: [{ data: 'mc_horror' }] },
-  { n: 43, id: 'mc_scifi_movies', name: 'Sci-Fi & Fantasy Movies', magic: true, maxItems: 120, sources: [{ data: 'mc_scifi_movies' }] },
-  { n: 44, id: 'mc_comedy_movies', name: 'Comedy Movies', magic: true, maxItems: 120, sources: [{ data: 'mc_comedy_movies' }] },
-  { n: 45, id: 'mc_thriller', name: 'Crime & Thrillers', magic: true, maxItems: 120, sources: [{ data: 'mc_thriller' }] },
-  { n: 46, id: 'mc_drama_movies', name: 'Drama & Romance', magic: true, maxItems: 120, sources: [{ data: 'mc_drama_movies' }] },
-  { n: 47, id: 'mc_scifi', name: 'Sci-Fi & Fantasy TV', magic: true, maxItems: 120, sources: [{ data: 'mc_scifi' }] },
-  { n: 48, id: 'mc_crime', name: 'Cops & Detectives', magic: true, maxItems: 120, sources: [{ data: 'mc_crime' }] },
-  { n: 49, id: 'mc_action_tv', name: 'Action Heroes', magic: true, maxItems: 120, sources: [{ data: 'mc_action_tv' }] },
-  { n: 50, id: 'mc_period', name: 'Period & Prestige Drama', magic: true, maxItems: 120, sources: [{ data: 'mc_period' }] },
-  { n: 51, id: 'mc_quiz', name: 'Quiz Time', magic: true, maxItems: 120, sources: [{ data: 'mc_quiz' }] },
-  { n: 52, id: 'mc_challenge', name: 'Challenge: Big Games', magic: true, maxItems: 120, sources: [{ data: 'mc_challenge' }] },
-  { n: 53, id: 'mc_sitcom_gold', name: 'Sitcom Gold', magic: true, maxItems: 120, sources: [{ data: 'mc_sitcom_gold' }] },
-  { n: 54, id: 'mc_sitcom90', name: 'Nineties Sitcoms & Cult Comedy', magic: true, maxItems: 120, sources: [{ data: 'mc_sitcom90' }] },
-  { n: 55, id: 'mc_tgif', name: 'TGIF: Family Sitcoms', magic: true, maxItems: 120, sources: [{ data: 'mc_tgif' }] },
-  { n: 56, id: 'mc_sketch', name: 'Sketch Shows & Stand-up', magic: true, maxItems: 120, sources: [{ data: 'mc_sketch' }] },
-  { n: 57, id: 'mc_light_ent', name: 'Light Entertainment', magic: true, maxItems: 120, sources: [{ data: 'mc_light_ent' }] },
-  { n: 58, id: 'mc_daytime', name: 'Daytime & Talk', magic: true, maxItems: 120, sources: [{ data: 'mc_daytime' }] },
-  { n: 59, id: 'mc_factual', name: 'Factual & Features', magic: true, maxItems: 120, sources: [{ data: 'mc_factual' }] },
-  { n: 60, id: 'mc_toons80', name: 'Saturday Morning Toons', magic: true, maxItems: 120, sources: [{ data: 'mc_toons80' }] },
-  { n: 61, id: 'mc_toons90', name: '90s Toon Zone', magic: true, maxItems: 120, sources: [{ data: 'mc_toons90' }] },
-  { n: 62, id: 'mc_toons_classic', name: 'Cartoon Classics', magic: true, maxItems: 120, sources: [{ data: 'mc_toons_classic' }] },
-  { n: 63, id: 'mc_cbbc', name: "Children's TV Favourites", magic: true, maxItems: 120, sources: [{ data: 'mc_cbbc' }] },
-  { n: 64, id: 'mc_nursery', name: 'Toytown & Nursery', magic: true, maxItems: 120, sources: [{ data: 'mc_nursery' }] },
-  { n: 65, id: 'mc_teen', name: 'Teen TV', magic: true, maxItems: 120, sources: [{ data: 'mc_teen' }] },
-  { n: 66, id: 'mc_pop', name: 'Pop & Chart', magic: true, maxItems: 120, sources: [{ data: 'mc_pop' }] },
-  { n: 67, id: 'mc_rock', name: 'Rock & Alternative', magic: true, maxItems: 120, sources: [{ data: 'mc_rock' }] },
-  { n: 68, id: 'mc_aussie', name: 'Aussie Soaps', magic: true, maxItems: 120, sources: [{ data: 'mc_aussie' }] },
-  { n: 69, id: 'mc_uk_soaps', name: 'Street Life: UK Soaps', magic: true, maxItems: 120, sources: [{ data: 'mc_uk_soaps' }] },
-  { n: 70, id: 'mc_us_soaps', name: 'Dallas, Dynasty & Co', magic: true, maxItems: 120, sources: [{ data: 'mc_us_soaps' }] },
-  { n: 71, id: 'mc_kitchen', name: 'Kitchen Table', magic: true, maxItems: 120, sources: [{ data: 'mc_kitchen' }] },
-  { n: 72, id: 'mc_xmas_comedy', name: 'Christmas Comedy', magic: true, maxItems: 120, sources: [{ data: 'mc_xmas_comedy' }] },
-  { n: 73, id: 'mc_xmas_soaps', name: 'Christmas Soaps & Drama', magic: true, maxItems: 120, sources: [{ data: 'mc_xmas_soaps' }] },
-  { n: 74, id: 'mc_xmas_toons', name: 'Christmas Cartoons & Kids', magic: true, maxItems: 120, sources: [{ data: 'mc_xmas_toons' }] },
-  { n: 75, id: 'mc_xmas_pop', name: 'Christmas Pop', magic: true, maxItems: 120, sources: [{ data: 'mc_xmas_pop' }] }
+  { n: 45, id: 'mc_action', name: 'Action Movies', magic: true, maxItems: 120, sources: [{ data: 'mc_action' }] },
+  { n: 46, id: 'mc_horror', name: 'Horror Night', magic: true, maxItems: 120, sources: [{ data: 'mc_horror' }] },
+  { n: 47, id: 'mc_scifi_movies', name: 'Sci-Fi & Fantasy Movies', magic: true, maxItems: 120, sources: [{ data: 'mc_scifi_movies' }] },
+  { n: 48, id: 'mc_comedy_movies', name: 'Comedy Movies', magic: true, maxItems: 120, sources: [{ data: 'mc_comedy_movies' }] },
+  { n: 49, id: 'mc_thriller', name: 'Crime & Thrillers', magic: true, maxItems: 120, sources: [{ data: 'mc_thriller' }] },
+  { n: 50, id: 'mc_drama_movies', name: 'Drama & Romance', magic: true, maxItems: 120, sources: [{ data: 'mc_drama_movies' }] },
+  { n: 25, id: 'mc_scifi', name: 'Sci-Fi & Fantasy TV', magic: true, maxItems: 120, sources: [{ data: 'mc_scifi' }] },
+  { n: 23, id: 'mc_crime', name: 'Cops & Detectives', magic: true, maxItems: 120, sources: [{ data: 'mc_crime' }] },
+  { n: 24, id: 'mc_action_tv', name: 'Action Heroes', magic: true, maxItems: 120, sources: [{ data: 'mc_action_tv' }] },
+  { n: 22, id: 'mc_period', name: 'Period & Prestige Drama', magic: true, maxItems: 120, sources: [{ data: 'mc_period' }] },
+  { n: 10, id: 'mc_quiz', name: 'Quiz Time', magic: true, maxItems: 120, sources: [{ data: 'mc_quiz' }] },
+  { n: 11, id: 'mc_challenge', name: 'Challenge: Big Games', magic: true, maxItems: 120, sources: [{ data: 'mc_challenge' }] },
+  { n: 16, id: 'mc_sitcom_gold', name: 'Sitcom Gold', magic: true, maxItems: 120, sources: [{ data: 'mc_sitcom_gold' }] },
+  { n: 17, id: 'mc_sitcom90', name: 'Nineties Sitcoms & Cult Comedy', magic: true, maxItems: 120, sources: [{ data: 'mc_sitcom90' }] },
+  { n: 18, id: 'mc_tgif', name: 'TGIF: Family Sitcoms', magic: true, maxItems: 120, sources: [{ data: 'mc_tgif' }] },
+  { n: 19, id: 'mc_sketch', name: 'Sketch Shows & Stand-up', magic: true, maxItems: 120, sources: [{ data: 'mc_sketch' }] },
+  { n: 12, id: 'mc_light_ent', name: 'Light Entertainment', magic: true, maxItems: 120, sources: [{ data: 'mc_light_ent' }] },
+  { n: 13, id: 'mc_daytime', name: 'Daytime & Talk', magic: true, maxItems: 120, sources: [{ data: 'mc_daytime' }] },
+  { n: 14, id: 'mc_factual', name: 'Factual & Features', magic: true, maxItems: 120, sources: [{ data: 'mc_factual' }] },
+  { n: 37, id: 'mc_toons80', name: 'Saturday Morning Toons', magic: true, maxItems: 120, sources: [{ data: 'mc_toons80' }] },
+  { n: 38, id: 'mc_toons90', name: '90s Toon Zone', magic: true, maxItems: 120, sources: [{ data: 'mc_toons90' }] },
+  { n: 39, id: 'mc_toons_classic', name: 'Cartoon Classics', magic: true, maxItems: 120, sources: [{ data: 'mc_toons_classic' }] },
+  { n: 40, id: 'mc_cbbc', name: "Children's TV Favourites", magic: true, maxItems: 120, sources: [{ data: 'mc_cbbc' }] },
+  { n: 41, id: 'mc_nursery', name: 'Toytown & Nursery', magic: true, maxItems: 120, sources: [{ data: 'mc_nursery' }] },
+  { n: 42, id: 'mc_teen', name: 'Teen TV', magic: true, maxItems: 120, sources: [{ data: 'mc_teen' }] },
+  { n: 53, id: 'mc_pop', name: 'Pop & Chart', magic: true, maxItems: 120, sources: [{ data: 'mc_pop' }] },
+  { n: 54, id: 'mc_rock', name: 'Rock & Alternative', magic: true, maxItems: 120, sources: [{ data: 'mc_rock' }] },
+  { n: 28, id: 'mc_aussie', name: 'Aussie Soaps', magic: true, maxItems: 120, sources: [{ data: 'mc_aussie' }] },
+  { n: 27, id: 'mc_uk_soaps', name: 'Street Life: UK Soaps', magic: true, maxItems: 120, sources: [{ data: 'mc_uk_soaps' }] },
+  { n: 26, id: 'mc_us_soaps', name: 'Dallas, Dynasty & Co', magic: true, maxItems: 120, sources: [{ data: 'mc_us_soaps' }] },
+  { n: 57, id: 'mc_kitchen', name: 'Kitchen Table', magic: true, maxItems: 120, sources: [{ data: 'mc_kitchen' }] },
+  { n: 62, id: 'mc_xmas_comedy', name: 'Christmas Comedy', magic: true, maxItems: 120, sources: [{ data: 'mc_xmas_comedy' }] },
+  { n: 63, id: 'mc_xmas_soaps', name: 'Christmas Soaps & Drama', magic: true, maxItems: 120, sources: [{ data: 'mc_xmas_soaps' }] },
+  { n: 64, id: 'mc_xmas_toons', name: 'Christmas Cartoons & Kids', magic: true, maxItems: 120, sources: [{ data: 'mc_xmas_toons' }] },
+  { n: 65, id: 'mc_xmas_pop', name: 'Christmas Pop', magic: true, maxItems: 120, sources: [{ data: 'mc_xmas_pop' }] }
 ]);
 // MAGIC-CHANNELS-END

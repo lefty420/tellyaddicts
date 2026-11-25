@@ -24,14 +24,14 @@ def S(text):
 
 LINEUP = [
  # ---------------- movies: the Video Shop shelf split by what the film is (certificates still decide when it plays)
- dict(id='mc_action', n=41, name='Action Movies', films=True, genres=['Action', 'Adventure', 'War', 'Western'], shows=['The Video Shop']),
- dict(id='mc_horror', n=42, name='Horror Night', films=True, genres=['Horror'], shows=['The Video Shop']),
- dict(id='mc_scifi_movies', n=43, name='Sci-Fi & Fantasy Movies', films=True, genres=['Science Fiction', 'Fantasy'], shows=['The Video Shop']),
- dict(id='mc_comedy_movies', n=44, name='Comedy Movies', films=True, genres=['Comedy'], shows=['The Video Shop']),
- dict(id='mc_thriller', n=45, name='Crime & Thrillers', films=True, genres=['Thriller', 'Crime', 'Mystery'], shows=['The Video Shop']),
- dict(id='mc_drama_movies', n=46, name='Drama & Romance', films=True, genres=['Drama', 'Romance', 'History', 'Music'], shows=['The Video Shop']),
+ dict(id='mc_action', n=45, name='Action Movies', films=True, genres=['Action', 'Adventure', 'War', 'Western'], shows=['The Video Shop']),
+ dict(id='mc_horror', n=46, name='Horror Night', films=True, genres=['Horror'], shows=['The Video Shop']),
+ dict(id='mc_scifi_movies', n=47, name='Sci-Fi & Fantasy Movies', films=True, genres=['Science Fiction', 'Fantasy'], shows=['The Video Shop']),
+ dict(id='mc_comedy_movies', n=48, name='Comedy Movies', films=True, genres=['Comedy'], shows=['The Video Shop']),
+ dict(id='mc_thriller', n=49, name='Crime & Thrillers', films=True, genres=['Thriller', 'Crime', 'Mystery'], shows=['The Video Shop']),
+ dict(id='mc_drama_movies', n=50, name='Drama & Romance', films=True, genres=['Drama', 'Romance', 'History', 'Music'], shows=['The Video Shop']),
  # ---------------- drama
- dict(id='mc_scifi', n=47, name='Sci-Fi & Fantasy TV', shows=S('''
+ dict(id='mc_scifi', n=25, name='Sci-Fi & Fantasy TV', shows=S('''
 Doctor Who
 Blakes 7
 Space 1999
@@ -57,7 +57,7 @@ The Man Who Fell to Earth
 Chocky
 Worzel Gummidge
 ''')),
- dict(id='mc_crime', n=48, name='Cops & Detectives', shows=S('''
+ dict(id='mc_crime', n=23, name='Cops & Detectives', shows=S('''
 Inspector Morse
 Agatha Christies Poirot
 Poirot
@@ -111,7 +111,7 @@ City Central
 Crown Court
 Dick Turpin
 ''')),
- dict(id='mc_action_tv', n=49, name='Action Heroes', shows=S('''
+ dict(id='mc_action_tv', n=24, name='Action Heroes', shows=S('''
 The A-Team
 Airwolf
 Knight Rider
@@ -136,7 +136,7 @@ Skippy
 Black Beauty
 Lassie
 ''')),
- dict(id='mc_period', n=50, name='Period & Prestige Drama', shows=S('''
+ dict(id='mc_period', n=22, name='Period & Prestige Drama', shows=S('''
 I Claudius
 The Forsyte Saga
 The Jewel in the Crown
@@ -166,7 +166,7 @@ Rock Follies
 The Box of Delights
 ''')),
  # ---------------- game shows
- dict(id='mc_quiz', n=51, name='Quiz Time', shows=S('''
+ dict(id='mc_quiz', n=10, name='Quiz Time', shows=S('''
 Fifteen to One
 Countdown
 Mastermind
@@ -216,7 +216,7 @@ Whittle
 Sounds Familiar
 First Class
 ''')),
- dict(id='mc_challenge', n=52, name='Challenge: Big Games', shows=S('''
+ dict(id='mc_challenge', n=11, name='Challenge: Big Games', shows=S('''
 The Crystal Maze
 Gladiators
 Fun House
@@ -255,7 +255,7 @@ Noels House Party
 Blind Date
 ''')),
  # ---------------- comedy
- dict(id='mc_sitcom_gold', n=53, name='Sitcom Gold', shows=S('''
+ dict(id='mc_sitcom_gold', n=16, name='Sitcom Gold', shows=S('''
 Dads Army
 Are You Being Served
 Steptoe and Son
@@ -306,7 +306,7 @@ Filthy Rich and Catflap
 Happy Families
 Never Mind the Quality
 ''')),
- dict(id='mc_sitcom90', n=54, name='Nineties Sitcoms & Cult Comedy', shows=S('''
+ dict(id='mc_sitcom90', n=17, name='Nineties Sitcoms & Cult Comedy', shows=S('''
 Keeping Up Appearances
 One Foot in the Grave
 Waiting for God
@@ -347,7 +347,7 @@ Chelmsford 123
 The New Statesman
 Get Back
 ''')),
- dict(id='mc_tgif', n=55, name='TGIF: Family Sitcoms', shows=S('''
+ dict(id='mc_tgif', n=18, name='TGIF: Family Sitcoms', shows=S('''
 Family Matters
 Full House
 Step by Step
@@ -399,7 +399,7 @@ Barney Miller
 Benson
 Soap
 ''')),
- dict(id='mc_sketch', n=56, name='Sketch Shows & Stand-up', shows=S('''
+ dict(id='mc_sketch', n=19, name='Sketch Shows & Stand-up', shows=S('''
 Monty Pythons Flying Circus
 The Two Ronnies
 The Goodies
@@ -441,7 +441,7 @@ Big Train
 Vic Reeves Big Night Out
 ''')),
  # ---------------- entertainment
- dict(id='mc_light_ent', n=57, name='Light Entertainment', shows=S('''
+ dict(id='mc_light_ent', n=12, name='Light Entertainment', shows=S('''
 The Generation Game
 Noels House Party
 Surprise Surprise
@@ -474,7 +474,7 @@ The Paul Daniels Magic Show
 The Krypton Factor
 Tales of the Unexpected
 ''')),
- dict(id='mc_daytime', n=58, name='Daytime & Talk', shows=S('''
+ dict(id='mc_daytime', n=13, name='Daytime & Talk', shows=S('''
 Oprah Winfrey
 Jerry Springer
 Ricki Lake
@@ -501,7 +501,7 @@ Supermarket Sweep
 Countdown
 Fifteen to One
 ''')),
- dict(id='mc_factual', n=59, name='Factual & Features', shows=S('''
+ dict(id='mc_factual', n=14, name='Factual & Features', shows=S('''
 Horizon
 Tomorrow's World
 Connections
@@ -522,7 +522,7 @@ On This Day
 Horizon
 ''')),
  # ---------------- kids
- dict(id='mc_toons80', n=60, name='Saturday Morning Toons', kids=True, shows=S('''
+ dict(id='mc_toons80', n=37, name='Saturday Morning Toons', kids=True, shows=S('''
 He-Man
 The New Adventures of He-Man
 She-Ra
@@ -571,7 +571,7 @@ Fantastic Four
 Iron Man
 Challenge of the GoBots
 ''')),
- dict(id='mc_toons90', n=61, name='90s Toon Zone', kids=True, shows=S('''
+ dict(id='mc_toons90', n=38, name='90s Toon Zone', kids=True, shows=S('''
 Batman The Animated Series
 X-Men
 Spider-Man The Animated Series
@@ -643,7 +643,7 @@ Are You Afraid of the Dark
 Goosebumps
 Round the Twist
 ''')),
- dict(id='mc_toons_classic', n=62, name='Cartoon Classics', kids=True, shows=S('''
+ dict(id='mc_toons_classic', n=39, name='Cartoon Classics', kids=True, shows=S('''
 Looney Tunes
 Tom and Jerry
 Popeye
@@ -707,7 +707,7 @@ Silly Symphony
 The Three Caballeros
 Pluto
 ''')),
- dict(id='mc_cbbc', n=63, name='Children\'s TV Favourites', kids=True, shows=S('''
+ dict(id='mc_cbbc', n=40, name='Children\'s TV Favourites', kids=True, shows=S('''
 Grange Hill
 Byker Grove
 Blue Peter
@@ -754,7 +754,7 @@ Hey Dude
 Heartbreak High
 Dungeons & Dragons
 ''')),
- dict(id='mc_nursery', n=64, name='Toytown & Nursery', kids=True, shows=S('''
+ dict(id='mc_nursery', n=41, name='Toytown & Nursery', kids=True, shows=S('''
 Bagpuss
 The Clangers
 Ivor the Engine
@@ -797,7 +797,7 @@ Humphrey the Bear
 Rupert
 Spot
 ''')),
- dict(id='mc_teen', n=65, name='Teen TV', kids=True, shows=S('''
+ dict(id='mc_teen', n=42, name='Teen TV', kids=True, shows=S('''
 Saved by the Bell
 Boy Meets World
 Sister Sister
@@ -829,7 +829,7 @@ Pokemon
 Digimon
 ''')),
  # ---------------- music
- dict(id='mc_pop', n=66, name='Pop & Chart', shows=S('''
+ dict(id='mc_pop', n=53, name='Pop & Chart', shows=S('''
 Top of the Pops
 The Chart Show
 Hit List UK
@@ -859,7 +859,7 @@ Club MTV
 Dial MTV
 Total Request Live
 ''')),
- dict(id='mc_rock', n=67, name='Rock & Alternative', shows=S('''
+ dict(id='mc_rock', n=54, name='Rock & Alternative', shows=S('''
 120 Minutes
 Headbangers Ball
 Alternative Nation
@@ -882,14 +882,14 @@ Celebrity Deathmatch
 Singled Out
 ''')),
  # ---------------- soaps
- dict(id='mc_aussie', n=68, name='Aussie Soaps', shows=S('''
+ dict(id='mc_aussie', n=28, name='Aussie Soaps', shows=S('''
 Neighbours
 Home and Away
 Sons and Daughters
 The Sullivans
 Heartbreak High
 ''')),
- dict(id='mc_uk_soaps', n=69, name='Street Life: UK Soaps', shows=S('''
+ dict(id='mc_uk_soaps', n=27, name='Street Life: UK Soaps', shows=S('''
 EastEnders
 Coronation Street
 Emmerdale
@@ -904,7 +904,7 @@ Howards' Way
 Angels
 The Brothers
 ''')),
- dict(id='mc_us_soaps', n=70, name='Dallas, Dynasty & Co', shows=S('''
+ dict(id='mc_us_soaps', n=26, name='Dallas, Dynasty & Co', shows=S('''
 Dallas
 Dynasty
 Knots Landing
@@ -912,7 +912,7 @@ The Colbys
 Santa Barbara
 ''')),
  # ---------------- cooking
- dict(id='mc_kitchen', n=71, name='Kitchen Table', shows=S('''
+ dict(id='mc_kitchen', n=57, name='Kitchen Table', shows=S('''
 Delia Smith's Cookery Course
 Delia Smith's How to Cook
 Keith Floyd
@@ -928,7 +928,7 @@ Wish You Were Here
 Antiques Roadshow
 ''')),
  # ---------------- Christmas: only the Christmas episodes of the listed shows
- dict(id='mc_xmas_comedy', n=72, name='Christmas Comedy', xmas=True, shows=S('''
+ dict(id='mc_xmas_comedy', n=62, name='Christmas Comedy', xmas=True, shows=S('''
 Only Fools and Horses
 Last of the Summer Wine
 Dads Army
@@ -968,7 +968,7 @@ Coach
 Everybody Loves Raymond
 All in the Family
 ''')),
- dict(id='mc_xmas_soaps', n=73, name='Christmas Soaps & Drama', xmas=True, shows=S('''
+ dict(id='mc_xmas_soaps', n=63, name='Christmas Soaps & Drama', xmas=True, shows=S('''
 Santa Barbara
 Crossroads
 EastEnders
@@ -995,7 +995,7 @@ Lovejoy
 Poirot
 Agatha Christies Poirot
 ''')),
- dict(id='mc_xmas_toons', n=74, name='Christmas Cartoons & Kids', kids=True, xmas=True, shows=S('''
+ dict(id='mc_xmas_toons', n=64, name='Christmas Cartoons & Kids', kids=True, xmas=True, shows=S('''
 Thomas and Friends
 Mickey Mouse
 He-Man
@@ -1034,7 +1034,7 @@ Goofy
 Disney Cartoon
 Disney Classic
 ''')),
- dict(id='mc_xmas_pop', n=75, name='Christmas Pop', xmas=True, shows=S('''
+ dict(id='mc_xmas_pop', n=65, name='Christmas Pop', xmas=True, shows=S('''
 Top of the Pops
 The Chart Show
 MTV

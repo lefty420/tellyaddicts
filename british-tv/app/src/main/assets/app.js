@@ -1136,6 +1136,7 @@
   var channels = window.CHANNELS.filter(function (c) { return !c.off && (!c.magic || magicOn); }).map(function (c) {
     return { n: c.n, id: c.id, name: c.name, sources: c.sources, maxItems: c.maxItems, perItem: c.perItem, mix: c.mix, decade: c.decade || 0, report: [], status: 'loading', sched: null };
   });
+  channels.sort(function (a, b) { return a.n - b.n; }).forEach(function (c, i) { c.n = i + 1; });      // numbered 1, 2, 3 in the order of channels.js whichever optional channels are on, so there are no gaps
 
   /** True once every channel has finished loading: optional extras (artwork, advert lists) wait for this so they never compete with start-up. */
   function quiet() { return channels.every(function (c) { return c.status !== 'loading'; }); }

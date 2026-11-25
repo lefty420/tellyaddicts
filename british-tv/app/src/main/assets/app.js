@@ -8277,6 +8277,15 @@
     }
     return lab;
   }
+  /** On a show's own page the show name in front of every episode title is noise that pushes the useful part off the card. */
+  function odShortTitle(g, t) {
+    t = String(t || ''); var n = String(g && g.name || '');
+    if (n && t.length > n.length + 2 && t.toLowerCase().indexOf(n.toLowerCase()) === 0) {
+      var r = t.slice(n.length).replace(/^\s*[-\u2013\u2014:|]\s*/, '');
+      if (r) return r;
+    }
+    return t;
+  }
   // ---- the film page: a row of the other films in its series, or films like it
   var odPool = null, odPoolSig = '', odRelI = 0, odBack = [];
   function odFilmPool() {
@@ -8453,7 +8462,7 @@
       row.appendChild(odEl('i', '', ep.s > 0 ? 'E' + ep.e : '•'));
       var rp = odResumeAt(g, ep), dur = ep.p && ep.p.dur || 0;
       if (rp && dur > 0) { var pg = odEl('div', 'odpg'), bar = odEl('i'); bar.style.width = Math.min(100, Math.round(100 * rp / dur)) + '%'; pg.appendChild(bar); row.appendChild(pg); }
-      var tx = odEl('div'); tx.appendChild(odEl('b', '', odEpTitle(ep, m)));
+      var tx = odEl('div'); tx.appendChild(odEl('b', '', odShortTitle(g, odEpTitle(ep, m))));
       tx.appendChild(odEl('em', rp ? 'rs' : '', rp ? 'Resume ' + Math.round(rp / 60) + ' min in' : m && m.l ? m.l + ' min' : (ep.year || (m && m.a ? String(m.a).slice(0, 4) : ''))));
       row.appendChild(tx);
       box.appendChild(row);

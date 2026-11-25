@@ -1020,7 +1020,7 @@
   .ode i { position: absolute; left: calc(.7 * var(--u)); top: calc(.7 * var(--u)); font-style: normal; font-size: calc(2 * var(--u)); font-weight: 800; padding: calc(.1 * var(--u)) calc(.6 * var(--uw)); border-radius: calc(.5 * var(--u)); background: rgba(0,0,0,.62); }
   .ode .odpg { position: absolute; left: 0; right: 0; top: calc(calc(9.8 * var(--uw)) - calc(.7 * var(--u))); }
   .ode div { margin-top: calc(.7 * var(--u)); }
-  .ode b { display: block; font-size: calc(2.2 * var(--u)); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ode b { display: -webkit-box; font-size: calc(2.2 * var(--u)); font-weight: 700; line-height: 1.25; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .ode small { display: -webkit-box; margin-top: calc(.2 * var(--u)); font-size: calc(1.8 * var(--u)); line-height: 1.3; color: #9aa3ba; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .ode em { display: block; margin-top: calc(.2 * var(--u)); font-style: normal; font-size: calc(1.8 * var(--u)); color: #aab3cc; }
   .ode em.rs { color: #ffcb6b; }

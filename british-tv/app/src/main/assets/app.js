@@ -503,7 +503,7 @@
       var t0 = Date.now(), job = LIBROUTE.routeBegin(lib, mergeRoutes(shows, r[2]), r[3]);
       return new Promise(function (resolve) {
         (function pump() {
-          if (job.step(25)) { var routed = job.done(); dlog('library: sorted into channels in ' + (Date.now() - t0) + ' ms'); resolve(routed); }
+          if (job.step(5)) { var routed = job.done(); dlog('library: sorted into channels in ' + (Date.now() - t0) + ' ms'); resolve(routed); }
           else setTimeout(pump, 0);
         })();
       });
@@ -2446,14 +2446,23 @@
     scanRender();
     var fails = 0;
     Promise.all([artNames(), loadDataIndex()]).then(function (r) {
-      var queue = r[0].filter(function (n) {
-        var k = knownArt({ title: n, show: n }), slug = odSlug(n), c = store.get('eps1:' + slug);
-        var needArt = !k || !k.poster || !k.back;
-        var needEps = !(epsMap && epsMap[slug]) && !(c && c.m && c.m.eps && c.m.eps.some(function (e) { return e.img; }));
-        return needArt || needEps;
+      // working out the list touches every show: done in slices of about 8 ms, with a breath between them, not in one block (the log showed a 12 s Options stall)
+      var names = r[0], queue = [], at = 0, films = [];
+      return new Promise(function (resolve) {
+        (function slice() {
+          var t0 = Date.now();
+          while (at < names.length && Date.now() - t0 < 8) {
+            var n = names[at++], k = knownArt({ title: n, show: n }), slug = odSlug(n), c = store.get('eps1:' + slug);
+            var needArt = !k || !k.poster || !k.back;
+            var needEps = !(epsMap && epsMap[slug]) && !(c && c.m && c.m.eps && c.m.eps.some(function (e) { return e.img; }));
+            if (needArt || needEps) queue.push(n);
+          }
+          if (at < names.length) setTimeout(slice, 0);
+          else setTimeout(function () { films = scanFilms(); resolve({ r: r, queue: queue, films: films }); }, 0);
+        })();
       });
-      var films = scanFilms();
-      queue = queue.concat(films);
+    }).then(function (x) {
+      var queue = x.queue.concat(x.films), films = x.films, r = x.r;
       scanUi.n = queue.length;
       dlog('SCAN ARTWORK start: ' + queue.length + ' of ' + r[0].length + ' shows need something, ' + films.length + ' films need a backdrop' + (tvdbReady() ? ' (TheTVDB first)' : ' (TVmaze)'));
       function finish(stopped) {
@@ -7282,7 +7291,8 @@
     if (!changed) return;
     ytRevMap = out; store.set('ytrev2', out);
     dlog('YOUTUBE: the list changed (' + Object.keys(d).length + ' shows); On Demand lists for its channels are built again');
-    odWarmed = false; setTimeout(odWarm, 15000);
+    odWarmed = false;
+    (function later() { if (optsOpen || odOpen || playingOd() || Date.now() - lastKeyAt < 4000) setTimeout(later, 4000); else odWarm(); })();   // wait until Options and On Demand are closed
   }
   /** After start-up, load the YouTube list quietly so a changed list is noticed and the channels it touches are rebuilt. */
   function ytWarm() {

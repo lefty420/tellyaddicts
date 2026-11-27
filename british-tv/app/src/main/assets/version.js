@@ -1,15 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.30",
-  "version": "0.54.30",
-  "code": 5430,
+  "name": "Alpha 0.54.31",
+  "version": "0.54.31",
+  "code": 5431,
   "date": "2026-11-27",
   "notes": [
-    "**Going Back from a video no longer rebuilds On Demand.** Back used to redraw the whole page from scratch, which froze the screen for 11 to 14 seconds. It now puts back the page as it was, and the rebuild only happens if the page is no longer there. Starting an episode from On Demand (including Play Next) now always remembers where you were. JavaScript only.",
-    "**Options no longer stalls while it is open.** Background jobs (episode names and the quiet artwork check) now wait until Options is closed. JavaScript only."
+    "**Options stays responsive while the artwork scan works out what is missing.** The list of shows is now worked out in short slices, not one block, so opening Options during a scan no longer freezes for seconds.",
+    "**Library sort takes smaller bites**, so Options does not stall while the library is being sorted into channels.",
+    "**A changed YouTube list rebuilds On Demand after you leave On Demand and Options**, not while you are in them. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.30",
+      "date": "2026-11-27",
+      "notes": [
+        "**Going Back from a video no longer rebuilds On Demand.** Back used to redraw the whole page from scratch, which froze the screen for 11 to 14 seconds. It now puts back the page as it was, and the rebuild only happens if the page is no longer there. Starting an episode from On Demand (including Play Next) now always remembers where you were. JavaScript only.",
+        "**Options no longer stalls while it is open.** Background jobs (episode names and the quiet artwork check) now wait until Options is closed. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.29",
       "date": "2026-11-27",
@@ -57,13 +66,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The snow comes back after you watch something.** Backing out of a video put On Demand back without starting the snow again, so it stayed off until Seasonal effects was switched off and on in Options. JavaScript only."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.22",
-      "date": "2026-11-24",
-      "notes": [
-        "**The way back to the small video is now on screen.** While a video plays small, the big button at the top reads \"Back to the video (full screen)\" and OK on it takes the video full screen. The hint line says the same. JavaScript only."
       ]
     }
   ]

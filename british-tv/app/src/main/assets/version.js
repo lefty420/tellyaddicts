@@ -1,16 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.31",
-  "version": "0.54.31",
-  "code": 5431,
+  "name": "Alpha 0.54.32",
+  "version": "0.54.32",
+  "code": 5432,
   "date": "2026-11-27",
   "notes": [
-    "**Options stays responsive while the artwork scan works out what is missing.** The list of shows is now worked out in short slices, not one block, so opening Options during a scan no longer freezes for seconds.",
-    "**Library sort takes smaller bites**, so Options does not stall while the library is being sorted into channels.",
-    "**A changed YouTube list rebuilds On Demand after you leave On Demand and Options**, not while you are in them. JavaScript only."
+    "**On Demand's index builds run in slices and wait for Options.** Building a channel's index (tv70s, tv80s, citv and the rest) used to hold the screen for up to 13 seconds, and Options stalled while it ran. It now works in short slices and waits until Options is closed.",
+    "**Closing Options with On Demand open remembers where On Demand was left**, so Back from a video restores the page. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.31",
+      "date": "2026-11-27",
+      "notes": [
+        "**Options stays responsive while the artwork scan works out what is missing.** The list of shows is now worked out in short slices, not one block, so opening Options during a scan no longer freezes for seconds.",
+        "**Library sort takes smaller bites**, so Options does not stall while the library is being sorted into channels.",
+        "**A changed YouTube list rebuilds On Demand after you leave On Demand and Options**, not while you are in them. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.30",
       "date": "2026-11-27",
@@ -59,13 +67,6 @@ window.RELEASE = {
       "date": "2026-11-25",
       "notes": [
         "**The channels are in a real-TV order.** Numbers 1 to 9 are the main channels (Classic BBC, ITV, ITV Morning, Saturday Night TV, Game Shows, Entertainment, Drama, Soaps, Classic Sitcoms), then quiz and light entertainment, comedy, drama, decades, kids, movies, music and games, food and Christmas, with Adverts last. The Magic EPG channels are mixed in beside their closest relatives instead of sitting in a block at 41 to 75, and the numbers have no gaps whether Magic EPG is on or off. Saved favourites and picks are by channel, not number, so they are not affected. `tools/magic_channels.py` carries the same numbers, so regenerating the Magic channels does not undo it."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.23",
-      "date": "2026-11-24",
-      "notes": [
-        "**The snow comes back after you watch something.** Backing out of a video put On Demand back without starting the snow again, so it stayed off until Seasonal effects was switched off and on in Options. JavaScript only."
       ]
     }
   ]

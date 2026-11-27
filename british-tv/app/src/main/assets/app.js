@@ -6503,7 +6503,7 @@
     optsTouch();
   }
   var optsKeys = 0;
-  function closeOpts(why) { if (optsOpen) dlog('OPTIONS closed' + (why === 'idle' ? ' by itself after 20s without a key' : '') + ', ' + optsKeys + ' keys handled'); optsOpen = false; optsKeys = 0; clearTimeout(optsTimer); $('opts').className = 'hidden'; }
+  function closeOpts(why) { if (optsOpen) dlog('OPTIONS closed' + (why === 'idle' ? ' by itself after 20s without a key' : '') + ', ' + optsKeys + ' keys handled'); optsOpen = false; optsKeys = 0; clearTimeout(optsTimer); $('opts').className = 'hidden'; if (odOpen) odMark(); }
   function optsTouch() { clearTimeout(optsTimer); optsTimer = setTimeout(function () { closeOpts('idle'); }, 20000); }
   /** Throw away every stored lineup and gather them again, in a new running order. Asks twice: it reloads. */
   var refreshArmed = false, refreshTimer = null;
@@ -7537,7 +7537,7 @@
       var progs = ukFilter(all.filter(function (p) { return (films || !p.filmKey) && !blocked(p); }));
       progs = films ? virtualFilms(ch, progs, true) : odRenameProgs(progs).filter(function (p) { return ch.id === 'disney' || inEra(p); });
       var by = {}, rows = [];
-      progs.forEach(function (p) {
+      return odSliced(progs, function (p) {
         var nm = odShowName(p, films), k = LIBROUTE.norm(nm), r = by[k];
         if (!r) { r = by[k] = { n: nm, ix: [], ne: 0, ses: {}, y: 0 }; rows.push(r); }
         if (p._ix >= 0) { if (r.ix.indexOf(p._ix) < 0) r.ix.push(p._ix); } else if (p._ix === -1) r.yt = 1; else if (p.virtual) r.v = 1;
@@ -7547,7 +7547,7 @@
         if (p.cert && !r.c) r.c = String(p.cert);
         var ref = window.LINKS && LINKS.parseEp(p.title); if (ref && ref.s > 0) r.ses[ref.s] = 1;
         var a = parseInt(String(p.aired || '').slice(0, 4), 10); if (a > 1900 && (!r.y || a < r.y)) r.y = a;
-      });
+      }).then(function () {
       rows.forEach(function (r) {
         r.ns = Object.keys(r.ses).length; delete r.ses; r.s = odSlug(r.n);
         if (r.f) { delete r.yt; if (r.v) delete r.ix; } else { r.f = 0; }
@@ -7558,7 +7558,19 @@
       odiKeep(ch.id, rows);
       dlog('ONDEMAND: index built for ' + ch.id + ': ' + rows.length + ' shows in ' + (Date.now() - t0) + ' ms');
       return rows;
+      });
     }));
+  }
+  /** Run fn over every item in slices of about 8 ms, with a breath between slices, so a long list never holds the screen still. */
+  function odSliced(arr, fn) {
+    return new Promise(function (res) {
+      var i = 0;
+      (function go() {
+        var t0 = Date.now();
+        while (i < arr.length && Date.now() - t0 < 8) fn(arr[i++], i - 1);
+        if (i < arr.length) setTimeout(go, 0); else res();
+      })();
+    });
   }
   /** A channel's raw library rows, the last three kept for the shows being opened. */
   function odiItems(ch) {
@@ -8708,7 +8720,7 @@
     dlog('ONDEMAND: building the index for ' + list.length + ' channels');
     (function next() {
       if (i >= list.length) { dlog('ONDEMAND: index built for ' + list.length + ' channels in ' + Math.round((Date.now() - t0) / 100) / 10 + ' s'); return; }
-      if (!quiet() || playingOd() || Date.now() - lastKeyAt < 4000) { setTimeout(next, 4000); return; }
+      if (!quiet() || playingOd() || optsOpen || Date.now() - lastKeyAt < 4000) { setTimeout(next, 4000); return; }
       var c = list[i++];
       odiBuild(c).then(function () { setTimeout(next, 800); }, function (e) { dlog('ONDEMAND: index for ' + c.id + ' failed: ' + (e && e.message)); setTimeout(next, 800); });
     })();

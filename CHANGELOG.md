@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.32 — 2026-11-27
+- **On Demand's index builds run in slices and wait for Options.** Building a channel's index (tv70s, tv80s, citv and the rest) used to hold the screen for up to 13 seconds, and Options stalled while it ran. It now works in short slices and waits until Options is closed.
+- **Closing Options with On Demand open remembers where On Demand was left**, so Back from a video restores the page. JavaScript only.
+
 ## Alpha 0.54.31 — 2026-11-27
 - **Options stays responsive while the artwork scan works out what is missing.** The list of shows is now worked out in short slices, not one block, so opening Options during a scan no longer freezes for seconds.
 - **Library sort takes smaller bites**, so Options does not stall while the library is being sorted into channels.

@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.38 — 2026-11-27
+- **Season codes with a year in them (Top of the Pops S1976E01) are split properly in the guide**, so the show name is no longer shown with the code stuck on it. JavaScript only.
+
 ## Alpha 0.54.37 — 2026-11-27
 - **62 shows that were on no channel now have one:** Christmas specials on Christmas Movies, classic sitcoms (The Good Life, Till Death Us Do Part, Only When I Laugh...) on Sitcoms, Rentaghost and T-Bag on Children's World, Reeves and Mortimer on Comedy and Saturday Night, and the rest on Light Entertainment, Cartoons or Drama. The lists are fetched from the web, so they reach the TV without a new APK; the version also adds ITV/BBC for six of them.
 

@@ -3978,9 +3978,9 @@
     if (!/\s/.test(t.trim()) || (t.match(/[._]/g) || []).length > 2) t = t.replace(/[._]+/g, ' ');
     t = t.replace(/\b(HEVC|x26[45]|h\.?26[45]|AAC\d?|AC3|DDP?\d?|10bit|(?:2160|1080|720|480)p|4K|WEB-?DL|WEB-?Rip|BluRay|BDRip|DVDRip|HDTV|REPACK|PROPER)\b.*$/i, '');
     t = t.replace(/\s*[|\u2013\-]\s*\[[^\]]{1,12}\]/, '').replace(/\s*\[[^\]]{1,12}\]\s*$/, '').replace(/\s*\|\s*$/, '');   // an uploader tag such as "| [WRR]"
-    var m = /\bS(\d{1,2})[\s._-]*E(?:p(?:isode)?\.?\s*)?(\d{1,3})\b/i.exec(t), show = t, ep = '';
+    var m = /\bS(\d{1,4})[\s._-]*E(?:p(?:isode)?\.?\s*)?(\d{1,3})\b/i.exec(t), show = t, ep = '';
     if (m && m.index > 0) { show = t.slice(0, m.index); ep = 'S' + m[1] + 'E' + m[2]; var rest = t.slice(m.index + m[0].length).replace(/^[\s\-\u2013:|]+/, '').trim(); if (rest) ep += ' \u00b7 ' + rest; }
-    if (!ep) { var m2 = /\s+S(\d{1,2})\b/i.exec(t); if (m2 && m2.index > 0) { show = t.slice(0, m2.index); ep = 'S' + m2[1]; } }     // a whole season ("The Bill (1983) S11 DVD Rip")
+    if (!ep) { var m2 = /\s+S(\d{1,4})\b/i.exec(t); if (m2 && m2.index > 0) { show = t.slice(0, m2.index); ep = 'S' + m2[1]; } }     // a whole season ("The Bill (1983) S11 DVD Rip")
     show = show.replace(/\s*\((?:19|20)\d\d\)/g, '').replace(/[\s\-\u2013:|]+$/, '').replace(/^\d{1,2}\s+(?=[A-Za-z])/, '').replace(/\s+/g, ' ').trim();
     return { show: show || t.trim(), ep: ep.replace(/\s+/g, ' ').trim() };
   }

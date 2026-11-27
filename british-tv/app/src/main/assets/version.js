@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.37",
-  "version": "0.54.37",
-  "code": 5437,
+  "name": "Alpha 0.54.38",
+  "version": "0.54.38",
+  "code": 5438,
   "date": "2026-11-27",
   "notes": [
-    "**62 shows that were on no channel now have one:** Christmas specials on Christmas Movies, classic sitcoms (The Good Life, Till Death Us Do Part, Only When I Laugh...) on Sitcoms, Rentaghost and T-Bag on Children's World, Reeves and Mortimer on Comedy and Saturday Night, and the rest on Light Entertainment, Cartoons or Drama. The lists are fetched from the web, so they reach the TV without a new APK; the version also adds ITV/BBC for six of them."
+    "**Season codes with a year in them (Top of the Pops S1976E01) are split properly in the guide**, so the show name is no longer shown with the code stuck on it. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.37",
+      "date": "2026-11-27",
+      "notes": [
+        "**62 shows that were on no channel now have one:** Christmas specials on Christmas Movies, classic sitcoms (The Good Life, Till Death Us Do Part, Only When I Laugh...) on Sitcoms, Rentaghost and T-Bag on Children's World, Reeves and Mortimer on Comedy and Saturday Night, and the rest on Light Entertainment, Cartoons or Drama. The lists are fetched from the web, so they reach the TV without a new APK; the version also adds ITV/BBC for six of them."
+      ]
+    },
     {
       "name": "Alpha 0.54.36",
       "date": "2026-11-27",
@@ -67,13 +74,6 @@ window.RELEASE = {
       "notes": [
         "**Going Back from a video no longer rebuilds On Demand.** Back used to redraw the whole page from scratch, which froze the screen for 11 to 14 seconds. It now puts back the page as it was, and the rebuild only happens if the page is no longer there. Starting an episode from On Demand (including Play Next) now always remembers where you were. JavaScript only.",
         "**Options no longer stalls while it is open.** Background jobs (episode names and the quiet artwork check) now wait until Options is closed. JavaScript only."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.29",
-      "date": "2026-11-27",
-      "notes": [
-        "**On Demand stays smoother while artwork loads.** A poster or background that arrives while you are moving around used to redraw the rows straight away, in the middle of a key press. Redraws from new artwork are now batched and wait until you stop pressing keys. JavaScript only."
       ]
     }
   ]

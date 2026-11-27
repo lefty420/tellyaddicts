@@ -1,18 +1,26 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.44",
-  "version": "0.54.44",
-  "code": 5444,
+  "name": "Alpha 0.54.45",
+  "version": "0.54.45",
+  "code": 5445,
   "date": "2026-11-27",
   "notes": [
-    "**Start-up holds the screen less.** The 35 channel lists read before the guide opens are now read in the background too (they took up to 2.8 seconds on the SHIELD, in one stretch).",
-    "**Other shows' episodes no longer turn up under the wrong show.** An archive.org favourites list called \"Wheel of Fortune Game Show Network\" held A Charlie Brown Christmas, Barney and Jay Jay the Jet Plane, so they were on Game Shows as Wheel of Fortune. A file from a favourites list now has to name its show, and a file named for a different show in the library (Fireman Sam filed under Pingu) goes with that show. Checked over the whole library: it removes 10 files and nothing else. Each TV sorts the library again once.",
-    "**A Charlie Brown Christmas, The Good Life, Mr Bean, The Snowman and 59 other YouTube shows are off Game Shows.** A YouTube show the scraper gave no channel was put on Game Shows; it now goes only on the channels that list it (every one of them is listed somewhere).",
-    "**The YouTube list is kept on the TV again.** It grew to 6 MB, which no longer fitted where it was saved, so every start downloaded it again (the saved copy dated from 23 November). It is now kept as a file, read in the background, and fetched again every 6 hours as intended.",
-    "**Looking for artwork that was never saved costs nothing.** Posters, backdrops and episode details are looked up for many shows at once (the hero, the rows); a show with nothing saved was still asked for its file each time, which added up to almost half a second. The app now knows which files exist. JavaScript only."
+    "**Santa and the snow keep moving while you move around the guide.** Every button press stopped the snow, the drifts and Santa's plough for a fifth of a second, so moving through the guide made Santa stutter across the screen (stopped about one tenth of the time on the SHIELD). Measured with and without the pause, buttons answer just as fast without it (14 to 15 ms typical), so it is gone.",
+    "**The debug log's \"Santa's plough sets off\" time is right again.** Those pauses pushed the plough later and later than the time the log gave (26 seconds out after a while). JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.44",
+      "date": "2026-11-27",
+      "notes": [
+        "**Start-up holds the screen less.** The 35 channel lists read before the guide opens are now read in the background too (they took up to 2.8 seconds on the SHIELD, in one stretch).",
+        "**Other shows' episodes no longer turn up under the wrong show.** An archive.org favourites list called \"Wheel of Fortune Game Show Network\" held A Charlie Brown Christmas, Barney and Jay Jay the Jet Plane, so they were on Game Shows as Wheel of Fortune. A file from a favourites list now has to name its show, and a file named for a different show in the library (Fireman Sam filed under Pingu) goes with that show. Checked over the whole library: it removes 10 files and nothing else. Each TV sorts the library again once.",
+        "**A Charlie Brown Christmas, The Good Life, Mr Bean, The Snowman and 59 other YouTube shows are off Game Shows.** A YouTube show the scraper gave no channel was put on Game Shows; it now goes only on the channels that list it (every one of them is listed somewhere).",
+        "**The YouTube list is kept on the TV again.** It grew to 6 MB, which no longer fitted where it was saved, so every start downloaded it again (the saved copy dated from 23 November). It is now kept as a file, read in the background, and fetched again every 6 hours as intended.",
+        "**Looking for artwork that was never saved costs nothing.** Posters, backdrops and episode details are looked up for many shows at once (the hero, the rows); a show with nothing saved was still asked for its file each time, which added up to almost half a second. The app now knows which files exist. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.43",
       "date": "2026-11-27",
@@ -70,15 +78,6 @@ window.RELEASE = {
       "date": "2026-11-27",
       "notes": [
         "**62 shows that were on no channel now have one:** Christmas specials on Christmas Movies, classic sitcoms (The Good Life, Till Death Us Do Part, Only When I Laugh...) on Sitcoms, Rentaghost and T-Bag on Children's World, Reeves and Mortimer on Comedy and Saturday Night, and the rest on Light Entertainment, Cartoons or Drama. The lists are fetched from the web, so they reach the TV without a new APK; the version also adds ITV/BBC for six of them."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.36",
-      "date": "2026-11-27",
-      "notes": [
-        "**Shows that exist only on YouTube now appear on every channel that lists them**, not just the one channel the scraper filed them under. Beadle's About was only on Saturday Night; it is now also on Entertainment, ITV and 80's TV. This was why many shows seemed to be missing from channels.",
-        "**ITV, BBC, 80's TV and 90's TV now include YouTube-only British shows** (about 170 of them, from a built-in list of who made each show and when it began), as the library shows already did.",
-        "The saved On Demand lists are rebuilt once in the background to pick this up. JavaScript only."
       ]
     }
   ]

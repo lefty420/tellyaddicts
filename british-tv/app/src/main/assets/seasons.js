@@ -11,7 +11,7 @@
   ];
 
   // How it looks. PIXEL = screen pixels per canvas pixel (2 = 16-bit, 3 = chunkier). DRIFT is 0 to 10.
-  var CFG = { PIXEL: 2, FLAKES: 96, DRIFT: 5, PAUSE_MS: 180,
+  var CFG = { PIXEL: 2, FLAKES: 96, DRIFT: 5,
               CYCLE_MS: 45000,       // drifts grow for this long, then the plough clears them and it starts again (the design is 15 min = 900000; 45 s for now so it can be seen)
               PLOUGH_MS: 12000,      // the plough's drive across the screen
               START: 0.12,           // share of full drift height showing at the start of a cycle (0 to 1)
@@ -73,14 +73,14 @@
 
   /**
    * box: the overlay element (a div). bottomClear(): screen pixels free under the last row of the guide, so the drifts can
-   * be kept off it. Returns { start, stop, touch }.
+   * be kept off it. Returns { start, stop, plough }.
    *
    * Nothing is redrawn while it runs: each depth layer is painted once onto a tall canvas (two screens high, the flakes
    * repeated in both halves) and the browser slides it down on the graphics chip, round and round, with a slow side to side
    * sway on top. That keeps the movement smooth at the screen's own frame rate and costs the TV almost no work.
    */
   function snow(box, bottomClear, note) {
-    var anims = [], resumeT = 0, running = false, noteT = 0, ploughBox = null;
+    var anims = [], running = false, noteT = 0, ploughBox = null;
 
     function paintLayer(L, W, H) {
       var c = mk('sn-flakes', W, H * 2), x = c.getContext('2d'), n = Math.round(CFG.FLAKES * (CFG.TIER >= 3 ? 0.6 : 1) * L.share);
@@ -225,9 +225,7 @@
       on: function () { return running; },
       /** Milliseconds until the plough sets off, and how long it drives: so its crossing can be measured. */
       plough: function () { var cyc = Math.max(20000, CFG.CYCLE_MS), run = Math.min(CFG.PLOUGH_MS, cyc / 4), grow = 1 - run / cyc; return { due: ((grow * cyc - ((Date.now() - T0) % cyc)) % cyc + cyc) % cyc, run: run }; },
-      stop: function () { running = false; clearTimeout(resumeT); clearTimeout(noteT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; if (ploughBox && ploughBox.parentNode) ploughBox.parentNode.removeChild(ploughBox); ploughBox = null; },
-      // the guide is being scrolled: hold the snow still until it has settled
-      touch: function () { if (!running) return; setPlay(false); clearTimeout(resumeT); resumeT = setTimeout(function () { if (running) setPlay(true); }, CFG.PAUSE_MS); }
+      stop: function () { running = false; clearTimeout(noteT); setPlay(false); box.className = 'hidden'; box.textContent = ''; anims = []; if (ploughBox && ploughBox.parentNode) ploughBox.parentNode.removeChild(ploughBox); ploughBox = null; }
     };
   }
 

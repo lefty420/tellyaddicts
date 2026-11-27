@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.45 — 2026-11-27
+- **Santa and the snow keep moving while you move around the guide.** Every button press stopped the snow, the drifts and Santa's plough for a fifth of a second, so moving through the guide made Santa stutter across the screen (stopped about one tenth of the time on the SHIELD). Measured with and without the pause, buttons answer just as fast without it (14 to 15 ms typical), so it is gone.
+- **The debug log's "Santa's plough sets off" time is right again.** Those pauses pushed the plough later and later than the time the log gave (26 seconds out after a while). JavaScript only.
+
 ## Alpha 0.54.44 — 2026-11-27
 - **Start-up holds the screen less.** The 35 channel lists read before the guide opens are now read in the background too (they took up to 2.8 seconds on the SHIELD, in one stretch).
 - **Other shows' episodes no longer turn up under the wrong show.** An archive.org favourites list called "Wheel of Fortune Game Show Network" held A Charlie Brown Christmas, Barney and Jay Jay the Jet Plane, so they were on Game Shows as Wheel of Fortune. A file from a favourites list now has to name its show, and a file named for a different show in the library (Fireman Sam filed under Pingu) goes with that show. Checked over the whole library: it removes 10 files and nothing else. Each TV sorts the library again once.

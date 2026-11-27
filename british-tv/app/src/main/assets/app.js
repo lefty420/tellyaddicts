@@ -4205,7 +4205,6 @@
     });
   }
   function renderGuide(light) {
-    if (seasonOv) seasonOv.touch();
     var list = guideList();
     if (!list.length) return;
     var now = Date.now();

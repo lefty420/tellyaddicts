@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.36 — 2026-11-27
+- **Shows that exist only on YouTube now appear on every channel that lists them**, not just the one channel the scraper filed them under. Beadle's About was only on Saturday Night; it is now also on Entertainment, ITV and 80's TV. This was why many shows seemed to be missing from channels.
+- **ITV, BBC, 80's TV and 90's TV now include YouTube-only British shows** (about 170 of them, from a built-in list of who made each show and when it began), as the library shows already did.
+- The saved On Demand lists are rebuilt once in the background to pick this up. JavaScript only.
+
 ## Alpha 0.54.35 — 2026-11-27
 - **Back from a video remembers where On Demand was left**, whichever way you left it, so Back restores the page instead of rebuilding it (the slow way took 8 to 10 seconds).
 - **TMDB results are logged and shown.** The artwork scan now logs "TMDB found / no match / failed" for each show and film, and the TMDB key row in Options shows the running count.

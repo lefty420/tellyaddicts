@@ -319,6 +319,51 @@
     return (show ? show + ' ' : '') + (d.c && d.c !== 'Special' ? d.c + ' ' : '') + d.n;
   }
 
-  var LibRoute = { yearOf: yearOf, fileYear: fileYear, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, routeBegin: routeBegin, titleFor: titleFor };
+
+  // YouTube-only shows (no library episodes, so no `net` from TVmaze): who made them and the year they began, so they
+  // reach the ITV, BBC and 80s/90s channels the way a library show does. "itv:1986" = ITV, first aired 1986.
+  var YT_NET = {
+    'beadles about': 'itv:1986', 'a touch of frost': 'itv:1992', 'auf wiedersehen pet': 'itv:1983', 'boon': 'itv:1986', 'bulman': 'itv:1985',
+    'c a t s eyes': 'itv:1985', 'cats eyes': 'itv:1985', 'callan': 'itv:1967', 'celebrity squares': 'itv:1975', 'chain letters': 'itv:1987', 'chancer': 'itv:1990',
+    'cold feet': 'itv:1997', 'crosswits': 'itv:1985', 'dales supermarket sweep': 'itv:1993', 'danger uxb': 'itv:1979', 'doctor finlay': 'itv:1993',
+    'emmerdale farm': 'itv:1972', 'game for a laugh': 'itv:1981', 'hale and pace': 'itv:1985', 'hazell': 'itv:1978', 'hillsborough': 'itv:1996',
+    'hornblower': 'itv:1998', 'home to roost': 'itv:1985', 'keep it in the family': 'itv:1980', 'londons burning': 'itv:1988', 'lucky ladders': 'itv:1988',
+    'me and my girl': 'itv:1984', 'man o man': 'itv:1991', 'richard and judy': 'itv:1988', 'robins nest': 'itv:1977', 'russ abbots madhouse': 'itv:1980',
+    'seaforth': 'itv:1994', 'sharpe': 'itv:1993', 'soldier soldier': 'itv:1991', 'stars in their eyes': 'itv:1990', 'surgical spirit': 'itv:1989',
+    'taggart': 'itv:1983', 'comedians': 'itv:1971', 'gentle touch': 'itv:1980', 'golden shot': 'itv:1967', 'kenny everett video show': 'itv:1978',
+    'late late breakfast show': 'itv:1982', 'upper hand': 'itv:1990', 'vice': 'itv:1999', 'time the place': 'itv:1988', 'this morning': 'itv:1988',
+    'through the keyhole': 'itv:1987', 'trial and retribution': 'itv:1997', 'trisha': 'itv:1998', 'world of sport': 'itv:1965', 'world in action': 'itv:1963',
+    'within these walls': 'itv:1974', 'brideshead revisited': 'itv:1981', 'bodyguards': 'itv:1996', 'brass': 'itv:1983', 'conjugal rites': 'itv:1993',
+    'fresh fields': 'itv:1984', 'girls on top': 'itv:1985', 'hot metal': 'itv:1986', 'executive stress': 'itv:1986', 'nearest and dearest': 'itv:1968',
+    'only when i laugh': 'itv:1979', 'shelley': 'itv:1979', 'fenn street gang': 'itv:1971', 'cuckoo waltz': 'itv:1975', 'bounder': 'itv:1982',
+    'thief takers': 'itv:1995', 'naked civil servant': 'itv:1975', 'edward and mrs simpson': 'itv:1978', 'zoo gang': 'itv:1974', 'xyy man': 'itv:1976',
+    'knock': 'itv:1994', 'enigma files': 'itv:1980', 'richmond hill': 'itv:1988', 'granada reports': 'itv:1970', 'central news': 'itv:1982',
+    'a question of sport': 'bbc:1970', 'challenge anneka': 'bbc:1989', 'crimewatch': 'bbc:1984', 'dalziel and pascoe': 'bbc:1996', 'dangerfield': 'bbc:1995',
+    'dixon of dock green': 'bbc:1955', 'every second counts': 'bbc:1986', 'going live': 'bbc:1987', 'grandstand': 'bbc:1958', 'ground force': 'bbc:1997',
+    'jukebox jury': 'bbc:1959', 'just good friends': 'bbc:1983', 'may to december': 'bbc:1989', 'murder most horrid': 'bbc:1991', 'pebble mill at one': 'bbc:1972',
+    'panorama': 'bbc:1953', 'question time': 'bbc:1979', 'rab c nesbitt': 'bbc:1988', 'record breakers': 'bbc:1972', 'rick stein': 'bbc:1995', 'room 101': 'bbc:1994',
+    'russ abbot show': 'bbc:1986', 'songs of praise': 'bbc:1961', 'spender': 'bbc:1991', 'strike it lucky': 'bbc:1986', 'thats life': 'bbc:1973',
+    'brittas empire': 'bbc:1991', 'bruce forsythes generation game': 'bbc:1971', 'bruce forsyths generation game': 'bbc:1971', 'house of eliott': 'bbc:1991',
+    'likely lads': 'bbc:1964', 'onedin line': 'bbc:1971', 'royle family': 'bbc:1998', 'really wild show': 'bbc:1986', 'vicar of dibley': 'bbc:1994',
+    'they think its all over': 'bbc:1995', 'top of the pops 2': 'bbc:1994', 'wogan': 'bbc:1982', 'newsnight': 'bbc:1980', 'nine oclock news': 'bbc:1970',
+    'one oclock news': 'bbc:1986', 'six oclock news': 'bbc:1984', 'look north': 'bbc:1960', 'midlands today': 'bbc:1964', 'south today': 'bbc:1980',
+    'north west tonight': 'bbc:1980', 'wales today': 'bbc:1962', 'changing rooms': 'bbc:1996', 'delia smith': 'bbc:1973', 'ainsley harriott': 'bbc:1999',
+    'campion': 'bbc:1989', 'brush strokes': 'bbc:1986', 'dont wait up': 'bbc:1983', 'doctor at the top': 'bbc:1970', 'down to earth': 'bbc:1995',
+    'ever decreasing circles': 'bbc:1984', 'grace and favour': 'bbc:1992', 'mulberry': 'bbc:1992', 'it aint half hot mum': 'bbc:1974', 'three up two down': 'bbc:1985',
+    'three of a kind': 'bbc:1981', 'hearts of gold': 'bbc:1988', 'alexei sayles stuff': 'bbc:1988', 'harry enfields television programme': 'bbc:1990',
+    'paul mertons the series': 'bbc:1991', 'paul merton the series': 'bbc:1991', 'fist of fun': 'bbc:1995', 'mary whitehouse experience': 'bbc:1990',
+    'newman and baddiel in pieces': 'bbc:1993', 'victoria wood as seen on tv': 'bbc:1985', 'dave allen at large': 'bbc:1971', 'tales of para handy': 'bbc:1994',
+    'to play the king': 'bbc:1993', 'trainer': 'bbc:1991', 'threads': 'bbc:1984', 'lifeboat': 'bbc:1994', 'pobol y cwm': 'bbc:1974', 'sunday show': 'bbc:1999'
+  };
+  /** The channels a YouTube-only show belongs on by who made it and when: its broadcaster's channel and, for the 80s and 90s, that decade's. */
+  function ytNetChannels(name) {
+    var v = YT_NET[norm(name)];
+    if (!v) return [];
+    var a = v.split(':'), out = [a[0]], y = +a[1];
+    if (y >= 1980 && y < 1990) out.push('tv80s'); else if (y >= 1990 && y < 2000) out.push('tv90s');
+    return out;
+  }
+
+  var LibRoute = { ytNetChannels: ytNetChannels, yearOf: yearOf, fileYear: fileYear, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, routeBegin: routeBegin, titleFor: titleFor };
   if (typeof module !== 'undefined' && module.exports) module.exports = LibRoute; else root.LIBROUTE = LibRoute;
 })(typeof window !== 'undefined' ? window : this);

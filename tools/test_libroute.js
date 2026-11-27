@@ -47,4 +47,8 @@ check(R.fileYear('Fifteen to One - TX 15 January 1988'), 1988, 'day month year')
 check(R.fileYear('Bread S01E01'), 0, 'no date');
 check(R.norm("The Benny Hill Show & Friends"), 'benny hill show and friends', 'norm');
 
+check(R.ytNetChannels("Beadle's About").join(','), 'itv,tv80s', 'YouTube-only show: ITV and the 80s');
+check(R.ytNetChannels('The Vicar of Dibley').join(','), 'bbc,tv90s', 'YouTube-only show: BBC and the 90s');
+check(R.ytNetChannels('Unknown Show').length, 0, 'unknown YouTube show: no extra channel');
+
 console.log('libroute: all ' + n + ' checks pass');

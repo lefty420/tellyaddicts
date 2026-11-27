@@ -500,7 +500,8 @@
     libP = Promise.all([fetchLibrary(libRev), showsP, routesP, removedP]).then(function (r) {
       var lib = r[0], shows = r[1];
       if (!lib || !lib.shows || !shows || !window.LIBROUTE || (libRev && lib.rev && lib.rev !== libRev)) return null;
-      var t0 = Date.now(), job = LIBROUTE.routeBegin(lib, mergeRoutes(shows, r[2]), r[3]);
+      var t0 = Date.now(), merged = mergeRoutes(shows, r[2]), job = LIBROUTE.routeBegin(lib, merged, r[3]);
+      setListedOn(merged);
       return new Promise(function (resolve) {
         (function pump() {
           if (job.step(5)) { var routed = job.done(); dlog('library: sorted into channels in ' + (Date.now() - t0) + ' ms'); resolve(routed); }
@@ -7318,7 +7319,23 @@
   var ytP = null, ytDead = store.get('ytdead2') || {};
   function ytAvailable() { try { return !!(window.NativeHttp && window.NativeHttp.npOpen); } catch (e) { return false; } }
   // A channel's saved On Demand list has to be built again when the YouTube list for it changes: a small stamp per channel, kept between starts.
-  var ytRevMap = store.get('ytrev2') || {};
+  // The channels each show is listed on in tools/shows.json and routes.json: a YouTube-only show goes on all of them, not only the one yt.json names
+  var listedOn = {};
+  function setListedOn(merged) {
+    var m = {};
+    Object.keys(merged || {}).forEach(function (ch) { ((merged[ch] || {}).shows || []).forEach(function (n) { var k = LIBROUTE.norm(n); (m[k] = m[k] || []).push(ch); }); });
+    var had = Object.keys(listedOn).length;
+    listedOn = m;
+    if (!had) { var c = store.get('yt2'); if (c && c.d) try { ytRevSet(c.d); } catch (e) { /* stamps stay */ } }      // the stamps were first worked out without these lists
+  }
+  /** Every channel a YouTube show belongs on: the one the scraper filed it under, the ones that list it, and its broadcaster's and decade's. */
+  function ytChannelsOf(name, sh) {
+    var k = LIBROUTE.norm(name), out = [sh && sh.channel || 'gameshows'];
+    (listedOn[k] || []).forEach(function (c) { if (out.indexOf(c) < 0) out.push(c); });
+    LIBROUTE.ytNetChannels(name).forEach(function (c) { if (out.indexOf(c) < 0) out.push(c); });
+    return out;
+  }
+  var ytRevMap = store.get('ytrev3') || {};
   function ytRevOf(id) { return ytOn && ytRevMap[id] ? ':y' + ytRevMap[id] : ''; }
   function ytRevSet(d) {
     // The stamp follows which shows a channel has YouTube videos for, not how many videos each has: the index only needs the show names,
@@ -7327,14 +7344,13 @@
     var names = {};
     Object.keys(d || {}).forEach(function (name) {
       var sh = d[name]; if (!sh || !sh.videos || !sh.videos.length) return;
-      var ch = sh.channel || 'gameshows';
-      (names[ch] = names[ch] || []).push(name);
+      ytChannelsOf(name, sh).forEach(function (ch) { (names[ch] = names[ch] || []).push(name); });
     });
     var out = {}, changed = false;
     Object.keys(names).forEach(function (k) { out[k] = E.hash('n.' + names[k].sort().join('|')).toString(36); });
     Object.keys(out).forEach(function (k) { if (ytRevMap[k] !== out[k]) { changed = true; delete odiJobs[k]; delete odiMem[k]; } });
     if (!changed) return;
-    ytRevMap = out; store.set('ytrev2', out);
+    ytRevMap = out; store.set('ytrev3', out);
     dlog('YOUTUBE: the list changed (' + Object.keys(d).length + ' shows); On Demand lists for its channels are built again');
     odWarmed = false;
     (function later() { if (optsOpen || odOpen || playingOd() || Date.now() - lastKeyAt < 4000) setTimeout(later, 4000); else odWarm(); })();   // wait until Options and On Demand are closed
@@ -7390,7 +7406,7 @@
     var out = [];
     Object.keys(data || {}).forEach(function (name) {
       var sh = data[name];
-      if (!sh || !sh.videos || (chId && (sh.channel || 'gameshows') !== chId && !(names && names[LIBROUTE.norm(name)]))) return;
+      if (!sh || !sh.videos || (chId && ytChannelsOf(name, sh).indexOf(chId) < 0 && !(names && names[LIBROUTE.norm(name)]))) return;
       var show = name === name.toLowerCase() ? name.replace(/\b[a-z]/g, function (m) { return m.toUpperCase(); }) : name;
       sh.videos.forEach(function (x) {
         if (!x || !x.id || !(x.dur > 120) || x.skip || ytDead[x.id] || YT_JUNK.test(x.title || '') || ytLate(x)) return;      // skip: the scraper says it is a loop, a radio play or a clip, not an episode

@@ -1,15 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.32",
-  "version": "0.54.32",
-  "code": 5432,
+  "name": "Alpha 0.54.33",
+  "version": "0.54.33",
+  "code": 5433,
   "date": "2026-11-27",
   "notes": [
-    "**On Demand's index builds run in slices and wait for Options.** Building a channel's index (tv70s, tv80s, citv and the rest) used to hold the screen for up to 13 seconds, and Options stalled while it ran. It now works in short slices and waits until Options is closed.",
-    "**Closing Options with On Demand open remembers where On Demand was left**, so Back from a video restores the page. JavaScript only."
+    "**Choose the artwork service in Options.** Options > Artwork now has an **Artwork from** row: TheTVDB, TMDB or TVmaze. The artwork scan asks that service first, and falls back to the next one when it has no match. A service without its key is marked as needing one and is skipped.",
+    "**TMDB artwork.** The scan can now fetch posters and backdrops for shows and films from TMDB, using the key you enter under TMDB key. Attribution: this product uses the TMDB API but is not endorsed or certified by TMDB.",
+    "The episode guide source row is unchanged. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.32",
+      "date": "2026-11-27",
+      "notes": [
+        "**On Demand's index builds run in slices and wait for Options.** Building a channel's index (tv70s, tv80s, citv and the rest) used to hold the screen for up to 13 seconds, and Options stalled while it ran. It now works in short slices and waits until Options is closed.",
+        "**Closing Options with On Demand open remembers where On Demand was left**, so Back from a video restores the page. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.31",
       "date": "2026-11-27",
@@ -60,13 +69,6 @@ window.RELEASE = {
       "date": "2026-11-25",
       "notes": [
         "**Logging for the freeze when you press Back from a video.** Going back to On Demand froze the screen for 9 to 16 seconds after a stream (9.5 s, 12 s and 16 s in today's and yesterday's logs). The log now has \"BACK from play:\" lines saying which step the time goes in (paused picture, page on, snow, first picture, or the long way round when On Demand was not marked). No change in behaviour. JavaScript only."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.24",
-      "date": "2026-11-25",
-      "notes": [
-        "**The channels are in a real-TV order.** Numbers 1 to 9 are the main channels (Classic BBC, ITV, ITV Morning, Saturday Night TV, Game Shows, Entertainment, Drama, Soaps, Classic Sitcoms), then quiz and light entertainment, comedy, drama, decades, kids, movies, music and games, food and Christmas, with Adverts last. The Magic EPG channels are mixed in beside their closest relatives instead of sitting in a block at 41 to 75, and the numbers have no gaps whether Magic EPG is on or off. Saved favourites and picks are by channel, not number, so they are not affected. `tools/magic_channels.py` carries the same numbers, so regenerating the Magic channels does not undo it."
       ]
     }
   ]

@@ -2097,6 +2097,41 @@
   }
   function tmdbKeyOpen() { keyAsk('tmdb'); }
 
+  // ---- Artwork source: which service the quiet scan and Options > Artwork > Scan use first. TheTVDB is the default.
+  var ARTSRC = [{ id: 'tvdb', label: 'TheTVDB' }, { id: 'tmdb', label: 'TMDB' }, { id: 'tvmaze', label: 'TVmaze' }];
+  var artSrcIdx = Math.max(0, ARTSRC.map(function (x) { return x.id; }).indexOf(store.get('artsrc1') || 'tvdb'));
+  function artSrcId() { return ARTSRC[artSrcIdx].id; }
+  function artSrcLabel() { return ARTSRC[artSrcIdx].label; }
+  /** Can the chosen source be asked right now (a key is needed for TheTVDB and TMDB)? */
+  function artReady() { var id = artSrcId(); return id === 'tvdb' ? tvdbReady() : id === 'tmdb' ? !!tmdbKey : true; }
+  var TMDB_ART = 'https://image.tmdb.org/t/p/';
+  /** Keep what TMDB said in the same place the other sources keep theirs, so the guide and On Demand read it the same way. */
+  function tmdbSaveArt(name, title, year, poster, back, ref) {
+    var key = 'info3:' + normShow(name) + ':0:0', old = store.get(key), os = old && old.d && old.d.show || {};
+    var show = { name: title || name, year: year || '', poster: os.poster || poster || '', background: os.background || back || '', id: 0, tmdb: ref || '' };
+    store.set(key, { t: Date.now(), x: 0, d: { show: show, ep: null } });
+    return show.poster || show.background ? 'found' : 'miss';
+  }
+  /** A show's poster and backdrop from TMDB: 'found', 'miss' (no match) or throws when TMDB cannot be asked. */
+  function tmdbArtShow(name, year) {
+    return tmdbGet('/search/tv?query=' + encodeURIComponent(name) + (year ? '&first_air_date_year=' + year : '')).then(function (r) {
+      var w = normShow(name), l = (r && r.results) || [], hit = null;
+      for (var i = 0; i < l.length && !hit; i++) if (normShow(l[i].name || '') === w || normShow(l[i].original_name || '') === w) hit = l[i];
+      if (!hit) return 'miss';
+      return tmdbSaveArt(name, hit.name, String(hit.first_air_date || '').slice(0, 4),
+        hit.poster_path ? TMDB_ART + 'w500' + hit.poster_path : '', hit.backdrop_path ? TMDB_ART + 'w780' + hit.backdrop_path : '', 'tv:' + hit.id);
+    });
+  }
+  /** A film's backdrop from TMDB (a movie, not a series). */
+  function tmdbFilmArt(name, year) {
+    return tmdbGet('/search/movie?query=' + encodeURIComponent(name) + (year ? '&year=' + year : '')).then(function (r) {
+      var w = normShow(name), l = (r && r.results) || [], hit = null;
+      for (var i = 0; i < l.length && !hit; i++) if (normShow(l[i].title || '') === w || normShow(l[i].original_title || '') === w) hit = l[i];
+      if (!hit) return 'miss';
+      return tmdbSaveArt(name, hit.title, String(hit.release_date || '').slice(0, 4), '', hit.backdrop_path ? TMDB_ART + 'w780' + hit.backdrop_path : '', 'movie:' + hit.id);
+    });
+  }
+
   // ---- Magic EPG (experimental): every episode of every show in the guides, not just the ones the scraper has a file for.
   // The missing ones become "virtual" programmes (no link) that play through the addons when the clock reaches them.
   // Episode lists are fetched slowly in the background and kept (epl1:<show>); the guides use what is kept when they are built.
@@ -2378,6 +2413,9 @@
   function scanArtOne(name) {
     var nk = normShow(name), k = knownArt({ title: name, show: name });
     if (k && k.poster && k.back) return Promise.resolve('skip');
+    var src = artSrcId();
+    if (src === 'tvmaze') return artScanOne(name);
+    if (src === 'tmdb') return tmdbArtShow(name).then(function (r) { return r === 'found' ? r : artScanOne(name); }, function () { return artScanOne(name); });   // TMDB has nothing: TVmaze
     if (!tvdbReady()) return artScanOne(name);
     var c = store.get('tvdb1:' + nk); if (c && !c.d) { try { kv.removeItem('tvdb1:' + nk); } catch (e) { /* none */ } }     // a miss is tried again when asked
     return tvdbShow(name, 0, true).then(function (d) {
@@ -2421,6 +2459,7 @@
     var k = knownArt(prog);
     if (k && k.back) return Promise.resolve('skip');
     var name = filmArtName(prog), nk = normShow(name);
+    if (artSrcId() === 'tmdb') return tmdbFilmArt(name, filmYear(prog)).then(function (r) { return r; }, function () { return 'fail'; });
     return tvdbFilm(name, filmYear(prog)).then(function (d) {
       if (!d || !d.background) return 'miss';
       store.set('info3:' + nk + ':0:0', { t: Date.now(), x: 0, d: { show: { name: d.name, year: String(d.year || ''), poster: '', background: d.background, id: 0, tvdb: d.tvdb }, ep: null } });
@@ -2429,7 +2468,7 @@
   }
   function scanFilms() {
     var seen = {}, out = [];
-    if (!tvdbReady()) return out;
+    if (!artReady()) return out;
     channels.forEach(function (c) { (c.plan || []).forEach(function (p) {
       if (!p.filmKey || p.ad || seen[p.filmKey] || blocked(p)) return;
       seen[p.filmKey] = 1;
@@ -2464,7 +2503,7 @@
     }).then(function (x) {
       var queue = x.queue.concat(x.films), films = x.films, r = x.r;
       scanUi.n = queue.length;
-      dlog('SCAN ARTWORK start: ' + queue.length + ' of ' + r[0].length + ' shows need something, ' + films.length + ' films need a backdrop' + (tvdbReady() ? ' (TheTVDB first)' : ' (TVmaze)'));
+      dlog('SCAN ARTWORK start: ' + queue.length + ' of ' + r[0].length + ' shows need something, ' + films.length + ' films need a backdrop' + ' (' + artSrcLabel() + ' first)');
       function finish(stopped) {
         var res = (stopped ? 'Stopped' : 'Done') + ': ' + scanUi.art + ' artwork, ' + scanUi.eps + ' episode guides' + (scanUi.miss ? ', ' + scanUi.miss + ' not found' : '') + (scanUi.fail ? ', ' + scanUi.fail + ' failed' : '');
         scanUi.running = false; scanUi.result = res; dlog('SCAN ARTWORK ' + res);
@@ -6249,7 +6288,7 @@
   var OCATS = [
     { id: 'picture', rows: ['ar', 'fx'] },
     { id: 'guide', rows: ['sched', 'od', 'real', 'span', 'theme', 'season', 'keep', 'refresh', 'unhide'] },
-    { id: 'art', rows: ['gart', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
+    { id: 'art', rows: ['gart', 'artsrc', 'epsrc', 'tvdb', 'tmdb', 'scan', 'mkeep', 'mclear'] },
     { id: 'play', rows: ['player', 'buf', 'ads', 'yt'] },
     { id: 'help', rows: ['rel', 'about'] },
     { id: 'exp', rows: ['exp', 'startup', 'ldscr', 'uisize', 'mc', 'rw', 'uk', 'addons', 'ammain', 'depg', 'join', 'adlang', 'adrec', 'adcut', 'dbgopen'] },
@@ -6282,6 +6321,7 @@
     if (id === 'real') return realOn ? 'On' : 'Off';
     if (id === 'scan') return scanUi.running ? (scanUi.i + ' of ' + scanUi.n + '  \u00b7  ' + scanUi.name + '  \u00b7  OK to cancel') : (scanUi.result || 'OK to start');
     if (id === 'tvdb') return !tvdbKey ? 'Not set  \u00b7  OK to enter' : (Date.now() < tvdbPause ? 'Key not accepted' : !(window.NativeHttp && NativeHttp.httpx) ? 'Needs a newer app' : 'On  \u00b7  ' + tvdbStat.found + ' found' + (tvdbStat.none ? ', ' + tvdbStat.none + ' no match' : '') + (tvdbStat.fail ? ', ' + tvdbStat.fail + ' failed' : '') + (tvdbStat.found + tvdbStat.none + tvdbStat.fail ? '' : '  \u00b7  OK to test'));
+    if (id === 'artsrc') return artSrcLabel() + (artSrcId() === 'tmdb' && !tmdbKey ? '  \u00b7  needs a TMDB key' : artSrcId() === 'tvdb' && !tvdbKey ? '  \u00b7  needs a TheTVDB key' : '');
     if (id === 'epsrc') return EPSRC[epSrcIdx].label + (epSrcIdx === 1 && !tvdbKey ? '  (needs a TheTVDB key)' : epSrcIdx === 2 && !tmdbKey ? '  (needs a TMDB key)' : '');
     if (id === 'tmdb') return !tmdbKey ? 'Not set  \u00b7  OK to enter' : 'Saved  \u00b7  OK to change';
     if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
@@ -6405,6 +6445,7 @@
     ar: 'Auto, Smart, 4:3, 16:9, Zoom or Stretch. Auto shows each programme in the ratio it was made in. Smart keeps old 4:3 pictures the right shape and fills the sides with a soft copy of the picture.',
     fx: 'A period look for the picture: VHS softness, vivid colour or extra sharpness. VHS OLED is the VHS look with its lines swapped with the gaps every ten minutes, so an OLED screen wears evenly.',
     gart: 'Posters and backdrops in the guide and on the bar. Off keeps things plain.',
+    artsrc: 'Which service the artwork scan asks first: TheTVDB, TMDB or TVmaze. A source with no key is skipped and the next one is asked.',
     ads: 'Adverts between programmes, matched to the year of what you are watching. UK first, and never on the BBC.',
     player: 'A few videos have no sound, or will not play at all, in the normal player. When that happens the app can switch to a second, built-in player that handles them. Automatic does this by itself, only for the videos that need it, and remembers them. Never keeps the normal player for everything. Always uses the second player for every video (the VHS and Smart ratio looks do not work with it).',
     buf: 'Downloads the next part of a programme to this device before you reach it, so it keeps playing through slow spells on your internet. A bigger amount copes with slower connections but uses more space. Off plays straight from archive.org.',
@@ -6669,6 +6710,7 @@
     else if (id === 'unhide') unhideAll();
     else if (id === 'tvdb') keyAsk('tvdb');
     else if (id === 'tmdb') tmdbKeyOpen();
+    else if (id === 'artsrc') { artSrcIdx = (artSrcIdx + (d < 0 ? ARTSRC.length - 1 : 1)) % ARTSRC.length; store.set('artsrc1', ARTSRC[artSrcIdx].id); artFor = ''; odKGen++; renderOpts(); }
     else if (id === 'epsrc') { epSrcIdx = (epSrcIdx + (d < 0 ? EPSRC.length - 1 : 1)) % EPSRC.length; store.set('epsrc1', EPSRC[epSrcIdx].id); renderOpts(); }
     else if (id === 'scan') scanStart();
     else if (id === 'rel') openRel('rel');

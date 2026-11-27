@@ -7,6 +7,11 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.33 — 2026-11-27
+- **Choose the artwork service in Options.** Options > Artwork now has an **Artwork from** row: TheTVDB, TMDB or TVmaze. The artwork scan asks that service first, and falls back to the next one when it has no match. A service without its key is marked as needing one and is skipped.
+- **TMDB artwork.** The scan can now fetch posters and backdrops for shows and films from TMDB, using the key you enter under TMDB key. Attribution: this product uses the TMDB API but is not endorsed or certified by TMDB.
+- The episode guide source row is unchanged. JavaScript only.
+
 ## Alpha 0.54.32 — 2026-11-27
 - **On Demand's index builds run in slices and wait for Options.** Building a channel's index (tv70s, tv80s, citv and the rest) used to hold the screen for up to 13 seconds, and Options stalled while it ran. It now works in short slices and waits until Options is closed.
 - **Closing Options with On Demand open remembers where On Demand was left**, so Back from a video restores the page. JavaScript only.

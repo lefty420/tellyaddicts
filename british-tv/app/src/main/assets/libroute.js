@@ -113,16 +113,31 @@
   var PLAYER_CHANNELS = /super\s*beard\s*bros|game\s*grumps|achievement\s*hunter|yogscast|let'?s\s*play|dunkey/i;
   // Dubbed or foreign-language uploads and modern remakes that share a name with a British-TV-era show
   var FOREIGN = /dublado|legendado|completo|portugu[eê]s|castellano|latino|paixaoflix|\bhin[- ]kor\b|\bhindi\b|\bkorean\b|\btemporada\b|\bstaffel\b|\bsaison\b/i;
+  /** A file named for another show is that show's, wherever it was uploaded: an upload called "Wheel of Fortune Game Show Network
+   *  Favorites" also held "The Charlie Brown and Snoopy Show A Charlie Brown Christmas". True when the name starts with another
+   *  show's name (two words or more, followed by a title) that shares no word with this show's, and never mentions this show.
+   *  Sequels ("Yes, Prime Minister" under Yes Minister) share a word and are kept. */
+  function otherShowFirst(raw, sn, names) {
+    if (raw.indexOf(sn) >= 0) return false;
+    var w = raw.replace(/^the /, '').split(' '), own = sn.split(' ').filter(function (x) { return x.length > 2; });
+    for (var k = Math.min(8, w.length - 1); k >= 2; k--) {
+      var pre = w.slice(0, k).join(' ');
+      if (names[pre]) return !w.slice(0, k).some(function (x) { return x.length > 2 && own.indexOf(x) >= 0; });      // the longest match decides
+    }
+    return false;
+  }
   function normFile(t) { return String(t || '').toLowerCase().replace(/[_.\-:'\u2019,!?()\[\]]+/g, ' ').replace(/\s+/g, ' ').trim(); }
-  function wrongShow(sh, ep, sn) {
+  function wrongShow(sh, ep, sn, names) {
     if (sh.film || sh.song) return false;
     if (FOREIGN.test(String(ep.f || '') + ' ' + String(ep.id || ''))) return true;
     if (PLAYER_CHANNELS.test(String(ep.f || '') + ' ' + String(ep.id || '') + ' ' + String(ep.t || ''))) return true;
     var ov = OTHER_VERSION[String(sh.n || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()];
     if (ov && ov.test(String(ep.f || '') + ' ' + String(ep.id || ''))) return true;
     if (sn === undefined) sn = normFile(sh.n).replace(/^the /, '');
-    if (sn.length < 5) return false;
     var raw = normFile(String(ep.f || '').replace(/\.[a-z0-9]+$/i, ''));
+    if (/^fav-/i.test(String(ep.id || '')) && raw.indexOf(sn) < 0) return true;      // an archive.org favourites list holds anyone's uploads of anything
+    if (sn.length < 5) return false;
+    if (names && !sh.shorts && otherShowFirst(raw, sn, names)) return true;       // the Disney shorts are full of each other's characters
     var m = /\bs\d{1,2}\s?e\d{1,3}\b|\b\d{1,2}x\d{1,3}\b/i.exec(raw);
     if (!m) return false;
     var before = raw.slice(0, m.index).trim(), after = raw.slice(m.index + m[0].length);
@@ -212,7 +227,8 @@
       if (name) gone[norm(name)] = 1;
       if (slug) gone[norm(slug)] = 1;
     });
-    var list = (lib && lib.shows) || [], at = 0;
+    var list = (lib && lib.shows) || [], at = 0, names = {};
+    list.forEach(function (sh) { var n = normFile(sh.n).replace(/^the /, ''); if (n.indexOf(' ') > 0 && n.length >= 8 && !sh.film && !sh.song) names[n] = 1; });     // every show's name, for otherShowFirst
     function oneShow(sh) {
       if (gone[norm(sh.n)]) return;
       var sn = normFile(sh.n).replace(/^the /, '');
@@ -233,7 +249,7 @@
         // and a Christmas episode goes to the Christmas channel of the right sort
         var xmas = isXmas(sh, ep, genre);
         if (xmas) also.push(forKids ? 'kidsxmas' : 'christmas');
-        if (wrongShow(sh, ep, sn)) return;
+        if (wrongShow(sh, ep, sn, names)) return;
         var chs = late ? ['disney'] : (also.length ? uniqSorted(genre.concat(also)) : genre);
         if (decKeys.length && !late && !sh.song) {
           var dec = decadeOf(ep, sh, span);
@@ -364,6 +380,6 @@
     return out;
   }
 
-  var LibRoute = { ytNetChannels: ytNetChannels, yearOf: yearOf, fileYear: fileYear, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, routeBegin: routeBegin, titleFor: titleFor };
+  var LibRoute = { ytNetChannels: ytNetChannels, yearOf: yearOf, fileYear: fileYear, decadeOf: decadeOf, norm: norm, showMap: showMap, channelsFor: channelsFor, okAfter: okAfter, route: route, routeBegin: routeBegin, titleFor: titleFor, wrongShow: wrongShow };
   if (typeof module !== 'undefined' && module.exports) module.exports = LibRoute; else root.LIBROUTE = LibRoute;
 })(typeof window !== 'undefined' ? window : this);

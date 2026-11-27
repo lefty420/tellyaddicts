@@ -26,7 +26,7 @@
   // Bulk saves (channel lists, episode guides, artwork answers) go to files through the app when it can, because the
   // page's own storage holds only about 5 million characters in all and 28 channels fill it. Small things (settings,
   // chosen artwork) stay in the page's storage. With no app around (a browser) everything stays there.
-  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|odi1:|sched1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|filmdb1$|epl1:)/;
+  var KV_BIG = /^(plan7|eps1:|info3:|art2:|tvm4:|artdb1:|film1:|lib2:|rt1:|odi1:|sched1:|librevs2:|librev1$|cast1:|libtxt1:|libtxt2:|adcat1:|epdb1$|filmdb1$|epl1:|yt2$)/;      // yt2: the YouTube list (6 MB) never fitted the page's storage, so it was downloaded at every start
   var KV_NATIVE = !!(window.NativeHttp && NativeHttp.kvGet && NativeHttp.kvSet && NativeHttp.kvKeys);
   // The files' names, read from the app once per start and kept up to date here: listing the folder over the bridge
   // was done for every channel built, and the folder holds thousands of files.
@@ -38,18 +38,20 @@
   /** A big saved file without holding the screen: the app streams it to the page (MainActivity.shouldInterceptRequest), where
    *  kv.getItem had the screen wait while it came over the bridge. Gives the text, or null when nothing is saved. */
   function kvRead(k) {
-    if (!kv.big(k)) return Promise.resolve(kv.getItem(k));
+    if (!kv.big(k) || !kvMay(k)) return Promise.resolve(kv.getItem(k));
     return fetch('https://kv.telly.invalid/' + encodeURIComponent(k)).then(function (r) { return r.ok ? r.text() : null; })
       .then(null, function () { return kv.getItem(k); });          // the file server could not answer: read it the old way
   }
   /** store.get, read without holding the screen. */
   function storeRead(k) { return kvRead(k).then(function (t) { try { return JSON.parse(t); } catch (e) { return null; } }); }
-  /** Whether a setting may have a file: false only when the list of files is loaded and does not name it (most never do). */
-  function kvFiled(k) { return !kvNames || !!kvNames['ls:' + k]; }
+  /** Whether a saved file may exist: false only when the list of files is loaded and does not name it. A key too long for a file
+   *  name is kept under a shortened one the list cannot show (KvStore.file), so for those the list proves nothing. */
+  function kvMay(f) { return !kvNames || !!kvNames[f] || encodeURIComponent(f).length > 180; }
+  function kvFiled(k) { return kvMay('ls:' + k); }
   var kv = {
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
     getItem: function (k) {
-      if (kv.big(k)) { try { return NativeHttp.kvGet(k); } catch (e) { return null; } }
+      if (kv.big(k)) { if (!kvMay(k)) return null; try { return NativeHttp.kvGet(k); } catch (e) { return null; } }      // not in the list of files: nothing to read
       // settings are written to the file at once but to the page's storage only some seconds later, so when the file has a
       // value it is the newer one (a setting changed just before the app closed is only in the file)
       if (kv.mirrored(k) && kvFiled(k)) { try { var fv = NativeHttp.kvGet('ls:' + k); if (fv) { try { localStorage.setItem(k, fv); } catch (e3) { /* the file still has it */ } return fv; } } catch (e4) { /* no file: use the page's storage */ } }
@@ -527,6 +529,7 @@
   }
 
   /** {channel: revision} for the published lists; {} when there are none or the fetch fails. */
+  var ROUTE_LOGIC = 'r2.';      // bump when libroute.js sorts the library differently, so each TV sorts it again (r2: files named for another show)
   function loadDataIndex() {
     if (indexP) return indexP;
     indexP = getJSON(DATA_BASE + 'index.json').then(function (j) {
@@ -544,7 +547,7 @@
       return http(SHOWS_URL).then(function (showsText) {
         // the routes revision is part of the key: a new routes.json moves shows between channels just as
         // an edit to shows.json does, so the answer stored for the old one must not be reused
-        var key = 'librevs2:' + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText) + (magicOn ? 'm' : '');
+        var key = 'librevs2:' + ROUTE_LOGIC + j.library + ':' + (j.routes || '-') + ':' + (j.removed || '-') + ':' + E.hash(showsText) + (magicOn ? 'm' : '');
         var known = store.get(key);
         if (known && known.revs) { libRevs = known.revs; dlog('START: channel lists found from the saved answer'); return known.revs; }
         var route = function () { return loadLibraryRoutes(j.library, showsText).then(function (routed) {
@@ -987,14 +990,15 @@
     }, function () { return liveBuild(ch, noAuto, ''); });
   }
 
-  function liveBuild(ch, noAuto, salt) {
+  function liveBuild(ch, noAuto, salt, read) {      // read: { c: the saved list }, once it has been read in the background
     var auto = !noAuto && !ch.noCache && autoEpg && window.AUTO ? AUTO.sourcesFor(ch.id) : null;
     var sources = auto || ch.sources;
     ch.autoUsed = !!auto;
     var prefix = auto ? 'plan7a:' : 'plan7:';
     var key = prefix + ch.id + ':' + E.hash(JSON.stringify(sources) + (ch.perItem || '') + salt + '|v7|' + epgGen + '|' + BAD_SALT);   // bump when the naming/URL rules change so stored titles are rebuilt (how long it is kept is Options > Keep listings)
     ch.cacheKey = key;
-    var cached = ch.noCache ? null : store.get(key);
+    if (!ch.noCache && !read) return storeRead(key).then(function (c) { return liveBuild(ch, noAuto, salt, { c: c }); });
+    var cached = ch.noCache ? null : read.c;
     if (cached && cached.p && cached.p.length && Date.now() - cached.t < planTtl()) {
       ch.report = cached.r || [];
       ch.cacheT = cached.t;
@@ -7423,11 +7427,11 @@
     Object.keys(merged || {}).forEach(function (ch) { ((merged[ch] || {}).shows || []).forEach(function (n) { var k = LIBROUTE.norm(n); (m[k] = m[k] || []).push(ch); }); });
     var had = Object.keys(listedOn).length;
     listedOn = m;
-    if (!had) { var c = store.get('yt2'); if (c && c.d) try { ytRevSet(c.d); } catch (e) { /* stamps stay */ } }      // the stamps were first worked out without these lists
+    if (!had) storeRead('yt2').then(function (c) { if (c && c.d) try { ytRevSet(c.d); } catch (e) { /* stamps stay */ } });      // the stamps were first worked out without these lists
   }
   /** Every channel a YouTube show belongs on: the one the scraper filed it under, the ones that list it, and its broadcaster's and decade's. */
   function ytChannelsOf(name, sh) {
-    var k = LIBROUTE.norm(name), out = [sh && sh.channel || 'gameshows'];
+    var k = LIBROUTE.norm(name), out = sh && sh.channel ? [sh.channel] : [];      // no channel from the scraper: only where shows.json lists it (it used to fall back to Game Shows)
     (listedOn[k] || []).forEach(function (c) { if (out.indexOf(c) < 0) out.push(c); });
     LIBROUTE.ytNetChannels(name).forEach(function (c) { if (out.indexOf(c) < 0) out.push(c); });
     return out;
@@ -7461,10 +7465,10 @@
   function ytLoad() {
     if (!ytOn || !ytAvailable()) return Promise.resolve({});
     if (ytP) return ytP;
-    var c = store.get('yt2');
-    ytP = (c && c.d && Date.now() - c.t < 6 * 3600000 ? Promise.resolve(c.d)
-      : getJSON(DATA_BASE + 'yt.json?' + Math.floor(Date.now() / 3600000)).then(function (d) { store.set('yt2', { t: Date.now(), d: d }); return d; }))
-      .then(function (d) { d = d && typeof d === 'object' ? d : {}; try { ytRevSet(d); } catch (e) { /* stamp not updated */ } return d; }, function () { return (c && c.d) || {}; });
+    ytP = storeRead('yt2').then(function (c) {
+      if (c && c.d && Date.now() - c.t < 6 * 3600000) return c.d;
+      return getJSON(DATA_BASE + 'yt.json?' + Math.floor(Date.now() / 3600000)).then(function (d) { store.set('yt2', { t: Date.now(), d: d }); return d; }, function () { return (c && c.d) || {}; });
+    }).then(function (d) { d = d && typeof d === 'object' ? d : {}; try { ytRevSet(d); } catch (e) { /* stamp not updated */ } return d; });
     return ytP;
   }
   var YT_JUNK = /\b(best of|compilation|highlights?|reaction|reacts?|review|live ?stream|live:|music video|official video|trailer|behind the scenes|interview|bloopers?|billionaire|ceo)\b/i;      // the last two: short-drama channels that turn up under show names like Blind Date

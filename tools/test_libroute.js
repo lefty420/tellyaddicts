@@ -51,4 +51,15 @@ check(R.ytNetChannels("Beadle's About").join(','), 'itv,tv80s', 'YouTube-only sh
 check(R.ytNetChannels('The Vicar of Dibley').join(','), 'bbc,tv90s', 'YouTube-only show: BBC and the 90s');
 check(R.ytNetChannels('Unknown Show').length, 0, 'unknown YouTube show: no extra channel');
 
+// a file named for another show is not this show's, but a sequel or a file naming this show is
+const names = { 'charlie brown and snoopy show': 1, 'yes prime minister': 1, 'fireman sam': 1 };
+const wof = { n: 'Wheel of Fortune' };
+check(R.wrongShow(wof, { id: 'wof-x', f: 'The Charlie Brown and Snoopy Show A Charlie Brown Christmas.mp4' }, undefined, names), true, 'another show by name');
+check(R.wrongShow({ n: 'Pingu' }, { id: 'p', f: 'fireman-sam-s03e02-a-spot-of-bother.mp4' }, undefined, names), true, 'Fireman Sam filed under Pingu');
+check(R.wrongShow({ n: 'QI' }, { id: 'q', f: 'Fireman Sam Brass Band.mp4' }, undefined, names), false, 'a name under 5 letters is never judged');
+check(R.wrongShow({ n: 'Yes Minister' }, { id: 'ym', f: 'Yes, Prime Minister Series 1 Side A3.mp4' }, undefined, names), false, 'a sequel shares a word: kept');
+check(R.wrongShow(wof, { id: 'wof-y', f: 'Wheel of Fortune 1987 The Charlie Brown and Snoopy Show.mp4' }, undefined, names), false, 'names this show: kept');
+check(R.wrongShow(wof, { id: 'fav-wheel_list', f: 'Its Potty Time.mp4' }, undefined, names), true, 'a favourites list file that does not name the show');
+check(R.wrongShow(wof, { id: 'fav-wheel_list', f: 'Wheel of Fortune 1988-01-04.mp4' }, undefined, names), false, 'a favourites list file that names the show');
+
 console.log('libroute: all ' + n + ' checks pass');

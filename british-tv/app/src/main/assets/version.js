@@ -1,18 +1,29 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.43",
-  "version": "0.54.43",
-  "code": 5443,
+  "name": "Alpha 0.54.44",
+  "version": "0.54.44",
+  "code": 5444,
   "date": "2026-11-27",
   "notes": [
-    "**Big saved files no longer freeze the screen while they are read.** The saved library (13 MB), the Magic EPG episode and film lists, each channel's schedule and On Demand's saved rows are now handed to the page in the background by the TV app. Reading them used to hold the screen: up to 1.5 seconds for the library and most of a second for each On Demand channel, again and again while the rows filled in.",
-    "**Back from a video always puts On Demand back as it was, at once.** When On Demand had not been marked on the way out (for example after Options), Back built the whole page again, which took about 8 seconds. The page is only hidden while a video plays, so it is now simply shown again.",
-    "**Start-up waits less:** the episode lists and channel schedules it reads before the guide opens are read in the background too.",
-    "**Channels built after a library update no longer freeze the start-up.** Each channel is now worked out a row at a time, not in one go (that took up to 5 seconds per channel).",
-    "Needs the new APK (the TV app now serves the saved files to the page)."
+    "**Start-up holds the screen less.** The 35 channel lists read before the guide opens are now read in the background too (they took up to 2.8 seconds on the SHIELD, in one stretch).",
+    "**Other shows' episodes no longer turn up under the wrong show.** An archive.org favourites list called \"Wheel of Fortune Game Show Network\" held A Charlie Brown Christmas, Barney and Jay Jay the Jet Plane, so they were on Game Shows as Wheel of Fortune. A file from a favourites list now has to name its show, and a file named for a different show in the library (Fireman Sam filed under Pingu) goes with that show. Checked over the whole library: it removes 10 files and nothing else. Each TV sorts the library again once.",
+    "**A Charlie Brown Christmas, The Good Life, Mr Bean, The Snowman and 59 other YouTube shows are off Game Shows.** A YouTube show the scraper gave no channel was put on Game Shows; it now goes only on the channels that list it (every one of them is listed somewhere).",
+    "**The YouTube list is kept on the TV again.** It grew to 6 MB, which no longer fitted where it was saved, so every start downloaded it again (the saved copy dated from 23 November). It is now kept as a file, read in the background, and fetched again every 6 hours as intended.",
+    "**Looking for artwork that was never saved costs nothing.** Posters, backdrops and episode details are looked up for many shows at once (the hero, the rows); a show with nothing saved was still asked for its file each time, which added up to almost half a second. The app now knows which files exist. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.43",
+      "date": "2026-11-27",
+      "notes": [
+        "**Big saved files no longer freeze the screen while they are read.** The saved library (13 MB), the Magic EPG episode and film lists, each channel's schedule and On Demand's saved rows are now handed to the page in the background by the TV app. Reading them used to hold the screen: up to 1.5 seconds for the library and most of a second for each On Demand channel, again and again while the rows filled in.",
+        "**Back from a video always puts On Demand back as it was, at once.** When On Demand had not been marked on the way out (for example after Options), Back built the whole page again, which took about 8 seconds. The page is only hidden while a video plays, so it is now simply shown again.",
+        "**Start-up waits less:** the episode lists and channel schedules it reads before the guide opens are read in the background too.",
+        "**Channels built after a library update no longer freeze the start-up.** Each channel is now worked out a row at a time, not in one go (that took up to 5 seconds per channel).",
+        "Needs the new APK (the TV app now serves the saved files to the page)."
+      ]
+    },
     {
       "name": "Alpha 0.54.42",
       "date": "2026-11-27",
@@ -68,16 +79,6 @@ window.RELEASE = {
         "**Shows that exist only on YouTube now appear on every channel that lists them**, not just the one channel the scraper filed them under. Beadle's About was only on Saturday Night; it is now also on Entertainment, ITV and 80's TV. This was why many shows seemed to be missing from channels.",
         "**ITV, BBC, 80's TV and 90's TV now include YouTube-only British shows** (about 170 of them, from a built-in list of who made each show and when it began), as the library shows already did.",
         "The saved On Demand lists are rebuilt once in the background to pick this up. JavaScript only."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.35",
-      "date": "2026-11-27",
-      "notes": [
-        "**Back from a video remembers where On Demand was left**, whichever way you left it, so Back restores the page instead of rebuilding it (the slow way took 8 to 10 seconds).",
-        "**TMDB results are logged and shown.** The artwork scan now logs \"TMDB found / no match / failed\" for each show and film, and the TMDB key row in Options shows the running count.",
-        "**The scan's first line is clearer:** shows and films are counted separately, with how long the list took to work out.",
-        "A bogus \"262625 ms\" timing line in the log is no longer written. JavaScript only."
       ]
     }
   ]

@@ -7,6 +7,13 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.44 — 2026-11-27
+- **Start-up holds the screen less.** The 35 channel lists read before the guide opens are now read in the background too (they took up to 2.8 seconds on the SHIELD, in one stretch).
+- **Other shows' episodes no longer turn up under the wrong show.** An archive.org favourites list called "Wheel of Fortune Game Show Network" held A Charlie Brown Christmas, Barney and Jay Jay the Jet Plane, so they were on Game Shows as Wheel of Fortune. A file from a favourites list now has to name its show, and a file named for a different show in the library (Fireman Sam filed under Pingu) goes with that show. Checked over the whole library: it removes 10 files and nothing else. Each TV sorts the library again once.
+- **A Charlie Brown Christmas, The Good Life, Mr Bean, The Snowman and 59 other YouTube shows are off Game Shows.** A YouTube show the scraper gave no channel was put on Game Shows; it now goes only on the channels that list it (every one of them is listed somewhere).
+- **The YouTube list is kept on the TV again.** It grew to 6 MB, which no longer fitted where it was saved, so every start downloaded it again (the saved copy dated from 23 November). It is now kept as a file, read in the background, and fetched again every 6 hours as intended.
+- **Looking for artwork that was never saved costs nothing.** Posters, backdrops and episode details are looked up for many shows at once (the hero, the rows); a show with nothing saved was still asked for its file each time, which added up to almost half a second. The app now knows which files exist. JavaScript only.
+
 ## Alpha 0.54.43 — 2026-11-27
 - **Big saved files no longer freeze the screen while they are read.** The saved library (13 MB), the Magic EPG episode and film lists, each channel's schedule and On Demand's saved rows are now handed to the page in the background by the TV app. Reading them used to hold the screen: up to 1.5 seconds for the library and most of a second for each On Demand channel, again and again while the rows filled in.
 - **Back from a video always puts On Demand back as it was, at once.** When On Demand had not been marked on the way out (for example after Options), Back built the whole page again, which took about 8 seconds. The page is only hidden while a video plays, so it is now simply shown again.

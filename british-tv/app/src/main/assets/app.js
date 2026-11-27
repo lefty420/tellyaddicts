@@ -7977,16 +7977,22 @@
   }
   /** The show's own details (network, years, summary) and artwork, looked up once the highlight has rested on it. */
   var odMetaTimer = null;
+  // artwork that arrives while browsing: one redraw per burst, and none while a key is being pressed (the redraw would stall the press)
+  var odRenderTimer = 0;
+  function odRenderSoon() {
+    if (odRenderTimer) return;
+    odRenderTimer = setTimeout(function () { odRenderTimer = 0; if (odOpen) odRender(); }, Date.now() - lastKeyAt < 2500 ? 1200 : 150);
+  }
   function odLookups(g) {
     clearTimeout(odMetaTimer);
     if (!g || g.film) return;                     // a film's details came with the library
     odMetaTimer = setTimeout(function () {
       if (!odOpen) return;
-      if (g.art === undefined) { g.art = null; artShow(g.name).then(function (x) { g.art = x || null; odKGen++; if (odOpen && odSel().g === g) odRender(); }); }
+      if (g.art === undefined) { g.art = null; artShow(g.name).then(function (x) { g.art = x || null; odKGen++; if (odOpen && odSel().g === g) odRenderSoon(); }); }
       if (gartOn && !odKnown(g) && odArtFor !== g.name) {
         odArtFor = g.name;
         var p = parseTitle(g.name + ' S01E01'); p.show = g.name;
-        tvmInfo(p).then(function () { odKGen++; if (odOpen && odSel().g === g) odRender(); }, function () { /* no artwork */ });
+        tvmInfo(p).then(function () { odKGen++; if (odOpen && odSel().g === g) odRenderSoon(); }, function () { /* no artwork */ });
       }
     }, 350);
   }

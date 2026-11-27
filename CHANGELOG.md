@@ -7,6 +7,9 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.29 — 2026-11-27
+- **On Demand stays smoother while artwork loads.** A poster or background that arrives while you are moving around used to redraw the rows straight away, in the middle of a key press. Redraws from new artwork are now batched and wait until you stop pressing keys. JavaScript only.
+
 ## Alpha 0.54.28 — 2026-11-25
 - **Episode titles on a show's page are no longer cut off.** Every card started with the show name ("Stars In Their Eyes - 199…"), so the part that tells the episodes apart was hidden. The show name is now left off the card and a long title can use two lines. JavaScript and layout only.
 

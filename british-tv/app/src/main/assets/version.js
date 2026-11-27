@@ -1,14 +1,21 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.28",
-  "version": "0.54.28",
-  "code": 5428,
-  "date": "2026-11-25",
+  "name": "Alpha 0.54.29",
+  "version": "0.54.29",
+  "code": 5429,
+  "date": "2026-11-27",
   "notes": [
-    "**Episode titles on a show's page are no longer cut off.** Every card started with the show name (\"Stars In Their Eyes - 199…\"), so the part that tells the episodes apart was hidden. The show name is now left off the card and a long title can use two lines. JavaScript and layout only."
+    "**On Demand stays smoother while artwork loads.** A poster or background that arrives while you are moving around used to redraw the rows straight away, in the middle of a key press. Redraws from new artwork are now batched and wait until you stop pressing keys. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.28",
+      "date": "2026-11-25",
+      "notes": [
+        "**Episode titles on a show's page are no longer cut off.** Every card started with the show name (\"Stars In Their Eyes - 199…\"), so the part that tells the episodes apart was hidden. The show name is now left off the card and a long title can use two lines. JavaScript and layout only."
+      ]
+    },
     {
       "name": "Alpha 0.54.27",
       "date": "2026-11-25",
@@ -56,13 +63,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**More pictures on the loading screen.** Early on only a couple of backdrops had finished loading, and the screen flicked between those. Until ten backdrops are in, the posters now join the pool, so there is more to tune through. The debug log gets a \"SPLASH:\" line at 3 s and 8 s after launch saying how many pictures had loaded, so if it is still only two we can see whether the pictures or the loading is the problem. JavaScript only."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.20",
-      "date": "2026-11-24",
-      "notes": [
-        "**Back now walks up instead of flipping between the small video and full screen.** Video, Back: the episodes with the video still playing small. Back: On Demand home. Back at the top: the quit prompt. To take the small video full screen, go up to it (the picture at the top) and press OK. JavaScript only (no new Java needed beyond 0.54.19)."
       ]
     }
   ]

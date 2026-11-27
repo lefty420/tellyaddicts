@@ -2105,6 +2105,8 @@
   /** Can the chosen source be asked right now (a key is needed for TheTVDB and TMDB)? */
   function artReady() { var id = artSrcId(); return id === 'tvdb' ? tvdbReady() : id === 'tmdb' ? !!tmdbKey : true; }
   var TMDB_ART = 'https://image.tmdb.org/t/p/';
+  var tmdbStat = { found: 0, none: 0, fail: 0 };
+  function tmdbNote(name, r) { if (r === 'found') tmdbStat.found++; else tmdbStat.none++; dlog('TMDB ' + (r === 'found' ? 'found ' : 'no match for ') + name); return r; }
   /** Keep what TMDB said in the same place the other sources keep theirs, so the guide and On Demand read it the same way. */
   function tmdbSaveArt(name, title, year, poster, back, ref) {
     var key = 'info3:' + normShow(name) + ':0:0', old = store.get(key), os = old && old.d && old.d.show || {};
@@ -2415,7 +2417,7 @@
     if (k && k.poster && k.back) return Promise.resolve('skip');
     var src = artSrcId();
     if (src === 'tvmaze') return artScanOne(name);
-    if (src === 'tmdb') return tmdbArtShow(name).then(function (r) { return r === 'found' ? r : artScanOne(name); }, function () { return artScanOne(name); });   // TMDB has nothing: TVmaze
+    if (src === 'tmdb') return tmdbArtShow(name).then(function (r) { tmdbNote(name, r); return r === 'found' ? r : artScanOne(name); }, function (e) { tmdbStat.fail++; dlog('TMDB failed for ' + name + ': ' + (e && e.message)); return artScanOne(name); });   // TMDB has nothing: TVmaze
     if (!tvdbReady()) return artScanOne(name);
     var c = store.get('tvdb1:' + nk); if (c && !c.d) { try { kv.removeItem('tvdb1:' + nk); } catch (e) { /* none */ } }     // a miss is tried again when asked
     return tvdbShow(name, 0, true).then(function (d) {
@@ -2459,7 +2461,7 @@
     var k = knownArt(prog);
     if (k && k.back) return Promise.resolve('skip');
     var name = filmArtName(prog), nk = normShow(name);
-    if (artSrcId() === 'tmdb') return tmdbFilmArt(name, filmYear(prog)).then(function (r) { return r; }, function () { return 'fail'; });
+    if (artSrcId() === 'tmdb') return tmdbFilmArt(name, filmYear(prog)).then(function (r) { return tmdbNote(name, r); }, function (e) { tmdbStat.fail++; dlog('TMDB failed for ' + name + ': ' + (e && e.message)); return 'fail'; });
     return tvdbFilm(name, filmYear(prog)).then(function (d) {
       if (!d || !d.background) return 'miss';
       store.set('info3:' + nk + ':0:0', { t: Date.now(), x: 0, d: { show: { name: d.name, year: String(d.year || ''), poster: '', background: d.background, id: 0, tvdb: d.tvdb }, ep: null } });
@@ -2481,6 +2483,7 @@
       scanUi.cancel = true; scanUi.result = 'Stopping…'; scanRender(); return;
     }
     if (artScan.running) { toast('A quiet scan is already running. Try again in a few minutes.', 4000); return; }
+    var scanT0 = Date.now();
     scanUi = { running: true, cancel: false, i: 0, n: 0, name: 'Working out what is missing…', art: 0, eps: 0, miss: 0, fail: 0, result: '' };
     scanRender();
     var fails = 0;
@@ -2503,7 +2506,7 @@
     }).then(function (x) {
       var queue = x.queue.concat(x.films), films = x.films, r = x.r;
       scanUi.n = queue.length;
-      dlog('SCAN ARTWORK start: ' + queue.length + ' of ' + r[0].length + ' shows need something, ' + films.length + ' films need a backdrop' + ' (' + artSrcLabel() + ' first)');
+      dlog('SCAN ARTWORK start: ' + x.queue.length + ' of ' + r[0].length + ' shows need something, ' + films.length + ' films need a backdrop (' + artSrcLabel() + ' first), list worked out in ' + (Date.now() - scanT0) + ' ms');
       function finish(stopped) {
         var res = (stopped ? 'Stopped' : 'Done') + ': ' + scanUi.art + ' artwork, ' + scanUi.eps + ' episode guides' + (scanUi.miss ? ', ' + scanUi.miss + ' not found' : '') + (scanUi.fail ? ', ' + scanUi.fail + ' failed' : '');
         scanUi.running = false; scanUi.result = res; dlog('SCAN ARTWORK ' + res);
@@ -6323,7 +6326,7 @@
     if (id === 'tvdb') return !tvdbKey ? 'Not set  \u00b7  OK to enter' : (Date.now() < tvdbPause ? 'Key not accepted' : !(window.NativeHttp && NativeHttp.httpx) ? 'Needs a newer app' : 'On  \u00b7  ' + tvdbStat.found + ' found' + (tvdbStat.none ? ', ' + tvdbStat.none + ' no match' : '') + (tvdbStat.fail ? ', ' + tvdbStat.fail + ' failed' : '') + (tvdbStat.found + tvdbStat.none + tvdbStat.fail ? '' : '  \u00b7  OK to test'));
     if (id === 'artsrc') return artSrcLabel() + (artSrcId() === 'tmdb' && !tmdbKey ? '  \u00b7  needs a TMDB key' : artSrcId() === 'tvdb' && !tvdbKey ? '  \u00b7  needs a TheTVDB key' : '');
     if (id === 'epsrc') return EPSRC[epSrcIdx].label + (epSrcIdx === 1 && !tvdbKey ? '  (needs a TheTVDB key)' : epSrcIdx === 2 && !tmdbKey ? '  (needs a TMDB key)' : '');
-    if (id === 'tmdb') return !tmdbKey ? 'Not set  \u00b7  OK to enter' : 'Saved  \u00b7  OK to change';
+    if (id === 'tmdb') return !tmdbKey ? 'Not set  \u00b7  OK to enter' : 'Saved  \u00b7  ' + (tmdbStat.found + tmdbStat.none + tmdbStat.fail ? tmdbStat.found + ' found' + (tmdbStat.none ? ', ' + tmdbStat.none + ' no match' : '') + (tmdbStat.fail ? ', ' + tmdbStat.fail + ' failed' : '') + '  \u00b7  ' : '') + 'OK to change';
     if (id === 'yt') return !ytAvailable() ? 'Needs the TV app' : ytOn ? 'On' : 'Off';
     if (id === 'ads') return (adEra === 'off' ? 'Off' : 'On') + (adEra !== 'off' && cur && !ADS.categoryFor(cur.ch.id) ? '  (none on this channel)' : '');
     if (id === 'buf') return BUF[bufIdx].label + (BUF[bufIdx].mb && !bufferAvailable() ? '  (needs a newer app)' : '');
@@ -8241,7 +8244,7 @@
             cards.appendChild(x.c.id === '_on' ? odOnCard(x.sh[i], sel) : odCard(x.sh[i], sel));
           }
           rowIsCw = false; odDecOn = false; odCardRid = '';
-          if (odT1 && x.n && x.c.ch) { dlog('ONDEMAND: first genre row (' + x.c.name + ') drawn ' + Math.round(performance.now() - odT1) + ' ms after pressing On Demand'); odT1 = 0; }
+          if (odT1 && x.n && x.c.ch) { var gms = Math.round(performance.now() - odT1); if (gms < 120000) dlog('ONDEMAND: first genre row (' + x.c.name + ') drawn ' + gms + ' ms after pressing On Demand'); odT1 = 0; }
           if (odT0 && x.n) { dlog('ONDEMAND: first row drawn ' + Math.round(performance.now() - odT0) + ' ms after pressing On Demand (' + (odT0Warm ? 'warm start, rows saved' : 'index being built') + ', ' + x.c.name + ', ' + x.n + ' shows)'); odT0 = 0; }
         }
         row.appendChild(cards); frag.appendChild(row);
@@ -8717,6 +8720,7 @@
     lastBack = n; pressBackToExit();
   }
   function odClose(restore) {
+    if (!restore && odOpen && !odPlaced) odMark();      // leaving for playback: Back can put the page back as it was (not when leaving for the guide)
     odPipOff();
     odOpen = false;
     clearTimeout(odMetaTimer);

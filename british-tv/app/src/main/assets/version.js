@@ -1,14 +1,24 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.34",
-  "version": "0.54.34",
-  "code": 5434,
+  "name": "Alpha 0.54.35",
+  "version": "0.54.35",
+  "code": 5435,
   "date": "2026-11-27",
   "notes": [
-    "**Fixes a crash in Options > Artwork.** The new \"Artwork from\" row had no place on the screen, so opening Options crashed the app. JavaScript and layout only."
+    "**Back from a video remembers where On Demand was left**, whichever way you left it, so Back restores the page instead of rebuilding it (the slow way took 8 to 10 seconds).",
+    "**TMDB results are logged and shown.** The artwork scan now logs \"TMDB found / no match / failed\" for each show and film, and the TMDB key row in Options shows the running count.",
+    "**The scan's first line is clearer:** shows and films are counted separately, with how long the list took to work out.",
+    "A bogus \"262625 ms\" timing line in the log is no longer written. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.34",
+      "date": "2026-11-27",
+      "notes": [
+        "**Fixes a crash in Options > Artwork.** The new \"Artwork from\" row had no place on the screen, so opening Options crashed the app. JavaScript and layout only."
+      ]
+    },
     {
       "name": "Alpha 0.54.33",
       "date": "2026-11-27",
@@ -62,13 +72,6 @@ window.RELEASE = {
       "date": "2026-11-25",
       "notes": [
         "**Christmas Cartoons & Kids has 93 shows instead of 36.** Every children's show whose files or guide say Christmas is now on the channel: Rupert Bear, Playdays, Richard Scarry, Walt Disney Cartoon, Oswald, The Flintstones, Care Bears, Pingu, Pinky and the Brain, Tiny Toons, Rugrats and many more, about 207 Christmas episodes in all (it was about 125). The same Magic channels update also re-checked the other Magic channels against the current library: Frasier joins TGIF, and Hit List UK, Room 101, Willy Fog, Roswell Conspiracies and two Christmas Pop search words are gone because the library no longer has them. Data only (channel list), no code change."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.26",
-      "date": "2026-11-25",
-      "notes": [
-        "**The snow stays on while the small video plays.** It used to switch itself off whenever a video played in the small window. JavaScript only."
       ]
     }
   ]

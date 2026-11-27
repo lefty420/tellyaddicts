@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.35 — 2026-11-27
+- **Back from a video remembers where On Demand was left**, whichever way you left it, so Back restores the page instead of rebuilding it (the slow way took 8 to 10 seconds).
+- **TMDB results are logged and shown.** The artwork scan now logs "TMDB found / no match / failed" for each show and film, and the TMDB key row in Options shows the running count.
+- **The scan's first line is clearer:** shows and films are counted separately, with how long the list took to work out.
+- A bogus "262625 ms" timing line in the log is no longer written. JavaScript only.
+
 ## Alpha 0.54.34 — 2026-11-27
 - **Fixes a crash in Options > Artwork.** The new "Artwork from" row had no place on the screen, so opening Options crashed the app. JavaScript and layout only.
 

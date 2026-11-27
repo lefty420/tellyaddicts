@@ -43,6 +43,11 @@ final class KvStore {
         }
     }
 
+    /** The file a key is kept in (it may not exist yet). */
+    File fileOf(String key) {
+        return file(key);
+    }
+
     /** The saved text, or null if there is none. */
     String get(String key) {
         File f = file(key);

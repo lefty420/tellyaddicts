@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,6 +18,8 @@ import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.view.SurfaceView;
@@ -26,7 +29,12 @@ import org.json.JSONObject;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -67,6 +75,19 @@ public class MainActivity extends Activity {
     private final AddonInbox addonInbox = new AddonInbox();
     private LiveView live;
     private KvStore kv;
+    /** Where the page fetches big saved files (see shouldInterceptRequest). Never looked up on the network: .invalid cannot exist. */
+    static final String KV_HOST = "kv.telly.invalid";
+
+    synchronized KvStore kvStore() {
+        if (kv == null) {
+            try {
+                kv = new KvStore(getFilesDir());
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return kv;
+    }
     /** All requests share a small pool: one thread per request used to leave 50+ threads competing during start-up. */
     private final ExecutorService http = Executors.newFixedThreadPool(HTTP_THREADS, new ThreadFactory() {
         @Override
@@ -131,6 +152,29 @@ public class MainActivity extends Activity {
             }
         });
         web.setWebViewClient(new WebViewClient() {
+            /** A big saved file fetched by the page from KV_HOST: streamed on WebView's own thread, so reading it never holds the
+             *  screen the way returning it from kvGet did (13 MB took most of a second). Only the page's own saves are served. */
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest req) {
+                if (!KV_HOST.equals(req.getUrl().getHost())) {
+                    return null;
+                }
+                Map<String, String> h = new HashMap<>();
+                h.put("Access-Control-Allow-Origin", "*");          // the page is a file: URL, so the answer must allow any origin
+                h.put("Cache-Control", "no-store");
+                KvStore k = kvStore();
+                String key = req.getUrl().getLastPathSegment();
+                File f = k == null || key == null ? null : k.fileOf(key);
+                try {
+                    if (f != null && f.isFile()) {
+                        return new WebResourceResponse("text/plain", "utf-8", 200, "OK", h, new FileInputStream(f));
+                    }
+                } catch (Exception e) {
+                    // unreadable: answered as missing
+                }
+                return new WebResourceResponse("text/plain", "utf-8", 404, "Not Found", h, new ByteArrayInputStream(new byte[0]));
+            }
+
             @Override
             public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                 root.removeView(web);
@@ -226,8 +270,10 @@ public class MainActivity extends Activity {
         if (web == null) {
             return;
         }
-        web.evaluateJavascript("window.dispatchEvent(new KeyboardEvent('keydown',{key:'" + key
-                + "',repeat:" + repeat + ",bubbles:true,cancelable:true}));", null);
+        // e.at is the press time: the page may be busy drawing when it gets the key, and double Back is timed from the press
+        web.evaluateJavascript("var e=new KeyboardEvent('keydown',{key:'" + key
+                + "',repeat:" + repeat + ",bubbles:true,cancelable:true});e.at=" + SystemClock.uptimeMillis()
+                + ";window.dispatchEvent(e);", null);
     }
 
     @Override
@@ -415,15 +461,8 @@ public class MainActivity extends Activity {
             return k == null ? "" : k.keys();
         }
 
-        private synchronized KvStore store() {
-            if (kv == null) {
-                try {
-                    kv = new KvStore(getFilesDir());
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-            return kv;
+        private KvStore store() {
+            return kvStore();
         }
 
         /** Throws away the pictures the page has downloaded (posters, backdrops, stills). They come back when needed. */

@@ -9,7 +9,7 @@ yourself, there is an On Demand browser with posters, seasons and episodes.
 Nothing is hosted by the app. It reads archive.org directly on the TV and plays the video files the TV can
 handle (mp4, m4v and mkv). It is a UK cousin of Spelunkr.tv, written from scratch; none of that code is used here.
 
-Current release: **Alpha 0.38**. Every release is listed in `CHANGELOG.md`.
+The current release is the top entry in `CHANGELOG.md`, which lists every release.
 
 ## What you get
 
@@ -45,12 +45,15 @@ Current release: **Alpha 0.38**. Every release is listed in `CHANGELOG.md`.
 
 ## Getting the app
 
-1. Open the **Actions** tab on GitHub, pick **Build Telly Addicts APK**, and open the latest successful run.
+The APK is normally built on the Mac (the scraper's builder app, or `./gradlew assembleDebug` in `british-tv/`).
+To build it on GitHub instead:
+
+1. Open the **Actions** tab, pick **Build Telly Addicts APK**, choose **Run workflow**, and open the finished run.
 2. Download the **tellyaddicts** artifact and unzip it to get `tellyaddicts-tv.apk` (for the TV) and `tellyaddicts-mobile.apk` (for phones).
 3. Install it with the Downloader app, or `adb connect <tv-ip>` then `adb install tellyaddicts-tv.apk`.
 
-Every build is signed with the same key, so a new one installs over the old. A build runs on every push to
-`main`. To make a release, add a heading to `CHANGELOG.md` such as `## Alpha 0.39 — 2026-11-12` with a bullet
+Every build is signed with the same key, so a new one installs over the old. A push does not start a GitHub
+build; run the workflow by hand when wanted. To make a release, add a heading to `CHANGELOG.md` such as `## Alpha 0.39 — 2026-11-12` with a bullet
 per change, run `python3 tools/make_version.py`, commit and push.
 
 ## Reporting problems

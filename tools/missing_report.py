@@ -38,6 +38,10 @@ for f in (ROOT / "british-tv/data").glob("*.json"):
         continue
     if isinstance(rows, list):
         have.update(norm(r.get("s")) for r in rows if isinstance(r, dict) and r.get("s"))
+# the YouTube copies (data/yt.json) are episodes the TV has too
+yt_path = ROOT / "british-tv/data/yt.json"
+yt = json.loads(yt_path.read_text(encoding="utf-8")) if yt_path.exists() else {}
+have.update(norm(n) for n, sh in yt.items() if (sh or {}).get("videos"))
 no_files = {ch: [n for n in v.get("shows", []) if norm(n) not in have] for ch, v in sj.items()}
 no_files = {k: v for k, v in no_files.items() if v}
 merged = {}
@@ -52,6 +56,21 @@ for s in lib["shows"]:
         m["files"] += 1
         mm = re.match(r"S(\d+)E(\d+)", str(e.get("c") or ""))
         if mm: m["seasons"].setdefault(int(mm[1]), []).append(int(mm[2]))
+        else: m["unnumbered"] += 1
+# YouTube copies join the show of the same name (or make their own entry); like the app, the scraper's season and
+# episode numbers count only when its match was high or medium
+by_name = {norm(n): m for m in merged.values() for n in m["library_names"]}
+for n, sh in yt.items():
+    vids = [v for v in (sh or {}).get("videos", []) if v and v.get("id") and not v.get("skip")]
+    if not vids: continue
+    m = by_name.get(norm(n)) or merged.setdefault("n:" + norm(n), {"show": n, "tvmaze_id": None, "library_names": [n], "channels": set(),
+                                                                   "seasons": {}, "unnumbered": 0, "files": 0})
+    by_name[norm(n)] = m
+    m["channels"].update(chan.get(norm(n), []))
+    for v in vids:
+        m["files"] += 1
+        if v.get("conf") in ("high", "medium") and v.get("season") and v.get("ep"):
+            m["seasons"].setdefault(int(v["season"]), []).append(int(v["ep"]))
         else: m["unnumbered"] += 1
 partial = []
 for m in merged.values():

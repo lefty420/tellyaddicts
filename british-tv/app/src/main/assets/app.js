@@ -35,16 +35,27 @@
     if (!kvNames) { kvNames = {}; try { String(NativeHttp.kvKeys() || '').split('\n').forEach(function (k) { if (k) kvNames[k] = 1; }); } catch (e) { /* none */ } }
     return kvNames;
   }
+  /** A big saved file without holding the screen: the app streams it to the page (MainActivity.shouldInterceptRequest), where
+   *  kv.getItem had the screen wait while it came over the bridge. Gives the text, or null when nothing is saved. */
+  function kvRead(k) {
+    if (!kv.big(k)) return Promise.resolve(kv.getItem(k));
+    return fetch('https://kv.telly.invalid/' + encodeURIComponent(k)).then(function (r) { return r.ok ? r.text() : null; })
+      .then(null, function () { return kv.getItem(k); });          // the file server could not answer: read it the old way
+  }
+  /** store.get, read without holding the screen. */
+  function storeRead(k) { return kvRead(k).then(function (t) { try { return JSON.parse(t); } catch (e) { return null; } }); }
+  /** Whether a setting may have a file: false only when the list of files is loaded and does not name it (most never do). */
+  function kvFiled(k) { return !kvNames || !!kvNames['ls:' + k]; }
   var kv = {
     big: function (k) { return KV_NATIVE && KV_BIG.test(k); },
     getItem: function (k) {
       if (kv.big(k)) { try { return NativeHttp.kvGet(k); } catch (e) { return null; } }
       // settings are written to the file at once but to the page's storage only some seconds later, so when the file has a
       // value it is the newer one (a setting changed just before the app closed is only in the file)
-      if (kv.mirrored(k)) { try { var fv = NativeHttp.kvGet('ls:' + k); if (fv) { try { localStorage.setItem(k, fv); } catch (e3) { /* the file still has it */ } return fv; } } catch (e4) { /* no file: use the page's storage */ } }
+      if (kv.mirrored(k) && kvFiled(k)) { try { var fv = NativeHttp.kvGet('ls:' + k); if (fv) { try { localStorage.setItem(k, fv); } catch (e3) { /* the file still has it */ } return fv; } } catch (e4) { /* no file: use the page's storage */ } }
       var v = localStorage.getItem(k);
       // settings are also kept as files (below): if the page's storage lost them, they are read back from there
-      if (v === null && kv.mirrored(k)) { try { v = NativeHttp.kvGet('ls:' + k); if (v) { try { localStorage.setItem(k, v); } catch (e2) { /* read from the file next time */ } } } catch (e) { v = null; } if (v === undefined || v === '') v = null; }
+      if (v === null && kv.mirrored(k) && kvFiled(k)) { try { v = NativeHttp.kvGet('ls:' + k); if (v) { try { localStorage.setItem(k, v); } catch (e2) { /* read from the file next time */ } } } catch (e) { v = null; } if (v === undefined || v === '') v = null; }
       return v;
     },
     /** The page's storage is written to disk some seconds after a change, so closing or updating the app quickly after changing a
@@ -54,13 +65,13 @@
       if (kv.big(k)) { var ok = false; try { ok = NativeHttp.kvSet(k, v); } catch (e) { ok = false; } if (!ok) throw new Error('not saved'); if (kvNames) kvNames[k] = 1; return; }
       // the file first: the page's storage can be full (it throws), and a setting must still be kept
       var filed = false;
-      if (kv.mirrored(k) && v.length < 60000) { try { filed = !!NativeHttp.kvSet('ls:' + k, v); } catch (e) { /* the page's storage still has it */ } }
+      if (kv.mirrored(k) && v.length < 60000) { try { filed = !!NativeHttp.kvSet('ls:' + k, v); } catch (e) { /* the page's storage still has it */ } if (filed && kvNames) kvNames['ls:' + k] = 1; }
       try { localStorage.setItem(k, v); } catch (e5) { if (!filed) throw e5; }
     },
     removeItem: function (k) {
       if (kv.big(k)) { try { NativeHttp.kvRemove(k); } catch (e) { /* nothing to remove */ } if (kvNames) delete kvNames[k]; return; }
       localStorage.removeItem(k);
-      if (kv.mirrored(k)) { try { NativeHttp.kvRemove('ls:' + k); } catch (e) { /* none */ } }
+      if (kv.mirrored(k)) { try { NativeHttp.kvRemove('ls:' + k); } catch (e) { /* none */ } if (kvNames) delete kvNames['ls:' + k]; }
     },
     /** Every key, in the page's storage and in the files. */
     keys: function () {
@@ -73,6 +84,8 @@
   // Settings saved by an earlier version are only in the page's storage: copy them to files once, shortly after start
   if (KV_NATIVE) setTimeout(function () {
     try {
+      // bulk saves left in the page's storage by earlier versions are never read (they live in files now) but filled it, so nothing else could be saved
+      for (var b = localStorage.length - 1; b >= 0; b--) { var bk = localStorage.key(b); if (bk && kv.big(bk)) localStorage.removeItem(bk); }
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
         if (k && kv.mirrored(k) && !kv.big(k) && !kvNative()['ls:' + k]) { var t = localStorage.getItem(k); if (t && t.length < 60000) NativeHttp.kvSet('ls:' + k, t); if (kvNames) kvNames['ls:' + k] = 1; }
@@ -189,7 +202,6 @@
       try { NativeHttp.probeItem(id, u.item, u.file); } catch (e) { delete probes[id]; }
     }
   }
-  /** The whole log as text, with the buffer's own notes on the end. */
   /** What this TV's built-in player says it can play. canPlayType answers "probably", "maybe" or "" (no). */
   var PLAYER_TESTS = [
     ['MP4, H.264 + AAC', 'video/mp4; codecs="avc1.64001F, mp4a.40.2"'],
@@ -210,13 +222,14 @@
     });
     return out;
   }
+  /** The whole log as text, with the buffer's own notes on the end. */
   function logText() {
     var head = ['Telly Addicts debug log', 'Version: ' + ((window.RELEASE && RELEASE.name) || 'unnumbered'),
       'Device: ' + (window.NativeHttp && NativeHttp.device ? NativeHttp.device() : 'not the TV app'),
       'Browser: ' + navigator.userAgent, 'Player can play: ' + playerSupport().join('; '), 'Written: ' + new Date().toString(), ''];
     var notes = '';
     try { notes = window.NativeHttp && NativeHttp.cacheLog ? NativeHttp.cacheLog() : ''; } catch (e) { notes = ''; }
-    return head.concat(DLOG).join('\n') + '\n\n--- buffer notes (this run of the app) ---\n' + (notes || '(none)\n');
+    return head.concat(DLOG).join('\n') + '\n' + posterReport() + '\n--- buffer notes (this run of the app) ---\n' + (notes || '(none)\n');
   }
 
   // ------------------------------------------------------------------ network
@@ -431,13 +444,14 @@
     var url = DATA_BASE + 'library.json', tries = 0, want = libRev || libWant;
     // The text is kept as it came (not wrapped in JSON again: that doubled the work for a 10 MB file), with the
     // revision it belongs to beside it, so an unchanged library is read from this TV and never downloaded again.
-    function saved() { var t = null; try { t = kv.getItem('libtxt2:main'); } catch (e) { /* none */ } return t && typeof t === 'string' ? t : null; }
+    function saved() { return kvRead('libtxt2:main').then(function (t) { return t && typeof t === 'string' ? t : null; }, function () { return null; }); }
     function cached(why) {
-      var t = saved();
-      if (!t) throw new Error('no library');
-      var t0 = Date.now(), j = JSON.parse(t);
-      dlog('library.json: using the copy saved on this TV' + (why ? ' (' + why + ')' : '') + ', read in ' + (Date.now() - t0) + ' ms');
-      return j;
+      return saved().then(function (t) {
+        if (!t) throw new Error('no library');
+        var t0 = Date.now(), j = JSON.parse(t);
+        dlog('library.json: using the copy saved on this TV' + (why ? ' (' + why + ')' : '') + ', read in ' + (Date.now() - t0) + ' ms');
+        return j;
+      });
     }
     function go() {
       var d0 = Date.now();
@@ -452,8 +466,8 @@
         return cached('download failed');
       });
     }
-    if (want && store.get('librev1') === want && saved()) {
-      try { var j0 = cached('unchanged'); if (j0 && j0.shows && (!j0.rev || j0.rev === want)) return Promise.resolve(j0); } catch (e) { /* damaged: download it */ }
+    if (want && store.get('librev1') === want) {
+      return cached('unchanged').then(function (j0) { return j0 && j0.shows && (!j0.rev || j0.rev === want) ? j0 : go(); }, go);     // none, or damaged: download it
     }
     return go();
   }
@@ -893,18 +907,19 @@
         var rev = idx[ch.id] || '';
         var dkey = 'plan7d:' + ch.id + ':' + E.hash('v8|' + rev + '|' + epgGen + '|' + BAD_SALT);
         ch.cacheKey = dkey;
-        var dcached = store.get(dkey);
-        if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < planTtl()) {
-          ch.autoUsed = true;
-          ch.report = [];
-          ch.cacheT = dcached.t;
-          ch.plan = dropHidden(unpackPlan(dcached.p));
-          listStats.saved++;
-          return ch.plan;
-        }
-        if (dcached && dcached.p && dcached.p.length) listStats.old++; else listStats.none++;
-        if (listStats.names.length < 8) listStats.names.push(ch.name);
-        return buildFromData(ch, noAuto, rev, dkey);
+        return storeRead(dkey).then(function (dcached) {
+          if (dcached && dcached.p && dcached.p.length && Date.now() - dcached.t < planTtl()) {
+            ch.autoUsed = true;
+            ch.report = [];
+            ch.cacheT = dcached.t;
+            ch.plan = dropHidden(unpackPlan(dcached.p));
+            listStats.saved++;
+            return ch.plan;
+          }
+          if (dcached && dcached.p && dcached.p.length) listStats.old++; else listStats.none++;
+          if (listStats.names.length < 8) listStats.names.push(ch.name);
+          return buildFromData(ch, noAuto, rev, dkey);
+        });
       });
     }
     return loadProgramsLive(ch, noAuto);
@@ -1601,9 +1616,10 @@
       for (var n = w.length; n >= 1; n--) { var h = artIdx[normShow(w.slice(0, n).join(' '))]; if (h && (n > 1 || w.length === 1)) return h; }
       return null;
     })();
-    if (a) { out.poster = https(a.p); out.back = https(a.b); }
-    if (!film && (!out.poster || !out.back)) {
+    if (a) { out.poster = https(a.p); out.back = https(a.b); if (a.pf && !(fxa && fxa.a)) out.pf = 1; }     // pf: the scraper's stand-in (an archive.org or YouTube still), not a real poster
+    if (!film && (!out.poster || out.pf || !out.back)) {
       var i = store.get('info3:' + normShow(p.show) + ':' + (p.s || 0) + ':' + (p.e || 0));
+      if (i && i.d && i.d.show && out.pf && i.d.show.poster) { out.poster = i.d.show.poster; delete out.pf; }      // a real poster found on the TV beats the stand-in
       if (i && i.d && i.d.show) { out.poster = out.poster || i.d.show.poster || ''; out.back = out.back || i.d.show.background || ''; }
       var g = store.get('art2:' + normShow(p.show));
       if (g && g.d && g.d.background) out.back = out.back || g.d.background;
@@ -1979,7 +1995,7 @@
             var n = list[at], m = store.get('artscan1:' + normShow(n));
             if (m && Date.now() - m.t < TVM_MISS && !disneyShort(n)) continue;               // TVmaze had nothing a few days ago (the Disney shorts are asked again: they share a series now)
             var k = knownArt({ title: n, show: n });
-            if (!k || !k.poster) noPic.push(n); else if (!k.back) noBack.push(n);
+            if (!k || !k.poster || k.pf) noPic.push(n); else if (!k.back) noBack.push(n);
           }
           if (at < list.length) setTimeout(slice, 40); else res(noPic.concat(noBack));
         })();
@@ -2186,8 +2202,8 @@
   function loadEpdb(any) {           // any: Info's episode row wants it even when Magic EPG is off
     if (!any && !depgActive()) return Promise.resolve();
     if (epdbP) return epdbP;
-    return (epdbP = loadDataIndex().then(null, function () { /* no index: the plain file name below */ }).then(function () {
-      var c = store.get('epdb1'), kept = c && c.d;
+    return (epdbP = loadDataIndex().then(null, function () { /* no index: the plain file name below */ }).then(function () { return storeRead('epdb1'); }).then(function (c) {
+      var kept = c && c.d;
       if (kept && (epdbRev ? c.rev === epdbRev : Date.now() - c.t < 86400000)) { epdb = c.d; return; }
       // the scraper publishes one file, or several (epdb-1.json ...) when it passes 10 MB; index.json lists them
       return Promise.all((epdbFiles || ['epdb.json']).map(function (n) {
@@ -2205,8 +2221,8 @@
   function loadFilmdb() {
     if (!depgActive()) return Promise.resolve();
     if (filmdbP) return filmdbP;
-    return (filmdbP = loadDataIndex().then(null, function () { /* no index */ }).then(function () {
-      var c = store.get('filmdb1'), kept = c && c.d;
+    return (filmdbP = loadDataIndex().then(null, function () { /* no index */ }).then(function () { return storeRead('filmdb1'); }).then(function (c) {
+      var kept = c && c.d;
       if (kept && (filmdbRev ? c.rev === filmdbRev : Date.now() - c.t < 86400000)) { filmdb = c.d; return; }
       if (c && c.none && !filmdbRev && Date.now() - c.t < 21600000) return;          // nothing published: not asked again for six hours
       return getJSON(DATA_BASE + 'filmdb.json').then(function (j) {
@@ -2413,21 +2429,77 @@
     return page(0);
   }
   /** Poster and backdrop for one show; 'skip' when it has both already. */
-  function scanArtOne(name) {
-    var nk = normShow(name), k = knownArt({ title: name, show: name });
-    if (k && k.poster && k.back) return Promise.resolve('skip');
-    var src = artSrcId();
-    if (src === 'tvmaze') return artScanOne(name);
-    if (src === 'tmdb') return tmdbArtShow(name).then(function (r) { tmdbNote(name, r); return r === 'found' ? r : artScanOne(name); }, function (e) { tmdbStat.fail++; dlog('TMDB failed for ' + name + ': ' + (e && e.message)); return artScanOne(name); });   // TMDB has nothing: TVmaze
-    if (!tvdbReady()) return artScanOne(name);
-    var c = store.get('tvdb1:' + nk); if (c && !c.d) { try { kv.removeItem('tvdb1:' + nk); } catch (e) { /* none */ } }     // a miss is tried again when asked
+  /** A show's poster and backdrop from TheTVDB, kept with the other looked-up artwork: 'found', 'miss', or throws when it cannot be asked. */
+  function tvdbArtShow(name) {
+    var nk = normShow(name), c = store.get('tvdb1:' + nk); if (c && !c.d) { try { kv.removeItem('tvdb1:' + nk); } catch (e) { /* none */ } }     // a miss is tried again when asked
     return tvdbShow(name, 0, true).then(function (d) {
-      if (!d) return artScanOne(name);                                   // TheTVDB has nothing: TVmaze
+      if (!d) return 'miss';
       var key = 'info3:' + nk + ':0:0', old = store.get(key), os = old && old.d && old.d.show || {};
       var show = Object.assign({}, d, { poster: os.poster || d.poster, background: os.background || d.background });
       store.set(key, { t: Date.now(), x: 0, d: { show: show, ep: null } });
       return show.poster || show.background ? 'found' : 'miss';
-    }, function () { return artScanOne(name); });
+    });
+  }
+  function scanArtOne(name) {
+    var k = knownArt({ title: name, show: name });
+    if (k && k.poster && !k.pf && k.back) return Promise.resolve('skip');     // a stand-in poster is still looked up
+    var src = artSrcId();
+    if (src === 'tvmaze') return artScanOne(name);
+    if (src === 'tmdb') return tmdbArtShow(name).then(function (r) { tmdbNote(name, r); return r === 'found' ? r : artScanOne(name); }, function (e) { tmdbStat.fail++; dlog('TMDB failed for ' + name + ': ' + (e && e.message)); return artScanOne(name); });   // TMDB has nothing: TVmaze
+    if (!tvdbReady()) return artScanOne(name);
+    return tvdbArtShow(name).then(function (r) { return r === 'found' ? r : artScanOne(name); }, function () { return artScanOne(name); });     // TheTVDB has nothing: TVmaze
+  }
+
+  // ---- A show On Demand stops on with no real poster (none, or only the scraper's stand-in) is looked up there and then:
+  // the chosen service first, then every other one that can be asked, until one has a poster. Each look is a POSTER line in
+  // the debug log, and the shows nothing had are kept and listed at the end of the log, for the scraper.
+  var posterTried = {}, posterTimer = null, posterBusy = false;
+  var posterMiss = store.get('postermiss1') || {};
+  function posterReal(name) { var k = knownArt({ title: name, show: name }); return !!(k && k.poster && !k.pf); }
+  function posterLook(g) {
+    clearTimeout(posterTimer);
+    if (!gartOn || !g || g.film || g.shorts || g.onnow || !g.name || posterTried[normShow(g.name)] || posterReal(g.name)) return;
+    posterTimer = setTimeout(function () { posterRun(g.name); }, 800);       // once the highlight rests: scrolling past a row asks nothing
+  }
+  function posterRun(name) {
+    var nk = normShow(name);
+    if (posterBusy || posterTried[nk] || posterReal(name)) return;
+    posterTried[nk] = 1; posterBusy = true;
+    var k0 = knownArt({ title: name, show: name }), had = k0 && k0.poster ? 'a stand-in' : 'no poster', tried = [];
+    var ids = ARTSRC.map(function (x) { return x.id; }), order = [artSrcId()].concat(ids.filter(function (id) { return id !== artSrcId(); }));
+    var ask = { tvdb: function () { return tvdbReady() ? tvdbArtShow(name) : null; }, tmdb: function () { return tmdbKey ? tmdbArtShow(name) : null; }, tvmaze: function () { return artScanOne(name); } };
+    function label(id) { return ARTSRC[ids.indexOf(id)].label; }
+    function next(i) {
+      if (i >= order.length) return Promise.resolve('');
+      var p = ask[order[i]]();
+      if (!p) { tried.push(label(order[i]) + ' (no key)'); return next(i + 1); }
+      return p.then(function (r) {
+        if (r === 'fail') { tried.push(label(order[i]) + ' (failed)'); return next(i + 1); }   // TVmaze answers 'fail' when it cannot be asked
+        odKGen++;
+        if (posterReal(name)) return label(order[i]);
+        tried.push(label(order[i]) + (r === 'found' ? ' (a backdrop only)' : ' (no match)'));
+        return next(i + 1);
+      }, function (e) { tried.push(label(order[i]) + ' (failed: ' + ((e && e.message) || 'no answer') + ')'); return next(i + 1); });
+    }
+    next(0).then(function (src) {
+      posterBusy = false;
+      if (src) {
+        dlog('POSTER found for ' + name + ' on ' + src + ' (had ' + had + (tried.length ? '; first tried ' + tried.join(', ') : '') + ')');
+        if (posterMiss[nk]) { delete posterMiss[nk]; store.set('postermiss1', posterMiss); }
+        if (odOpen) odRenderSoon();
+      } else {
+        dlog('POSTER none for ' + name + ' (had ' + had + '): ' + tried.join(', ') + '. Needs one from the scraper');
+        posterMiss[nk] = { n: name, t: Date.now(), had: had, tried: tried.join(', ') };
+        var all = Object.keys(posterMiss);
+        if (all.length > 300) { all.sort(function (a, b) { return posterMiss[a].t - posterMiss[b].t; }); all.slice(0, all.length - 300).forEach(function (x) { delete posterMiss[x]; }); }
+        store.set('postermiss1', posterMiss);
+      }
+    });
+  }
+  function posterReport() {
+    var l = Object.keys(posterMiss).map(function (x) { return posterMiss[x]; }).sort(function (a, b) { return a.n < b.n ? -1 : a.n > b.n ? 1 : 0; });
+    return '\n--- shows with no poster anywhere (for the scraper: ' + l.length + ') ---\n' +
+      (l.length ? l.map(function (m) { return m.n + '  | had ' + m.had + ' | tried ' + m.tried; }).join('\n') + '\n' : '(none)\n');
   }
   /** The episode guide with its pictures for one show, when it has none; 'skip' when the scraper or an earlier look has them. */
   function scanEpsOne(name) {
@@ -2496,7 +2568,7 @@
           var t0 = Date.now();
           while (at < names.length && Date.now() - t0 < 8) {
             var n = names[at++], k = knownArt({ title: n, show: n }), slug = odSlug(n), c = store.get('eps1:' + slug);
-            var needArt = !k || !k.poster || !k.back;
+            var needArt = !k || !k.poster || k.pf || !k.back;
             var needEps = !(epsMap && epsMap[slug]) && !(c && c.m && c.m.eps && c.m.eps.some(function (e) { return e.img; }));
             if (needArt || needEps) queue.push(n);
           }
@@ -4548,15 +4620,15 @@
 
   var digits = '';
   var digitTimer = null;
-  var exitArmed = false;
-  var exitTimer = null;
 
   /** With nothing playing a single Back has nowhere to go: say how to leave. */
   function pressBackToExit() { toast('Press Back twice quickly to quit', 2500); }
 
   // Two quick presses of Back, wherever you are, ask whether to quit. Yes and No are buttons: Left / Right and OK on
   // the remote, or a click.
-  var quitOpen = false, quitSel = 1, lastBack = 0, DOUBLE_BACK_MS = 800;
+  var quitOpen = false, quitSel = 1, lastBack = 0, DOUBLE_BACK_MS = 1500, keyAt = 0;
+  // keyAt is when the key was pressed (from the TV app) or handled; d >= 0 because the phone's keys use a different clock
+  function backAgain() { var d = keyAt - lastBack; return lastBack > 0 && d >= 0 && d < DOUBLE_BACK_MS; }
   function renderQuit() {
     $('qyes').className = quitSel === 0 ? 'sel' : '';
     $('qno').className = quitSel === 1 ? 'sel' : '';
@@ -5478,24 +5550,32 @@
     // no addon had it: archive.org may (the same lookup Play Next uses, for this exact episode)
     var ref = window.LINKS && LINKS.parseEp(prog.title);
     if (!ref) { skip(); return; }
-    var skipAr = skip;
-    skip = function () {                                         // addon, then archive.org, then YouTube
-      if (cur !== me) return;
-      if (!ytAvailable() || !ytOn) { skipAr(); return; }
-      amNote('Not on archive.org, trying YouTube\u2026');
+    // Order: addon, then an archive.org link found before, then the stored YouTube copy (known already, no waiting),
+    // and only then a fresh archive.org search (up to 25 s). The YouTube copy used to come last, after that search.
+    var skipAr = skip, ytTried = false, canYt = ytAvailable() && ytOn;
+    var tryYt = function (orElse) {
+      ytTried = true;
+      amNote('Trying the YouTube copy\u2026');
       ytFind(ref).then(function (yp) {
         if (cur !== me) return;
-        if (!yp) { skipAr(); return; }
+        if (!yp) { orElse(); return; }
         amNoteOff('Found it on YouTube, starting\u2026'); vSkips = 0;
         dlog('MAGIC EPG: YouTube copy for ' + prog.title + ' | ' + yp.url);
         amSkip = true;
         try { playSlot(ch, index, 0, announce, false, Object.assign({}, yp, { title: prog.title, show: prog.show, group: prog.group })); }
         finally { amSkip = false; }
-      }, skipAr);
+      }, orElse);
     };
-    amNote('No addon had it, trying archive.org\u2026');
+    skip = function () { if (cur === me) { if (canYt && !ytTried) tryYt(skipAr); else skipAr(); } };      // archive.org failed: YouTube, unless it was tried already
     var k = LINKS.key(ref.show, ref.s, ref.e);
-    var look = LINKS.get(k).then(function (hit) { return hit || searchAndSave(ref, '', k).then(function () { return LINKS.get(k); }); });
+    LINKS.get(k).then(null, function () { return null; }).then(function (known) {
+      if (cur !== me) return;
+      if (known || !canYt) { archiveLook(known); return; }
+      tryYt(function () { if (cur === me) archiveLook(null); });
+    });
+    function archiveLook(known) {
+    amNote('No addon had it, trying archive.org\u2026');
+    var look = known ? Promise.resolve(known) : searchAndSave(ref, '', k).then(function () { return LINKS.get(k); });
     Promise.race([look, new Promise(function (res) { setTimeout(function () { res(null); }, 25000); })]).then(function (hit) {
       if (cur !== me) return;                                    // the viewer changed channel meanwhile
       var url = hit && (E.canonicalUrl(hit.url) || hit.url);
@@ -5510,6 +5590,7 @@
         finally { amSkip = false; }
       });
     }, skip);
+    }
   }
   /** Play the library's own link (the fallback), carrying On Demand's place in its list when there was one. */
   function amFallback(lib, why) {
@@ -6053,6 +6134,20 @@
     rec.guideEpisodes = total; rec.missingCount = miss;
     return rec;
   }
+  /** What the TV really has of one show, on every channel that lists it: archive.org files and YouTube copies, not the
+   *  guide's placeholders (virtual episodes). On Demand's rows are only an index with no episodes in them, so each is put
+   *  together here, as a throwaway copy, so the TV does not keep every show's episodes once the report is done. */
+  function gapHave(x) {
+    return x.gs.reduce(function (chain, g) {
+      return chain.then(function () { return odHydrate(Object.assign({}, g, { _hp: null })); }).then(function (h) {
+        (h.eps || []).forEach(function (ep) {
+          if (ep.p && ep.p.virtual && !(ep.p.alts || []).some(function (a) { return !a.virtual; })) return;
+          if (ep.s > 0 && ep.e > 0) { var a = x.have[ep.s] = x.have[ep.s] || []; if (a.indexOf(ep.e) < 0) a.push(ep.e); }
+          else x.others++;
+        });
+      }, function () { /* that channel's copy of the show would not open */ });
+    }, Promise.resolve());
+  }
   function gapStart(force) {
     if (gapState.running) return;
     var r = gapState.report;
@@ -6065,12 +6160,9 @@
       chain = chain.then(function () { return odLoadChannel(c); }).then(function (rec) {
         (rec.shows || []).forEach(function (g) {
           if (g.film) return;
-          var k = LIBROUTE.norm(g.name), x = byName[k] = byName[k] || { name: g.name, chans: [], have: {}, others: 0, g: g };
+          var k = LIBROUTE.norm(g.name), x = byName[k] = byName[k] || { name: g.name, chans: [], have: {}, others: 0, g: g, gs: [] };
           if (x.chans.indexOf(c.id) < 0) x.chans.push(c.id);
-          g.eps.forEach(function (ep) {
-            if (ep.s > 0 && ep.e > 0) { var a = x.have[ep.s] = x.have[ep.s] || []; if (a.indexOf(ep.e) < 0) a.push(ep.e); }
-            else x.others++;
-          });
+          x.gs.push(g);
         });
       });
     });
@@ -6080,7 +6172,7 @@
       function next() {
         if (i >= list.length) return finish();
         var x = list[i++];
-        return Promise.race([odMeta(x.g), new Promise(function (r) { setTimeout(r, 15000); })]).then(null, function () { /* no guide */ })
+        return gapHave(x).then(function () { return Promise.race([odMeta(x.g), new Promise(function (r) { setTimeout(r, 15000); })]); }).then(null, function () { /* no guide */ })
           .then(function () {
             out.push(gapAnalyse(x.name, x.chans, x.have, x.others, x.g));
             gapState.done = i;
@@ -7180,6 +7272,7 @@
   var lastKeyAt = 0;
   window.addEventListener('keydown', function (e) {
     lastKeyAt = Date.now();
+    keyAt = e.at || lastKeyAt;
     perfKey(e.key);
     if (!started) {
       if (e.key === 'GoBack' || e.key === 'Escape' || e.key === 'Backspace') { exitApp(); e.preventDefault(); }
@@ -7195,13 +7288,12 @@
       return;
     }
     if (!odOpen && (k === 'GoBack' || k === 'Escape' || k === 'Backspace')) {
-      var nowT = Date.now();
       // only a Back pressed on the plain picture (or the guide with nothing playing) counts towards quitting:
       // one that closes the guide, the bar, the options or a panel never does
       if (relOpen || infoOpen || optsOpen || osdOpen || gm || cs || tt) lastBack = 0;
-      else if (!e.repeat && nowT - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); e.preventDefault(); return; }   // includes the guide a first Back has just opened
+      else if (!e.repeat && backAgain()) { lastBack = 0; openQuit(); e.preventDefault(); return; }   // includes the guide a first Back has just opened
       else if (guideOpen && cur) lastBack = 0;               // a Back that closes the guide on its own never counts
-      else if (!e.repeat) lastBack = nowT;
+      else if (!e.repeat) lastBack = keyAt;
     }
 
     if (kbShown) { kbKey(e); e.preventDefault(); return; }
@@ -7419,6 +7511,8 @@
     });
     return out;
   }
+  /** YouTube's own still for a stored video ("yt:<id>"), '' for anything else. */
+  function ytThumb(p) { var m = /^yt:([\w-]{6,})$/.exec((p && p.url) || ''); return m ? 'https://i.ytimg.com/vi/' + m[1] + '/mqdefault.jpg' : ''; }
   function ytMarkDead(id) { ytDead[id] = Date.now(); Object.keys(ytDead).forEach(function (k) { if (Date.now() - ytDead[k] > 86400000) delete ytDead[k]; }); store.set('ytdead2', ytDead); }
   /** Only a video YouTube calls gone, private or blocked is left out; a refusal that hits every video (bot check, network) says nothing about this one. */
   function ytGone(msg) { return /UNPLAYABLE|unavailable|private|removed|deleted|not available|copyright|terminated/i.test(String(msg || '')) && !/LOGIN_REQUIRED|bot/i.test(String(msg || '')); }
@@ -7457,7 +7551,8 @@
     if (otherYt.length) list.push({ name: 'More from YouTube', eps: otherYt });
     var per = {};
     g.eps.forEach(function (ep) { var m = /\/download\/([^/]+)\//.exec(ep.p.url || ''); ep.item = m ? m[1] : ''; if (ep.item) per[ep.item] = (per[ep.item] || 0) + 1; });
-    g.eps.forEach(function (ep) { ep.thumb = ep.item && per[ep.item] === 1 ? 'https://archive.org/services/img/' + ep.item : ''; });   // a shared item would repeat one picture
+    // a shared archive item would repeat one picture: a YouTube copy's own thumbnail (the episode, or its fall-back copy) is used instead
+    g.eps.forEach(function (ep) { ep.thumb = ep.item && per[ep.item] === 1 ? 'https://archive.org/services/img/' + ep.item : ytThumb(ep.p) || ytThumb((ep.p.alts || []).filter(function (a) { return a.yt; })[0]); });
     g.sea = list;
     g.flat = [];
     list.forEach(function (sn) { g.flat = g.flat.concat(sn.eps); });
@@ -7544,11 +7639,10 @@
   /** The saved rows of a channel for this library revision, or null when they have not been built yet. */
   function odiRead(id) {
     var key = odiKey(id), m = odiMem[id];
-    if (m && m.key === key) return m.rows;
-    if (!key || !KV_NATIVE) return null;
+    if (m && m.key === key) return Promise.resolve(m.rows);
+    if (!key || !KV_NATIVE || !odiHas(id)) return Promise.resolve(null);
     jm('read saved index ' + id);
-    try { var t = kv.getItem(key), j = t && JSON.parse(t); if (j && j.rows) { odiMem[id] = { key: key, rows: j.rows }; return j.rows; } } catch (e) { /* built again */ }
-    return null;
+    return storeRead(key).then(function (j) { if (j && j.rows && odiKey(id) === key) { odiMem[id] = { key: key, rows: j.rows }; return j.rows; } return null; });     // none or unreadable: built again
   }
   function odiKeep(id, rows) {
     var key = odiKey(id);
@@ -7679,9 +7773,9 @@
     if (rec) return rec.p;
     rec = odData[ch.id] = { shows: null };
     var take = function (rows) { rec.shows = rows.map(function (r) { return odiStub(r, ch); }); odRowsMemo = null; return rec; };
-    var saved = odiRead(ch.id);
-    if (saved) { take(saved); return (rec.p = Promise.resolve(rec)); }      // built before: read at once, nothing to wait for
-    return (rec.p = odiBuild(ch).then(take, function () { rec.shows = []; return rec; }));
+    var m = odiMem[ch.id];
+    if (m && m.key === odiKey(ch.id)) { take(m.rows); return (rec.p = Promise.resolve(rec)); }      // already read this run: nothing to wait for
+    return (rec.p = odiRead(ch.id).then(function (saved) { return saved ? take(saved) : odiBuild(ch).then(take); }).then(null, function () { rec.shows = []; return rec; }));
   }
   /** A show's episode details (titles, summaries, stills) from the scraper's data/eps/<slug>.json, kept for a week. */
   function odSlug(name) { return LIBROUTE.norm(name).replace(/ /g, '-'); }
@@ -8105,6 +8199,7 @@
     odRenderBar();
     $('odbar').style.display = odView === 'home' || (!window.PHONE && (odView === 'grid' || odView === 'fav')) ? '' : 'none'; $('odside').style.display = odView === 'home' || odView === 'fav' || odView === 'grid' ? '' : 'none';
     if (odView === 'show') odRenderShow(); else if (odView === 'grid') odRenderGrid(); else if (odView === 'fav') odRenderFav(); else odRenderHome();
+    posterLook(odView === 'show' || (odView === 'home' && odZn === 'rows') ? odSel().g : odView === 'grid' && odGz === 'grid' ? (odGShows() || [])[odGp] : null);
     var nm = odView === 'home' && odNone;
     $('odnomatch').className = nm ? '' : 'hidden'; $('odrows').style.visibility = $('odhero').style.visibility = nm ? 'hidden' : '';
     if (nm) {
@@ -8731,9 +8826,8 @@
   /** Start up in is On Demand: it is home, so Back at its top does not go on to the TV guide; like the guide's own home, a second quick Back asks to quit. */
   function odHomeMode() { return expOn && startOdOn; }
   function odBackHome() {
-    var n = Date.now();
-    if (n - lastBack < DOUBLE_BACK_MS) { lastBack = 0; openQuit(); return; }
-    lastBack = n; pressBackToExit();
+    if (backAgain()) { lastBack = 0; openQuit(); return; }
+    lastBack = keyAt; pressBackToExit();
   }
   function odClose(restore) {
     if (!restore && odOpen && !odPlaced) odMark();      // leaving for playback: Back can put the page back as it was (not when leaving for the guide)
@@ -8909,6 +9003,7 @@
       odOpenShow(); return true;
     } else if (back) {
       if (odRi > 0 || pos > 0) { odRi = 0; odRc = null; }       // Back goes up to the top of the page first, then out
+      if (odHomeMode()) lastBack = keyAt;                      // on the start screen that counts as the first of the two Backs to quit
       odZn = odHero.length ? 'hero' : 'chips'; odCi = odChip;
     }
     odRender();
@@ -9558,8 +9653,8 @@
     $('od').className = '';
     if (!pip) { v.muted = true; try { v.pause(); } catch (e) { /* nothing playing */ } }
     var pageThere = !!($('odrows') && $('odrows').children.length);     // the page is still drawn (not cleared by a restart or a rebuild)
-    if (odPlaced && !odOpen && pageThere) {
-      bt('quick way' + (pip ? ' (small video)' : '') + ', picture paused');
+    if (!odOpen && pageThere) {        // marked or not, the hidden page is as it was left: show it again rather than rebuild it (that took 8 s)
+      bt('quick way' + (pip ? ' (small video)' : '') + (odPlaced ? '' : ' (not marked: page as it was left)') + ', picture paused');
       if (pip) odPipOn();          // On Demand was only hidden when the picture started: show it exactly as it was, build nothing
       odPlaced = null; odOpen = true; odBusy = false; odFrom = 'watch';
       bt('page switched on');
@@ -9569,7 +9664,7 @@
       setTimeout(function () { if (!odOpen) return; idleFor(4000).then(function () { if (odOpen && odView === 'home') { odRowsMemo = null; odRender(); } }); }, 3000);   // pick up Continue watching a little later
       return;
     }
-    bt('full way (On Demand was not marked), picture paused');
+    bt('full way (no page to show), picture paused');
     setTimeout(function () {
       if (odOpen) return;
       bt('opening On Demand');

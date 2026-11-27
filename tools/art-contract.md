@@ -38,6 +38,9 @@ the file does not list.
 * `i` is the **TVmaze id**, if the scraper has it. With it the TV fetches one episode list when you open Info;
   without it the Info screen simply shows the show and not the episode's own details.
 * Image URLs must be `https`. TMDb (`image.tmdb.org`) or TVmaze (`static.tvmaze.com`) addresses both work.
+* `pf: 1` marks `p` as a stand-in: no artwork service had a poster, so it is the archive.org item's picture
+  (`archive.org/services/img/<item>`) or a YouTube video's thumbnail (`i.ytimg.com`). The TV shows it but keeps
+  looking for a real poster, and uses one it finds instead. Every show listed in `library.json` gets a `p`.
 * No adult material, as everywhere else.
 
 ## index.json

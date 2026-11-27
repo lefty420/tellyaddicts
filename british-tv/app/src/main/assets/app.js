@@ -3684,7 +3684,7 @@
   }
   function odStillEnd(stop) {
     clearTimeout(odStillT); odStill = false; odAuto = 0; odRunAt = Date.now(); odStillDraw();
-    if (stop) odOpenUi(); else odStep(1);
+    if (stop) odBackFromPlay(true); else odStep(1);      // back to the page as it was left, not built again
   }
   function odStillKey(k) {
     if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') { odStillSel = 1 - odStillSel; odStillDraw(); }
@@ -3859,7 +3859,7 @@
       if (nx) { toast('That source failed, trying the next', 3000); adPlay(adFall.ch, adFall.g, adFall.ep, nx); return; }
       var fl = adFall.lib; adFall = null;
       if (fl) { toast('No addon source worked, using the library', 3500); amFallback(fl, 'every source failed'); return; }
-      v.pause(); toast('No other source worked', 4000); odOpenUi(); return;
+      v.pause(); toast('No other source worked', 4000); odBackFromPlay(true); return;
     }
     if (cur.od) return odStep(1);               // On Demand: the next episode of the show, not the channel's running order
     playSlot(cur.ch, (cur.index + 1) % cur.ch.sched.order.length, 0, true);
@@ -4608,9 +4608,11 @@
       askYesNo('Play it now?', (prog.title || 'This episode') + ' is not on this channel at this time.', function () { odPlay(ep); }, function () { odClose(true); });
     }, true);
   }
+  var playFrom = '';      // 'guide' or 'od': where what is playing was picked, so Back goes back there
   function watchFromGuide(fromStart) {
     var c = gChan;
     if (!c) return;
+    playFrom = 'guide';
     if (c.status !== 'ready') { toast(c.name + ' is still loading', 2000); return; }
     var now = Date.now();
     var b = E.blockAt(c.sched, gFocus);
@@ -5524,8 +5526,9 @@
   /** The stored YouTube copy of one episode (show, season, episode), the likeliest good one first; null when there is none. */
   function ytFind(ref) {
     return ytLoad().then(function (data) {
-      var want = LIBROUTE.norm(ref.show || ''), best = null, bs = -1e9;
-      ytProgs(data, null).forEach(function (p) {
+      var want = LIBROUTE.norm(ref.show || ''), best = null, bs = -1e9, one = {};
+      Object.keys(data || {}).forEach(function (n) { if (LIBROUTE.norm(n) === want) one[n] = data[n]; });     // only this show: all 1,400 held the screen for half a second
+      ytProgs(one, null).forEach(function (p) {
         if (LIBROUTE.norm(p.show || '') !== want) return;
         var r = window.LINKS && LINKS.parseEp(p.title);
         if (!r || r.s !== ref.s || r.e !== ref.e) return;
@@ -5543,8 +5546,7 @@
         dlog('MAGIC EPG: no source for ' + prog.title + ' (picked in On Demand, staying put)');
         try { v.pause(); } catch (e) { /* nothing playing */ }
         toast('No source found for ' + prog.title, 4000);
-        odOpenUi(true);
-        try { if (ch && odChannels().indexOf(ch) >= 0) odJump(ch, prog); } catch (e) { /* stays on the On Demand home */ }
+        odBackFromPlay(true);          // the page it was picked on, as it was left (rebuilding On Demand took 3.5 s)
         return;
       }
       amNoteOff('Moving on to the next programme\u2026');
@@ -7375,7 +7377,7 @@
     else if (k === 'MediaPlay') { v.play(); }
     else if (k === 'MediaPause') { v.pause(); toast('Paused', 1500); }
     else if (k === 'GoBack' || k === 'Escape' || k === 'Backspace') {          // watching: Back goes to the TV guide, or to On Demand when On Demand is home and this was picked there
-      if (odHomeMode()) odBackFromPlay(); else openGuide();
+      if (odHomeMode() && playFrom !== 'guide') odBackFromPlay(); else openGuide();
     }
     else handled = false;
 
@@ -8115,8 +8117,18 @@
     odRi = Math.max(0, Math.min(odRi, rows.length - 1));
     odRc = rows[odRi] || null;
     var c = rows[odRi], sh = odShowsOf(c), i = c ? (odPos[c.id] || 0) : 0;
+    if (c && sh && sh.length) {
+      // the same place but a different show: the row was put in a new order under the highlight (Continue watching puts the show just
+      // watched first), so the highlight follows the show; an open show page otherwise played whatever had moved into its place
+      var m = odSelMem;
+      if (m && m.id === c.id && m.i === i && sh[Math.min(i, sh.length - 1)].name !== m.name) {
+        for (var j = 0; j < sh.length; j++) if (sh[j].name === m.name) { i = odPos[c.id] = j; break; }
+      }
+      odSelMem = { id: c.id, i: i, name: sh[Math.min(i, sh.length - 1)].name };
+    }
     return { c: c, rows: rows, sh: sh, g: sh && sh.length ? sh[Math.min(i, sh.length - 1)] : null };
   }
+  var odSelMem = null;      // the row, place and show last highlighted (odSel)
   function odEl(tag, cls, text) {
     var d = document.createElement(tag);
     if (cls) d.className = cls;
@@ -8838,6 +8850,7 @@
     lastBack = keyAt; pressBackToExit();
   }
   function odClose(restore) {
+    if (!restore) playFrom = 'od';
     if (!restore && odOpen && !odPlaced) odMark();      // leaving for playback: Back can put the page back as it was (not when leaving for the guide)
     odPipOff();
     odOpen = false;
@@ -9730,7 +9743,7 @@
     var o = cur && cur.od;
     if (!o) return;
     var n = o.i + d;
-    if (n < 0 || n >= o.list.length) { if (o.name) cwDrop(o.name); v.pause(); toast('That was the last episode', 3000); odOpenUi(); return; }
+    if (n < 0 || n >= o.list.length) { if (o.name) cwDrop(o.name); v.pause(); toast('That was the last episode', 3000); odBackFromPlay(true); return; }
     if (o.name && n === 0) { /* first episode */ }
     odStart(cur.ch, o.list, n, 0, o.name);
   }

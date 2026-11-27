@@ -7,6 +7,12 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.46 — 2026-11-27
+- **Playing again after Back works.** Back from a show you opened in Continue watching put it first in that row, and the open show page then belonged to whatever had moved into its old place: OK on Play did nothing (Count Duckula). The highlight now stays with the show when a row is put in a new order.
+- **Back from something picked in the guide goes back to the guide**, not to On Demand, when On Demand is the start screen (as the comment in the code always said). Back again goes on to On Demand, and OK on the same programme goes straight back to the picture.
+- **Starting a programme no longer freezes for half a second looking for its YouTube copy:** only that show's YouTube videos are looked at, not all 1,400 shows'.
+- **A play that finds no source goes back to the show page at once.** It used to build On Demand again from scratch (3.5 seconds on the SHIELD, The Krypton Factor). The same quick way is now used when a show's last episode ends and when you answer No to "Still watching?". JavaScript only.
+
 ## Alpha 0.54.45 — 2026-11-27
 - **Santa and the snow keep moving while you move around the guide.** Every button press stopped the snow, the drifts and Santa's plough for a fifth of a second, so moving through the guide made Santa stutter across the screen (stopped about one tenth of the time on the SHIELD). Measured with and without the pause, buttons answer just as fast without it (14 to 15 ms typical), so it is gone.
 - **The debug log's "Santa's plough sets off" time is right again.** Those pauses pushed the plough later and later than the time the log gave (26 seconds out after a while). JavaScript only.

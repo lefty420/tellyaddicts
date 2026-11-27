@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.33",
-  "version": "0.54.33",
-  "code": 5433,
+  "name": "Alpha 0.54.34",
+  "version": "0.54.34",
+  "code": 5434,
   "date": "2026-11-27",
   "notes": [
-    "**Choose the artwork service in Options.** Options > Artwork now has an **Artwork from** row: TheTVDB, TMDB or TVmaze. The artwork scan asks that service first, and falls back to the next one when it has no match. A service without its key is marked as needing one and is skipped.",
-    "**TMDB artwork.** The scan can now fetch posters and backdrops for shows and films from TMDB, using the key you enter under TMDB key. Attribution: this product uses the TMDB API but is not endorsed or certified by TMDB.",
-    "The episode guide source row is unchanged. JavaScript only."
+    "**Fixes a crash in Options > Artwork.** The new \"Artwork from\" row had no place on the screen, so opening Options crashed the app. JavaScript and layout only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.33",
+      "date": "2026-11-27",
+      "notes": [
+        "**Choose the artwork service in Options.** Options > Artwork now has an **Artwork from** row: TheTVDB, TMDB or TVmaze. The artwork scan asks that service first, and falls back to the next one when it has no match. A service without its key is marked as needing one and is skipped.",
+        "**TMDB artwork.** The scan can now fetch posters and backdrops for shows and films from TMDB, using the key you enter under TMDB key. Attribution: this product uses the TMDB API but is not endorsed or certified by TMDB.",
+        "The episode guide source row is unchanged. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.32",
       "date": "2026-11-27",
@@ -62,13 +69,6 @@ window.RELEASE = {
       "date": "2026-11-25",
       "notes": [
         "**The snow stays on while the small video plays.** It used to switch itself off whenever a video played in the small window. JavaScript only."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.25",
-      "date": "2026-11-25",
-      "notes": [
-        "**Logging for the freeze when you press Back from a video.** Going back to On Demand froze the screen for 9 to 16 seconds after a stream (9.5 s, 12 s and 16 s in today's and yesterday's logs). The log now has \"BACK from play:\" lines saying which step the time goes in (paused picture, page on, snow, first picture, or the long way round when On Demand was not marked). No change in behaviour. JavaScript only."
       ]
     }
   ]

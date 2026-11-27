@@ -1,16 +1,23 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.36",
-  "version": "0.54.36",
-  "code": 5436,
+  "name": "Alpha 0.54.37",
+  "version": "0.54.37",
+  "code": 5437,
   "date": "2026-11-27",
   "notes": [
-    "**Shows that exist only on YouTube now appear on every channel that lists them**, not just the one channel the scraper filed them under. Beadle's About was only on Saturday Night; it is now also on Entertainment, ITV and 80's TV. This was why many shows seemed to be missing from channels.",
-    "**ITV, BBC, 80's TV and 90's TV now include YouTube-only British shows** (about 170 of them, from a built-in list of who made each show and when it began), as the library shows already did.",
-    "The saved On Demand lists are rebuilt once in the background to pick this up. JavaScript only."
+    "**62 shows that were on no channel now have one:** Christmas specials on Christmas Movies, classic sitcoms (The Good Life, Till Death Us Do Part, Only When I Laugh...) on Sitcoms, Rentaghost and T-Bag on Children's World, Reeves and Mortimer on Comedy and Saturday Night, and the rest on Light Entertainment, Cartoons or Drama. The lists are fetched from the web, so they reach the TV without a new APK; the version also adds ITV/BBC for six of them."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.36",
+      "date": "2026-11-27",
+      "notes": [
+        "**Shows that exist only on YouTube now appear on every channel that lists them**, not just the one channel the scraper filed them under. Beadle's About was only on Saturday Night; it is now also on Entertainment, ITV and 80's TV. This was why many shows seemed to be missing from channels.",
+        "**ITV, BBC, 80's TV and 90's TV now include YouTube-only British shows** (about 170 of them, from a built-in list of who made each show and when it began), as the library shows already did.",
+        "The saved On Demand lists are rebuilt once in the background to pick this up. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.35",
       "date": "2026-11-27",
@@ -67,13 +74,6 @@ window.RELEASE = {
       "date": "2026-11-27",
       "notes": [
         "**On Demand stays smoother while artwork loads.** A poster or background that arrives while you are moving around used to redraw the rows straight away, in the middle of a key press. Redraws from new artwork are now batched and wait until you stop pressing keys. JavaScript only."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.28",
-      "date": "2026-11-25",
-      "notes": [
-        "**Episode titles on a show's page are no longer cut off.** Every card started with the show name (\"Stars In Their Eyes - 199…\"), so the part that tells the episodes apart was hidden. The show name is now left off the card and a long title can use two lines. JavaScript and layout only."
       ]
     }
   ]

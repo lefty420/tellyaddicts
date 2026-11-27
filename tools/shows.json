@@ -47,7 +47,20 @@
       "Brass",
       "Agony",
       "The Two of Us",
-      "Ripping Yarns"
+      "Ripping Yarns",
+      "Only When I Laugh",
+      "The Good Life",
+      "The Likely Lads",
+      "Till Death Us Do Part",
+      "Shine on Harvey Moon",
+      "Bless Me Father",
+      "Billy Liar",
+      "Dodger",
+      "Educating Marmalade",
+      "A Bit of a Do",
+      "Yanks Go Home",
+      "Father's Day",
+      "Bump"
     ]
   },
   "gameshows": {
@@ -184,7 +197,15 @@
       "The Great Egg Race",
       "Quizball",
       "Beat the Clock",
-      "Dale's Supermarket Sweep"
+      "Dale's Supermarket Sweep",
+      "All-Star Comedy Carnival",
+      "All-Star Record Breakers",
+      "Record Breakers",
+      "Stanley Baxter",
+      "Victoria Wood",
+      "The Basil Brush Show",
+      "The Keith Harris Show",
+      "Chas and Dave"
     ]
   },
   "childrens": {
@@ -263,7 +284,16 @@
       "Number 73",
       "Get Fresh",
       "Hacker",
-      "Sooty and Co"
+      "Sooty and Co",
+      "Rentaghost",
+      "T-Bag",
+      "Chalkface",
+      "Sooty Heights",
+      "Fun Song Factory",
+      "Noddy's Toyland Adventures",
+      "Mr Men",
+      "Bernard and the Genie",
+      "Brambly Hedge"
     ]
   },
   "drama": {
@@ -340,7 +370,10 @@
       "Spender",
       "Resnick",
       "The Chief",
-      "Trial and Retribution"
+      "Trial and Retribution",
+      "The Adventures of Sherlock Holmes",
+      "El C.I.D.",
+      "Bonzo and the Rest"
     ]
   },
   "music": {
@@ -434,7 +467,12 @@
       "Les Dawson",
       "Tommy Cooper",
       "Frankie Howerd",
-      "Friday Night Live"
+      "Friday Night Live",
+      "Reeves and Mortimer",
+      "The All New Alexei Sayle Show",
+      "Eurotrash",
+      "The Max Headroom Show",
+      "The Dawson Watch"
     ]
   },
   "tv70s": {
@@ -688,7 +726,13 @@
       "Clarissa Explains It All",
       "The Adventures of Pete and Pete",
       "Freakazoid",
-      "Taz-Mania"
+      "Taz-Mania",
+      "Garfield",
+      "Creature Comforts",
+      "A Grand Day Out",
+      "The Powerpuff Girls",
+      "Mr. Bean: The Animated Series",
+      "All Dogs Go to Heaven"
     ]
   },
   "offschool": {
@@ -833,7 +877,11 @@
       "The Krypton Factor",
       "Blankety Blank",
       "Punchlines",
-      "Play Your Cards Right"
+      "Play Your Cards Right",
+      "Reeves and Mortimer",
+      "The Basil Brush Show",
+      "Stanley Baxter",
+      "Victoria Wood"
     ]
   },
   "tvarchive": {
@@ -1035,7 +1083,10 @@
       "Absolutely Fabulous",
       "Goodnight Sweetheart",
       "Bottom",
-      "Are You Being Served"
+      "Are You Being Served",
+      "Chas and Dave",
+      "The Keith Harris Show",
+      "Record Breakers"
     ],
     "extra": true
   },
@@ -1178,7 +1229,25 @@
     "name": "Christmas Movies",
     "films": true,
     "shows": [
-      "Christmas Movies"
+      "Christmas Movies",
+      "A Charlie Brown Christmas",
+      "A Ghost Story for Christmas",
+      "Bing Crosby's Merrie Olde Christmas",
+      "Carry On Christmas",
+      "Christmas Night with the Stars",
+      "Father Christmas",
+      "Frosty the Snowman",
+      "How the Grinch Stole Christmas",
+      "Julie Andrews The Sound of Christmas",
+      "Noel's Christmas Presents",
+      "Robbie the Reindeer",
+      "Rudolph the Red-Nosed Reindeer",
+      "Santa's Last Christmas",
+      "The Flint Street Nativity",
+      "The Kenny Everett Christmas Show",
+      "The Queen's Christmas Message",
+      "The Snowman",
+      "Raymond Briggs"
     ]
   },
   "mc_action": {

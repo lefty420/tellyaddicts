@@ -1,7 +1,7 @@
 {
  "format": "telly-addicts-routes",
  "v": 1,
- "rev": "e2f7f5e505",
+ "rev": "a622922c10",
  "about": "Shows the scraper's category lists have and tools/shows.json doesn't yet. Read alongside tools/shows.json; tools/shows.json wins where both list a show.",
  "channels": {
   "childrens": {
@@ -64,7 +64,6 @@
     "Santo Bugito",
     "Shakespeare The Animated Tales",
     "Simon in the Land of Chalk Drawings",
-    "Sonic SatAM",
     "super gran",
     "The Adventures of Dawdle the Donkey",
     "The Bluffers",

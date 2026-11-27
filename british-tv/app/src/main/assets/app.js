@@ -1143,7 +1143,7 @@
   /** Someone is pressing buttons right now: background work waits so it never makes the screen stutter. */
   function userBusy() { return Date.now() - lastKeyAt < 900; }
   /** Resolves once no button has been pressed for ms: heavy background steps wait here so they never land between two presses. */
-  function idleFor(ms) { return new Promise(function (r) { (function chk() { if (Date.now() - lastKeyAt >= ms && !playingOd()) r(); else setTimeout(chk, 400); })(); }); }
+  function idleFor(ms) { return new Promise(function (r) { (function chk() { if (Date.now() - lastKeyAt >= ms && !playingOd() && !optsOpen) r(); else setTimeout(chk, 400); })(); }); }   // Options open: the background jobs wait too (a 10 s stall in the log came from them)
   /** An On Demand show is playing, or On Demand is home and anything is: the TV is busy decoding, so background jobs wait rather than land between a press and its picture. */
   function playingOd() { return !!(cur && !v.paused && (!odOpen || odPip) && (cur.od || (expOn && startOdOn))); }
   /** progsFromData for a long list, in small slices with a breath between them (and a longer wait while a button is
@@ -1965,7 +1965,7 @@
   function artScanKey() { return 'dsh1:' + epgGen + ':' + (artRev || '') + ':' + E.hash(JSON.stringify(libRevs || {})); }
   function artScanStart() {
     if (artScan.running || !gartOn) return;
-    if (odOpen || odm || playingOd() || Date.now() - lastKeyAt < 6000) { setTimeout(artScanStart, 15000); return; }       // working out what to look up is heavy: never while On Demand is open or a button is being pressed
+    if (odOpen || optsOpen || odm || playingOd() || Date.now() - lastKeyAt < 6000) { setTimeout(artScanStart, 15000); return; }       // working out what to look up is heavy: never while On Demand is open or a button is being pressed
     var key = artScanKey();
     if (store.get('artscan_run') === key) return;                       // already done for this library and EPG build
     artScan.running = true; artScan.fails = 0;
@@ -9473,7 +9473,8 @@
     var pip = !noPip && !!(cur && !v.paused && odPlaced && !odOpen);
     $('od').className = '';
     if (!pip) { v.muted = true; try { v.pause(); } catch (e) { /* nothing playing */ } }
-    if (odPlaced && !odOpen) {
+    var pageThere = !!($('odrows') && $('odrows').children.length);     // the page is still drawn (not cleared by a restart or a rebuild)
+    if (odPlaced && !odOpen && pageThere) {
       bt('quick way' + (pip ? ' (small video)' : '') + ', picture paused');
       if (pip) odPipOn();          // On Demand was only hidden when the picture started: show it exactly as it was, build nothing
       odPlaced = null; odOpen = true; odBusy = false; odFrom = 'watch';
@@ -9525,6 +9526,7 @@
     odStart(c, g.flat, i, at, g.name);
   }
   function odStart(c, list, i, offset, name) {
+    if (!odPlaced) odMark();      // Play Next and other starts too, so Back restores the page rather than rebuilding it
     var info = { list: list, i: i, name: name || '' };
     playSlot(c, 0, offset || 0, true, true, list[i].p);
     if (cur) cur.od = info;

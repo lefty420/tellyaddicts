@@ -7,6 +7,10 @@ TV shows under **Options > What's new** is always exactly this list.
 Releases are named `Alpha 0.1`, `Alpha 0.2` and so on. A release that only fixes something in a
 hurry gets a third number, `Alpha 0.1.1`.
 
+## Alpha 0.54.30 — 2026-11-27
+- **Going Back from a video no longer rebuilds On Demand.** Back used to redraw the whole page from scratch, which froze the screen for 11 to 14 seconds. It now puts back the page as it was, and the rebuild only happens if the page is no longer there. Starting an episode from On Demand (including Play Next) now always remembers where you were. JavaScript only.
+- **Options no longer stalls while it is open.** Background jobs (episode names and the quiet artwork check) now wait until Options is closed. JavaScript only.
+
 ## Alpha 0.54.29 — 2026-11-27
 - **On Demand stays smoother while artwork loads.** A poster or background that arrives while you are moving around used to redraw the rows straight away, in the middle of a key press. Redraws from new artwork are now batched and wait until you stop pressing keys. JavaScript only.
 

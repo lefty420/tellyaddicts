@@ -1,14 +1,22 @@
 // Written by tools/make_version.py from CHANGELOG.md. Do not edit by hand.
 // This is what Options > What's new shows on the TV.
 window.RELEASE = {
-  "name": "Alpha 0.54.29",
-  "version": "0.54.29",
-  "code": 5429,
+  "name": "Alpha 0.54.30",
+  "version": "0.54.30",
+  "code": 5430,
   "date": "2026-11-27",
   "notes": [
-    "**On Demand stays smoother while artwork loads.** A poster or background that arrives while you are moving around used to redraw the rows straight away, in the middle of a key press. Redraws from new artwork are now batched and wait until you stop pressing keys. JavaScript only."
+    "**Going Back from a video no longer rebuilds On Demand.** Back used to redraw the whole page from scratch, which froze the screen for 11 to 14 seconds. It now puts back the page as it was, and the rebuild only happens if the page is no longer there. Starting an episode from On Demand (including Play Next) now always remembers where you were. JavaScript only.",
+    "**Options no longer stalls while it is open.** Background jobs (episode names and the quiet artwork check) now wait until Options is closed. JavaScript only."
   ],
   "history": [
+    {
+      "name": "Alpha 0.54.29",
+      "date": "2026-11-27",
+      "notes": [
+        "**On Demand stays smoother while artwork loads.** A poster or background that arrives while you are moving around used to redraw the rows straight away, in the middle of a key press. Redraws from new artwork are now batched and wait until you stop pressing keys. JavaScript only."
+      ]
+    },
     {
       "name": "Alpha 0.54.28",
       "date": "2026-11-25",
@@ -56,13 +64,6 @@ window.RELEASE = {
       "date": "2026-11-24",
       "notes": [
         "**The way back to the small video is now on screen.** While a video plays small, the big button at the top reads \"Back to the video (full screen)\" and OK on it takes the video full screen. The hint line says the same. JavaScript only."
-      ]
-    },
-    {
-      "name": "Alpha 0.54.21",
-      "date": "2026-11-24",
-      "notes": [
-        "**More pictures on the loading screen.** Early on only a couple of backdrops had finished loading, and the screen flicked between those. Until ten backdrops are in, the posters now join the pool, so there is more to tune through. The debug log gets a \"SPLASH:\" line at 3 s and 8 s after launch saying how many pictures had loaded, so if it is still only two we can see whether the pictures or the loading is the problem. JavaScript only."
       ]
     }
   ]

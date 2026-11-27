@@ -945,11 +945,15 @@
     return loadChannelData(ch.id, rev).then(function (rows) { return new Promise(function (r) { setTimeout(function () { r(rows); }, 0); }); }).then(function (rows) {
       var bt0 = Date.now();
       if (!rows || !rows.length) { ch.autoUsed = true; ch.report = ['nothing in the library for this channel']; ch.plan = []; return []; }
-      var progs = dedupeTitles(capShows(progsFromData(rows, ch.id).filter(function (p) {
-        // a decade channel: anything with a known air date outside its decade is turned away, as a second check
-        if (!decadeOk(ch, p)) return false;
-        return genreFits(ch, p) && !blocked(p);
-      }), 0.25));
+      var kept = [];
+      // a row at a time, giving the screen a turn every 25 ms: a whole channel in one go froze the TV for up to 5 s
+      return eachSliced(rows, function (row) {
+        progsFromData([row], ch.id).forEach(function (p) {
+          // a decade channel: anything with a known air date outside its decade is turned away, as a second check
+          if (decadeOk(ch, p) && genreFits(ch, p) && !blocked(p)) kept.push(p);
+        });
+      }).then(function () {
+      var progs = dedupeTitles(capShows(kept, 0.25));
       // hand-listed clips belong to the channel whichever way its programmes were gathered (TV Archive's BBC
       // Archive clips), and they need no lookups, so bring them in here too
       Array.prototype.push.apply(progs, namedFiles(ch));
@@ -969,6 +973,7 @@
       }
       listStats.ms += Date.now() - bt0;
       return ch.plan;
+      });
     });
   }
 

@@ -11,6 +11,7 @@ hurry gets a third number, `Alpha 0.1.1`.
 - **Big saved files no longer freeze the screen while they are read.** The saved library (13 MB), the Magic EPG episode and film lists, each channel's schedule and On Demand's saved rows are now handed to the page in the background by the TV app. Reading them used to hold the screen: up to 1.5 seconds for the library and most of a second for each On Demand channel, again and again while the rows filled in.
 - **Back from a video always puts On Demand back as it was, at once.** When On Demand had not been marked on the way out (for example after Options), Back built the whole page again, which took about 8 seconds. The page is only hidden while a video plays, so it is now simply shown again.
 - **Start-up waits less:** the episode lists and channel schedules it reads before the guide opens are read in the background too.
+- **Channels built after a library update no longer freeze the start-up.** Each channel is now worked out a row at a time, not in one go (that took up to 5 seconds per channel).
 - Needs the new APK (the TV app now serves the saved files to the page).
 
 ## Alpha 0.54.42 — 2026-11-27
